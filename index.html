@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TIGER 999">
 <meta name="theme-color" content="#0f1117">
+<link rel="manifest" href="manifest.json">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title> </title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -103,7 +104,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 @keyframes blink{0%,100%{opacity:.3;}50%{opacity:1;}}
 #lek-shown{font-size:43px;font-weight:900;letter-spacing:4px;}
 .lv{color:var(--gold);}.lp{color:#3a3d52;font-size:22px!important;font-weight:700!important;letter-spacing:2px!important;}
-.lek-hint{font-size:13px;color:var(--gray);text-align:center;margin-top:5px;}
+.lek-hint{font-size:12px;color:var(--gray);text-align:center;margin-top:5px;letter-spacing:0.2px;}
 .dchips{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;}
 .dchip{font-size:13px;padding:3px 9px;border-radius:20px;font-weight:700;background:var(--card2);color:var(--gray);border:1px solid var(--border);}
 .dchip.on{background:var(--gold);color:#111;border-color:var(--gold);}
@@ -139,6 +140,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .add-btn.ready{box-shadow:0 0 0 3px rgba(245,197,24,.9),0 0 0 6px rgba(245,197,24,.3);animation:pulse-gold 1s ease-in-out infinite;}
 @keyframes pulse-gold{0%,100%{box-shadow:0 0 0 3px rgba(245,197,24,.9),0 0 0 6px rgba(245,197,24,.3);}50%{box-shadow:0 0 0 4px rgba(245,197,24,1),0 0 0 10px rgba(245,197,24,.5);}}
 .print-btn-main{width:calc(100% - 24px);margin:8px 12px 0;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:14px;color:#fff;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:14px;cursor:pointer;display:block;}
+.view-btn-main{width:calc(100% - 24px);margin:8px 12px 0;background:var(--card2);border:1.5px solid var(--border);border-radius:14px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:17px;font-weight:800;padding:11px;cursor:pointer;display:block;}
+.close-ngod-main-btn{width:calc(100% - 24px);margin:8px 12px 0;background:transparent;border:1.5px solid #7f1d1d;border-radius:14px;color:#fca5a5;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;padding:11px;cursor:pointer;display:block;}
+.basket-btn{width:calc(100% - 24px);margin:8px 12px 0;background:linear-gradient(135deg,#e67e22,#d35400);border:none;border-radius:14px;color:#fff;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:14px;cursor:pointer;display:block;}
 .check-btn-main{width:calc(100% - 24px);margin:8px 12px 0;background:linear-gradient(135deg,#1e3a8a,#1d4ed8);border:none;border-radius:14px;color:#fff;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:14px;cursor:pointer;display:block;}
 .locked-notice{margin:8px 12px 0;background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.3);border-radius:12px;padding:12px 16px;font-size:14px;color:#f5c518;font-weight:700;text-align:center;}
 
@@ -147,6 +151,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .slip-ov.show{display:block;}
 .slip-ov-inner{max-width:520px;margin:0 auto;padding:14px 10px 50px;}
 .ov-back{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:12px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:12px;cursor:pointer;margin-bottom:8px;}
+.ov-del-set{width:100%;background:linear-gradient(135deg,#7f1d1d,#991b1b);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:12px;cursor:pointer;margin-bottom:8px;}
+.ov-print-merged{width:100%;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:12px;cursor:pointer;margin-bottom:8px;}
+.ov-basket{width:100%;background:linear-gradient(135deg,#e67e22,#d35400);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:12px;cursor:pointer;margin-bottom:8px;}
 .ov-print{width:100%;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:12px;cursor:pointer;margin-bottom:8px;}
 .slip-pages-grid{display:flex;flex-direction:column;gap:10px;}
 .slip-page-single{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);}
@@ -162,6 +169,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .ptbl{width:auto;border-collapse:collapse;}
 .ptbl tr.grp td{display:none;}
 .ptbl tr.grp-sep td{padding:0!important;border-top:2px dashed #bbb!important;background:none!important;}
+.set-divider td{padding:3px 0 1px;text-align:left;border-top:none;}
 .row-sep td{padding:0!important;border-top:1px dashed #ddd!important;background:none!important;}
 .ptbl td{padding:4px 4px;vertical-align:middle;}
 .td-lek{font-size:18px;font-weight:900;color:#111;width:44px;letter-spacing:0;white-space:nowrap;}
@@ -182,14 +190,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .slip-ft .fl{color:#f5c518;font-size:14px;font-weight:800;}
 .slip-ft .fv{color:#f5c518;font-size:22px;font-weight:900;}
 .slip-legend{font-size:11px;color:#888;padding:3px 8px;text-align:right;background:#fff;border-top:1px solid #eee;}
-.slip-page-sum .slip-hd{padding:16px 20px 12px;}
-.slip-page-sum .slip-hd-row1 h2{font-size:26px;}
-.slip-page-sum .slip-hd-row2 span{font-size:17px;}
-.slip-page-sum .sh{font-size:17px;padding:8px 6px;}
-.slip-page-sum .sc{font-size:18px;padding:10px 6px;}
-.slip-page-sum .sf td{font-size:18px;padding:10px 6px;}
-.slip-page-sum .slip-ft .fl{font-size:22px;}
-.slip-page-sum .slip-ft .fv{font-size:34px;}
+.slip-page-sum .slip-hd{padding:8px 12px 6px;}
+.slip-page-sum .slip-hd-row1 h2{font-size:17px;}
+.slip-page-sum .slip-hd-row2 span{font-size:12px;}
+.slip-page-sum .sh{font-size:14px;padding:6px 6px;}
+.slip-page-sum .sc{font-size:14px;padding:6px 6px;}
+.slip-page-sum .sf td{font-size:14px;padding:6px 6px;}
+.slip-page-sum .slip-ft .fl{font-size:14px;}
+.slip-page-sum .slip-ft .fv{font-size:22px;}
 
 /* ─── HISTORY OVERLAY ─── */
 .hist-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;overflow-y:auto;}
@@ -198,6 +206,29 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .hist-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
 .hist-hd span{font-size:20px;font-weight:900;color:var(--gold);font-family:'Sarabun',sans-serif;}
 .hist-close{background:none;border:1px solid #444;border-radius:8px;color:#aaa;font-size:18px;padding:4px 10px;cursor:pointer;}
+.hist-folder{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:14px;overflow:hidden;}
+.hist-folder-hd{padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.hist-folder-hd:active{background:rgba(255,255,255,.04);}
+.hist-folder-ngod{font-size:18px;font-weight:900;color:var(--gold);}
+.hist-folder-meta{font-size:12px;color:var(--lg);margin-top:3px;}
+.hist-folder-right{text-align:right;}
+.hist-folder-total{font-size:18px;font-weight:900;color:var(--gold);}
+.hist-folder-count{font-size:12px;color:var(--lg);margin-top:2px;}
+.hist-folder-body{border-top:1px solid var(--border);}
+.hist-folder-body.collapsed{display:none;}
+.hist-folder-toggle{font-size:14px;color:var(--lg);margin-left:8px;transition:transform .2s;}
+.hist-folder-toggle.open{transform:rotate(180deg);}
+.hist-set{padding:10px 16px;border-bottom:1px solid rgba(46,50,72,.5);display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.hist-set:last-child{border-bottom:none;}
+.hist-set-left{flex:1;}
+.hist-set-num{font-size:13px;font-weight:800;color:var(--white);}
+.hist-set-time{font-size:12px;color:var(--lg);margin-top:2px;}
+.hist-set-right{text-align:right;}
+.hist-set-total{font-size:14px;font-weight:800;color:var(--green);}
+.hist-set-count{font-size:11px;color:var(--lg);}
+.hist-set-btns{display:flex;gap:6px;}
+.hist-set-btn{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:12px;font-weight:700;padding:5px 10px;cursor:pointer;}
+.hist-folder-actions{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;}
 .hist-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;}
 .hist-card-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
 .hist-ngod{font-size:18px;font-weight:900;color:var(--gold);font-family:'Sarabun',sans-serif;}
@@ -239,6 +270,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .result-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(46,50,72,.5);}
 .result-row:last-child{border-bottom:none;}
 .result-lek{font-size:20px;font-weight:900;color:var(--gold);}
+.result-set-info{font-size:11px;color:#f59e0b;font-weight:700;margin-bottom:1px;}
 .result-type{font-size:13px;color:var(--lg);}
 .result-prize{font-size:16px;font-weight:800;color:#34d399;}
 .result-none{text-align:center;color:var(--gray);font-size:15px;padding:16px 0;}
@@ -253,13 +285,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .close-ngod-btn{width:100%;background:linear-gradient(135deg,#7c3aed,#5b21b6);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;padding:13px;cursor:pointer;margin-top:12px;}
 
 /* ─── CONFIRM MODAL ─── */
+.cf-extra{flex:1;background:#00b900;border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:800;padding:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .cf-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}
 .cf-ov.show{display:flex;}
 .cf-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;max-width:340px;width:100%;}
 .cf-msg{color:var(--white);font-size:16px;font-weight:700;line-height:1.7;margin-bottom:18px;font-family:'Sarabun',sans-serif;}
 .cf-btns{display:flex;gap:10px;}
 .cf-no{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:15px;font-weight:800;padding:12px;cursor:pointer;}
-.cf-yes{flex:2;border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:800;padding:12px;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#5b21b6);}
+.cf-yes{flex:1;border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:800;padding:12px;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#5b21b6);}
 .cf-yes.danger{background:linear-gradient(135deg,#dc2626,#991b1b);}
 
 
@@ -374,7 +407,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 @media print{
   body{background:#fff!important;max-width:none;}
   .hdr,.main-wrap .list-wrap,.main-wrap .ipanel,.add-btn,.print-btn-main,.locked-notice,
-  #_toast,.ov-back,.ov-print,.hist-ov,.check-ov,.cf-ov,.welcome-screen{display:none!important;}
+  #_toast,.ov-back,.ov-print,.ov-basket,.ov-print-merged,.ov-del-set,.close-ngod-main-btn,.hist-ov,.check-ov,.cf-ov,.welcome-screen{display:none!important;}
   .slip-ov{display:block!important;position:static!important;background:transparent!important;overflow:visible!important;}
   .slip-ov-inner{padding:0!important;max-width:none!important;}
   .slip-pages-grid{display:block!important;}
@@ -399,10 +432,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   .slip-ft{background:#fff!important;border-top:1.5px solid #000!important;padding:5px 10px!important;}
   .slip-ft .fl{color:#000!important;font-size:12px!important;}
   .slip-ft .fv{color:#000!important;font-size:17px!important;}
-  .slip-page-sum .sh{font-size:16px!important;padding:7px 5px!important;}
-  .slip-page-sum .sc{font-size:16px!important;padding:9px 5px!important;}
-  .slip-page-sum .sf td{font-size:16px!important;padding:9px 5px!important;}
-  .slip-page-sum .slip-ft .fv{font-size:26px!important;}
+  .slip-page-sum .sh{font-size:12px!important;padding:4px 5px!important;}
+  .slip-page-sum .sc{font-size:12px!important;padding:4px 5px!important;}
+  .slip-page-sum .sf td{font-size:12px!important;padding:4px 5px!important;}
+  .slip-page-sum .slip-ft .fl{font-size:12px!important;}
+  .slip-page-sum .slip-ft .fv{font-size:17px!important;}
+  .slip-page-sum .slip-hd-row1 h2{font-size:14px!important;}
+  .slip-page-sum .slip-hd-row2 span{font-size:12px!important;}
 }
 
 /* ─── QUICK ADD OVERLAY ─── */
@@ -450,6 +486,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 .qa-perm-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
 .qa-perm-num{font-size:15px;font-weight:900;color:var(--purple);width:32px;flex-shrink:0;}
 
+.tip-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;align-items:flex-end;justify-content:center;}
+.tip-ov.show{display:flex;}
+.tip-box{background:var(--card);border:2px solid var(--gold);border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:480px;text-align:center;}
+.tip-icon{font-size:36px;margin-bottom:8px;}
+.tip-title{font-size:17px;font-weight:900;color:var(--gold);margin-bottom:10px;}
+.tip-body{font-size:15px;color:var(--lg);line-height:1.6;margin-bottom:20px;}
+.tip-ok{background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;color:#111;font-family:'Sarabun',sans-serif;font-size:17px;font-weight:900;padding:13px 32px;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -472,7 +515,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   <div class="welcome-title">TIGER 999</div>
   <div class="welcome-sub">ระบบบันทึกและคำนวณเลขหวย<br>กรุณาเปิดงวดก่อนเข้าใช้งานครับ</div>
   <button class="welcome-btn" id="open-ngod-btn">🎯 เปิดงวดใหม่</button>
-  <button class="welcome-hist" id="welcome-hist-btn">🕐 ดูประวัติการแทง</button>
+  <button class="welcome-hist" id="welcome-hist-btn">📂 ดูแฟ้ม</button>
 <button class="welcome-hist" id="welcome-guide-btn" style="margin-top:8px;">💡 วิธีใช้งาน</button>
 </div>
 
@@ -484,14 +527,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       <p id="hd-info">กรอกชื่อและงวด</p>
     </div>
     <div class="hdr-btns">
-      <button class="hbtn" id="hist-btn"><span class="hbtn-icon">🕐</span><span class="hbtn-lbl">ประวัติ</span></button>
       <button class="hbtn" id="guide-btn"><span class="hbtn-icon">💡</span><span class="hbtn-lbl">วิธีใช้</span></button>
-      <button class="hbtn" id="view-btn"><span class="hbtn-icon">📊</span><span class="hbtn-lbl">ดูสรุป</span></button>
-      <button class="hbtn gold" id="print-btn"><span class="hbtn-icon">🖨️</span><span class="hbtn-lbl">พิมพ์</span></button>
+      <button class="hbtn" id="hist-btn"><span class="hbtn-icon">📂</span><span class="hbtn-lbl">แฟ้ม</span></button>
+      <button class="hbtn gold" id="new-ngod-btn"><span class="hbtn-icon">🎯</span><span class="hbtn-lbl">งวดใหม่</span></button>
+
     </div>
   </div>
 
-  <div class="list-wrap">
+  <div class="list-wrap" id="list-wrap">
     <div class="tbl-hd">
       <span>เลข</span>
       <span style="color:#60a5fa">บน</span>
@@ -507,6 +550,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
   </div>
 
+  <button class="view-btn-main" id="view-btn">📋 ดูรายการ</button>
   <div class="ipanel" id="ipanel">
     <div class="psec">
       <div class="plbl">✏️ กรอกเลข (1-5 หลัก)</div>
@@ -521,20 +565,25 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
     <div class="psec">
       <div class="plbl">💰 ใส่ราคา</div>
+      <div class="lek-hint" id="price-hint" style="margin-bottom:4px;">ปุ่มลัด: - (ชุด/กลับ) &nbsp;•&nbsp; Enter / Tab / + (ถัดไป)</div>
       <div class="pgrid" id="pgrid"></div>
     </div>
   </div>
-  <button class="add-btn" id="add-btn">+ เพิ่มรายการ</button>
-  <button class="add-btn" id="qa-open-btn" style="margin-top:6px;background:linear-gradient(135deg,#7c3aed,#5b21b6);">⚡ เพิ่มเลขด่วน</button>
-  <button class="print-btn-main" id="print-btn2">📋 ดูสรุป</button>
-  <div class="locked-notice" id="locked-notice" style="display:none">🔒 โพยถูกล็อคแล้ว — ซื้อเพิ่มได้โดยกด "ดูสรุป"</div>
+  <div style="display:flex;gap:8px;margin:10px 12px 0;">
+    <button class="add-btn" id="qa-open-btn" style="margin:0;flex:1;font-size:16px;background:linear-gradient(135deg,#7c3aed,#5b21b6);">⚡ เพิ่มเลขด่วน</button>
+    <button class="add-btn" id="add-btn" style="margin:0;flex:1;font-size:20px;">✓ OK</button>
+  </div>
+  <button class="basket-btn" id="basket-btn">📂 เก็บเข้าแฟ้ม</button>
+  <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — กด "ดูรายการ" เพื่อพิมพ์รวม</div>
 </div>
 
 <!-- SLIP OVERLAY -->
 <div class="slip-ov" id="slip-ov">
   <div class="slip-ov-inner">
-    <button class="ov-back" id="ov-back">✏️ ซื้อเพิ่ม</button>
-    <button class="ov-print" id="ov-print">🖨️ พิมพ์โพย</button>
+    <button class="ov-back" id="ov-back">✏️ ซื้อเพิ่ม / แก้ไข</button>
+    <button class="ov-basket" id="ov-basket">📂 เก็บเข้าแฟ้ม</button>
+    <button class="ov-print-merged" id="ov-print-merged" style="display:none">🖨️ พิมพ์</button>
+    <button class="ov-del-set" id="ov-del-set" style="display:none">🗑️ ลบชุดนี้</button>
     <div class="slip-pages-grid" id="slip-pages"></div>
   </div>
 </div>
@@ -557,7 +606,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 <div class="hist-ov" id="hist-ov">
   <div class="hist-inner">
     <div class="hist-hd">
-      <span>📋 ประวัติการแทง</span>
+      <span>📂 แฟ้ม</span>
       <button class="hist-close" id="hist-close">✕</button>
     </div>
     <div id="hist-list"></div>
@@ -577,24 +626,24 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       <!-- รางวัลที่ 1 -->
       <div class="check-section">
         <div class="check-section-title">รางวัลที่ 1</div>
-        <input type="tel" inputmode="numeric" maxlength="6" id="r1" placeholder="x x x x x x" class="check-inp-big">
+        <input type="tel" inputmode="numeric" maxlength="6" id="r1" placeholder="x x x x x x" class="check-inp-big" oninput="if(this.value.length===6)document.getElementById('r3f1').focus()">
       </div>
 
       <!-- แถว 2: หน้า 3 ตัว | ท้าย 3 ตัว | ท้าย 2 ตัว -->
       <div class="check-row3">
         <div class="check-col">
           <div class="check-col-title">เลขหน้า 3 ตัว</div>
-          <input type="tel" inputmode="numeric" maxlength="3" id="r3f1" placeholder="xxx" class="check-inp-med">
-          <input type="tel" inputmode="numeric" maxlength="3" id="r3f2" placeholder="xxx" class="check-inp-med" style="margin-top:6px">
+          <input type="tel" inputmode="numeric" maxlength="3" id="r3f1" placeholder="xxx" class="check-inp-med" oninput="if(this.value.length===3)document.getElementById('r3f2').focus()">
+          <input type="tel" inputmode="numeric" maxlength="3" id="r3f2" placeholder="xxx" class="check-inp-med" style="margin-top:6px" oninput="if(this.value.length===3)document.getElementById('r3b1').focus()">
         </div>
         <div class="check-col">
           <div class="check-col-title">เลขท้าย 3 ตัว</div>
-          <input type="tel" inputmode="numeric" maxlength="3" id="r3b1" placeholder="xxx" class="check-inp-med">
-          <input type="tel" inputmode="numeric" maxlength="3" id="r3b2" placeholder="xxx" class="check-inp-med" style="margin-top:6px">
+          <input type="tel" inputmode="numeric" maxlength="3" id="r3b1" placeholder="xxx" class="check-inp-med" oninput="if(this.value.length===3)document.getElementById('r3b2').focus()">
+          <input type="tel" inputmode="numeric" maxlength="3" id="r3b2" placeholder="xxx" class="check-inp-med" style="margin-top:6px" oninput="if(this.value.length===3)document.getElementById('r2').focus()">
         </div>
         <div class="check-col">
           <div class="check-col-title">เลขท้าย 2 ตัว</div>
-          <input type="tel" inputmode="numeric" maxlength="2" id="r2" placeholder="xx" class="check-inp-med">
+          <input type="tel" inputmode="numeric" maxlength="2" id="r2" placeholder="xx" class="check-inp-med" oninput="if(this.value.length===2)APP.doCheck()">
         </div>
       </div>
 
@@ -608,8 +657,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 <div class="cf-ov" id="cf-ov">
   <div class="cf-box">
     <div class="cf-msg" id="cf-msg"></div>
-    <div class="cf-btns">
+    <div class="cf-btns" id="cf-btns">
       <button class="cf-no" id="cf-no">ยกเลิก</button>
+      <button class="cf-extra" id="cf-extra" style="display:none"></button>
       <button class="cf-yes" id="cf-yes">ยืนยัน</button>
     </div>
   </div>
@@ -626,10 +676,16 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var STORE_KEY='lotto_v2_current';
   var HIST_KEY='lotto_v2_history';
 
+  // ─── APP MODE ───
+  // 'customer' = ลูกค้า (1 งวด ต้องปิดก่อนเปิดใหม่)
+  // 'seller'   = คนขาย (เปิดเพิ่มลูกค้าได้เรื่อยๆ ไม่ต้องปิดงวด)
+  var APP_MODE = 'customer';
+
   // STATE
   var entries=[], eid=0, curLek='', FS=makeFS();
   var pageBreakIds=[];   // id ที่เป็นจุดเริ่มแผ่นใหม่
   var isLocked=false;    // หลังพิมพ์แล้ว ล็อค
+  var basket=[];         // ตะกร้า: [{entries,time,ngod}]
   var ngodInfo={sender:'',receiver:'',ngod:'',date:''};
   var ngodOpen=false;    // มีงวดเปิดอยู่ไหม
 
@@ -637,7 +693,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function getNextNgod(){
     var n=new Date(),d=n.getDate(),m=n.getMonth()+1,y=n.getFullYear()+543;
-    if(d<16)return'1/'+m+'/'+y;
+    // ก่อนวันที่ 1 → งวด 1/เดือนนี้
+    if(d<1)return'1/'+m+'/'+y;
+    // วันที่ 1-15 → งวด 16/เดือนนี้
+    if(d>=1&&d<16)return'16/'+m+'/'+y;
+    // วันที่ 16+ → งวด 1/เดือนหน้า
     var nm=m+1,ny=y;if(nm>12){nm=1;ny++;}
     return'1/'+nm+'/'+ny;
   }
@@ -724,6 +784,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     updateTotal();
     updateLockUI();
     if(!isLocked) scrollToInput();
+    updateBasketBadge();
   }
 
   function updateHdr(){
@@ -736,29 +797,43 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function updateLockUI(){
     var ipanel=document.getElementById('ipanel');
     var addBtn=document.getElementById('add-btn');
-    var printBtn=document.getElementById('print-btn2');
+    var basketBtn=document.getElementById('basket-btn');
     var lockedNotice=document.getElementById('locked-notice');
     var rmBtns=document.querySelectorAll('.rm-btn');
     if(isLocked){
-      ipanel.classList.add('locked');
-      addBtn.style.display='none';
-      printBtn.style.display='none';
-      lockedNotice.style.display='block';
+      if(ipanel)ipanel.classList.add('locked');
+      if(addBtn)addBtn.style.display='none';
+      if(basketBtn)basketBtn.style.display='none';
+      if(lockedNotice)lockedNotice.style.display='block';
       rmBtns.forEach(function(b){b.disabled=true;});
     } else {
-      ipanel.classList.remove('locked');
-      addBtn.style.display='block';
-      printBtn.style.display='block';
-      lockedNotice.style.display='none';
+      if(ipanel)ipanel.classList.remove('locked');
+      if(addBtn)addBtn.style.display='block';
+      if(basketBtn)basketBtn.style.display='block';
+      if(lockedNotice)lockedNotice.style.display='none';
     }
   }
 
   // ─── CONFIRM DIALOG ───
   var _cfCb=null;
-  function showConfirm(msg,onYes,danger){
+  var _cfExtraCb=null;
+  function showConfirm(msg,onYes,danger,extraLabel,onExtra,yesLabel,noLabel,hideNo){
     document.getElementById('cf-msg').innerHTML=msg;
     document.getElementById('cf-yes').className='cf-yes'+(danger?' danger':'');
+    document.getElementById('cf-yes').textContent=yesLabel||'ยืนยัน';
+    var noBtn=document.getElementById('cf-no');
+    noBtn.textContent=noLabel||'ยกเลิก';
+    noBtn.style.display=hideNo?'none':'';
     _cfCb=onYes;
+    var extraBtn=document.getElementById('cf-extra');
+    if(extraLabel&&onExtra){
+      extraBtn.innerHTML=extraLabel;
+      extraBtn.style.display='';
+      _cfExtraCb=onExtra;
+    } else {
+      extraBtn.style.display='none';
+      _cfExtraCb=null;
+    }
     document.getElementById('cf-ov').classList.add('show');
   }
 
@@ -797,6 +872,84 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     saveHistory(hist);
     entries=[];eid=0;pageBreakIds=[];isLocked=false;
     save();
+  }
+
+
+  // ─── BASKET (เก็บเข้าโพย) ───
+  function getNowTime(){
+    var n=new Date();
+    var h=n.getHours().toString().padStart(2,'0');
+    var m=n.getMinutes().toString().padStart(2,'0');
+    return h+':'+m+' น.';
+  }
+
+  function doBasket(){
+    if(!entries.length){toast('ยังไม่มีรายการครับ');return;}
+    var total=calcTotal();
+    var count=entries.length;
+    var time=getNowTime();
+    var ngod=ngodInfo.ngod||'—';
+    var msg='เก็บ <b>'+count+' รายการ</b> รวม <b>฿'+fmt(total)+'</b><br>'
+           +'เข้าโพยงวด <b>'+ngod+'</b><br>'
+           +'เวลา <b>'+time+'</b><br><br>'
+           +'<span style="color:#f59e0b;font-size:13px;">⚠️ ตรวจสอบความถูกต้องก่อนนะครับ<br>เก็บเข้าแฟ้มแล้วแก้ไขไม่ได้</span>';
+    showConfirm(msg, function(){
+      // archive ลงประวัติโดยตรง
+      var hist=getHistory();
+      var countBefore=hist.filter(function(h){return h.ngod===ngod&&h.isBasket;}).length;
+      hist.unshift({
+        id:Date.now(),
+        ngod:ngodInfo.ngod,
+        date:ngodInfo.date,
+        sender:ngodInfo.sender,
+        receiver:ngodInfo.receiver,
+        entries:entries.slice(),
+        eid:eid,
+        pageBreakIds:pageBreakIds.slice(),
+        total:total,
+        savedAt:time,
+        closedAt:ngodInfo.date,
+        isBasket:true,
+        checkResult:null,
+        checkNumbers:null
+      });
+      saveHistory(hist);
+      // ล้างรายการ เริ่มใหม่
+      entries=[];eid=0;pageBreakIds=[];isLocked=false;
+      resetForm();
+      save();
+      renderList();
+      updateTotal();
+      updateLockUI();
+      var newCount=countBefore+1;
+      var histNgod=hist.filter(function(h){return h.ngod===ngod&&h.isBasket;});
+      var ngodTotal=histNgod.reduce(function(s,h){return s+h.total;},0);
+      toast('📂 เก็บเข้าแฟ้มแล้ว · ชุดที่ '+newCount+' · ฿'+fmt(total)+' ครับ ✅', 5000);
+    }, false);
+  }
+
+  function updateBasketBadge(){
+    var btn=document.getElementById('basket-btn');
+    if(!btn)return;
+    var total=basket.reduce(function(s,b){return s+b.total;},0);
+    var count=basket.reduce(function(s,b){return s+b.entries.length;},0);
+    btn.textContent='📂 เก็บเข้าแฟ้ม';
+  }
+
+  function resetForm(){
+    curLek='';
+    FS=makeFS();
+    var li=document.getElementById('lek-inp');
+    if(li){li.value='';}
+    var ab=document.getElementById('add-btn');
+    if(ab)ab.classList.remove('ready');
+    // reset chips และ price grid ให้ว่าง (ยังไม่มีเลข)
+    renderChips(0);
+    renderPGrid([]);
+    var ls=document.getElementById('lek-shown');
+    if(ls){ls.className='lp';ls.textContent='? ? ?';}
+    var lh=document.getElementById('lek-hint');
+    if(lh){lh.innerHTML='แตะเพื่อพิมพ์เลข';}
   }
 
   function doOpenNgod(){
@@ -863,7 +1016,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     return '<div class="field-block'+(dis?' disabled':'')+(canK&&fs.klbOpen?' klb-active':'')+'" id="fb-'+k+'">'
       +'<div class="field-main"><div class="field-lbl '+m.c+'">'+m.l+'</div>'
       +'<input type="tel" class="field-inp" id="fi-'+k+'" inputmode="numeric" placeholder="฿" value="'+fs.price+'"'+(dis?' disabled':'')
-      +' enterkeyhint="next" tabindex="-1" pattern="[0-9]*" data-k="'+k+'" oninput="APP.ofp(this)" onkeypress="if(!/[0-9]/.test(event.key))event.preventDefault()" onfocus="clearAddBtnHl();this.select()" onbeforeinput="APP.fldBefore(event,\''+k+'\')" onkeydown="APP.fldKey(event,\''+k+'\')">'
+      +' enterkeyhint="next" tabindex="-1" pattern="[0-9]*" data-k="'+k+'" oninput="APP.ofp(this)" onkeypress="APP.fldPress(event,this.dataset.k)" onfocus="clearAddBtnHl();this.select()" onbeforeinput="APP.fldBefore(event,\''+k+'\')" onkeydown="APP.fldKey(event,\''+k+'\')">'
       +'<div class="field-qbtns">'
       +'<button class="fqb" data-k="'+k+'" data-n="10" onclick="APP.sfp(this)">10</button>'
       +'<button class="fqb" data-k="'+k+'" data-n="20" onclick="APP.sfp(this)">20</button>'
@@ -876,7 +1029,24 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var FIELD_ORDER=['bon','tod','lang','na'];
   window.FIELD_ORDER=FIELD_ORDER;
   window.APP={
+    fldPress:function(e,k){
+      // space (มือถือ) หรือ + (คอมพิวเตอร์) → click OK ทันที
+      if(e.key===' '||e.keyCode===32||e.key==='+'||e.keyCode===107||e.keyCode===187){
+        e.preventDefault();
+        var btn=document.getElementById('add-btn');
+        if(btn)btn.click();
+        return;
+      }
+      // block non-digit
+      if(!/[0-9]/.test(e.key))e.preventDefault();
+    },
     fldKey:function(e,k){
+      // space → OK ทันที (ดักที่ keydown ก่อน input จะรับ)
+      if(e.key===' '||e.keyCode===32){
+        e.preventDefault();
+        document.getElementById('add-btn').click();
+        return;
+      }
       // ปุ่ม - → toggle ชุด/กลับ ของช่องนั้น (ป้องกัน - พิมพ์เข้าช่อง)
       if(e.key==='-'||e.key==='_'||e.keyCode===189||e.keyCode===109||e.keyCode===173){
         e.preventDefault();
@@ -890,7 +1060,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       }
       if(e.key!=='Enter'&&e.keyCode!==13)return;
       e.preventDefault();
-      if(!curLek)return;
+      e.stopPropagation();
+      // หาช่อง active ถัดไป
       var idx=FIELD_ORDER.indexOf(k);
       for(var i=idx+1;i<FIELD_ORDER.length;i++){
         var next=document.getElementById('fi-'+FIELD_ORDER[i]);
@@ -901,8 +1072,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           return;
         }
       }
-      var btn=document.getElementById('add-btn');
-      if(btn){btn.focus();}
+      // ช่องสุดท้าย → OK
+      document.getElementById('add-btn').click();
     },
     permKey:function(e,k){
       if(e.key!=='Enter'&&e.keyCode!==13)return;
@@ -922,6 +1093,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     },
     ofp:function(el){
       var raw=el.value;
+      // ถ้ามี space → OK ทันที
+      if(raw.indexOf(' ')>=0){
+        el.value=raw.replace(/ /g,'');
+        document.getElementById('add-btn').click();
+        return;
+      }
       // ถ้ามี - → toggle ชุด/กลับ แล้วล้าง -
       if(raw.indexOf('-')>=0){
         el.value=raw.replace(/[^0-9]/g,'');
@@ -1040,11 +1217,40 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       entries=tmpE;eid=tmpEid;pageBreakIds=tmpPb;
       if(!html)return;
       document.getElementById('slip-pages').innerHTML=html;
-      // เปลี่ยนปุ่มเป็น "กลับ" และ action กลับไปประวัติ
+      // เปลี่ยนปุ่มเป็น "กลับ" ซ่อนพิมพ์ แสดงปุ่มลบ
       var ovBack=document.getElementById('ov-back');
       ovBack.innerHTML='◀ กลับ';
       ovBack._histMode=true;
+      ovBack._histIdx=i;
+      document.getElementById('ov-basket').style.display='none';
+      // แสดงปุ่มลบชุดนี้
+      var delBtn=document.getElementById('ov-del-set');
+      if(delBtn){delBtn.style.display='';delBtn.dataset.idx=i;}
       document.getElementById('slip-ov').classList.add('show');
+    },
+    printMerged:function(ngod){
+      // เตือนถ้ามีเลขค้าง
+      if(ngodOpen&&ngodInfo&&ngodInfo.ngod===ngod&&entries.length>0){
+        showConfirm(
+          'มีเลขค้างอยู่ <b>'+entries.length+' รายการ</b> ยังไม่ได้เก็บเข้าแฟ้ม<br><br>จะทำยังไงดีครับ?',
+          function(){printMergedByNgod(ngod);},  // ยืนยัน = พิมพ์เลย
+          false,
+          '✏️ ไปเก็บก่อน',
+          function(){
+            document.getElementById('hist-ov').classList.remove('show');
+          }
+        );
+        return;
+      }
+      printMergedByNgod(ngod);
+    },
+    closeHist:function(){document.getElementById('hist-ov').classList.remove('show');},
+    delNgod:function(ngod){
+      showConfirm('ลบทุกชุดของงวด <b>'+ngod+'</b>?<br>ไม่สามารถกู้คืนได้',function(){
+        var hist=getHistory();
+        hist=hist.filter(function(h){return h.ngod!==ngod;});
+        saveHistory(hist);renderHistory();toast('ลบแล้ว');
+      },true);
     },
     delHist:function(i,ngod){
       showConfirm('ลบประวัติงวด <b>'+ngod+'</b>?<br>ไม่สามารถกู้คืนได้',function(){
@@ -1053,29 +1259,66 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     },
     checkHist:function(i){
       var hist=getHistory();var h=hist[i];if(!h)return;
+      var ngod=h.ngod;
       document.getElementById('hist-ov').classList.remove('show');
-      if(h.checkResult){
-        // มีผลแล้ว → แสดงเลย
-        _checkEntries=h.entries;_checkNgod=h.ngod;_checkHistIdx=i;
-        // แสดง overlay โดยซ่อนฟอร์มกรอก แสดงแค่ผล
-        document.getElementById('check-ov').classList.add('show');
-        var formEl=document.getElementById('check-form');
-        if(formEl)formEl.style.display='none';
-        var resEl=document.getElementById('check-results');
-        // ลบปุ่มปิดงวด ออกจาก result ที่บันทึกไว้
-        var html=h.checkResult.replace(/<button class="close-ngod-btn"[^>]*>[^<]*<\/button>/g,'');
-        // เพิ่ม label งวด
-        resEl.innerHTML='<div style="text-align:center;color:var(--lg);font-size:13px;margin-bottom:8px;">ผลงวด '+h.ngod+'</div>'+html
-          +'<button class="close-ngod-btn" style="background:var(--card2);color:var(--lg);" onclick="document.getElementById(&quot;check-ov&quot;).classList.remove(&quot;show&quot;);document.getElementById(&quot;check-form&quot;).style.display=&quot;&quot;;">✕ ปิด</button>';
+      // รวมทุกชุดของงวดนี้
+      var allSets=[];
+      hist.forEach(function(x,xi){if(x.ngod===ngod&&x.isBasket)allSets.push({h:x,i:xi});});
+      allSets=allSets.slice().reverse(); // เรียงจากเก่า→ใหม่
+      // ส่งทุกชุด พร้อม setNum — ตรวจใหม่ทุกครั้ง
+      var mergedEntries=[];
+      allSets.forEach(function(s,si){
+        s.h.entries.forEach(function(e,ei){
+          mergedEntries.push(Object.assign({},e,{_setNum:si+1,_rowNum:ei+1}));
+        });
+      });
+      _checkHistIdx=i;
+      openCheckOverlay(mergedEntries,ngod,i);
+    },
+    closeNgodFromCheck:function(){doCloseNgodFromCheck();},
+    doCheck:function(){doCheck();},
+    toggleFolder:function(hdEl){
+      var body=hdEl.nextElementSibling;
+      var toggle=hdEl.querySelector('.hist-folder-toggle');
+      if(body.classList.contains('collapsed')){
+        body.classList.remove('collapsed');
+        if(toggle)toggle.classList.add('open');
       } else {
-        // ยังไม่มีผล → รีเซ็ต form แล้วให้กรอกเลขรางวัล
-        var formEl2=document.getElementById('check-form');
-        if(formEl2)formEl2.style.display='';
-        document.getElementById('check-results').innerHTML='';
-        openCheckOverlay(h.entries,h.ngod,i);
+        body.classList.add('collapsed');
+        if(toggle)toggle.classList.remove('open');
       }
     },
-    closeNgodFromCheck:function(){doCloseNgodFromCheck();}
+    closeTip:function(){
+      document.getElementById('tip-ov').classList.remove('show');
+      localStorage.setItem('tip_basket_seen','1');
+    },
+    showTipIfNeeded:function(){
+      if(!localStorage.getItem('tip_basket_seen')){
+        document.getElementById('tip-ov').classList.add('show');
+      }
+    },
+    shareLineResult:function(){
+      var msg=window._lastLineMsg||'';
+      var url='https://line.me/R/share?text='+encodeURIComponent(msg);
+      window.open(url,'_blank');
+    },
+    closeNgodMain:function(){
+      if(!ngodOpen){toast('ยังไม่ได้เปิดงวดครับ');return;}
+      var hist=getHistory();
+      var sets=hist.filter(function(h){return h.ngod===ngodInfo.ngod&&h.isBasket;});
+      if(!sets.length){toast('ยังไม่มีชุดที่เก็บไว้เลยครับ');return;}
+      var hasEntries=entries.length>0;
+      var msg='ปิดงวด <b>'+ngodInfo.ngod+'</b>?<br>หลังปิดแล้วจะเปิดงวดใหม่ได้เลย';
+      if(hasEntries)msg+='<br><br><span style="color:#f59e0b">⚠️ มีเลขค้างอยู่ '+entries.length+' รายการ<br>ยืนยัน = ทิ้งเลยโดยไม่เก็บ</span>';
+      showConfirm(msg,function(){
+        entries=[];eid=0;pageBreakIds=[];
+        ngodOpen=false;
+        save();renderList();
+        document.getElementById('hist-ov').classList.remove('show');
+        showWelcome();
+        toast('ปิดงวด '+ngodInfo.ngod+' แล้วครับ ✅');
+      });
+    }
   };
 
   // ─── ADD ENTRY ───
@@ -1132,19 +1375,52 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       return leks;
     }
 
-    // รวบรวม leks ทั้งหมดของ entries ที่มีอยู่ (รวม perm + เลขหลัก)
-    var dupLekList=[];
+    // รวบรวม leks ทั้งหมดของ entries ปัจจุบัน
+    var dupMap={}; // lek → [source]
+    function addDupReg(nl,source){
+      if(!dupMap[nl])dupMap[nl]=[];
+      if(dupMap[nl].indexOf(source)<0)dupMap[nl].push(source);
+    }
     entries.forEach(function(e){
       var existLeks=getExistLeks(e);
       allNewLeks.forEach(function(nl){
-        if(existLeks.indexOf(nl)>=0 && dupLekList.indexOf(nl)<0)dupLekList.push(nl);
+        if(existLeks.indexOf(nl)>=0)addDupReg(nl,'ชุดปัจจุบัน');
+      });
+    });
+    // ตรวจชุดที่เก็บแล้วในประวัติ
+    var histReg=getHistory();
+    var bsReg=[];
+    histReg.forEach(function(h){if(h.ngod===ngodInfo.ngod&&h.isBasket)bsReg.push(h);});
+    bsReg.forEach(function(h,si){
+      h.entries.forEach(function(e){
+        var existLeks=getExistLeks(e);
+        allNewLeks.forEach(function(nl){
+          if(existLeks.indexOf(nl)>=0)addDupReg(nl,'ชุดที่ '+(si+1));
+        });
       });
     });
 
+    var dupLekList=Object.keys(dupMap);
     if(dupLekList.length){
+      // สร้างข้อความแยก source
+      var dupLines2=[];
+      var srcMap={};
+      dupLekList.forEach(function(nl){
+        dupMap[nl].forEach(function(src){
+          if(!srcMap[src])srcMap[src]=[];
+          if(srcMap[src].indexOf(nl)<0)srcMap[src].push(nl);
+        });
+      });
+      var dupLines2arr=[];
+      dupLekList.forEach(function(nl){
+        dupMap[nl].forEach(function(src){
+          dupLines2arr.push('เลข <b>'+nl+'</b> ('+src+')');
+        });
+      });
+      var dupMsg2=dupLines2arr.join('<br>');
       var _dupMp=mp,_dupKd=kd,_dupLek=curLek,_dupD=d;
       showConfirm(
-        '⚠️ มีเลขซ้ำกับโพยที่มีอยู่<br><b>'+dupLekList.join(', ')+'</b><br><br>ต้องการเพิ่มซ้ำหรือไม่?',
+        'พบเลขซ้ำ<br><br>'+dupMsg2+'<br><br>ต้องการเพิ่มซ้ำหรือไม่?',
         function(){
           eid++;
           entries.unshift({id:eid,lek:_dupLek,d:_dupD,bon:_dupMp.bon||null,tod:_dupMp.tod||null,lang:_dupMp.lang||null,na:_dupMp.na||null,kd:_dupKd});
@@ -1450,8 +1726,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     return allHTML;
   }
 
+  var _lastSlipHTML=null;
   function showSlip(){
     var html=buildAllSlips();if(!html)return;
+    _lastSlipHTML=html;
     document.getElementById('slip-pages').innerHTML=html;
     document.getElementById('slip-ov').classList.add('show');
     document.getElementById('slip-ov').scrollTop=0;
@@ -1459,75 +1737,265 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function doPrint(){
     if(!entries.length){toast('ยังไม่มีรายการ');return;}
+    // ล็อคก่อน เพื่อให้แน่ใจว่าข้อมูลไม่เปลี่ยนระหว่างดูกับพิมพ์
+    isLocked=true;save();updateLockUI();renderList();
+    // build จาก entries ที่ lock แล้ว
     var html=buildAllSlips();if(!html)return;
     document.getElementById('slip-pages').innerHTML=html;
     document.getElementById('slip-ov').classList.add('show');
-    // ล็อคอัตโนมัติหลังพิมพ์
-    isLocked=true;save();updateLockUI();renderList();
-    window.print();
+    // รอให้ DOM render เสร็จก่อนค่อย print
+    setTimeout(function(){window.print();},300);
   }
 
   // ─── HISTORY ───
   function renderHistory(){
     var hist=getHistory();
     var el=document.getElementById('hist-list');
+    var cards=[];
 
-    var cards = [];
-
-    // งวดปัจจุบันที่กำลังใช้งาน
-    if(ngodOpen && ngodInfo && ngodInfo.ngod){
-      var curTotal = calcTotal();
-      var lockedTxt = isLocked ? '🔒 บันทึกโพยแล้ว' : '🟢 กำลังใช้งาน';
-      var lockedCls = isLocked ? 'locked' : 'active';
-      cards.push('<div class="hist-card" style="border-color:rgba(39,174,96,.4)">'
-        +'<div class="hist-card-hd">'
-        +'<div><div class="hist-ngod">งวด '+ngodInfo.ngod+'</div>'
-        +'<div class="hist-meta">งวดปัจจุบัน · '+(ngodInfo.sender||'')+(ngodInfo.receiver?' → '+ngodInfo.receiver:'')+'</div></div>'
-        +'<div style="text-align:right"><div class="hist-total">฿'+curTotal.toLocaleString()+'</div></div>'
+    // งวดปัจจุบัน (กำลังใช้งาน) — แสดงเป็น folder พิเศษ
+    if(ngodOpen&&ngodInfo&&ngodInfo.ngod){
+      var curNgod=ngodInfo.ngod;
+      var curTotal=calcTotal();
+      var basketSets=hist.filter(function(h){return h.ngod===curNgod&&h.isBasket;});
+      var basketTotal=basketSets.reduce(function(s,h){return s+h.total;},0);
+      var allTotal=curTotal+basketTotal;
+      var totalSets=basketSets.length+(curTotal>0?1:0);
+      var ngodEscQ=curNgod.replace(/'/g,"\'");
+      var setRows='';
+      // แสดง "กำลังคีย์" ก่อน
+      if(curTotal>0||!basketSets.length){
+        setRows+='<div class="hist-set" style="border-left:3px solid var(--green)">'
+          +'<div class="hist-set-left"><div class="hist-set-num" style="color:var(--green)">✏️ กำลังคีย์...</div>'
+          +'<div class="hist-set-time">ยังไม่ได้เก็บเข้าแฟ้ม</div></div>'
+          +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(curTotal)+'</div>'
+          +'<div class="hist-set-count">'+entries.length+' รายการ</div></div>'
+          +'<div class="hist-set-btns"><button class="hist-set-btn" style="color:var(--green);border-color:var(--green)" onclick="APP.closeHist()">✏️ ไป</button></div>'
+          +'</div>';
+      }
+      // แสดงชุดที่เก็บแล้ว
+      basketSets.forEach(function(h,si){
+        var realIdx=hist.indexOf(h);
+        var setNum=basketSets.length-si;
+        setRows+='<div class="hist-set">'
+          +'<div class="hist-set-left"><div class="hist-set-num">ชุดที่ '+setNum+'</div>'
+          +'<div class="hist-set-time">⏰ '+(h.savedAt||'')+'</div></div>'
+          +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
+          +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
+          +'<div class="hist-set-btns"><button class="hist-set-btn" onclick="APP.viewHist('+realIdx+')">📋 ดู</button></div>'
+          +'</div>';
+      });
+      cards.push('<div class="hist-folder" style="border-color:rgba(39,174,96,.5)">'
+        +'<div class="hist-folder-hd" onclick="APP.toggleFolder(this)">'
+        +'<div><div class="hist-folder-ngod">📁 งวด '+curNgod+'</div>'
+        +'<div class="hist-folder-meta">🟢 กำลังใช้งาน · '+(ngodInfo.sender||'')+(ngodInfo.receiver?' → '+ngodInfo.receiver:'')+'</div></div>'
+        +'<div style="display:flex;align-items:center"><div class="hist-folder-right"><div class="hist-folder-total">฿'+fmt(allTotal)+'</div>'
+        +'<div class="hist-folder-count">'+totalSets+' ชุด</div></div>'
+        +'<span class="hist-folder-toggle open">▼</span></div>'
         +'</div>'
-        +'<span class="hist-status '+lockedCls+'">'+lockedTxt+'</span>'
-        +'<div class="hist-actions">'
-        +'<button class="hist-btn view" onclick="document.getElementById(&quot;hist-ov&quot;).classList.remove(&quot;show&quot;)">📋 กลับหน้าหลัก</button>'
-        +'</div></div>');
+        +'<div class="hist-folder-body">'+setRows+'</div>'
+        +(basketSets.length>0?'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEscQ+'">🖨️ พิมพ์ทั้งหมด</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHist('+hist.indexOf(basketSets[basketSets.length-1])+')">🔍 ตรวจผล</button></div>':'')
+        +'</div>');
     }
 
-    if(!hist.length && !cards.length){
+    // group ประวัติ by งวด (ไม่รวมงวดปัจจุบัน)
+    var groups={};var groupOrder=[];
+    hist.forEach(function(h,i){
+      var ng=h.ngod;
+      if(ngodOpen&&ngodInfo&&ngodInfo.ngod===ng)return; // ข้ามงวดปัจจุบัน
+      if(!groups[ng]){groups[ng]=[];groupOrder.push(ng);}
+      groups[ng].push({h:h,i:i});
+    });
+
+    if(!groupOrder.length&&!cards.length){
       el.innerHTML='<div class="hist-empty">ยังไม่มีประวัติ</div>';return;
     }
 
-    hist.forEach(function(h,i){
-      var statusCls,statusTxt,actionBtns;
-      var ngodEsc=h.ngod.replace(/'/g,"\'");
-      if(h.checkResult){
-        statusCls='closed'; statusTxt='🔴 ปิดงวดแล้ว';
-        actionBtns='<button class="hist-btn view" onclick="APP.viewHist('+i+')">📋 ดูสรุป</button>'
-          +'<button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHist('+i+')">🔍 ตรวจผล</button>';
-      } else {
-        statusCls='locked'; statusTxt='🔒 บันทึกโพยแล้ว';
-        actionBtns='<button class="hist-btn view" onclick="APP.viewHist('+i+')">📋 ดูสรุป</button>'
-          +'<button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHist('+i+')">🔍 ตรวจผล</button>';
-      }
-      cards.push('<div class="hist-card">'
-        +'<div class="hist-card-hd">'
-        +'<div><div class="hist-ngod">งวด '+h.ngod+'</div>'
-        +'<div class="hist-meta">ปิดเมื่อ '+h.closedAt+' · '+(h.sender||'')+(h.receiver?' → '+h.receiver:'')+'</div></div>'
-        +'<div style="text-align:right"><div class="hist-total">฿'+h.total.toLocaleString()+'</div></div>'
+    groupOrder.forEach(function(ngod){
+      var sets=groups[ngod];
+      var groupTotal=sets.reduce(function(s,x){return s+x.h.total;},0);
+      var inf=sets[0].h;
+      var hasCheck=sets.some(function(x){return x.h.checkResult;});
+      var ngodEsc=ngod.replace(/'/g,"\'");
+      var setRows='';
+      sets.forEach(function(x,si){
+        var h=x.h,realIdx=x.i;
+        var setNum=sets.length-si;
+        setRows+='<div class="hist-set">'
+          +'<div class="hist-set-left"><div class="hist-set-num">ชุดที่ '+setNum+'</div>'
+          +'<div class="hist-set-time">⏰ '+(h.savedAt||h.closedAt||'')+'</div></div>'
+          +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
+          +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
+          +'<div class="hist-set-btns"><button class="hist-set-btn" onclick="APP.viewHist('+realIdx+')">📋 ดู</button>'
+          +'</div>'
+          +'</div>';
+      });
+      cards.push('<div class="hist-folder">'
+        +'<div class="hist-folder-hd" onclick="APP.toggleFolder(this)">'
+        +'<div><div class="hist-folder-ngod">📁 งวด '+ngod+'</div>'
+        +'<div class="hist-folder-meta">🔴 ปิดแล้ว · '+(inf.sender||'')+(inf.receiver?' → '+inf.receiver:'')+'</div></div>'
+        +'<div style="display:flex;align-items:center"><div class="hist-folder-right"><div class="hist-folder-total">฿'+fmt(groupTotal)+'</div>'
+        +'<div class="hist-folder-count">'+sets.length+' ชุด</div></div>'
+        +'<span class="hist-folder-toggle">▼</span></div>'
         +'</div>'
-        +'<span class="hist-status '+statusCls+'">'+statusTxt+'</span>'
-        +'<div class="hist-actions">'
-        +actionBtns
-        +'<button class="hist-btn del" onclick="APP.delHist('+i+',&quot;'+ngodEsc+'&quot;)">🗑️</button>'
+        +'<div class="hist-folder-body collapsed">'+setRows+'</div>'
+        +'<div class="hist-folder-actions">'
+        +'<button class="hist-btn del" onclick="APP.delNgod(this.dataset.ngod)" data-ngod="'+ngodEsc+'">🗑️ ลบทั้งงวด</button>'
+        +'<button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEsc+'">🖨️ พิมพ์ทั้งหมด</button>'
+        +'<button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHist('+sets[0].i+')">🔍 ตรวจผล</button>'
         +'</div></div>');
     });
 
-    el.innerHTML = cards.join('');
+    el.innerHTML=cards.join('');
+  }
+
+  // ─── PRINT MERGED (รวมทุกชุด ใส่เส้นคั่นชุด) ───
+  var MAX_ROWS_MERGED=28;
+
+  function calcEntryTotal(e){
+    var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);
+    ['bon','lang','na'].forEach(function(k){(e.kd[k]||[]).forEach(function(x){t+=x.price;});});
+    return t;
+  }
+
+  function makeMergedPageHTML(items,pgNum,totalPages,inf){
+    // items = [{type:'entry',e:...} | {type:'divider',label:'ชุดที่ X  HH:MM น.'}]
+    var bodyRows='';
+    items.forEach(function(item,idx){
+      if(item.type==='divider'){
+        bodyRows+='<tr class="set-divider"><td colspan="5">'
+          +'<span style="font-size:9px;color:#666;letter-spacing:.5px;">─── '+item.label+' ───</span>'
+          +'</td></tr>';
+        return;
+      }
+      var e=item.e;
+      var ls=toLines(e);
+      if(!ls.length)return;
+      var entryTotal=ls.reduce(function(s,x){return s+x.total;},0);
+      if(ls.length===1){
+        bodyRows+='<tr>'
+          +'<td class="td-lek">'+ls[0].lek+'</td>'
+          +'<td class="td-eq">=</td>'
+          +'<td class="td-price">'+ls[0].price+'</td>'
+          +'<td class="td-brace-empty"></td>'
+          +'<td class="td-total">'+fmt(entryTotal)+'</td>'
+          +'</tr>';
+      } else {
+        var n=ls.length;var midIdx=Math.floor((n-1)/2);
+        for(var li=0;li<n;li++){
+          var isFirst=li===0,isLast=li===n-1,isMid=li===midIdx;
+          var braceStyle='width:12px;padding:0;';
+          if(isFirst&&isLast){braceStyle+='border-right:1.5px solid #999;border-top:1.5px solid #999;border-bottom:1.5px solid #999;border-radius:0 4px 4px 0;';}
+          else if(isFirst){braceStyle+='border-right:1.5px solid #999;border-top:1.5px solid #999;border-radius:0 4px 0 0;';}
+          else if(isLast){braceStyle+='border-right:1.5px solid #999;border-bottom:1.5px solid #999;border-radius:0 0 4px 0;';}
+          else{braceStyle+='border-right:1.5px solid #999;';}
+          bodyRows+='<tr>'
+            +'<td class="td-lek">'+ls[li].lek+'</td>'
+            +'<td class="td-eq">=</td>'
+            +'<td class="td-price">'+ls[li].price+'</td>'
+            +'<td style="'+braceStyle+'"></td>'
+            +(isMid?'<td class="td-total" rowspan="'+n+'" style="vertical-align:middle;text-align:right;width:50px;">'+fmt(entryTotal)+'</td>':'')
+            +'</tr>';
+        }
+      }
+      // เส้นกั้นระหว่าง entry (ไม่ใส่ถ้าตามด้วย divider)
+      var nextItem=items[idx+1];
+      if(nextItem&&nextItem.type!=='divider'){
+        bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
+      }
+    });
+    // คำนวณ total ของแผ่นนี้
+    var pgEntries=items.filter(function(x){return x.type==='entry';}).map(function(x){return x.e;});
+    var ps=pageSumTotals(pgEntries);
+    var pt=pgEntries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
+    return '<div class="slip-hd">'
+      +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
+      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span><span>วันที่ <strong>'+inf.date+'</strong></span></div>'
+      +'</div>'
+      +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
+      +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
+      +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmt(pt)+'</span></div>'
+      +LEGEND;
+  }
+
+  function printMergedByNgod(ngod){
+    var hist=getHistory();
+    var sets=[];var inf=null;
+    hist.forEach(function(h){
+      if(h.ngod===ngod&&h.isBasket){
+        if(!inf)inf={ngod:h.ngod,date:h.date,sender:h.sender,receiver:h.receiver};
+        sets.push(h);
+      }
+    });
+    if(!sets.length){toast('ไม่มีรายการครับ');return;}
+
+    // เรียง sets จากเก่าไปใหม่ (unshift ทำให้ index 0 = ใหม่สุด → reverse)
+    sets=sets.slice().reverse();
+    var allItems=[];
+    sets.forEach(function(h,si){
+      allItems.push({type:'divider',label:'ชุดที่ '+(si+1)});
+      h.entries.forEach(function(e){allItems.push({type:'entry',e:e});});
+    });
+
+    // แบ่งหน้า (นับเส้นคั่นเป็น 1 บรรทัด, entry = toLines)
+    var pages=[],pItems=[],rc=0;
+    allItems.forEach(function(item){
+      var lc=item.type==='divider'?1:toLines(item.e).length;
+      if(rc>0&&rc+lc>MAX_ROWS_MERGED){pages.push(pItems);pItems=[];rc=0;}
+      pItems.push(item);rc+=lc;
+    });
+    if(pItems.length)pages.push(pItems);
+
+    var totalPages=pages.length;
+    var grandTotal=sets.reduce(function(s,h){return s+h.total;},0);
+
+    // build HTML
+    var pageHTMLs=[];var allSumRows='';
+    pages.forEach(function(pg,i){
+      pageHTMLs.push(makeMergedPageHTML(pg,i+1,totalPages,inf));
+      var pgEntries=pg.filter(function(x){return x.type==='entry';}).map(function(x){return x.e;});
+      var ps=pageSumTotals(pgEntries);
+      var pt=pgEntries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
+      allSumRows+=buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false);
+    });
+    var grandS={c3:0,c2:0,c1:0,ct:0,cl:0};
+    pages.forEach(function(pg){
+      var pgEntries=pg.filter(function(x){return x.type==='entry';}).map(function(x){return x.e;});
+      var s=pageSumTotals(pgEntries);
+      grandS.c3+=s.c3;grandS.c2+=s.c2;grandS.c1+=s.c1;grandS.ct+=s.ct;grandS.cl+=s.cl;
+    });
+    allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
+    var sumHTML='<div class="slip-hd">'
+      +'<div class="slip-hd-row1"><h2>📊 สรุปรวมทุกแผ่น</h2><span class="pg">'+totalPages+' แผ่น · '+sets.length+' ชุด</span></div>'
+      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
+      +'</div>'
+      +sumTableHTML(allSumRows)
+      +'<div class="slip-ft"><span class="fl">ยอดรวมทั้งหมด</span><span class="fv">฿'+fmt(grandTotal)+'</span></div>';
+
+    var allHTML='';
+    for(var pi=0;pi<pageHTMLs.length;pi++){
+      allHTML+='<div class="slip-page-single"><div class="slip-page">'+pageHTMLs[pi]+'</div></div>';
+      if((pi+1)%2===0&&pi<pageHTMLs.length-1)allHTML+='<div class="slip-page-pair-break"></div>';
+    }
+    if(pageHTMLs.length%2===1)allHTML+='<div class="slip-page-pair-break"></div>';
+    allHTML+='<div class="slip-page-sum"><div class="slip-page">'+sumHTML+'</div></div>';
+
+    document.getElementById('slip-pages').innerHTML=allHTML;
+    // ซ่อน basket แสดงปุ่มพิมพ์ และเปลี่ยน back → กลับ
+    document.getElementById('ov-basket').style.display='none';
+    document.getElementById('ov-print-merged').style.display='';
+    var ob=document.getElementById('ov-back');
+    ob._mergedMode=true;
+    ob.innerHTML='◀ กลับ';
+    document.getElementById('slip-ov').classList.add('show');
+    document.getElementById('hist-ov').classList.remove('show');
+    setTimeout(function(){window.print();},300);
   }
 
   // ─── CHECK RESULT ───
   var _checkEntries=[], _checkNgod='', _checkHistIdx=-1;
 
-  function openCheckOverlay(ents,ngod,histIdx){
-    _checkEntries=ents;_checkNgod=ngod;_checkHistIdx=histIdx;
+  function resetCheckForm(){
     window._lastCheckResultHTML=null;window._lastCheckNumbers=null;
     document.getElementById('r1').value='';
     document.getElementById('r2').value='';
@@ -1536,6 +2004,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById('r3b1').value='';
     document.getElementById('r3b2').value='';
     document.getElementById('check-results').innerHTML='';
+    var formEl=document.getElementById('check-form');
+    if(formEl)formEl.style.display='';
+    setTimeout(function(){document.getElementById('r1').focus();},100);
+  }
+  function openCheckOverlay(ents,ngod,histIdx){
+    _checkEntries=ents;_checkNgod=ngod;_checkHistIdx=histIdx;
+    resetCheckForm();
     document.getElementById('check-ov').classList.add('show');
   }
 
@@ -1617,7 +2092,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       }
 
       if(hits.length){
-        results.push({lek:lek,hits:hits});
+        results.push({lek:lek,hits:hits,_setNum:e._setNum,_rowNum:e._rowNum});
       }
     });
 
@@ -1636,27 +2111,52 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     celebrate();
     var totalWin=0;
     var totalItems=0;
+    // สร้างข้อความสำหรับแชร์ Line
+    var lineMsg='🎉 แจ้งถูกรางวัล\n';
+    lineMsg+='งวด '+_checkNgod+'\n';
+    if(_checkEntries.length&&_checkEntries[0]){
+      var hist2=getHistory();
+      var h0=hist2[_checkHistIdx];
+      if(h0&&h0.sender)lineMsg+=(h0.sender||'')+(h0.receiver?' → '+h0.receiver:'')+' \n';
+    }
+    lineMsg+='\n';
+
     var html='<div class="result-card"><div class="result-title">🎉 ถูกรางวัล!</div>';
+    // จัดกลุ่มตามชุด
+    var bySet={};var setOrder=[];
     results.forEach(function(r){
-      r.hits.forEach(function(h){
-        totalWin+=h.amt;totalItems++;
-        html+='<div class="result-row">'
-          +'<div><div class="result-lek">'+r.lek+'</div><div class="result-type">'+h.type+'</div></div>'
-          +'<div class="result-prize">฿'+h.amt.toLocaleString()+'</div>'
-          +'</div>';
-      });
+      var k=r._setNum||0;
+      if(!bySet[k]){bySet[k]=[];setOrder.push(k);}
+      r.hits.forEach(function(h){bySet[k].push({lek:r.lek,type:h.type,amt:h.amt});});
     });
+    setOrder.forEach(function(setNum){
+      var rows=bySet[setNum];
+      if(setNum)lineMsg+='ชุดที่ '+setNum+'\n';
+      rows.forEach(function(x){
+        totalWin+=x.amt;totalItems++;
+        html+='<div class="result-row">'
+          +'<div>'+(setNum?'<div class="result-set-info">ชุดที่ '+setNum+'</div>':'')
+          +'<div class="result-lek">'+x.lek+'</div>'
+          +'<div class="result-type">'+x.type+'</div></div>'
+          +'<div class="result-prize">฿'+x.amt.toLocaleString()+'</div>'
+          +'</div>';
+        lineMsg+='• '+x.lek+' '+x.type+' ฿'+x.amt.toLocaleString()+'\n';
+      });
+      lineMsg+='\n';
+    });
+
     html+='</div>';
     html+='<div class="congrats-bar">'
       +'<div class="congrats-emoji">🎉🎊🍀</div>'
       +'<div class="congrats-text">ยินดีด้วยครับ!</div>'
-      +'<div class="congrats-sub">ถูก '+totalItems+' รายการ งวดนี้</div>'
+      +'<div class="congrats-sub">ถูก '+totalItems+' รายการ รวม ฿'+totalWin.toLocaleString()+'</div>'
       +'<div class="congrats-foot">โชคดีมีมาเรื่อยๆ นะครับ 🌟</div>'
       +'</div>';
-
-    // ปุ่มปิดงวด
+    // ปุ่มแชร์ Line
+    html+='<button class="close-ngod-btn" style="background:linear-gradient(135deg,#00b900,#00a000);margin-bottom:8px;" onclick="APP.shareLineResult()">📤 แจ้งเจ้ามือผ่าน Line</button>';
     html+='<button class="close-ngod-btn" onclick="APP.closeNgodFromCheck()">✅ บันทึกผลและปิดงวดนี้</button>';
     window._lastCheckResultHTML=html;
+    window._lastLineMsg=lineMsg;
     resEl.innerHTML=html;
   }
 
@@ -1708,45 +2208,64 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     }
     setTimeout(function(){wrap.remove();},7000);
 
-    // Sound (Web Audio)
+    // Sound (Web Audio) — เสียงพลุ 🎆
     try{
       var ctx=new(window.AudioContext||window.webkitAudioContext)();
 
-      // เมโลดี้ฉลอง
-      var melody=[523,659,784,1047,784,1047,1319,1047,1319,1568];
-      melody.forEach(function(freq,i){
-        var osc=ctx.createOscillator();
-        var gain=ctx.createGain();
-        osc.connect(gain);gain.connect(ctx.destination);
-        osc.frequency.value=freq;osc.type='sine';
-        gain.gain.setValueAtTime(0,ctx.currentTime+i*0.13);
-        gain.gain.linearRampToValueAtTime(0.3,ctx.currentTime+i*0.13+0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.13+0.2);
-        osc.start(ctx.currentTime+i*0.13);
-        osc.stop(ctx.currentTime+i*0.13+0.22);
-      });
+      function firework(t,freq){
+        // เสียงยิงพลุขึ้น (sweep ขึ้น)
+        var osc=ctx.createOscillator();var g=ctx.createGain();
+        osc.connect(g);g.connect(ctx.destination);
+        osc.frequency.setValueAtTime(freq*0.3,t);
+        osc.frequency.linearRampToValueAtTime(freq,t+0.3);
+        osc.type='sawtooth';
+        g.gain.setValueAtTime(0,t);
+        g.gain.linearRampToValueAtTime(0.15,t+0.05);
+        g.gain.exponentialRampToValueAtTime(0.001,t+0.35);
+        osc.start(t);osc.stop(t+0.4);
 
-      // เสียงคนเฮ — noise burst หลายคลื่น ดังขึ้น แล้วค่อยๆ จาง
-      var cheerStart=ctx.currentTime+0.2;
-      var cheerDur=3.5;
+        // เสียงระเบิดพลุ (noise burst)
+        var bt=t+0.35;
+        var buf=ctx.createBuffer(2,ctx.sampleRate*0.8,ctx.sampleRate);
+        for(var ch=0;ch<2;ch++){
+          var d=buf.getChannelData(ch);
+          for(var k=0;k<d.length;k++){
+            var env=Math.pow(1-k/(d.length),2);
+            d[k]=(Math.random()*2-1)*env*0.5;
+          }
+        }
+        var src=ctx.createBufferSource();src.buffer=buf;
+        var bg=ctx.createGain();bg.gain.value=1.2;
+        // ใส่ bandpass ให้เสียงพลุดัง
+        var bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=800+freq*0.3;bp.Q.value=0.5;
+        src.connect(bp);bp.connect(bg);bg.connect(ctx.destination);
+        src.start(bt);
+      }
+
+      // ยิงพลุ 5 ลูก ต่อเนื่อง
+      var times=[0, 0.5, 1.0, 1.6, 2.3];
+      var freqs=[600, 900, 750, 1100, 800];
+      times.forEach(function(t,i){firework(ctx.currentTime+t,freqs[i]);});
+
+      // เสียงคนเฮหลังพลุระเบิด
+      var cheerStart=ctx.currentTime+0.5;
+      var cheerDur=3.0;
       var cheerBuf=ctx.createBuffer(2,ctx.sampleRate*cheerDur,ctx.sampleRate);
       for(var ch=0;ch<2;ch++){
         var data=cheerBuf.getChannelData(ch);
         for(var k=0;k<data.length;k++){
-          var t=k/ctx.sampleRate;
-          var env=Math.min(t/0.3,1)*Math.pow(1-t/cheerDur,0.4);
-          // mix noise หลายความถี่ให้เหมือนเสียงฝูงชน
-          data[k]=(Math.random()*2-1)*env*0.35
-            +Math.sin(2*Math.PI*180*t)*env*0.04
-            +Math.sin(2*Math.PI*240*t)*env*0.03;
+          var t2=k/ctx.sampleRate;
+          var env=Math.min(t2/0.2,1)*Math.pow(1-t2/cheerDur,0.5);
+          data[k]=(Math.random()*2-1)*env*0.25
+            +Math.sin(2*Math.PI*200*t2)*env*0.05;
         }
       }
       var cheerSrc=ctx.createBufferSource();cheerSrc.buffer=cheerBuf;
-      var cheerGain=ctx.createGain();cheerGain.gain.value=1.2;
+      var cheerGain=ctx.createGain();cheerGain.gain.value=1.0;
       cheerSrc.connect(cheerGain);cheerGain.connect(ctx.destination);
       cheerSrc.start(cheerStart);
 
-      // เสียงปรบมือ (noise bursts สั้นๆ)
+      // เสียงปรบมือ
       for(var j=0;j<10;j++){
         (function(j){
           setTimeout(function(){
@@ -1764,11 +2283,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   // ─── TOAST ───
-  function toast(msg){
+  function toast(msg,dur){
     var t=document.getElementById('_toast');
     t.textContent=msg;
     t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 22px;border-radius:12px;font-size:14px;z-index:9998;font-family:Sarabun,sans-serif;border:1px solid #444;display:block;opacity:1;';
-    clearTimeout(t._t);t._t=setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.style.display='none';},300);},2500);
+    clearTimeout(t._t);t._t=setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.style.display='none';},(dur||2500));},2500);
   }
 
   // ─── INIT ───
@@ -1809,8 +2328,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById('lek-inp').addEventListener('keydown',function(e){
       if(e.key!=='Enter'&&e.keyCode!==13)return;
       e.preventDefault();
-      if(!curLek)return; // ยังไม่มีเลข
-      // focus ช่องราคาแรกที่ available
+      e.stopPropagation();
+      if(!curLek)return;
       var order=['bon','tod','lang','na'];
       for(var i=0;i<order.length;i++){
         var f=document.getElementById('fi-'+order[i]);
@@ -1821,8 +2340,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           return;
         }
       }
-      var btn=document.getElementById('add-btn');
-      if(btn){btn.focus();}
     });
 
     // Buttons
@@ -1834,13 +2351,28 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(e.inputType==='insertLineBreak'||e.inputType==='insertParagraph'){e.preventDefault();addEntry();}
     });
     document.getElementById('view-btn').addEventListener('click',showSlip);
-    document.getElementById('print-btn').addEventListener('click',doPrint);
-    document.getElementById('print-btn2').addEventListener('click',showSlip);
+    document.getElementById('basket-btn').addEventListener('click',doBasket);
+
+    // print-btn removed from header
+    // print-btn2 removed
     document.getElementById('ov-back').addEventListener('click',function(){
+      // ถ้ามาจากพิมพ์ทั้งหมด → กลับประวัติ
+      if(this._mergedMode){
+        this._mergedMode=false;
+        this.innerHTML='✏️ ซื้อเพิ่ม / แก้ไข';
+        document.getElementById('ov-basket').style.display='';
+        document.getElementById('ov-print-merged').style.display='none';
+        document.getElementById('slip-ov').classList.remove('show');
+        document.getElementById('hist-ov').classList.add('show');
+        return;
+      }
       // ถ้ามาจากประวัติ → กลับไปประวัติ
       if(this._histMode){
         this._histMode=false;
-        this.innerHTML='✏️ ซื้อเพิ่ม';
+        this.innerHTML='✏️ ซื้อเพิ่ม / แก้ไข';
+        document.getElementById('ov-basket').style.display='';
+        var delBtn=document.getElementById('ov-del-set');
+        if(delBtn)delBtn.style.display='none';
         document.getElementById('slip-ov').classList.remove('show');
         document.getElementById('hist-ov').classList.add('show');
         return;
@@ -1859,8 +2391,30 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         toast('✏️ ซื้อเพิ่มได้เลยครับ — จะขึ้นแผ่นใหม่อัตโนมัติ');
       }
     });
-    document.getElementById('ov-print').addEventListener('click',function(){
-      isLocked=true;save();updateLockUI();renderList();
+    document.getElementById('ov-del-set').addEventListener('click',function(){
+      var idx=parseInt(this.dataset.idx);
+      var hist=getHistory();
+      var h=hist[idx];
+      if(!h)return;
+      showConfirm('ลบ <b>ชุดนี้</b> ('+h.entries.length+' รายการ · ฿'+fmt(h.total)+')<br>ไม่สามารถกู้คืนได้',function(){
+        hist.splice(idx,1);
+        saveHistory(hist);
+        var ovBack=document.getElementById('ov-back');
+        ovBack._histMode=false;
+        ovBack.innerHTML='✏️ ซื้อเพิ่ม';
+        document.getElementById('ov-basket').style.display='';
+        document.getElementById('ov-del-set').style.display='none';
+        document.getElementById('slip-ov').classList.remove('show');
+        document.getElementById('hist-ov').classList.add('show');
+        renderHistory();
+        toast('🗑️ ลบชุดแล้วครับ');
+      },true);
+    });
+    document.getElementById('ov-basket').addEventListener('click',function(){
+      document.getElementById('slip-ov').classList.remove('show');
+      doBasket();
+    });
+    document.getElementById('ov-print-merged').addEventListener('click',function(){
       window.print();
     });
 
@@ -1891,6 +2445,29 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
     // Guide
     function openGuide(){document.getElementById('guide-ov').classList.add('show');}
+    document.getElementById('new-ngod-btn').addEventListener('click',function(){
+      if(APP_MODE==='customer'){
+        if(ngodOpen){
+          // customer: งวดเปิดอยู่ → แจ้งเตือน
+          showConfirm(
+            '⚠️ เวอร์ชั่นนี้ไม่สามารถเปิดงวดซ้อนได้<br><br>อัปเกรดเป็น <b>เวอร์ชั่น Pro</b> เพื่อเปิดได้ไม่จำกัด',
+            function(){},
+            false,
+            '🙏 จัดเลย',
+            function(){window.open('https://lin.ee/F0PXniE','_blank');},
+            'ไม่เป็นไร',
+            '',
+            true
+          );
+          return;
+        }
+        // ยังไม่ได้เปิดงวด → เปิดได้เลย
+        openNgodModal(entries.length>0);
+      } else {
+        // seller: เปิดเพิ่มลูกค้าได้เลยไม่ต้องปิด
+        openNgodModal(entries.length>0);
+      }
+    });
     document.getElementById('guide-btn').addEventListener('click',openGuide);
     document.getElementById('welcome-guide-btn').addEventListener('click',openGuide);
     document.getElementById('guide-close').addEventListener('click',function(){document.getElementById('guide-ov').classList.remove('show');});
@@ -1900,11 +2477,18 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
 
     // Check
-    document.getElementById('check-close').addEventListener('click',function(){document.getElementById('check-ov').classList.remove('show');});
+    document.getElementById('check-close').addEventListener('click',function(){
+      document.getElementById('check-ov').classList.remove('show');
+      resetCheckForm();
+    });
     document.getElementById('check-btn').addEventListener('click',doCheck);
 
     // Confirm
     document.getElementById('cf-no').addEventListener('click',function(){document.getElementById('cf-ov').classList.remove('show');});
+    document.getElementById('cf-extra').addEventListener('click',function(){
+      document.getElementById('cf-ov').classList.remove('show');
+      if(_cfExtraCb){var cb=_cfExtraCb;_cfExtraCb=null;cb();}
+    });
     document.getElementById('cf-yes').addEventListener('click',function(){document.getElementById('cf-ov').classList.remove('show');if(_cfCb)_cfCb();_cfCb=null;});
 
     // Quick Add
@@ -1912,7 +2496,20 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById('qa-close').addEventListener('click',closeQA);
     document.getElementById('qa-add-lek-btn').addEventListener('click',qaAddLek);
     document.getElementById('qa-inp').addEventListener('keydown',function(e){
-      if(e.key==='Enter'||e.keyCode===13){e.preventDefault();qaAddLek();}
+      if(e.key==='Enter'||e.keyCode===13){
+        // เฉพาะตอนอยู่ mode1 เท่านั้น
+        if(!document.getElementById('qa-mode1').classList.contains('hide')){
+          e.preventDefault();qaAddLek();
+        }
+      }
+    });
+    document.getElementById('qa-inp').addEventListener('keydown',function(e){
+      if(e.key==='Enter'||e.keyCode===13){
+        // เฉพาะตอนอยู่ mode1 เท่านั้น
+        if(!document.getElementById('qa-mode1').classList.contains('hide')){
+          e.preventDefault();qaAddLek();
+        }
+      }
     });
     document.getElementById('qa-next-btn').addEventListener('click',qaGoPrice);
     document.getElementById('qa-back-btn').addEventListener('click',qaBack);
@@ -1932,6 +2529,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     qaLeks=[];
     renderQALekList();
     document.getElementById('qa-inp').value='';
+    document.getElementById('qa-hd-title').textContent='⚡ เพิ่มเลขด่วน';
     document.getElementById('qa-mode1').classList.remove('hide');
     document.getElementById('qa-mode2').classList.remove('show');
     document.getElementById('qa-ov').classList.add('show');
@@ -1983,8 +2581,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(!qaLeks.length){toast('กรอกเลขก่อนครับ');return;}
     document.getElementById('qa-mode1').classList.add('hide');
     document.getElementById('qa-mode2').classList.add('show');
+    document.getElementById('qa-hd-title').textContent='💰 ใส่ราคา ('+qaLeks.length+' เลข)';
     renderQAPriceList();
-    // focus ช่องแรกของเลขแรกทันที
     setTimeout(function(){
       var first=document.querySelector('.qa-field-inp');
       if(first){first.focus();first.select();}
@@ -2154,21 +2752,25 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   window.qaSetPrice=function(ri,k,v){
-    var inp=document.querySelector('.qa-field-inp[data-ri="'+ri+'"][data-k="'+k+'"]');
-    if(inp){inp.value=v;}
+    var inp=document.querySelector('.qa-field-inp[data-ri="'+ri+'"][data-k="'+k+'"]:not([data-p])');
+    if(inp){
+      inp.value=v;
+      // simulate Enter เพื่อเลื่อนช่องถัดไปอัตโนมัติ
+      var fakeE={key:'Enter',keyCode:13,preventDefault:function(){}};
+      qaPriceKey(fakeE,ri,k);
+    }
   };
 
   // smart tab ในโหมด 2
   window.qaPriceKey=function(e,ri,k){
     if(e.key!=='Enter'&&e.keyCode!==13)return;
     e.preventDefault();
-    // หา field ถัดไปในแถวเดียวกัน
     var d=qaLeks[ri].lek.length;
     var al=RULES[d]||[];
     var idx=al.indexOf(k);
-    // ลองไปช่องถัดไปในแถวเดียวกัน
+    // หาช่องถัดไปในแถวเดียวกัน (เฉพาะ main field ไม่ใช่ perm)
     for(var i=idx+1;i<al.length;i++){
-      var nx=document.querySelector('.qa-field-inp[data-ri="'+ri+'"][data-k="'+al[i]+'"]');
+      var nx=document.querySelector('.qa-field-inp[data-ri="'+ri+'"][data-k="'+al[i]+'"]:not([data-p])');
       if(nx){nx.focus();nx.select();return;}
     }
     // ไปแถวถัดไป ช่องแรก
@@ -2177,11 +2779,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var nd=qaLeks[nextRi].lek.length;
       var nal=RULES[nd]||[];
       if(nal.length){
-        var nx2=document.querySelector('.qa-field-inp[data-ri="'+nextRi+'"][data-k="'+nal[0]+'"]');
+        var nx2=document.querySelector('.qa-field-inp[data-ri="'+nextRi+'"][data-k="'+nal[0]+'"]:not([data-p])');
         if(nx2){nx2.focus();nx2.select();return;}
       }
     }
-    // แถวสุดท้าย ช่องสุดท้าย → focus ปุ่ม submit
     document.getElementById('qa-submit-btn').focus();
   };
 
@@ -2271,22 +2872,42 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       return all;
     }
 
-    var dupLines=[]; // [{lek, typeLabel}]
-    function addDupLine(lek,typeLabel){
-      var key=lek+'|'+typeLabel;
+    var dupLines=[]; // [{lek, typeLabel, source}]
+    function addDupLine(lek,typeLabel,source){
+      var key=lek+'|'+typeLabel+'|'+(source||'');
       var exists=dupLines.some(function(x){return x.key===key;});
-      if(!exists)dupLines.push({key:key,lek:lek,typeLabel:typeLabel});
+      if(!exists)dupLines.push({key:key,lek:lek,typeLabel:typeLabel,source:source||''});
     }
 
-    // ตรวจซ้ำกับ entries ที่มีอยู่
+    // ตรวจซ้ำกับ entries ในชุดปัจจุบัน
     items.forEach(function(it){
       var groups=getTypedPerms(it);
       groups.forEach(function(g){
         entries.forEach(function(e){
           var eLeks=getExistTypedPerms(e);
           if(g.leks.some(function(l){return eLeks.indexOf(l)>=0;})){
-            addDupLine(g.lek, g.typeLabel);
+            addDupLine(g.lek, g.typeLabel, 'ชุดปัจจุบัน');
           }
+        });
+      });
+    });
+    // ตรวจซ้ำกับชุดที่เก็บแล้วในประวัติ (isBasket)
+    var hist=getHistory();
+    var basketSetsH=[];
+    hist.forEach(function(h){
+      if(h.ngod===ngodInfo.ngod&&h.isBasket) basketSetsH.push(h);
+    });
+    basketSetsH.forEach(function(h,si){
+      var setNum=si+1;
+      items.forEach(function(it){
+        var groups=getTypedPerms(it);
+        groups.forEach(function(g){
+          h.entries.forEach(function(e){
+            var eLeks=getExistTypedPerms(e);
+            if(g.leks.some(function(l){return eLeks.indexOf(l)>=0;})){
+              addDupLine(g.lek, g.typeLabel, 'ชุดที่ '+setNum);
+            }
+          });
         });
       });
     });
@@ -2298,14 +2919,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         gi.forEach(function(a){
           gj.forEach(function(b){
             if(a.typeKey===b.typeKey && a.leks.some(function(l){return b.leks.indexOf(l)>=0;})){
-              addDupLine(a.lek, a.typeLabel);
-              addDupLine(b.lek, b.typeLabel);
+              addDupLine(a.lek, a.typeLabel, 'เลขใหม่ซ้ำกันเอง');
+              addDupLine(b.lek, b.typeLabel, 'เลขใหม่ซ้ำกันเอง');
             }
           });
         });
       }
     }
-    var dupSet=dupLines; // ใช้ใน popup
+    var dupSet=dupLines;
 
     function doAdd(){
       var added=0;
@@ -2328,10 +2949,20 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         if(!grouped[x.typeLabel])grouped[x.typeLabel]=[];
         if(grouped[x.typeLabel].indexOf(x.lek)<0)grouped[x.typeLabel].push(x.lek);
       });
-      var dupMsg=Object.keys(grouped).map(function(lbl){
-        return lbl+' ('+grouped[lbl].join(', ')+')';
-      }).join('<br>');
-      showConfirm('⚠️ กรอกเลขซ้ำ<br>'+dupMsg+'<br><br>ต้องการเพิ่มซ้ำหรือไม่?', doAdd, false);
+      // จัดกลุ่มตาม source → typeLabel → leks
+      var bySource={};var sourceOrder=[];
+      dupSet.forEach(function(x){
+        var src=x.source||'ซ้ำ';
+        if(!bySource[src]){bySource[src]={};sourceOrder.push(src);}
+        if(!bySource[src][x.typeLabel])bySource[src][x.typeLabel]=[];
+        if(bySource[src][x.typeLabel].indexOf(x.lek)<0)bySource[src][x.typeLabel].push(x.lek);
+      });
+      var dupLinesArr=[];
+      dupSet.forEach(function(x){
+        dupLinesArr.push('เลข <b>'+x.lek+'</b> '+x.typeLabel+' ('+x.source+')');
+      });
+      var dupMsg=dupLinesArr.join('<br>');
+      showConfirm('พบเลขซ้ำ<br><br>'+dupMsg+'<br><br>ต้องการเพิ่มซ้ำหรือไม่?', doAdd, false);
       return;
     }
     doAdd();
@@ -2341,6 +2972,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function qaBack(){
     document.getElementById('qa-mode2').classList.remove('show');
     document.getElementById('qa-mode1').classList.remove('hide');
+    document.getElementById('qa-hd-title').textContent='⚡ เพิ่มเลขด่วน';
     setTimeout(function(){document.getElementById('qa-inp').focus();},100);
   }
 
@@ -2361,77 +2993,62 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       <div class="g-hero">
         <div class="g-hero-icon">🐯</div>
         <div class="g-hero-title">TIGER 999</div>
-        <div class="g-hero-sub">ระบบบันทึกและคำนวณเลขหวยมืออาชีพ</div>
+        <div class="g-hero-sub">ระบบโพยหวยมืออาชีพ</div>
       </div>
 
       <!-- FLOW -->
       <div class="g-section">
         <div class="g-title">🔄 ขั้นตอนการใช้งาน</div>
         <div class="g-flow-h">
-          <div class="g-flow-item">
-            <div class="g-flow-icon gold">🎯</div>
-            <div class="g-flow-label">เปิดงวด</div>
-          </div>
+          <div class="g-flow-item"><div class="g-flow-icon gold">🎯</div><div class="g-flow-label">เปิดงวด</div></div>
           <div class="g-flow-arrow">→</div>
-          <div class="g-flow-item">
-            <div class="g-flow-icon">✏️</div>
-            <div class="g-flow-label">กรอกเลข</div>
-          </div>
+          <div class="g-flow-item"><div class="g-flow-icon">✏️</div><div class="g-flow-label">คีย์เลข</div></div>
           <div class="g-flow-arrow">→</div>
-          <div class="g-flow-item">
-            <div class="g-flow-icon">🖨️</div>
-            <div class="g-flow-label">พิมพ์โพย</div>
-          </div>
+          <div class="g-flow-item"><div class="g-flow-icon">📂</div><div class="g-flow-label">เก็บเข้าแฟ้ม</div></div>
           <div class="g-flow-arrow">→</div>
-          <div class="g-flow-item">
-            <div class="g-flow-icon">🔍</div>
-            <div class="g-flow-label">ตรวจผล</div>
-          </div>
+          <div class="g-flow-item"><div class="g-flow-icon">🖨️</div><div class="g-flow-label">พิมพ์ทั้งหมด</div></div>
           <div class="g-flow-arrow">→</div>
-          <div class="g-flow-item">
-            <div class="g-flow-icon green">✅</div>
-            <div class="g-flow-label">ปิดงวด</div>
-          </div>
+          <div class="g-flow-item"><div class="g-flow-icon">🔒</div><div class="g-flow-label">ปิดงวด</div></div>
+          <div class="g-flow-arrow">→</div>
+          <div class="g-flow-item"><div class="g-flow-icon green">🔍</div><div class="g-flow-label">ตรวจผล</div></div>
         </div>
+        <div class="g-tip2">🔁 คีย์เลข → เก็บเข้าแฟ้ม ทำซ้ำได้หลายชุด ก่อนพิมพ์ทีเดียว</div>
       </div>
 
-      <!-- วิธีเพิ่มรายการ -->
+      <!-- วิธีคีย์เลข -->
       <div class="g-section">
-        <div class="g-title">✏️ การเพิ่มรายการ</div>
+        <div class="g-title">✏️ วิธีคีย์เลข</div>
         <div class="g-card-row">
           <div class="g-card">
             <div class="g-card-icon">⌨️</div>
             <div class="g-card-head">กรอกทีละเลข</div>
-            <div class="g-card-body">พิมพ์เลข → เลือกประเภท → ใส่ราคา → กด <b>+ เพิ่มรายการ</b></div>
+            <div class="g-card-body">พิมพ์เลข → เลือกประเภท → ใส่ราคา → กด <b>✓ OK</b></div>
           </div>
           <div class="g-card">
             <div class="g-card-icon">⚡</div>
-            <div class="g-card-head">เพิ่มเลขด่วน</div>
-            <div class="g-card-body">กรอกหลายเลขพร้อมกัน ตั้งราคาเดียวกันทีเดียว เร็วกว่าเยอะ</div>
+            <div class="g-card-head">พิมพ์เลขด่วน</div>
+            <div class="g-card-body">กรอกหลายเลขก่อน → ใส่ราคาทีเดียว เร็วกว่าเยอะ กด Enter เพื่อเพิ่มเลข</div>
           </div>
         </div>
-
         <div class="g-steps-wrap">
           <div class="g-step2">
             <div class="g-step2-num">1</div>
-            <div class="g-step2-body"><b>แตะช่องกรอกเลข</b> พิมพ์เลข 1–5 หลัก</div>
+            <div class="g-step2-body">พิมพ์เลข 1–5 หลัก → กด <b>Enter</b> หรือ <b>+ เพิ่ม</b> เพิ่มลงลิสต์</div>
           </div>
           <div class="g-step2">
             <div class="g-step2-num">2</div>
-            <div class="g-step2-body">กด <b>10 / 20 / 50 / 100</b> เพื่อใส่ราคา หรือพิมพ์ราคาเองได้</div>
+            <div class="g-step2-body">กด <b>ถัดไป →</b> ไปหน้าใส่ราคา</div>
           </div>
           <div class="g-step2">
             <div class="g-step2-num">3</div>
-            <div class="g-step2-body">
-              กดปุ่ม <span class="g-badge-inline gold">กลับ</span> สำหรับ 2 หลัก หรือ <span class="g-badge-inline gold">ชุด</span> สำหรับ 3 หลัก เพื่อซื้อทุกตัวสลับอัตโนมัติ
-            </div>
+            <div class="g-step2-body">กด <b>10 / 20 / 50 / 100</b> ระบบเลื่อนช่องถัดไปอัตโนมัติ หรือพิมพ์ราคาเอง → กด Enter</div>
           </div>
           <div class="g-step2">
             <div class="g-step2-num">4</div>
-            <div class="g-step2-body">กด <b>+ เพิ่มรายการ</b> รายการจะขึ้นตารางทันที</div>
+            <div class="g-step2-body">กดปุ่ม <span class="g-badge-inline gold">กลับ</span> (2 หลัก) หรือ <span class="g-badge-inline gold">ชุด</span> (3 หลัก) เพื่อซื้อทุกตัวสลับ</div>
           </div>
         </div>
-        <div class="g-tip2">⌨️ <b>Shortcut:</b> กด <kbd>-</kbd> เพื่อเปิด/ปิดกลับ-ชุด • กด <kbd>→</kbd> เพื่อเลื่อนช่องถัดไป</div>
+        <div class="g-tip2">⌨️ กด <kbd>-</kbd> เพื่อเปิด/ปิด กลับ-ชุด • กด <kbd>Enter</kbd> เลื่อนช่องถัดไป</div>
       </div>
 
       <!-- ประเภทการแทง -->
@@ -2457,32 +3074,32 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         </div>
       </div>
 
+      <!-- เก็บเข้าแฟ้ม -->
+      <div class="g-section">
+        <div class="g-title">🛒 เก็บเข้าโพย &amp; พิมพ์</div>
+        <div class="g-step2">
+          <div class="g-step2-icon">📋</div>
+          <div class="g-step2-body"><b>ดูสรุป</b> → ตรวจรายการก่อนเก็บ → กด <b>📂 เก็บเข้าแฟ้ม</b> บันทึกเป็น 1 ชุด</div>
+        </div>
+        <div class="g-step2">
+          <div class="g-step2-icon">🔁</div>
+          <div class="g-step2-body">คีย์เลขชุดใหม่ต่อได้เลย ทำซ้ำจนครบ แล้วค่อย <b>พิมพ์ทั้งหมด</b> ในประวัติ</div>
+        </div>
+        <div class="g-step2">
+          <div class="g-step2-icon">🖨️</div>
+          <div class="g-step2-body"><b>พิมพ์ทั้งหมด</b> — พิมพ์ทุกชุดในงวดนั้นรวมกัน แบ่งแผ่นอัตโนมัติ แผ่นละ 20 แถว</div>
+        </div>
+        <div class="g-tip2">⚠️ ถ้ามีเลขค้างอยู่ ระบบจะแจ้งเตือนก่อนพิมพ์ทุกครั้ง</div>
+      </div>
+
       <!-- ตรวจซ้ำ -->
       <div class="g-section">
         <div class="g-title">⚠️ ระบบตรวจซ้ำอัตโนมัติ</div>
         <div class="g-warn-card">
           <div class="g-warn-row">🔍 <span>ตรวจเลขซ้ำทุกประเภท — บน / ล่าง / โต๊ด / ชุด / กลับ</span></div>
           <div class="g-warn-row">🔄 <span>ชุดของ <b>308</b> และ <b>803</b> ถือว่าซ้ำกัน เพราะมี perm เดียวกัน</span></div>
-          <div class="g-warn-row">📝 <span>ถ้าซ้ำ — ระบบแจ้งชื่อประเภทและเลขก่อนเพิ่ม ให้ยืนยันก่อนเสมอ</span></div>
+          <div class="g-warn-row">📝 <span>ถ้าซ้ำ — ระบบแจ้งก่อนเพิ่ม ยืนยันเองได้</span></div>
         </div>
-      </div>
-
-      <!-- พิมพ์โพย -->
-      <div class="g-section">
-        <div class="g-title">🖨️ ดูโพย &amp; พิมพ์</div>
-        <div class="g-step2">
-          <div class="g-step2-icon">📋</div>
-          <div class="g-step2-body"><b>ดูโพย</b> — ดูก่อนพิมพ์ ยังแก้ไขได้อยู่</div>
-        </div>
-        <div class="g-step2">
-          <div class="g-step2-icon">🖨️</div>
-          <div class="g-step2-body"><b>พิมพ์โพย</b> — ล็อคอัตโนมัติหลังพิมพ์ ป้องกันแก้โดยไม่ตั้งใจ</div>
-        </div>
-        <div class="g-step2">
-          <div class="g-step2-icon">✏️</div>
-          <div class="g-step2-body"><b>ซื้อเพิ่มหลังพิมพ์</b> → กด ดูโพย → กด ซื้อเพิ่ม → ขึ้นแผ่นใหม่อัตโนมัติ</div>
-        </div>
-        <div class="g-tip2">📄 โพยแบ่งแผ่นอัตโนมัติ แผ่นละ 20 แถว มีหน้าสรุปยอดรวมท้ายสุด</div>
       </div>
 
       <!-- ตรวจรางวัล -->
@@ -2490,45 +3107,42 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         <div class="g-title">🔍 ตรวจผล</div>
         <div class="g-step2">
           <div class="g-step2-num">1</div>
-          <div class="g-step2-body">กดปุ่ม <b>ตรวจรางวัล</b> ในหน้าหลัก หรือ <b>ตรวจผล</b> ในประวัติ</div>
+          <div class="g-step2-body">กด <b>🔍 ตรวจผล</b> ในประวัติงวดนั้น</div>
         </div>
         <div class="g-step2">
           <div class="g-step2-num">2</div>
-          <div class="g-step2-body">กรอก <b>รางวัลที่ 1</b> (6 หลัก), เลขหน้า 3 ตัว, เลขท้าย 3 ตัว, เลขท้าย 2 ตัว</div>
+          <div class="g-step2-body">กรอก <b>รางวัลที่ 1</b> (6 หลัก) → cursor เดินไปช่องถัดไปอัตโนมัติ → จนครบแล้วตรวจเลย</div>
         </div>
         <div class="g-step2">
           <div class="g-step2-num">3</div>
-          <div class="g-step2-body">กด <b>ตรวจเลย</b> — ระบบเช็คทุกประเภทให้อัตโนมัติ แสดงยอดที่ถูก</div>
+          <div class="g-step2-body">ถ้าถูกรางวัล → กด <b>📤 แจ้งเจ้ามือผ่าน Line</b> ส่งข้อความพร้อมชุดที่ถูกได้เลย</div>
         </div>
         <div class="g-step2">
           <div class="g-step2-num">4</div>
-          <div class="g-step2-body">กด <b>บันทึกผลและปิดงวด</b> — เก็บผลไว้ดูในประวัติได้ตลอด</div>
+          <div class="g-step2-body">กด <b>✅ บันทึกผลและปิดงวด</b> — เก็บผลไว้ดูย้อนหลังได้ตลอด</div>
         </div>
+        <div class="g-tip2">🔁 ปิดหน้าตรวจผลแล้ว form จะล้างใหม่อัตโนมัติทุกครั้ง</div>
       </div>
 
       <!-- ประวัติ -->
       <div class="g-section">
-        <div class="g-title">🕐 หน้าประวัติการแทง</div>
+        <div class="g-title">🕐 หน้าประวัติ</div>
         <div class="g-status-list">
           <div class="g-status-item">
             <span class="hist-status active" style="font-size:12px;padding:3px 10px;">🟢 กำลังใช้งาน</span>
-            <span>งวดปัจจุบัน ยังเพิ่ม/แก้ไขได้</span>
-          </div>
-          <div class="g-status-item">
-            <span class="hist-status locked" style="font-size:12px;padding:3px 10px;">🔒 บันทึกโพยแล้ว</span>
-            <span>พิมพ์แล้ว รอผลออก</span>
+            <span>งวดปัจจุบัน ยังคีย์เพิ่มได้</span>
           </div>
           <div class="g-status-item">
             <span class="hist-status closed" style="font-size:12px;padding:3px 10px;">🔴 ปิดงวดแล้ว</span>
-            <span>มีผลตรวจแล้ว ดูย้อนหลังได้</span>
+            <span>ดูย้อนหลัง / ตรวจผล / พิมพ์ได้</span>
           </div>
         </div>
-        <div class="g-tip2">📋 กด <b>ดูโพย</b> เพื่อดูรายการแทง • กด <b>ตรวจผล</b> เพื่อกรอก/ดูผล</div>
+        <div class="g-tip2">📁 แตะหัวโฟลเดอร์เพื่อพับ/ขยายรายชุด • ปุ่ม <b>🗑️ ลบทั้งงวด</b> อยู่ซ้ายสุด</div>
       </div>
 
       <!-- เคล็ดลับ -->
       <div class="g-section">
-        <div class="g-title">💡 เคล็ดลับ &amp; ข้อควรรู้</div>
+        <div class="g-title">💡 ข้อควรรู้</div>
         <div class="g-tips-grid">
           <div class="g-tip-card">
             <div class="g-tip-icon">💾</div>
@@ -2539,7 +3153,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             <div><b>ใช้เหมือนแอพ</b><br>Share → Add to Home Screen ติดหน้าจอได้เลย</div>
           </div>
           <div class="g-tip-card">
-            <div class="g-tip-icon">🔒</div>
+            <div class="g-tip-icon">🔐</div>
             <div><b>ข้อมูลส่วนตัว</b><br>ไม่มีการส่งขึ้น Server ทุกอย่างอยู่บนเครื่อง</div>
           </div>
           <div class="g-tip-card warn">
@@ -2552,6 +3166,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       <div class="g-footer">
         <div class="g-footer-logo">🐯 TIGER 999</div>
         <div class="g-footer-sub">ระบบโพยหวย Professional</div>
+        <div style="margin-top:8px;font-size:13px;color:#a78bfa;">ติดต่อแอดมิน Line: <a href="https://lin.ee/F0PXniE" style="color:#a78bfa;">@TIGER999</a></div>
       </div>
 
     </div>
@@ -2575,29 +3190,31 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 <div class="qa-ov" id="qa-ov">
   <div class="qa-hd">
     <div class="qa-hd-top">
-      <div class="qa-hd-title">⚡ เพิ่มเลขด่วน</div>
+      <div class="qa-hd-title" id="qa-hd-title">⚡ เพิ่มเลขด่วน</div>
       <button class="qa-close" id="qa-close">✕</button>
-    </div>
-    <div class="qa-inp-row">
-      <input id="qa-inp" type="tel" inputmode="numeric" maxlength="5" enterkeyhint="go"
-        class="qa-inp" placeholder="กรอกเลข">
-      <button class="qa-add-lek" id="qa-add-lek-btn">+ เพิ่ม</button>
     </div>
   </div>
 
   <!-- โหมด 1: คีย์เลข -->
   <div class="qa-mode1" id="qa-mode1">
+    <div class="qa-inp-row" style="padding:10px 12px 0;">
+      <input id="qa-inp" type="tel" inputmode="numeric" maxlength="5" enterkeyhint="go"
+        class="qa-inp" placeholder="กรอกเลข">
+      <button class="qa-add-lek" id="qa-add-lek-btn">+ เพิ่ม</button>
+    </div>
+    <div style="font-size:11px;color:var(--gray);text-align:center;margin:4px 12px 0;">ปุ่มลัด: Enter / + (เพิ่มเลข) &nbsp;•&nbsp; - (ชุด/กลับ) &nbsp;•&nbsp; Enter / Tab (ถัดไป ตอนใส่ราคา)</div>
     <div class="qa-lek-list" id="qa-lek-list">
       <div class="qa-empty" id="qa-empty-msg">ยังไม่มีเลข — กรอกแล้วกด + เพิ่ม</div>
     </div>
-    <button class="qa-next-btn" id="qa-next-btn">▶ ไปใส่ราคา</button>
+    <button class="qa-next-btn" id="qa-next-btn">ถัดไป ▶</button>
   </div>
 
   <!-- โหมด 2: ใส่ราคา -->
   <div class="qa-mode2" id="qa-mode2">
+    <div style="font-size:11px;color:var(--gray);text-align:center;padding:6px 12px 0;">ปุ่มลัด: - (ชุด/กลับ) &nbsp;•&nbsp; Enter / Tab / + (ถัดไป)</div>
     <div class="qa-price-list" id="qa-price-list"></div>
     <button class="qa-back-btn" id="qa-back-btn">◀ กลับแก้เลข</button>
-    <button class="qa-submit-btn" id="qa-submit-btn">✓ เพิ่มทั้งหมดเข้าโพย</button>
+    <button class="qa-submit-btn" id="qa-submit-btn">✓ เพิ่มเข้าโพย</button>
   </div>
 </div>
 
@@ -2647,5 +3264,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     });
   });
 </script>
+<!-- TIP OVERLAY -->
+<div class="tip-ov" id="tip-ov">
+  <div class="tip-box">
+    <div class="tip-icon">🛒</div>
+    <div class="tip-title">อย่าลืมนะจ๊ะ!</div>
+    <div class="tip-body">คีย์เลขเสร็จทุกครั้ง<br>อย่าลืม <b>เก็บเข้าแฟ้มเป็นชุด</b> ด้วยนะครับ</div>
+    <button class="tip-ok" onclick="APP.closeTip()">👍 เข้าใจแล้ว</button>
+  </div>
+</div>
 </body>
 </html>
