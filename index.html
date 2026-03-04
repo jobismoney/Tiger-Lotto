@@ -196,7 +196,7 @@ function checkKey() {
   var keyInput = document.getElementById('keyInput');
 
   // Validate format
-  if(!/^T999-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(input)) {
+  if(!/^T999-[A-Z0-9]{4}(-[A-Z0-9]{4}-[A-Z0-9]{4})?$/.test(input)) {
     showError('รูปแบบรหัสไม่ถูกต้อง');
     return;
   }
@@ -206,7 +206,8 @@ function checkKey() {
   msg.classList.remove('show','error','success');
 
   setTimeout(function() {
-    var extracted = extractMMYY(input);
+    var isOldFormat = input.split('-').length === 2;
+var extracted = isOldFormat ? extractMMYY_OLD(input) : extractMMYY(input);
     var validList = getValidMMYY();
 
     if(validList.indexOf(extracted) !== -1) {
