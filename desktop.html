@@ -15,7 +15,8 @@
     var d=new Date(now.getFullYear(),now.getMonth()+m,1);
     var mm=String(d.getMonth()+1).padStart(2,'0');
     var yy=String(d.getFullYear()).slice(-2);
-    validList.push(mm+yy[1]+yy[0]);
+    var yyFlip=yy[1]+yy[0];
+    validList.push(mm+yyFlip);
   }
   if(validList.indexOf(exp)===-1){localStorage.removeItem('t999_key');localStorage.removeItem('t999_exp');window.location.href='index.html';}
 })();
