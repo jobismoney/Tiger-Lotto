@@ -361,9 +361,9 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
         <!-- action -->
         <div class="kp-btns">
-          <button class="kp-btn clr" onclick="resetNp()">✕ ล้าง</button>
+          <button class="kp-btn clr" onclick="resetNp()" onkeydown="if(event.key==='ArrowUp'){event.preventDefault();var f=getActiveFields();if(f.length){npPhase='price';npStep=(['bon','tod','lang','na'].indexOf(f[f.length-1]))+1;renderKpFields();}}">✕ ล้าง</button>
           <button class="kp-btn pak" onclick="openPak()">📌 ปัก</button>
-          <button class="kp-btn ok" onclick="addEntry()">✓ OK</button>
+          <button class="kp-btn ok" onclick="addEntry()" onkeydown="if(event.key==='Enter'||event.code==='NumpadEnter'){event.preventDefault();addEntry();}else if(event.code==='ArrowUp'){event.preventDefault();var f=getActiveFields();if(f.length){npPhase='price';npStep=(['bon','tod','lang','na'].indexOf(f[f.length-1]))+1;renderKpFields();document.activeElement.blur();}}">✓ OK</button>
         </div>
 
       </div>
@@ -828,7 +828,15 @@ function setupNumpad(){
       case 'ArrowDown': case 'ArrowRight':
         e.preventDefault();
         if(npPhase==='lek'&&npLek){npPhase='price';npStep=getFirstStep();npBuffer='';renderKpFields();}
-        else if(npPhase==='price'){commitBuffer();var ns=nextStep(npStep);if(ns>0){npStep=ns;npBuffer='';renderKpFields();}}
+        else if(npPhase==='price'){
+          commitBuffer();
+          var ns=nextStep(npStep);
+          if(ns>0){npStep=ns;npBuffer='';renderKpFields();}
+          else{
+            // ถึง field สุดท้ายแล้ว → focus OK btn
+            document.querySelector('.kp-btn.ok').focus();
+          }
+        }
         break;
 
       case 'NumpadEnter': case 'Enter':
@@ -1074,8 +1082,41 @@ function npQset(k,n){
   npStep=order.indexOf(k)+1;
   renderKpFields();
 }
-function permKey(e,p){
-  if(e.key==='Enter'||e.code==='NumpadEnter'){e.preventDefault();addEntry();}
+function permKey(e,perm){
+  var key=e.key||'';
+  // ห้ามตัวอักษรที่ไม่ใช่ตัวเลข backspace delete
+  if(key.length===1&&!/[0-9]/.test(key)){e.preventDefault();return;}
+
+  if(key==='Enter'||e.code==='NumpadEnter'){
+    e.preventDefault();addEntry();return;
+  }
+  if(key==='+'||e.code==='NumpadAdd'){
+    e.preventDefault();
+    // หา input ถัดไปใน perm rows ทั้งหมด
+    var all=Array.from(document.querySelectorAll('.perm-inp'));
+    var idx=all.indexOf(e.target);
+    if(idx>=0&&idx<all.length-1){
+      all[idx+1].focus();
+    } else {
+      // ออกจาก perm → กลับ numpad, addEntry
+      addEntry();
+    }
+    return;
+  }
+  if(e.code==='ArrowDown'||e.code==='ArrowRight'){
+    e.preventDefault();
+    var all=Array.from(document.querySelectorAll('.perm-inp'));
+    var idx=all.indexOf(e.target);
+    if(idx>=0&&idx<all.length-1) all[idx+1].focus();
+    return;
+  }
+  if(e.code==='ArrowUp'||e.code==='ArrowLeft'){
+    e.preventDefault();
+    var all=Array.from(document.querySelectorAll('.perm-inp'));
+    var idx=all.indexOf(e.target);
+    if(idx>0) all[idx-1].focus();
+    return;
+  }
 }
 
 // ================================================================
