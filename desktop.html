@@ -99,26 +99,40 @@ body.light .hdr{background:linear-gradient(135deg,#1a1d27,#12151f);}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
 
 /* price fields */
-.pfields{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
-.pfield{display:flex;align-items:center;gap:6px;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:8px 10px;transition:all .15s;}
-.pfield.active{border-color:var(--gold);background:rgba(245,197,24,.06);box-shadow:0 0 0 2px rgba(245,197,24,.15);}
-.pfield.disabled{opacity:.2;pointer-events:none;}
-.pfield-lbl{font-size:11px;font-weight:800;width:28px;flex-shrink:0;}
+.pfields{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+/* field-block ล้อ app.html */
+.field-block{background:var(--bg);border-radius:10px;border:1px solid var(--border);overflow:hidden;}
+.field-block.disabled{opacity:.18;pointer-events:none;}
+.field-block.klb-active{border-color:rgba(167,139,250,.4);}
+.field-main{display:flex;align-items:center;gap:6px;padding:7px 10px;}
+.field-main.active-field{background:rgba(245,197,24,.04);border-left:2px solid var(--gold);}
+.field-lbl{font-size:15px;font-weight:800;width:32px;flex-shrink:0;}
 .lbl-bon{color:#60a5fa;}
 .lbl-tod{color:#a78bfa;}
 .lbl-lang{color:#34d399;}
-.lbl-na{color:#fbbf24;}
-.pfield-val{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#f0f2ff;flex:1;letter-spacing:1px;}
-.pfield-val.empty{color:#252840;font-size:12px;}
-.pfield-val.typing{color:var(--gold);}
-.klb-btn{background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);border-radius:5px;padding:3px 7px;font-size:10px;font-weight:800;color:#a78bfa;cursor:pointer;white-space:nowrap;flex-shrink:0;display:none;font-family:'Sarabun',sans-serif;}
-.klb-btn.on{background:rgba(167,139,250,.2);border-color:#a78bfa;}
-.pfield.show-klb .klb-btn{display:block;}
+.lbl-na{color:#fb923c;}
+/* val display (แทน input) */
+.field-val{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);flex:1;letter-spacing:1px;min-width:0;}
+.field-val.empty{color:#252840;font-size:13px;font-family:'Sarabun',sans-serif;}
+.field-val.typing{color:var(--gold);}
+/* quick btns */
+
+/* klb btn ล้อ app */
+.klb-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));border:2px solid var(--gold2);border-radius:6px;color:#111;font-family:'Sarabun',sans-serif;font-size:11px;font-weight:900;padding:5px 8px;cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:0 0 6px rgba(245,197,24,.35);display:none;}
+.klb-btn.on{box-shadow:0 0 12px rgba(245,197,24,.7);}
+.show-klb .klb-btn{display:block;}
+/* perm rows ล้อ app */
+.perm-rows{display:none;border-top:1px solid rgba(167,139,250,.15);}
+.perm-rows.show{display:block;}
+.perm-row{display:flex;align-items:center;gap:5px;padding:6px 10px;border-bottom:1px solid rgba(167,139,250,.08);}
+.perm-row:last-child{border-bottom:none;}
+.perm-num{font-size:16px;font-weight:900;color:var(--purple);width:34px;flex-shrink:0;}
+.perm-inp{width:52px;background:var(--card);border:1.5px solid var(--border);border-radius:7px;color:var(--white);font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;padding:4px 3px;text-align:center;outline:none;flex-shrink:0;}
+.perm-inp:focus{border-color:var(--purple);}
+
 
 /* quick presets */
-.presets{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-bottom:8px;}
-.preset{background:#141b2e;border:1px solid #1a2040;border-radius:5px;padding:5px;text-align:center;font-size:11px;font-weight:800;color:#667;cursor:pointer;transition:all .15s;}
-.preset:hover{color:#fff;border-color:#2e3a60;}
+
 
 /* action btns */
 .kp-btns{display:flex;gap:5px;}
@@ -128,14 +142,6 @@ body.light .hdr{background:linear-gradient(135deg,#1a1d27,#12151f);}
 .kp-btn.pak{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.2);color:var(--gold);}
 
 
-/* perm rows */
-.perm-section{margin-top:6px;border-top:1px dashed rgba(167,139,250,.2);padding-top:6px;}
-.perm-sec-lbl{font-size:9px;font-weight:800;color:#445;letter-spacing:1px;margin-bottom:5px;}
-.perm-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
-.perm-num{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#a78bfa;width:32px;}
-.perm-inp{flex:1;background:#080b14;border:1.5px solid #1a2040;border-radius:6px;padding:5px 8px;font-family:'Bebas Neue',sans-serif;font-size:16px;color:#fff;outline:none;text-align:center;}
-.perm-inp:focus{border-color:rgba(167,139,250,.5);}
-.perm-inp.active-perm{border-color:#a78bfa;background:rgba(167,139,250,.05);}
 /* ปุ่ม pak แสดงเฉพาะเลข 1 ตัว */
 .kp-btn.pak{display:none;}
 .show-pak .kp-btn.pak{display:flex;}
@@ -329,33 +335,36 @@ body.light .hdr{background:linear-gradient(135deg,#1a1d27,#12151f);}
 
         <!-- price fields -->
         <div class="pfields" id="pfields">
-          <div class="pfield disabled" id="pf-bon">
-            <span class="pfield-lbl lbl-bon">บน</span>
-            <span class="pfield-val empty" id="pv-bon">—</span>
-            <button class="klb-btn" id="klb-bon" onclick="toggleKlb('bon')">กลับ</button>
+          <div class="field-block disabled" id="pf-bon">
+            <div class="field-main" id="fm-bon">
+              <span class="field-lbl lbl-bon">บน</span>
+              <span class="field-val empty" id="pv-bon">—</span>
+              <button class="klb-btn" id="klb-bon" onclick="toggleKlb('bon')">กลับ</button>
+            </div>
+            <div class="perm-rows" id="pr-bon"></div>
           </div>
-          <div class="pfield disabled" id="pf-tod">
-            <span class="pfield-lbl lbl-tod">โต๊ด</span>
-            <span class="pfield-val empty" id="pv-tod">—</span>
+          <div class="field-block disabled" id="pf-tod">
+            <div class="field-main" id="fm-tod">
+              <span class="field-lbl lbl-tod">โต๊ด</span>
+              <span class="field-val empty" id="pv-tod">—</span>
+              </div>
           </div>
-          <div class="pfield disabled" id="pf-lang">
-            <span class="pfield-lbl lbl-lang">ล่าง</span>
-            <span class="pfield-val empty" id="pv-lang">—</span>
-            <button class="klb-btn" id="klb-lang" onclick="toggleKlb('lang')">กลับ</button>
+          <div class="field-block disabled" id="pf-lang">
+            <div class="field-main" id="fm-lang">
+              <span class="field-lbl lbl-lang">ล่าง</span>
+              <span class="field-val empty" id="pv-lang">—</span>
+              <button class="klb-btn" id="klb-lang" onclick="toggleKlb('lang')">กลับ</button>
+            </div>
+            <div class="perm-rows" id="pr-lang"></div>
           </div>
-          <div class="pfield disabled" id="pf-na">
-            <span class="pfield-lbl lbl-na">หน้า</span>
-            <span class="pfield-val empty" id="pv-na">—</span>
-            <button class="klb-btn" id="klb-na" onclick="toggleKlb('na')">ชุด</button>
+          <div class="field-block disabled" id="pf-na">
+            <div class="field-main" id="fm-na">
+              <span class="field-lbl lbl-na">หน้า</span>
+              <span class="field-val empty" id="pv-na">—</span>
+              <button class="klb-btn" id="klb-na" onclick="toggleKlb('na')">ชุด</button>
+            </div>
+            <div class="perm-rows" id="pr-na"></div>
           </div>
-        </div>
-
-        <!-- presets -->
-        <div class="presets">
-          <div class="preset" onclick="npPreset(10)">10</div>
-          <div class="preset" onclick="npPreset(20)">20</div>
-          <div class="preset" onclick="npPreset(50)">50</div>
-          <div class="preset" onclick="npPreset(100)">100</div>
         </div>
 
         <!-- action -->
@@ -927,14 +936,7 @@ function resetNp(){
   renderKpFields();
 }
 
-function npPreset(n){
-  if(npPhase!=='price') return;
-  npBuffer=String(n);
-  commitBuffer();
-  npStep=nextStep(npStep);
-  if(npStep===0) addEntry();
-  else renderKpFields();
-}
+
 
 function renderKpFields(){
   var lekEl=document.getElementById('kp-lek-show');
@@ -971,18 +973,63 @@ function renderKpFields(){
   });
 
   var fields=getActiveFields();
-  var order=[['bon','pf-bon','pv-bon'],['tod','pf-tod','pv-tod'],['lang','pf-lang','pv-lang'],['na','pf-na','pv-na']];
-  order.forEach(function(r,i){
-    var k=r[0],pfId=r[1],pvId=r[2];
-    var pf=document.getElementById(pfId);
-    var pv=document.getElementById(pvId);
+  var order=['bon','tod','lang','na'];
+  var klbKeys={bon:true,lang:true,na:true}; // tod ไม่มีกลับ/ชุด
+  order.forEach(function(k,i){
+    var pf=document.getElementById('pf-'+k);
+    var pv=document.getElementById('pv-'+k);
+    var fm=document.getElementById('fm-'+k);
+    if(!pf||!pv) return;
     var isAllowed=fields.indexOf(k)>=0;
     var isActive=npPhase==='price'&&(npStep-1===i)&&isAllowed;
     var val=npFields[k];
-    pf.className='pfield'+(isActive?' active':'')+(isAllowed?'':' disabled');
-    if(isActive&&npBuffer){pv.textContent=npBuffer+'|';pv.className='pfield-val typing';}
-    else if(val!==null){pv.textContent=val;pv.className='pfield-val';}
-    else{pv.textContent='—';pv.className='pfield-val empty';}
+
+    // field-block class
+    var cls='field-block';
+    if(!isAllowed) cls+=' disabled';
+    if(npKlbOpen[k]) cls+=' klb-active';
+    pf.className=cls;
+
+    // field-main active highlight
+    if(fm) fm.className='field-main'+(isActive?' active-field':'');
+
+    // val display
+    if(isActive&&npBuffer){pv.textContent=npBuffer+'|';pv.className='field-val typing';}
+    else if(val!==null){pv.textContent=val;pv.className='field-val';}
+    else{pv.textContent='—';pv.className='field-val empty';}
+
+    // klb btn
+    var kb=document.getElementById('klb-'+k);
+    if(kb){
+      var canKlb=isAllowed&&klbKeys[k]&&(d===2||(d===3));
+      if(k==='na') canKlb=isAllowed&&d===3;
+      pf.classList.toggle('show-klb',canKlb);
+      var klbLbl=d===2?'กลับ':'ชุด';
+      kb.textContent=klbLbl;
+      kb.className='klb-btn'+(npKlbOpen[k]?' on':'');
+    }
+
+    // perm rows
+    var pr=document.getElementById('pr-'+k);
+    if(pr&&klbKeys[k]){
+      if(npKlbOpen[k]&&npLek.length>=2){
+        var perms=getPerms(npLek).filter(function(p){return p!==npLek;});
+        var h='';
+        perms.forEach(function(p){
+          var pdata=npPerms[p]||{};
+          var pv2=pdata[k]!==null&&pdata[k]!==undefined?pdata[k]:'';
+          h+='<div class="perm-row">'
+            +'<div class="perm-num">'+p+'</div>'
+            +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onkeydown="permKey(event,this.dataset.perm)">'
+            +'</div>';
+        });
+        pr.innerHTML=h;
+        pr.className='perm-rows show';
+      } else {
+        pr.innerHTML='';
+        pr.className='perm-rows';
+      }
+    }
   });
 
   // perm rows (กลับ/ชุด)
@@ -993,24 +1040,7 @@ function renderKpFields(){
     permContainer.className='perm-section';
     document.getElementById('pfields').after(permContainer);
   }
-  var anyOpen=Object.keys(npKlbOpen).some(function(f){return npKlbOpen[f];});
-  var perms=getPerms(npLek).filter(function(p){return p!==npLek;});
-  if(!anyOpen||!perms.length){permContainer.innerHTML='';permContainer.style.display='none';return;}
-  permContainer.style.display='';
-  var klbl=d===2?'กลับ':'ชุด';
-  var openFields=Object.keys(npKlbOpen).filter(function(f){return npKlbOpen[f];});
-  var h='<div class="perm-sec-lbl">'+klbl+' ('+openFields.map(function(f){return{bon:'บน',lang:'ล่าง',na:'หน้า'}[f];}).join('/')+')</div>';
-  perms.forEach(function(p){
-    var pdata=npPerms[p]||{};
-    h+='<div class="perm-row"><div class="perm-num">'+p+'</div>';
-    openFields.forEach(function(f){
-      var fnames={bon:'บ',lang:'ล',na:'น'};
-      var val=pdata[f]||'';
-      h+='<input class="perm-inp" data-perm="'+p+'" data-field="'+f+'" type="tel" inputmode="numeric" placeholder="'+fnames[f]+'" value="'+(val||'')+'" style="max-width:52px;" oninput="onPermInput(this)" onkeydown="permKey(event,this.dataset.perm)">';
-    });
-    h+='</div>';
-  });
-  permContainer.innerHTML=h;
+  if(permContainer){permContainer.innerHTML='';permContainer.style.display='none';}
   syncFloat();
 }
 
@@ -1019,6 +1049,20 @@ function onPermInput(el){
   var f=el.dataset.field||'bon';
   if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
   npPerms[p][f]=parseInt(el.value)||null;
+}
+function spv(el){setPermVal(el.dataset.pp,el.dataset.pk,parseInt(el.dataset.pn));}
+function setPermVal(p,f,n){
+  if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
+  npPerms[p][f]=n;
+  renderKpFields();
+}
+function npQset(k,n){
+  if(getActiveFields().indexOf(k)<0) return;
+  npFields[k]=n;
+  // เลื่อน step ไปช่องนั้น
+  var order=['bon','tod','lang','na'];
+  npStep=order.indexOf(k)+1;
+  renderKpFields();
 }
 function permKey(e,p){
   if(e.key==='Enter'||e.code==='NumpadEnter'){e.preventDefault();addEntry();}
