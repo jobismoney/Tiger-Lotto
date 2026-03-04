@@ -1010,18 +1010,19 @@ function renderKpFields(){
       if(npKlbOpen[k]&&npLek.length>=2){
         var perms=getPerms(npLek).filter(function(p){return p!==npLek;});
         var h='';
-        var mainVal=npFields[k]; // ราคาจากช่องหลัก
+        // อ่านราคาจากช่องหลัก รวม buffer ที่กำลังพิมพ์อยู่ด้วย
+        var mainVal=npFields[k];
+        if(mainVal===null&&npBuffer){
+          var curK=['bon','tod','lang','na'][npStep-1];
+          if(curK===k) mainVal=parseInt(npBuffer)||null;
+        }
+        // copy ราคาหลักลงทุก perm ที่ยังไม่มีราคา
         perms.forEach(function(p){
-          var pdata=npPerms[p]||{};
-          // ถ้ายังไม่มีราคา → copy จากช่องหลักอัตโนมัติ
-          if(pdata[k]===null||pdata[k]===undefined){
-            if(mainVal!==null){
-              if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
-              npPerms[p][k]=mainVal;
-              pdata=npPerms[p];
-            }
-          }
-          var pv2=pdata[k]!==null&&pdata[k]!==undefined?pdata[k]:'';
+          if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
+          if(npPerms[p][k]===null&&mainVal!==null) npPerms[p][k]=mainVal;
+        });
+        perms.forEach(function(p){
+          var pv2=npPerms[p][k]!==null?npPerms[p][k]:'';
           h+='<div class="perm-row">'
             +'<div class="perm-num">'+p+'</div>'
             +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onkeydown="permKey(event,this.dataset.perm)">'
@@ -1031,11 +1032,8 @@ function renderKpFields(){
         pr.className='perm-rows show';
         // focus ช่อง perm แรกถ้าเพิ่งเปิด
         if(npKlbJustOpened===k){
-          setTimeout(function(){
-            var first=pr.querySelector('.perm-inp');
-            if(first) first.focus();
-          },30);
           npKlbJustOpened=null;
+          (function(el){setTimeout(function(){if(el)el.focus();},30);})(pr.querySelector('.perm-inp'));
         }
       } else {
         pr.innerHTML='';
