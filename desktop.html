@@ -35,18 +35,11 @@
   --red:#e74c3c;--green:#22c55e;--purple:#a78bfa;
   --z1:#0d1020;--z2:#0c0f1e;--z3:#0f1117;--z4:#0b0e1a;
 }
-/* LIGHT MODE */
-body.light{
-  --bg:#f0f4ff;--card:#ffffff;--card2:#e8edf8;
-  --border:#c8d0e8;--lg:#5a6480;--white:#1a1d2e;
-  --gray:#4a5270;
-  --z1:#e4eaf8;--z2:#edf0fc;--z3:#f0f4ff;--z4:#e4eaf8;
-}
+
 html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);}
 
 /* ══ HEADER ══ */
 .hdr{height:48px;background:linear-gradient(135deg,#1a1d27,#12151f);border-bottom:2px solid var(--gold);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0;}
-body.light .hdr{background:linear-gradient(135deg,#1a1d27,#12151f);}
 .hdr-left{display:flex;align-items:center;gap:10px;}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:3px;}
 .ngod-info{display:flex;flex-direction:column;}
@@ -59,7 +52,7 @@ body.light .hdr{background:linear-gradient(135deg,#1a1d27,#12151f);}
 .hbtn-icon{font-size:16px;line-height:1;}
 .hbtn-lbl{font-size:9px;font-weight:800;line-height:1;}
 .hbtn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:none;font-weight:900;}
-.theme-btn{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:16px;line-height:1;}
+
 
 /* ══ 4 ZONES ══ */
 .main{display:grid;grid-template-columns:130px 200px 1fr 160px;height:calc(100vh - 42px);}
@@ -297,7 +290,6 @@ body.light .hdr{background:linear-gradient(135deg,#1a1d27,#12151f);}
     <div class="ngod-badge" id="ngod-badge">— เปิดงวดก่อน —</div>
   </div>
   <div class="hdr-btns">
-    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="สลับ Dark/Light">🌙</button>
     <button class="hbtn" onclick="openSettings()"><span class="hbtn-icon">⚙️</span><span class="hbtn-lbl">ตั้งค่า</span></button>
     <button class="hbtn" onclick="doPrint()"><span class="hbtn-icon">🖨️</span><span class="hbtn-lbl">พิมพ์</span></button>
     <button class="hbtn gold" onclick="openNgodModal()"><span class="hbtn-icon">📅</span><span class="hbtn-lbl">งวดใหม่</span></button>
@@ -913,11 +905,13 @@ function initPerms(k){
 
 function toggleKlb(k){
   npKlbOpen[k]=!npKlbOpen[k];
-  if(npKlbOpen[k]) initPerms(k);
-  else{
-    // ถ้าปิดและไม่มี field อื่น open → ล้าง perms
+  if(npKlbOpen[k]){
+    initPerms(k);
+    npKlbJustOpened=k;
+  } else {
     var anyOpen=Object.keys(npKlbOpen).some(function(f){return npKlbOpen[f];});
     if(!anyOpen) npPerms={};
+    npKlbJustOpened=null;
   }
   renderKpFields();
 }
@@ -926,13 +920,14 @@ function hasPerms(){return Object.keys(npPerms).length>0;}
 
 var npPerms={};  // {perm: {bon:null,lang:null,na:null}}
 var npKlbOpen={bon:false,lang:false,na:false};
+var npKlbJustOpened=null;
 var npPermStep=0; // index ของ perm ที่กำลัง active
 var npPermField='bon'; // field ที่กำลัง active ใน perm row
 
 function resetNp(){
   npLek='';npPhase='lek';npStep=0;npBuffer='';
   npFields={bon:null,tod:null,lang:null,na:null};
-  npPerms={}; npPermStep=0; npKlbOpen={bon:false,lang:false,na:false}; npPermField='bon'; npKlbOpen={bon:false,lang:false,na:false};
+  npPerms={}; npPermStep=0; npKlbOpen={bon:false,lang:false,na:false}; npPermField='bon'; npKlbJustOpened=null;
   renderKpFields();
 }
 
@@ -1015,8 +1010,17 @@ function renderKpFields(){
       if(npKlbOpen[k]&&npLek.length>=2){
         var perms=getPerms(npLek).filter(function(p){return p!==npLek;});
         var h='';
+        var mainVal=npFields[k]; // ราคาจากช่องหลัก
         perms.forEach(function(p){
           var pdata=npPerms[p]||{};
+          // ถ้ายังไม่มีราคา → copy จากช่องหลักอัตโนมัติ
+          if(pdata[k]===null||pdata[k]===undefined){
+            if(mainVal!==null){
+              if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
+              npPerms[p][k]=mainVal;
+              pdata=npPerms[p];
+            }
+          }
           var pv2=pdata[k]!==null&&pdata[k]!==undefined?pdata[k]:'';
           h+='<div class="perm-row">'
             +'<div class="perm-num">'+p+'</div>'
@@ -1025,6 +1029,14 @@ function renderKpFields(){
         });
         pr.innerHTML=h;
         pr.className='perm-rows show';
+        // focus ช่อง perm แรกถ้าเพิ่งเปิด
+        if(npKlbJustOpened===k){
+          setTimeout(function(){
+            var first=pr.querySelector('.perm-inp');
+            if(first) first.focus();
+          },30);
+          npKlbJustOpened=null;
+        }
       } else {
         pr.innerHTML='';
         pr.className='perm-rows';
@@ -1338,23 +1350,7 @@ function switchTab(name,el){
 // ================================================================
 function doPrint(){toast('กำลังพัฒนาครับ');}
 
-// ================================================================
-// THEME
-// ================================================================
-function toggleTheme(){
-  var isLight = document.body.classList.toggle('light');
-  document.getElementById('theme-btn').textContent = isLight ? '☀️' : '🌙';
-  localStorage.setItem('t999_theme', isLight ? 'light' : 'dark');
-}
-(function(){
-  if(localStorage.getItem('t999_theme')==='light'){
-    document.body.classList.add('light');
-    document.addEventListener('DOMContentLoaded',function(){
-      var tb=document.getElementById('theme-btn');
-      if(tb) tb.textContent='☀️';
-    });
-  }
-})();
+
 
 // ================================================================
 // TOAST
