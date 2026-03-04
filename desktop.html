@@ -793,7 +793,7 @@ function renderActiveRow(){
 // ================================================================
 function addEntry(){
   if(!ngodOpen){toast('เปิดงวดก่อนครับ');return;}
-  if(!curCustId){toast('เลือกลูกค้าก่อนครับ');return;}
+  if(!curCustId){openAddCust();return;}
   if(!npLek){toast('กรอกเลขก่อนครับ');return;}
   var hasAny = npFields.bon||npFields.tod||npFields.lang||npFields.na;
   if(!hasAny){toast('ใส่ราคาอย่างน้อย 1 ช่อง');return;}
@@ -964,7 +964,7 @@ function setPakPreset(n){document.getElementById('pak-price').value=n;}
 function addPak(){
   var price = parseInt(document.getElementById('pak-price').value)||0;
   if(!price){toast('ใส่ราคาด้วยครับ');return;}
-  if(!curCustId){toast('เลือกลูกค้าก่อนครับ');return;}
+  if(!curCustId){closePak();openAddCust();return;}
   if(!custEntries[curCustId]) custEntries[curCustId]=[];
   if(!custEid[curCustId]) custEid[curCustId]=0;
 
