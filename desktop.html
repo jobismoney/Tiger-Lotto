@@ -31,21 +31,35 @@
   --gold:#f5c518;--gold2:#c9a010;
   --bg:#0f1117;--card:#1a1d27;--card2:#222533;
   --border:#2e3248;--lg:#9ca3af;
-  --red:#e74c3c;--green:#22c55e;
-  /* zone colors */
-  --z1:#0d1020;--z2:#0f1117;--z3:#0d1020;--z4:#0b0e1a;
+  --white:#f0f2ff;--gray:#6b7280;
+  --red:#e74c3c;--green:#22c55e;--purple:#a78bfa;
+  --z1:#0d1020;--z2:#0c0f1e;--z3:#0f1117;--z4:#0b0e1a;
 }
-html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;background:var(--bg);color:#f0f2ff;}
+/* LIGHT MODE */
+body.light{
+  --bg:#f0f4ff;--card:#ffffff;--card2:#e8edf8;
+  --border:#c8d0e8;--lg:#5a6480;--white:#1a1d2e;
+  --gray:#4a5270;
+  --z1:#e4eaf8;--z2:#edf0fc;--z3:#f0f4ff;--z4:#e4eaf8;
+}
+html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);}
 
 /* ══ HEADER ══ */
-.hdr{height:42px;background:#080b12;border-bottom:2px solid var(--gold);display:flex;align-items:center;justify-content:space-between;padding:0 12px;flex-shrink:0;}
-.hdr-left{display:flex;align-items:center;gap:8px;}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);letter-spacing:3px;}
-.ngod-badge{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.2);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;color:var(--gold);}
-.hdr-btns{display:flex;gap:5px;}
-.hbtn{background:#141720;border:1px solid var(--border);border-radius:5px;color:var(--lg);font-size:11px;font-weight:700;padding:4px 9px;cursor:pointer;font-family:'Sarabun',sans-serif;transition:all .15s;}
-.hbtn:hover{color:#fff;border-color:#3e4268;}
+.hdr{height:48px;background:linear-gradient(135deg,#1a1d27,#12151f);border-bottom:2px solid var(--gold);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0;}
+body.light .hdr{background:linear-gradient(135deg,#1a1d27,#12151f);}
+.hdr-left{display:flex;align-items:center;gap:10px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:3px;}
+.ngod-info{display:flex;flex-direction:column;}
+.ngod-title{font-size:13px;font-weight:900;color:#f0f2ff;line-height:1;}
+.ngod-sub{font-size:10px;color:var(--lg);margin-top:1px;}
+.ngod-badge{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--gold);}
+.hdr-btns{display:flex;gap:6px;align-items:center;}
+.hbtn{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--lg);font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer;font-family:'Sarabun',sans-serif;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:44px;}
+.hbtn:hover{color:var(--white);border-color:#3e4268;}
+.hbtn-icon{font-size:16px;line-height:1;}
+.hbtn-lbl{font-size:9px;font-weight:800;line-height:1;}
 .hbtn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:none;font-weight:900;}
+.theme-btn{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:16px;line-height:1;}
 
 /* ══ 4 ZONES ══ */
 .main{display:grid;grid-template-columns:130px 200px 1fr 160px;height:calc(100vh - 42px);}
@@ -57,13 +71,13 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
 /* ZONE 1: แฟ้ม */
 .z1{background:var(--z1);}
-.z1 .zhdr{background:#080b12;border-bottom-color:#1a1d2a;}
+.z1 .zhdr{background:var(--card);border-bottom:1px solid var(--border);}
 
 .clist{overflow-y:auto;flex:1;padding:5px;}
-.citem{padding:6px 7px;border-radius:6px;margin-bottom:3px;border:1px solid transparent;cursor:pointer;transition:all .15s;}
-.citem.active{background:rgba(245,197,24,.07);border-color:rgba(245,197,24,.2);}
-.citem:not(.active){background:#141b2e;border-color:#1a2040;}
-.citem:hover:not(.active){border-color:#2e3a60;}
+.citem{padding:6px 7px;border-radius:8px;margin-bottom:4px;border:1px solid transparent;cursor:pointer;transition:all .15s;}
+.citem.active{background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.25);}
+.citem:not(.active){background:var(--card2);border-color:var(--border);}
+.citem:hover:not(.active){border-color:rgba(245,197,24,.15);}
 .cname{font-size:11px;font-weight:800;color:#f0f2ff;display:flex;align-items:center;gap:4px;}
 .cdot{width:5px;height:5px;border-radius:50%;background:#1e2540;flex-shrink:0;}
 .cdot.on{background:var(--gold);}
@@ -73,21 +87,21 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .cadd:hover{color:var(--gold);border-color:rgba(245,197,24,.2);}
 
 /* ZONE 2: คีย์เลข (keypad panel) */
-.z2{background:#0c0f1e;}
-.z2 .zhdr{background:#080b14;border-bottom-color:#1a1d30;}
+.z2{background:var(--z2);}
+.z2 .zhdr{background:var(--card);border-bottom:1px solid var(--border);}
 .kp-body{padding:10px;overflow-y:auto;flex:1;}
 
 /* lek display */
-.lek-display{background:#080b14;border:1.5px solid var(--border);border-radius:10px;padding:10px;text-align:center;margin-bottom:10px;position:relative;}
-.lek-big{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);letter-spacing:6px;min-height:44px;display:flex;align-items:center;justify-content:center;}
+.lek-display{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:10px 10px 8px;text-align:center;margin-bottom:10px;position:relative;}
+.lek-big{font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--gold);letter-spacing:8px;min-height:52px;display:flex;align-items:center;justify-content:center;}
 .lek-hint{font-size:10px;color:#334;margin-top:2px;}
 .cursor{display:inline-block;width:2px;height:28px;background:var(--gold);margin-left:2px;vertical-align:middle;animation:blink .9s step-end infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
 
 /* price fields */
 .pfields{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
-.pfield{display:flex;align-items:center;gap:6px;background:#080b14;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;transition:all .15s;}
-.pfield.active{border-color:var(--gold);background:rgba(245,197,24,.04);}
+.pfield{display:flex;align-items:center;gap:6px;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:8px 10px;transition:all .15s;}
+.pfield.active{border-color:var(--gold);background:rgba(245,197,24,.06);box-shadow:0 0 0 2px rgba(245,197,24,.15);}
 .pfield.disabled{opacity:.2;pointer-events:none;}
 .pfield-lbl{font-size:11px;font-weight:800;width:28px;flex-shrink:0;}
 .lbl-bon{color:#60a5fa;}
@@ -97,6 +111,9 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .pfield-val{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#f0f2ff;flex:1;letter-spacing:1px;}
 .pfield-val.empty{color:#252840;font-size:12px;}
 .pfield-val.typing{color:var(--gold);}
+.klb-btn{background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);border-radius:5px;padding:3px 7px;font-size:10px;font-weight:800;color:#a78bfa;cursor:pointer;white-space:nowrap;flex-shrink:0;display:none;font-family:'Sarabun',sans-serif;}
+.klb-btn.on{background:rgba(167,139,250,.2);border-color:#a78bfa;}
+.pfield.show-klb .klb-btn{display:block;}
 
 /* quick presets */
 .presets{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-bottom:8px;}
@@ -128,7 +145,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .float-toggle:hover{color:#667;}
 
 /* FLOATING KEYPAD */
-.float-kp{position:fixed;background:#0c0f1e;border:1.5px solid var(--gold);border-radius:12px;width:220px;box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:200;display:none;overflow:hidden;}
+.float-kp{position:fixed;background:var(--card);border:1.5px solid var(--gold);border-radius:12px;width:220px;box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:200;display:none;overflow:hidden;}
 .float-kp.show{display:block;}
 .float-hdr{background:#080b14;padding:8px 10px;border-bottom:1px solid #1a1d30;display:flex;align-items:center;justify-content:space-between;cursor:move;user-select:none;}
 .float-title{font-size:10px;font-weight:800;color:var(--gold);letter-spacing:1px;}
@@ -137,16 +154,16 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
 /* ZONE 3: History */
 .z3{background:var(--z3);}
-.z3 .zhdr{background:#080b12;}
+.z3 .zhdr{background:var(--card);border-bottom:1px solid var(--border);}
 
-.tbl-hdr{display:grid;grid-template-columns:46px 1fr 1fr 1fr 1fr 40px;border-bottom:1px solid var(--border);background:#080b12;flex-shrink:0;}
+.tbl-hdr{display:grid;grid-template-columns:46px 1fr 1fr 1fr 1fr 40px;border-bottom:1px solid var(--border);background:var(--card2);flex-shrink:0;}
 .th{padding:5px 3px;text-align:center;font-size:9px;font-weight:800;color:#334;border-right:1px solid var(--border);}
 .th:first-child{text-align:left;padding-left:8px;}
 .th:last-child{border-right:none;}
 
 .hist-scroll{overflow-y:auto;flex:1;}
-.hrow{display:grid;grid-template-columns:46px 1fr 1fr 1fr 1fr 40px;border-bottom:1px solid #0f1220;}
-.hrow:hover{background:rgba(255,255,255,.02);}
+.hrow{display:grid;grid-template-columns:46px 1fr 1fr 1fr 1fr 40px;border-bottom:1px solid var(--border);}
+.hrow:hover{background:rgba(245,197,24,.02);}
 .hrow.locked{opacity:.55;}
 .hd{padding:5px 3px;text-align:center;border-right:1px solid #0f1220;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#778;}
 .hd:first-child{justify-content:flex-start;padding-left:8px;}
@@ -173,13 +190,13 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .csb-val{font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--gold);}
 
 /* total bar */
-.totbar{padding:5px 10px;display:flex;justify-content:space-between;align-items:center;background:#080b12;border-top:1px solid var(--border);flex-shrink:0;}
+.totbar{padding:6px 12px;display:flex;justify-content:space-between;align-items:center;background:var(--card2);border-top:1px solid var(--border);flex-shrink:0;}
 .totlbl{font-size:10px;color:#334;}
 .totval{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--gold);}
 
 /* ZONE 4: สรุป/ตั้งค่า */
 .z4{background:var(--z4);}
-.z4 .zhdr{background:#060810;}
+.z4 .zhdr{background:var(--card);border-bottom:1px solid var(--border);}
 
 .rtabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
 .rtab{flex:1;padding:6px 3px;text-align:center;font-size:9px;font-weight:800;color:#334;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
@@ -218,8 +235,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 /* ══ POPUP ปักหลัก ══ */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:center;justify-content:center;}
 .overlay.show{display:flex;}
-.popup{background:#141720;border:1px solid var(--border);border-radius:13px;width:320px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.8);}
-.pop-hdr{background:#080b12;padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.popup{background:var(--card);border:1px solid var(--border);border-radius:13px;width:320px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.8);}
+.pop-hdr{background:var(--card2);padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .pop-title{font-size:13px;font-weight:900;color:var(--gold);}
 .pop-lek{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:3px;}
 .pop-close{background:none;border:none;color:#334;cursor:pointer;font-size:16px;}
@@ -247,9 +264,9 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 /* MODALS */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;}
 .modal-overlay.show{display:flex;}
-.modal{background:#141720;border:1px solid var(--border);border-radius:13px;width:300px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.8);}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:13px;width:300px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.8);}
 .modal-title{font-size:15px;font-weight:900;color:var(--gold);margin-bottom:14px;}
-.modal-inp{width:100%;background:#080b12;border:1.5px solid #1a2040;border-radius:7px;padding:9px 11px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;margin-bottom:9px;}
+.modal-inp{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:9px 11px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;margin-bottom:9px;}
 .modal-inp:focus{border-color:rgba(245,197,24,.3);}
 .modal-btns{display:flex;gap:7px;margin-top:4px;}
 .mbtn{flex:1;border:none;border-radius:7px;padding:9px;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:800;cursor:pointer;}
@@ -274,9 +291,10 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <div class="ngod-badge" id="ngod-badge">— เปิดงวดก่อน —</div>
   </div>
   <div class="hdr-btns">
-    <button class="hbtn" onclick="openSettings()">⚙️ ตั้งค่า</button>
-    <button class="hbtn" onclick="doPrint()">🖨️ พิมพ์</button>
-    <button class="hbtn gold" onclick="openNgodModal()">+ งวดใหม่</button>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="สลับ Dark/Light">🌙</button>
+    <button class="hbtn" onclick="openSettings()"><span class="hbtn-icon">⚙️</span><span class="hbtn-lbl">ตั้งค่า</span></button>
+    <button class="hbtn" onclick="doPrint()"><span class="hbtn-icon">🖨️</span><span class="hbtn-lbl">พิมพ์</span></button>
+    <button class="hbtn gold" onclick="openNgodModal()"><span class="hbtn-icon">📅</span><span class="hbtn-lbl">งวดใหม่</span></button>
   </div>
 </div>
 
@@ -314,6 +332,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
           <div class="pfield disabled" id="pf-bon">
             <span class="pfield-lbl lbl-bon">บน</span>
             <span class="pfield-val empty" id="pv-bon">—</span>
+            <button class="klb-btn" id="klb-bon" onclick="toggleKlb('bon')">กลับ</button>
           </div>
           <div class="pfield disabled" id="pf-tod">
             <span class="pfield-lbl lbl-tod">โต๊ด</span>
@@ -322,10 +341,12 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
           <div class="pfield disabled" id="pf-lang">
             <span class="pfield-lbl lbl-lang">ล่าง</span>
             <span class="pfield-val empty" id="pv-lang">—</span>
+            <button class="klb-btn" id="klb-lang" onclick="toggleKlb('lang')">กลับ</button>
           </div>
           <div class="pfield disabled" id="pf-na">
             <span class="pfield-lbl lbl-na">หน้า</span>
             <span class="pfield-val empty" id="pv-na">—</span>
+            <button class="klb-btn" id="klb-na" onclick="toggleKlb('na')">ชุด</button>
           </div>
         </div>
 
@@ -787,11 +808,13 @@ function setupNumpad(){
         commitBuffer();
         var d=npLek.length;
         if(d===1){
-          // copy บน→ล่าง
           if(npFields.bon!==null&&npFields.lang===null) npFields.lang=npFields.bon;
         } else if(d===2||d===3){
-          // เปิด perm mode
-          initPerms();
+          // toggle klb ของ field ที่ active อยู่
+          var curK=['bon','tod','lang','na'][npStep-1];
+          if(curK&&(curK==='bon'||curK==='lang'||(curK==='na'&&d===3))){
+            toggleKlb(curK);return;
+          }
         }
         npBuffer=''; renderKpFields(); break;
 
@@ -864,7 +887,7 @@ function updateFieldStates(){
     if(fields.indexOf(k)<0) npFields[k]=null;
   });
   // ล้าง perms ถ้าเปลี่ยนเลข
-  npPerms={}; npPermStep=0;
+  npPerms={}; npPermStep=0; npKlbOpen={bon:false,lang:false,na:false};
 }
 
 function getPerms(s){
@@ -874,21 +897,33 @@ function getPerms(s){
   return Object.keys(res).sort();
 }
 
-function initPerms(){
+function initPerms(k){
   var perms=getPerms(npLek).filter(function(p){return p!==npLek;});
   perms.forEach(function(p){if(!npPerms[p])npPerms[p]={bon:null,lang:null,na:null};});
+}
+
+function toggleKlb(k){
+  npKlbOpen[k]=!npKlbOpen[k];
+  if(npKlbOpen[k]) initPerms(k);
+  else{
+    // ถ้าปิดและไม่มี field อื่น open → ล้าง perms
+    var anyOpen=Object.keys(npKlbOpen).some(function(f){return npKlbOpen[f];});
+    if(!anyOpen) npPerms={};
+  }
+  renderKpFields();
 }
 
 function hasPerms(){return Object.keys(npPerms).length>0;}
 
 var npPerms={};  // {perm: {bon:null,lang:null,na:null}}
+var npKlbOpen={bon:false,lang:false,na:false};
 var npPermStep=0; // index ของ perm ที่กำลัง active
 var npPermField='bon'; // field ที่กำลัง active ใน perm row
 
 function resetNp(){
   npLek='';npPhase='lek';npStep=0;npBuffer='';
   npFields={bon:null,tod:null,lang:null,na:null};
-  npPerms={}; npPermStep=0; npPermField='bon';
+  npPerms={}; npPermStep=0; npKlbOpen={bon:false,lang:false,na:false}; npPermField='bon'; npKlbOpen={bon:false,lang:false,na:false};
   renderKpFields();
 }
 
@@ -919,6 +954,22 @@ function renderKpFields(){
   if(d===1&&npLek) kpInner.classList.add('show-pak');
   else kpInner.classList.remove('show-pak');
 
+  // แสดง/ซ่อน ปุ่ม กลับ/ชุด
+  var klbLabel = d===2?'กลับ':'ชุด';
+  ['bon','lang','na'].forEach(function(k){
+    var pf=document.getElementById('pf-'+k);
+    var kb=document.getElementById('klb-'+k);
+    if(!pf||!kb) return;
+    // bon+lang แสดงสำหรับ 2+3 ตัว, na แสดงเฉพาะ 3 ตัว
+    var showKlb=false;
+    if(k==='bon'||k==='lang') showKlb=(d===2||d===3)&&npLek!=='';
+    if(k==='na') showKlb=(d===3)&&npLek!=='';
+    if(showKlb){pf.classList.add('show-klb');kb.textContent=klbLabel;}
+    else pf.classList.remove('show-klb');
+    // highlight ถ้า open
+    kb.className='klb-btn'+(npKlbOpen[k]?' on':'');
+  });
+
   var fields=getActiveFields();
   var order=[['bon','pf-bon','pv-bon'],['tod','pf-tod','pv-tod'],['lang','pf-lang','pv-lang'],['na','pf-na','pv-na']];
   order.forEach(function(r,i){
@@ -942,17 +993,22 @@ function renderKpFields(){
     permContainer.className='perm-section';
     document.getElementById('pfields').after(permContainer);
   }
-  var perms=Object.keys(npPerms).sort();
-  if(perms.length===0){permContainer.innerHTML='';permContainer.style.display='none';return;}
+  var anyOpen=Object.keys(npKlbOpen).some(function(f){return npKlbOpen[f];});
+  var perms=getPerms(npLek).filter(function(p){return p!==npLek;});
+  if(!anyOpen||!perms.length){permContainer.innerHTML='';permContainer.style.display='none';return;}
   permContainer.style.display='';
   var klbl=d===2?'กลับ':'ชุด';
-  var h='<div class="perm-sec-lbl">'+klbl+' — ใส่ราคาแต่ละตัว</div>';
-  perms.forEach(function(p,pi){
-    var pf=npPerms[p].bon!==null?npPerms[p].bon:'';
-    h+='<div class="perm-row">'
-      +'<div class="perm-num">'+p+'</div>'
-      +'<input class="perm-inp" id="perm-inp-'+p+'" data-perm="'+p+'" type="tel" inputmode="numeric" placeholder="฿" value="'+(pf||'')+'" oninput="onPermInput(this)" onkeydown="permKey(event,this.dataset.perm)">'
-      +'</div>';
+  var openFields=Object.keys(npKlbOpen).filter(function(f){return npKlbOpen[f];});
+  var h='<div class="perm-sec-lbl">'+klbl+' ('+openFields.map(function(f){return{bon:'บน',lang:'ล่าง',na:'หน้า'}[f];}).join('/')+')</div>';
+  perms.forEach(function(p){
+    var pdata=npPerms[p]||{};
+    h+='<div class="perm-row"><div class="perm-num">'+p+'</div>';
+    openFields.forEach(function(f){
+      var fnames={bon:'บ',lang:'ล',na:'น'};
+      var val=pdata[f]||'';
+      h+='<input class="perm-inp" data-perm="'+p+'" data-field="'+f+'" type="tel" inputmode="numeric" placeholder="'+fnames[f]+'" value="'+(val||'')+'" style="max-width:52px;" oninput="onPermInput(this)" onkeydown="permKey(event,this.dataset.perm)">';
+    });
+    h+='</div>';
   });
   permContainer.innerHTML=h;
   syncFloat();
@@ -960,8 +1016,9 @@ function renderKpFields(){
 
 function onPermInput(el){
   var p=el.dataset.perm;
+  var f=el.dataset.field||'bon';
   if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
-  npPerms[p].bon=parseInt(el.value)||null;
+  npPerms[p][f]=parseInt(el.value)||null;
 }
 function permKey(e,p){
   if(e.key==='Enter'||e.code==='NumpadEnter'){e.preventDefault();addEntry();}
@@ -1236,6 +1293,24 @@ function switchTab(name,el){
 // PRINT
 // ================================================================
 function doPrint(){toast('กำลังพัฒนาครับ');}
+
+// ================================================================
+// THEME
+// ================================================================
+function toggleTheme(){
+  var isLight = document.body.classList.toggle('light');
+  document.getElementById('theme-btn').textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('t999_theme', isLight ? 'light' : 'dark');
+}
+(function(){
+  if(localStorage.getItem('t999_theme')==='light'){
+    document.body.classList.add('light');
+    document.addEventListener('DOMContentLoaded',function(){
+      var tb=document.getElementById('theme-btn');
+      if(tb) tb.textContent='☀️';
+    });
+  }
+})();
 
 // ================================================================
 // TOAST
