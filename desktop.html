@@ -686,11 +686,19 @@ function selectCust(id){
   npFields={bon:null,tod:null,lang:null,na:null};
   save(); renderCustList(); renderHist(); updateSummary(); renderKpFields();
 }
+function entryTotal(e){
+  var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);
+  // รวม paks
+  (e.paks||[]).forEach(function(p){t+=p.price;});
+  // รวม kd (กลับ/ชุด)
+  var kd=e.kd||{};
+  ['bon','lang','na'].forEach(function(k){(kd[k]||[]).forEach(function(x){t+=x.price;});});
+  return t;
+}
+
 function calcCustTotal(cid){
   var all=getAllEntries(cid);
-  return all.reduce(function(s,e){
-    return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0)+(e.paks||[]).reduce(function(p,k){return p+k.price;},0);
-  },0);
+  return all.reduce(function(s,e){return s+entryTotal(e);},0);
 }
 function getAllEntries(cid){
   var sets=custSets[cid]||[];
@@ -1158,9 +1166,7 @@ function renderHist(){
 
   var sets=custSets[curCustId]||[];
   var curEntries=custEntries[curCustId]||[];
-  var curTotal=curEntries.reduce(function(s,e){
-    return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0)+(e.paks||[]).reduce(function(p,k){return p+k.price;},0);
-  },0);
+  var curTotal=curEntries.reduce(function(s,e){return s+entryTotal(e);},0);
   var grandTotal=calcCustTotal(curCustId||'');
   document.getElementById('cur-set-lbl').textContent='ชุดที่ '+(sets.length+1)+' — กำลังคีย์';
   document.getElementById('cur-set-total').textContent='฿'+curTotal.toLocaleString();
@@ -1169,7 +1175,7 @@ function renderHist(){
   var h='';
   // current entries (active)
   curEntries.forEach(function(e){
-    var tot=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0)+(e.paks||[]).reduce(function(s,p){return s+p.price;},0);
+    var tot=entryTotal(e);
     h+='<div class="hrow">'
       +'<div class="hd lek">'+e.lek+'</div>'
       +'<div class="hd'+(e.bon?'':' e')+'">'+(e.bon||'—')+'</div>'
@@ -1205,9 +1211,7 @@ function renderHist(){
   // locked sets
   sets.slice().reverse().forEach(function(s,si){
     var setNum=sets.length-si;
-    var setTotal=s.entries.reduce(function(st,e){
-      return st+(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0)+(e.paks||[]).reduce(function(p,k){return p+k.price;},0);
-    },0);
+    var setTotal=s.entries.reduce(function(st,e){return st+entryTotal(e);},0);
     h+='<div class="set-div"><span>🔒 ชุดที่ '+setNum+'</span><span>฿'+setTotal.toLocaleString()+'</span></div>';
     s.entries.forEach(function(e){
       h+='<div class="hrow locked">'
@@ -1236,10 +1240,25 @@ function updateSummary(){
   var g={t3:0,t2:0,vb:0,vl:0,tod:0,t3l:0};
   getAllEntries(curCustId||'').forEach(function(e){
     var d=e.d;
-    if(d===3){g.t3+=(e.bon||0)+(e.na||0);g.tod+=(e.tod||0);g.t3l+=(e.lang||0);}
-    else if(d===2){g.t2+=(e.bon||0)+(e.lang||0);g.tod+=(e.tod||0);}
-    else if(d===1){g.vb+=(e.bon||0);g.vl+=(e.lang||0);}
-    else if(d>=4){g.tod+=(e.tod||0);}
+    var kd=e.kd||{};
+    if(d===3){
+      g.t3+=(e.bon||0)+(e.na||0);
+      g.tod+=(e.tod||0);
+      g.t3l+=(e.lang||0);
+      (kd.bon||[]).forEach(function(x){g.t3+=x.price;});
+      (kd.na||[]).forEach(function(x){g.t3+=x.price;});
+      (kd.lang||[]).forEach(function(x){g.t3l+=x.price;});
+    } else if(d===2){
+      g.t2+=(e.bon||0)+(e.lang||0);
+      g.tod+=(e.tod||0);
+      (kd.bon||[]).forEach(function(x){g.t2+=x.price;});
+      (kd.lang||[]).forEach(function(x){g.t2+=x.price;});
+    } else if(d===1){
+      g.vb+=(e.bon||0);
+      g.vl+=(e.lang||0);
+    } else if(d>=4){
+      g.tod+=(e.tod||0);
+    }
     (e.paks||[]).forEach(function(p){g.t3+=p.price;});
   });
   function sv(id,val){var el=document.getElementById(id);el.textContent='฿'+val.toLocaleString();el.className='sum-row-val'+(val===0?' zero':'');}
