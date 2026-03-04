@@ -1286,8 +1286,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       FS[k].klbOpen=!FS[k].klbOpen;
       if(FS[k].klbOpen){
         var pl=getPerms(curLek).filter(function(p){return p!==curLek;});
-        var mp=FS[k].price;
-        pl.forEach(function(p){if(!FS[k].pp[p])FS[k].pp[p]=mp||'';});
+        // อ่านราคาจาก input element ด้วย เผื่อยังไม่ได้ blur
+        var inp=document.getElementById('fi-'+k);
+        var mp=parseInt(inp?inp.value:'')||parseInt(FS[k].price)||0;
+        // copy ราคาลงทุก perm อัตโนมัติ (ไม่ว่าจะมีราคาเดิมหรือเปล่า)
+        if(mp) pl.forEach(function(p){FS[k].pp[p]=String(mp);});
+        else pl.forEach(function(p){if(!FS[k].pp[p])FS[k].pp[p]='';});
       }
       var al=RULES[curLek.length]||[];
       var old=document.getElementById('fb-'+k);

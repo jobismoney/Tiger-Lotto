@@ -780,51 +780,63 @@ function setupNumpad(){
 
     switch(e.code||e.key){
 
-      // + = บน หรือเลื่อนถัดไป
-      case 'NumpadAdd': case '+':
+      // Enter = เลื่อนช่องถัดไปเรื่อยๆ จนถึง submit
+      case 'NumpadEnter': case 'Enter':
         e.preventDefault();
         if(npPhase==='lek'){
           if(!npLek){toast('กรอกเลขก่อนครับ');return;}
           npPhase='price';
           npStep=(npLek.length>=4)?2:1;
-          npBuffer='';
+          npBuffer=''; renderKpFields();
         } else {
           commitBuffer();
-          npStep=nextStep(npStep);
-          npBuffer='';
-          if(npStep===0){addEntry();return;}
+          var ns=nextStep(npStep);
+          if(ns>0){npStep=ns;npBuffer='';renderKpFields();}
+          else addEntry();
         }
-        renderKpFields(); break;
+        break;
 
-      // / = โต๊ด (step 2)
-      case 'NumpadDivide': case '/':
+      // + = กลับ/ชุด ของช่อง active
+      case 'NumpadAdd': case '+':
         e.preventDefault();
-        if(npPhase==='lek'){if(!npLek){toast('กรอกเลขก่อนครับ');return;}npPhase='price';}
-        else commitBuffer();
-        npStep=2; npBuffer=''; renderKpFields(); break;
+        if(npPhase==='lek'){toast('กรอกเลขแล้วกด Enter ก่อนครับ');return;}
+        commitBuffer();
+        var dPlus=npLek.length;
+        var curKlb=['bon','tod','lang','na'][npStep-1];
+        if(dPlus===1){
+          // 1 ตัว: copy บน→ล่าง
+          if(npFields.bon!==null&&npFields.lang===null) npFields.lang=npFields.bon;
+          npBuffer=''; renderKpFields();
+        } else if(dPlus>=2&&dPlus<=3&&curKlb&&curKlb!=='tod'){
+          toggleKlb(curKlb);
+        } else {
+          npBuffer=''; renderKpFields();
+        }
+        break;
 
-      // * = ล่าง (step 3)
+      // * = โต๊ด
       case 'NumpadMultiply': case '*':
         e.preventDefault();
         if(npPhase==='lek'){if(!npLek){toast('กรอกเลขก่อนครับ');return;}npPhase='price';}
         else commitBuffer();
-        npStep=3; npBuffer=''; renderKpFields(); break;
+        // เฉพาะเลขที่มีโต๊ด
+        if(getActiveFields().indexOf('tod')>=0){npStep=2;}
+        npBuffer=''; renderKpFields(); break;
 
-      // - = กลับ(2ตัว) / ชุด(3ตัว) / copy บน→ล่าง(1ตัว)
+      // - = ล่าง
       case 'NumpadSubtract': case '-':
         e.preventDefault();
-        if(npPhase==='lek'){if(!npLek)return;npPhase='price';npStep=1;npBuffer='';renderKpFields();break;}
-        commitBuffer();
-        var d=npLek.length;
-        if(d===1){
-          if(npFields.bon!==null&&npFields.lang===null) npFields.lang=npFields.bon;
-        } else if(d===2||d===3){
-          // toggle klb ของ field ที่ active อยู่
-          var curK=['bon','tod','lang','na'][npStep-1];
-          if(curK&&(curK==='bon'||curK==='lang'||(curK==='na'&&d===3))){
-            toggleKlb(curK);return;
-          }
-        }
+        if(npPhase==='lek'){if(!npLek){toast('กรอกเลขก่อนครับ');return;}npPhase='price';}
+        else commitBuffer();
+        if(getActiveFields().indexOf('lang')>=0){npStep=3;}
+        npBuffer=''; renderKpFields(); break;
+
+      // / = หน้า
+      case 'NumpadDivide': case '/':
+        e.preventDefault();
+        if(npPhase==='lek'){if(!npLek){toast('กรอกเลขก่อนครับ');return;}npPhase='price';}
+        else commitBuffer();
+        if(getActiveFields().indexOf('na')>=0){npStep=4;}
         npBuffer=''; renderKpFields(); break;
 
       // ลูกศร = เลื่อน cursor
@@ -838,19 +850,11 @@ function setupNumpad(){
         if(npPhase==='lek'&&npLek){npPhase='price';npStep=getFirstStep();npBuffer='';renderKpFields();}
         else if(npPhase==='price'){
           commitBuffer();
-          var ns=nextStep(npStep);
-          if(ns>0){npStep=ns;npBuffer='';renderKpFields();}
-          else{
-            // ถึง field สุดท้ายแล้ว → focus OK btn
-            document.querySelector('.kp-btn.ok').focus();
-          }
+          var nsd=nextStep(npStep);
+          if(nsd>0){npStep=nsd;npBuffer='';renderKpFields();}
+          else document.querySelector('.kp-btn.ok').focus();
         }
         break;
-
-      case 'NumpadEnter': case 'Enter':
-        e.preventDefault();
-        if(npPhase==='price') commitBuffer();
-        addEntry(); break;
 
       case 'Backspace':
         e.preventDefault();
