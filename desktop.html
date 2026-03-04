@@ -55,9 +55,13 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
 
 /* ══ 4 ZONES ══ */
-.main{display:grid;grid-template-columns:130px 200px 1fr 160px;height:calc(100vh - 42px);}
-.zone{display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden;}
+.main{display:flex;height:calc(100vh - 48px);}
+.zone{display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
+.zone.z3{flex:1;min-width:200px;}
 .zone:last-child{border-right:none;}
+/* resize handle */
+.rzh{width:5px;background:transparent;cursor:col-resize;flex-shrink:0;border-right:1px solid var(--border);transition:background .15s;position:relative;z-index:10;}
+.rzh:hover,.rzh.dragging{background:rgba(245,197,24,.3);}
 .zhdr{padding:6px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .ztitle{font-size:10px;font-weight:800;color:#445;letter-spacing:1px;text-transform:uppercase;}
 .zbody{flex:1;overflow:hidden;display:flex;flex-direction:column;}
@@ -296,10 +300,10 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   </div>
 </div>
 
-<div class="main">
+<div class="main" id="main-grid">
 
   <!-- ZONE 1: แฟ้มลูกค้า -->
-  <div class="zone z1">
+  <div class="zone z1" id="zone1" style="width:130px;">
     <div class="zhdr">
       <span class="ztitle">📂 แฟ้ม</span>
       <span id="cust-count" style="font-size:9px;color:#2a3050;">0</span>
@@ -310,8 +314,9 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     </div>
   </div>
 
+  <div class="rzh" id="rzh1"></div>
   <!-- ZONE 2: คีย์เลข -->
-  <div class="zone z2">
+  <div class="zone z2" id="zone2" style="width:200px;">
     <div class="zhdr">
       <span class="ztitle">⌨️ คีย์เลข</span>
       <button class="float-toggle" onclick="toggleFloat()" title="ลอย/ฝัง">⤢</button>
@@ -370,8 +375,9 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     </div>
   </div>
 
+  <div class="rzh" id="rzh2"></div>
   <!-- ZONE 3: History -->
-  <div class="zone z3">
+  <div class="zone z3" id="zone3">
     <div class="zhdr">
       <span class="ztitle">📋 รายการ — <span id="mid-cust-name" style="color:var(--gold);">—</span></span>
       <button onclick="lockSet()" style="background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.15);border-radius:4px;padding:3px 7px;font-size:9px;font-weight:800;color:var(--gold);cursor:pointer;font-family:'Sarabun',sans-serif;">🔒 ล็อคชุด</button>
@@ -399,8 +405,9 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     </div>
   </div>
 
+  <div class="rzh" id="rzh3"></div>
   <!-- ZONE 4: สรุป/ตั้งค่า -->
-  <div class="zone z4">
+  <div class="zone z4" id="zone4" style="width:160px;">
     <div class="rtabs">
       <div class="rtab on" onclick="switchTab('sum',this)">สรุป</div>
       <div class="rtab" onclick="switchTab('check',this)">ตรวจ</div>
@@ -600,6 +607,7 @@ window.addEventListener('DOMContentLoaded', function(){
   renderCfgRows();
   setupNumpad();
   setupFloat();
+  setupResize();
   // auto ngod suggestion
   autoNgodDate();
 });
@@ -1038,11 +1046,8 @@ function renderKpFields(){
         });
         pr.innerHTML=h;
         pr.className='perm-rows show';
-        // focus ช่อง perm แรกถ้าเพิ่งเปิด
-        if(npKlbJustOpened===k){
-          npKlbJustOpened=null;
-          (function(el){setTimeout(function(){if(el)el.focus();},30);})(pr.querySelector('.perm-inp'));
-        }
+        // reset just-opened flag
+        if(npKlbJustOpened===k) npKlbJustOpened=null;
       } else {
         pr.innerHTML='';
         pr.className='perm-rows';
@@ -1084,26 +1089,9 @@ function npQset(k,n){
 }
 function permKey(e,perm){
   var key=e.key||'';
-  // ห้ามตัวอักษรที่ไม่ใช่ตัวเลข backspace delete
   if(key.length===1&&!/[0-9]/.test(key)){e.preventDefault();return;}
-
-  if(key==='Enter'||e.code==='NumpadEnter'){
-    e.preventDefault();addEntry();return;
-  }
-  if(key==='+'||e.code==='NumpadAdd'){
-    e.preventDefault();
-    // หา input ถัดไปใน perm rows ทั้งหมด
-    var all=Array.from(document.querySelectorAll('.perm-inp'));
-    var idx=all.indexOf(e.target);
-    if(idx>=0&&idx<all.length-1){
-      all[idx+1].focus();
-    } else {
-      // ออกจาก perm → กลับ numpad, addEntry
-      addEntry();
-    }
-    return;
-  }
-  if(e.code==='ArrowDown'||e.code==='ArrowRight'){
+  if(key==='Enter'||e.code==='NumpadEnter'){e.preventDefault();addEntry();return;}
+  if(key==='+'||e.code==='NumpadAdd'||e.code==='ArrowDown'||e.code==='ArrowRight'){
     e.preventDefault();
     var all=Array.from(document.querySelectorAll('.perm-inp'));
     var idx=all.indexOf(e.target);
@@ -1390,6 +1378,37 @@ function switchTab(name,el){
 function doPrint(){toast('กำลังพัฒนาครับ');}
 
 
+
+// ================================================================
+// RESIZE ZONES
+// ================================================================
+function setupResize(){
+  var pairs=[
+    ['rzh1','zone1'],
+    ['rzh2','zone2'],
+    ['rzh3','zone4']  // rzh3 resize zone4 จากขวา
+  ];
+  pairs.forEach(function(pair){
+    var handle=document.getElementById(pair[0]);
+    var zone=document.getElementById(pair[1]);
+    if(!handle||!zone) return;
+    var startX,startW,dragging=false;
+    handle.addEventListener('mousedown',function(e){
+      dragging=true; startX=e.clientX; startW=zone.offsetWidth;
+      handle.classList.add('dragging');
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove',function(e){
+      if(!dragging) return;
+      var diff = pair[0]==='rzh3' ? startX-e.clientX : e.clientX-startX;
+      var newW=Math.max(100,Math.min(400,startW+diff));
+      zone.style.width=newW+'px';
+    });
+    document.addEventListener('mouseup',function(){
+      if(dragging){dragging=false;handle.classList.remove('dragging');}
+    });
+  });
+}
 
 // ================================================================
 // TOAST
