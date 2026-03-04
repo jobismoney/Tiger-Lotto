@@ -110,6 +110,19 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .kp-btn.clr{background:#141b2e;border:1px solid #1a2040;color:#667;}
 .kp-btn.pak{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.2);color:var(--gold);}
 
+
+/* perm rows */
+.perm-section{margin-top:6px;border-top:1px dashed rgba(167,139,250,.2);padding-top:6px;}
+.perm-sec-lbl{font-size:9px;font-weight:800;color:#445;letter-spacing:1px;margin-bottom:5px;}
+.perm-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.perm-num{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#a78bfa;width:32px;}
+.perm-inp{flex:1;background:#080b14;border:1.5px solid #1a2040;border-radius:6px;padding:5px 8px;font-family:'Bebas Neue',sans-serif;font-size:16px;color:#fff;outline:none;text-align:center;}
+.perm-inp:focus{border-color:rgba(167,139,250,.5);}
+.perm-inp.active-perm{border-color:#a78bfa;background:rgba(167,139,250,.05);}
+/* ปุ่ม pak แสดงเฉพาะเลข 1 ตัว */
+.kp-btn.pak{display:none;}
+.show-pak .kp-btn.pak{display:flex;}
+
 /* float btn */
 .float-toggle{background:none;border:none;color:#334;font-size:11px;cursor:pointer;padding:2px 5px;}
 .float-toggle:hover{color:#667;}
@@ -767,12 +780,19 @@ function setupNumpad(){
         else commitBuffer();
         npStep=3; npBuffer=''; renderKpFields(); break;
 
-      // - = ชุด/กลับ (copy บน→ล่าง)
+      // - = กลับ(2ตัว) / ชุด(3ตัว) / copy บน→ล่าง(1ตัว)
       case 'NumpadSubtract': case '-':
         e.preventDefault();
         if(npPhase==='lek'){if(!npLek)return;npPhase='price';npStep=1;npBuffer='';renderKpFields();break;}
         commitBuffer();
-        if(npFields.bon!==null && npFields.lang===null) npFields.lang=npFields.bon;
+        var d=npLek.length;
+        if(d===1){
+          // copy บน→ล่าง
+          if(npFields.bon!==null&&npFields.lang===null) npFields.lang=npFields.bon;
+        } else if(d===2||d===3){
+          // เปิด perm mode
+          initPerms();
+        }
         npBuffer=''; renderKpFields(); break;
 
       // ลูกศร = เลื่อน cursor
@@ -839,16 +859,36 @@ function commitBuffer(){
 }
 
 function updateFieldStates(){
-  // reset fields ที่ไม่ valid สำหรับ digit ปัจจุบัน
   var fields=getActiveFields();
   ['bon','tod','lang','na'].forEach(function(k){
     if(fields.indexOf(k)<0) npFields[k]=null;
   });
+  // ล้าง perms ถ้าเปลี่ยนเลข
+  npPerms={}; npPermStep=0;
 }
+
+function getPerms(s){
+  if(s.length<=1)return[s];
+  var res={};
+  for(var i=0;i<s.length;i++){var r=s.slice(0,i)+s.slice(i+1);getPerms(r).forEach(function(p){res[s[i]+p]=1;});}
+  return Object.keys(res).sort();
+}
+
+function initPerms(){
+  var perms=getPerms(npLek).filter(function(p){return p!==npLek;});
+  perms.forEach(function(p){if(!npPerms[p])npPerms[p]={bon:null,lang:null,na:null};});
+}
+
+function hasPerms(){return Object.keys(npPerms).length>0;}
+
+var npPerms={};  // {perm: {bon:null,lang:null,na:null}}
+var npPermStep=0; // index ของ perm ที่กำลัง active
+var npPermField='bon'; // field ที่กำลัง active ใน perm row
 
 function resetNp(){
   npLek='';npPhase='lek';npStep=0;npBuffer='';
   npFields={bon:null,tod:null,lang:null,na:null};
+  npPerms={}; npPermStep=0; npPermField='bon';
   renderKpFields();
 }
 
@@ -862,17 +902,22 @@ function npPreset(n){
 }
 
 function renderKpFields(){
-  // เลข
   var lekEl=document.getElementById('kp-lek-show');
   lekEl.innerHTML=(npLek||'—')+(npPhase==='lek'?'<span class="cursor"></span>':'');
 
   var hintEl=document.getElementById('kp-lek-hint');
-  if(npPhase==='lek') hintEl.textContent=npLek?npLek.length+' หลัก — กด + เพื่อใส่ราคา':'กด Numpad เพื่อคีย์เลข';
+  var d=npLek.length;
+  if(npPhase==='lek') hintEl.textContent=npLek?d+' หลัก — กด + เพื่อใส่ราคา':'กด Numpad เพื่อคีย์เลข';
   else{
     var knames={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
     var curKey=['bon','tod','lang','na'][npStep-1];
     hintEl.textContent=curKey?'กำลังใส่ '+knames[curKey]:'';
   }
+
+  // แสดง/ซ่อน ปุ่ม pak เฉพาะ 1 ตัว
+  var kpInner=document.getElementById('kp-inner');
+  if(d===1&&npLek) kpInner.classList.add('show-pak');
+  else kpInner.classList.remove('show-pak');
 
   var fields=getActiveFields();
   var order=[['bon','pf-bon','pv-bon'],['tod','pf-tod','pv-tod'],['lang','pf-lang','pv-lang'],['na','pf-na','pv-na']];
@@ -883,15 +928,43 @@ function renderKpFields(){
     var isAllowed=fields.indexOf(k)>=0;
     var isActive=npPhase==='price'&&(npStep-1===i)&&isAllowed;
     var val=npFields[k];
-
     pf.className='pfield'+(isActive?' active':'')+(isAllowed?'':' disabled');
     if(isActive&&npBuffer){pv.textContent=npBuffer+'|';pv.className='pfield-val typing';}
     else if(val!==null){pv.textContent=val;pv.className='pfield-val';}
     else{pv.textContent='—';pv.className='pfield-val empty';}
   });
 
-  // sync float panel
+  // perm rows (กลับ/ชุด)
+  var permContainer=document.getElementById('perm-section');
+  if(!permContainer){
+    permContainer=document.createElement('div');
+    permContainer.id='perm-section';
+    permContainer.className='perm-section';
+    document.getElementById('pfields').after(permContainer);
+  }
+  var perms=Object.keys(npPerms).sort();
+  if(perms.length===0){permContainer.innerHTML='';permContainer.style.display='none';return;}
+  permContainer.style.display='';
+  var klbl=d===2?'กลับ':'ชุด';
+  var h='<div class="perm-sec-lbl">'+klbl+' — ใส่ราคาแต่ละตัว</div>';
+  perms.forEach(function(p,pi){
+    var pf=npPerms[p].bon!==null?npPerms[p].bon:'';
+    h+='<div class="perm-row">'
+      +'<div class="perm-num">'+p+'</div>'
+      +'<input class="perm-inp" id="perm-inp-'+p+'" data-perm="'+p+'" type="tel" inputmode="numeric" placeholder="฿" value="'+(pf||'')+'" oninput="onPermInput(this)" onkeydown="permKey(event,this.dataset.perm)">'
+      +'</div>';
+  });
+  permContainer.innerHTML=h;
   syncFloat();
+}
+
+function onPermInput(el){
+  var p=el.dataset.perm;
+  if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
+  npPerms[p].bon=parseInt(el.value)||null;
+}
+function permKey(e,p){
+  if(e.key==='Enter'||e.code==='NumpadEnter'){e.preventDefault();addEntry();}
 }
 
 // ================================================================
@@ -908,9 +981,18 @@ function addEntry(){
   if(!custEntries[curCustId]) custEntries[curCustId]=[];
   if(!custEid[curCustId]) custEid[curCustId]=0;
   custEid[curCustId]++;
+  // สร้าง kd จาก perms
+  var kd={bon:[],lang:[],na:[]};
+  Object.keys(npPerms).forEach(function(p){
+    var pv=npPerms[p];
+    if(pv.bon) kd.bon.push({perm:p,price:pv.bon});
+    if(pv.lang) kd.lang.push({perm:p,price:pv.lang});
+    if(pv.na) kd.na.push({perm:p,price:pv.na});
+  });
   custEntries[curCustId].unshift({
     id:custEid[curCustId],lek:npLek,d:npLek.length,
-    bon:npFields.bon,tod:npFields.tod,lang:npFields.lang,na:npFields.na,paks:[]
+    bon:npFields.bon,tod:npFields.tod,lang:npFields.lang,na:npFields.na,
+    paks:[],kd:kd
   });
   resetNp(); save(); renderHist(); renderCustList(); updateSummary();
 }
@@ -957,6 +1039,21 @@ function renderHist(){
         +'<div class="pkd">'+e.lek+'</div>'
         +'<div class="pkd">📌'+p.typeLabel+' '+p.posLabel+' ฿'+p.price+'</div>'
         +'<div class="pkd"></div>'
+        +'</div>';
+    });
+    // kd (กลับ/ชุด)
+    var kd=e.kd||{};
+    var permMap={};
+    ['bon','lang','na'].forEach(function(k){(kd[k]||[]).forEach(function(x){if(!permMap[x.perm])permMap[x.perm]={};permMap[x.perm][k]=x.price;});});
+    Object.keys(permMap).sort().forEach(function(p){
+      var pm=permMap[p];
+      h+='<div class="hrow" style="background:rgba(167,139,250,.02);">'
+        +'<div class="hd lek" style="color:#8b6fd4;padding-left:14px;">'+p+'</div>'
+        +'<div class="hd'+(pm.bon?'':' e')+'">'+(pm.bon||'—')+'</div>'
+        +'<div class="hd e">—</div>'
+        +'<div class="hd'+(pm.lang?'':' e')+'">'+(pm.lang||'—')+'</div>'
+        +'<div class="hd e">—</div>'
+        +'<div class="hd"></div>'
         +'</div>';
     });
   });
