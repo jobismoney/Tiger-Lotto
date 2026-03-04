@@ -134,21 +134,59 @@ document.getElementById('keyInput').addEventListener('keydown', function(e) {
   if(e.key==='Enter') checkKey();
 });
 
-function generateKeys() {
-  // สร้างรหัสจาก seed + วันหมดอายุ
-  // Format: T999-[4chars]-[4chars]-[MMYY] 
-  // ตัวอย่าง T999-AB3K-XP9Q-0326 = หมด มี.ค. 69
-  var validKeys = [];
+// ===== CONFIG: เปลี่ยนตรงนี้ทุกครั้งที่อยากเปลี่ยน pattern =====
+// T999-0XX4-XX6X-X2XX
+// MMYY = 0426 → สลับปีเป็น 62 → 0462
+// ตำแหน่งใน key string (ไม่นับ T999- = index 5 เป็นต้นไป)
+// T    9    9    9    -    b1   b1   b1   b1   -    b2   b2   b2   b2   -    b3   b3   b3   b3
+// 0    1    2    3    4    5    6    7    8    9    10   11   12   13   14   15   16   17   18
+// ตำแหน่ง MMYY ที่ซ่อนไว้:
+// M1(0) = index 5, M2(4) = index 8, Y2(6) = index 11, Y1(2) = index 15
+var KEY_POSITIONS = {
+  M1: 5,   // เดือน หลักแรก
+  M2: 8,   // เดือน หลักสอง
+  Y1: 12,  // ปี หลักแรก สลับ (ปี26 → 62 → Y1=6 อยู่ที่นี่)
+  Y2: 16   // ปี หลักสอง สลับ (ปี26 → 62 → Y2=2 อยู่ที่นี่)
+};
+// ============================================================
+
+function extractMMYY(key) {
+  // นับตำแหน่งจาก string เต็ม รวม - ด้วย
+  var M1 = key[KEY_POSITIONS.M1] || "";
+  var M2 = key[KEY_POSITIONS.M2] || "";
+  var Y1 = key[KEY_POSITIONS.Y1] || "";
+  var Y2 = key[KEY_POSITIONS.Y2] || "";
+  return M1 + M2 + Y1 + Y2;
+}
+function extractMMYY_OLD(key) {
+  // ดึง MMYY จากตำแหน่งที่กำหนด
+  var k = key.replace(/-/g,''); // ลบ - ออก → T9990XX4XX6XX2XX (16 chars)
+  // นับใหม่หลังลบ - : T=0,9=1,9=2,9=3,b1b1b1b1=4-7,b2b2b2b2=8-11,b3b3b3b3=12-15
+  var pos = {
+    M1: KEY_POSITIONS.M1 - 1,  // -1 เพราะลบ - แรกออก (T999-)
+    M2: KEY_POSITIONS.M2 - 2,  // -2 เพราะลบ - สองตัว
+    Y1: KEY_POSITIONS.Y1 - 3,
+    Y2: KEY_POSITIONS.Y2 - 2
+  };
+  var M1 = k[pos.M1] || '';
+  var M2 = k[pos.M2] || '';
+  var Y1 = k[pos.Y1] || '';
+  var Y2 = k[pos.Y2] || '';
+  return M1 + M2 + Y1 + Y2; // MMYY (ปีสลับแล้ว)
+}
+
+function getValidMMYY() {
+  var validList = [];
   var now = new Date();
-  
-  // รองรับเดือนปัจจุบัน + เดือนก่อนหน้า (กรณีออกรหัสปลายเดือน)
   for(var m=-1; m<=0; m++) {
     var d = new Date(now.getFullYear(), now.getMonth()+m, 1);
     var mm = String(d.getMonth()+1).padStart(2,'0');
     var yy = String(d.getFullYear()).slice(-2);
-    validKeys.push(mm+yy);
+    // สลับปี: 26 → 62
+    var yyFlip = yy[1] + yy[0];
+    validList.push(mm + yyFlip);
   }
-  return validKeys;
+  return validList;
 }
 
 function checkKey() {
@@ -158,31 +196,25 @@ function checkKey() {
   var keyInput = document.getElementById('keyInput');
 
   // Validate format
-  if(!/^T999-[A-Z0-9]{4}-[A-Z0-9]{4}-[0-9]{4}$/.test(input)) {
+  if(!/^T999-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(input)) {
     showError('รูปแบบรหัสไม่ถูกต้อง');
     return;
   }
 
-  // Loading
   btn.disabled = true;
   btn.classList.add('loading');
   msg.classList.remove('show','error','success');
 
   setTimeout(function() {
-    var suffix = input.slice(-4); // MMYY
-    var validSuffixes = generateKeys();
-    
-    if(validSuffixes.indexOf(suffix) !== -1) {
-      // บันทึกว่า login แล้ว
+    var extracted = extractMMYY(input);
+    var validList = getValidMMYY();
+
+    if(validList.indexOf(extracted) !== -1) {
       localStorage.setItem('t999_key', input);
-      localStorage.setItem('t999_exp', suffix);
-      
+      localStorage.setItem('t999_exp', extracted);
       msg.textContent = '✓ รหัสถูกต้อง กำลังเข้าสู่ระบบ...';
       msg.className = 'msg success show';
-      
-      setTimeout(function() {
-        window.location.href = 'app.html';
-      }, 800);
+      setTimeout(function() { window.location.href = 'app.html'; }, 800);
     } else {
       btn.disabled = false;
       btn.classList.remove('loading');
@@ -207,9 +239,22 @@ function showError(text) {
   var key = localStorage.getItem('t999_key');
   var exp = localStorage.getItem('t999_exp');
   if(key && exp) {
-    var validSuffixes = generateKeys();
-    if(validSuffixes.indexOf(exp) !== -1) {
-      window.location.href = 'app.html';
+    var now = new Date();
+    var validList = [];
+    for(var m=-1;m<=0;m++){
+      var d=new Date(now.getFullYear(),now.getMonth()+m,1);
+      var mm=String(d.getMonth()+1).padStart(2,'0');
+      var yy=String(d.getFullYear()).slice(-2);
+      var yyFlip=yy[1]+yy[0];
+      validList.push(mm+yyFlip);
+    }
+    if(validList.indexOf(exp)!==-1){
+      // ตรวจขนาดจอ → ส่งไปหน้าที่เหมาะสม
+      if(window.innerWidth >= 768){
+        window.location.href='desktop.html';
+      } else {
+        window.location.href='app.html';
+      }
     } else {
       localStorage.removeItem('t999_key');
       localStorage.removeItem('t999_exp');
