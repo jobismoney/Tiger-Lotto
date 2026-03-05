@@ -1285,7 +1285,7 @@ function permKey(e,perm){
     e.preventDefault();
     var group=Array.from(e.target.closest('.perm-rows').querySelectorAll('.perm-inp'));
     var idx=group.indexOf(e.target);
-    if(idx>0){ group[idx-1].focus(); group[idx-1].select(); }
+    if(idx>0){ var t=group[idx-1]; t.focus(); setTimeout(function(){t.select();},0); }
     return;
   }
 
@@ -1294,7 +1294,7 @@ function permKey(e,perm){
     e.preventDefault();
     var group=Array.from(e.target.closest('.perm-rows').querySelectorAll('.perm-inp'));
     var idx=group.indexOf(e.target);
-    if(idx>=0&&idx<group.length-1){ group[idx+1].focus(); group[idx+1].select(); }
+    if(idx>=0&&idx<group.length-1){ var t=group[idx+1]; t.focus(); setTimeout(function(){t.select();},0); }
     return;
   }
 
