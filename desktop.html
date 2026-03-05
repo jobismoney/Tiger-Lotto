@@ -1200,7 +1200,8 @@ function renderKpFields(){
           }
           perms.forEach(function(p){
             if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
-            if(npPerms[p][k]===null&&mainVal!==null) npPerms[p][k]=mainVal;
+            // copy mainVal เฉพาะที่ยังไม่เคยถูก set และไม่ได้ถูก delete
+            if(npPerms[p][k]===null && mainVal!==null && !npDeletedPerms[k][p]) npPerms[p][k]=mainVal;
           });
           perms.forEach(function(p){
             var pv2=npPerms[p][k]!==null?npPerms[p][k]:'';
