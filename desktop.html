@@ -1192,7 +1192,7 @@ function renderKpFields(){
           var fieldStep=['bon','tod','lang','na'].indexOf(k)+1;
           h+='<div class="perm-row">'
             +'<div class="perm-num">'+p+'</div>'
-            +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onfocus="npStep='+fieldStep+';npBuffer=\'\'" onkeydown="permKey(event,this.dataset.perm)">'
+            +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onfocus="npStep='+fieldStep+';npBuffer=\'\';renderKpFields()" onkeydown="permKey(event,this.dataset.perm)">'
             +'<button class="perm-del" onclick="delPerm(\''+p+'\',\''+k+'\')" title="ลบ">✕</button>'
             +'</div>';
         });
@@ -1245,25 +1245,42 @@ function npQset(k,n){
 }
 function permKey(e,perm){
   var key=e.key||'';
+  // กรองตัวอักษรที่ไม่ใช่ตัวเลข (แต่ยอม ArrowKey, Backspace, Delete)
+  var allowed=['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Backspace','Delete','Tab','Enter','NumpadEnter'];
   if(key.length===1&&!/[0-9]/.test(key)){e.preventDefault();return;}
+
   if(key==='Enter'||e.code==='NumpadEnter'){
     e.preventDefault();
-    onPermInput(e.target);  // save ค่าก่อน
-    e.target.blur();        // blur → numpad จะรับ Enter ต่อเอง
+    onPermInput(e.target);
+    e.target.blur();
     return;
   }
-  if(key==='+'||e.code==='NumpadAdd'||e.code==='ArrowDown'||e.code==='ArrowRight'){
+
+  // ↑ = เลื่อนขึ้น row ก่อนหน้า (ใน group เดียวกัน)
+  if(e.code==='ArrowUp'){
     e.preventDefault();
-    var all=Array.from(document.querySelectorAll('.perm-inp'));
-    var idx=all.indexOf(e.target);
-    if(idx>=0&&idx<all.length-1) all[idx+1].focus();
+    var group=Array.from(e.target.closest('.perm-rows').querySelectorAll('.perm-inp'));
+    var idx=group.indexOf(e.target);
+    if(idx>0) group[idx-1].focus();
     return;
   }
-  if(e.code==='ArrowUp'||e.code==='ArrowLeft'){
+
+  // ↓ = เลื่อนลง row ถัดไป (ใน group เดียวกัน)
+  if(e.code==='ArrowDown'){
     e.preventDefault();
-    var all=Array.from(document.querySelectorAll('.perm-inp'));
-    var idx=all.indexOf(e.target);
-    if(idx>0) all[idx-1].focus();
+    var group=Array.from(e.target.closest('.perm-rows').querySelectorAll('.perm-inp'));
+    var idx=group.indexOf(e.target);
+    if(idx>=0&&idx<group.length-1) group[idx+1].focus();
+    return;
+  }
+
+  // ← → = เลื่อน cursor ในช่องตามปกติ (ไม่ preventDefault)
+  // + = เลื่อนลง row ถัดไป
+  if(key==='+'||e.code==='NumpadAdd'){
+    e.preventDefault();
+    var group=Array.from(e.target.closest('.perm-rows').querySelectorAll('.perm-inp'));
+    var idx=group.indexOf(e.target);
+    if(idx>=0&&idx<group.length-1) group[idx+1].focus();
     return;
   }
 }
