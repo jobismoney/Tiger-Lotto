@@ -490,9 +490,9 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
         <!-- action -->
         <div class="kp-btns" id="kp-action-btns">
-          <button class="kp-btn clr" id="btn-clr" onclick="resetNp()">✕ ล้าง</button>
-          <button class="kp-btn pak" id="btn-pak" onclick="openPak()">📌 ปัก</button>
-          <button class="kp-btn ok" id="btn-ok" onclick="addEntry()">✓ OK</button>
+          <button class="kp-btn clr" id="btn-clr" onclick="resetNp();this.blur()">✕ ล้าง</button>
+          <button class="kp-btn pak" id="btn-pak" onclick="openPak();this.blur()">📌 ปัก</button>
+          <button class="kp-btn ok" id="btn-ok" onclick="addEntry();this.blur()">✓ OK</button>
         </div>
 
       </div>
@@ -891,6 +891,10 @@ function setupNumpad(){
 
     if(e.key>='0'&&e.key<='9'){
       e.preventDefault();
+      // ถ้า focus ค้างอยู่ที่ปุ่ม ล้าง/ปัก/OK → blur ออกก่อน
+      if(document.activeElement&&document.activeElement.closest('#kp-action-btns')){
+        document.activeElement.blur();
+      }
       if(npPhase==='lek'){
         if(npLek.length<5){npLek+=e.key; updateFieldStates();}
       } else {
@@ -901,12 +905,17 @@ function setupNumpad(){
 
     switch(e.code||e.key){
 
-      // Enter = ถ้าโฟกัสอยู่ที่ปุ่ม ล้าง/ปัก/OK → กด click ทันที ไม่ต้องเดิน step
+      // Enter = ถ้าโฟกัสอยู่ที่ปุ่ม ล้าง/ปัก/OK และไม่ได้กำลังพิมพ์เลข → click ปุ่มนั้น
       case 'NumpadEnter': case 'Enter':
         e.preventDefault();
         var focusedBtn=document.activeElement;
+        // trigger ปุ่มเฉพาะตอนที่ npLek ว่างเปล่า (ยังไม่ได้เริ่มพิมพ์) หรือกำลัง focus ปุ่มอยู่จริงๆ
+        // ถ้ากำลังพิมพ์เลขอยู่ → blur ปุ่มออกก่อนแล้วค่อย process numpad
         if(focusedBtn&&focusedBtn.closest('#kp-action-btns')){
-          focusedBtn.click(); break;
+          focusedBtn.blur();
+          // ถ้าไม่มีเลขในระบบ → แค่ blur แล้วหยุด (ป้องกันล้างค่าซ้ำ)
+          if(!npLek&&npPhase==='lek') break;
+          // ถ้ามีเลขอยู่ → ทำงานปกติ ไม่ click ปุ่ม
         }
         if(npPhase==='lek'){
           if(!npLek){toast('กรอกเลขก่อนครับ');return;}
