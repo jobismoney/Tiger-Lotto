@@ -194,7 +194,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .slip-ov-btn:hover{color:#fff;}
 .slip-ov-btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:none;font-weight:900;}
 .slip-ov-inner{max-width:900px;width:100%;margin:0 auto;padding:14px 16px 50px;}
-.slip-top-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+
 .slip-top-btn{background:#1e293b;border:1px solid #334155;border-radius:8px;color:#94a3b8;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;padding:8px 16px;cursor:pointer;}
 .slip-top-btn.blue{background:linear-gradient(135deg,#1d4ed8,#1e40af);color:#fff;border:none;}
 .slip-top-btn.close{background:#1e293b;border-color:#475569;color:#94a3b8;}
@@ -229,18 +229,11 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .slip-ft .fv{color:#f5c518;font-size:20px;font-weight:900;}
 .slip-legend{font-size:10px;color:#888;padding:3px 8px;text-align:right;background:#fff;border-top:1px solid #eee;}
 @media print{
-  .hdr,.main,.slip-top-bar{display:none!important;}
-  .slip-ov{display:block!important;position:static!important;background:transparent!important;overflow:visible!important;}
-  .slip-ov-inner{padding:0!important;max-width:none!important;}
-  .slip-pages-grid{display:grid!important;grid-template-columns:1fr 1fr!important;}
-  .slip-page-sum{grid-column:1/-1!important;}
-}
-
-
-@media print{
   .hdr,.main,.slip-ov-bar{display:none!important;}
   .slip-ov{position:static!important;background:#fff!important;display:block!important;overflow:visible!important;}
   .slip-ov-inner{padding:0!important;max-width:none!important;}
+  .slip-pages-grid{display:grid!important;grid-template-columns:1fr 1fr!important;}
+  .slip-page-sum{grid-column:1/-1!important;}
   .slip-page-single,.slip-page-sum{box-shadow:none!important;border-radius:0!important;page-break-after:always;}
 }
 
@@ -729,7 +722,7 @@ function autoNgodDate(){
   var now = new Date();
   var d = now.getDate(), m = now.getMonth()+1, y = now.getFullYear();
   var nextD, nextM = m, nextY = y;
-  if(d < 1){ nextD=1; }
+  if(d <= 1){ nextD=16; }
   else if(d < 16){ nextD=16; }
   else { nextD=1; nextM=m+1; if(nextM>12){nextM=1;nextY++;} }
   var thY = (nextY - 2500 + 2500 - 2000 + 43); // แปลงเป็น พ.ศ. 2 หลัก
@@ -1276,7 +1269,24 @@ function onPermInput(el){
 function delPerm(p,k){
   delete npPermsData[k][p];
   npPermsDeleted[k][p]=true;  // ห้าม copy mainVal กลับ
-  renderKpFields();
+  // re-render เฉพาะ perm-rows นั้น ไม่ต้อง render ทั้งหมด
+  var pr=document.getElementById('pr-'+k);
+  if(!pr) return;
+  var perms=getPerms(npLek).filter(function(x){return x!==npLek;});
+  var h='';
+  perms.forEach(function(pm){
+    if(npPermsDeleted[k][pm]) return;
+    if(!(pm in npPermsData[k])) return;
+    var pv=npPermsData[k][pm]!==null?npPermsData[k][pm]:'';
+    var fieldStep=['bon','tod','lang','na'].indexOf(k)+1;
+    h+='<div class="perm-row">'
+      +'<div class="perm-num">'+pm+'</div>'
+      +'<input type="tel" class="perm-inp" data-perm="'+pm+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv||'')+'" oninput="onPermInput(this)" onfocus="syncPermFocus('+fieldStep+',false)" onkeydown="permKey(event,this.dataset.perm)">'
+      +'<button class="perm-del" onclick="delPerm(\''+pm+'\',\''+k+'\')" title="ลบ">✕</button>'
+      +'</div>';
+  });
+  if(h){ pr.innerHTML=h; pr.className='perm-rows show'; }
+  else { pr.innerHTML=''; pr.className='perm-rows'; }
 }
 function spv(el){setPermVal(el.dataset.pp,el.dataset.pk,parseInt(el.dataset.pn));}
 function setPermVal(p,f,n){
