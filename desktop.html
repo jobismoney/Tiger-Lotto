@@ -1157,6 +1157,17 @@ function renderKpFields(){
     // field-main active highlight
     if(fm) fm.className='field-main'+(isActive?' active-field':'');
 
+    // auto-scroll ให้ field ที่ active อยู่ในวิวเสมอ
+    if(isActive&&pf){
+      setTimeout(function(){
+        var body=document.getElementById('kp-inner');
+        if(!body) return;
+        var r=pf.getBoundingClientRect(), br=body.getBoundingClientRect();
+        if(r.bottom>br.bottom-8) body.scrollTop+=r.bottom-br.bottom+16;
+        else if(r.top<br.top+8) body.scrollTop-=br.top-r.top+16;
+      },0);
+    }
+
     // val display
     if(isActive&&npBuffer){pv.textContent=npBuffer+'|';pv.className='field-val typing';}
     else if(val!==null){pv.textContent=val;pv.className='field-val';}
