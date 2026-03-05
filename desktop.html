@@ -569,7 +569,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <div class="slip-ov-bar">
     <span class="slip-ov-title">📋 ดูรายการ / พิมพ์โพย</span>
     <div class="slip-ov-btns">
-      <button class="slip-ov-btn" onclick="doPrint()">🖨️ พิมพ์</button>
+      <button class="slip-ov-btn" onclick="window.print()">🖨️ พิมพ์ / Save รูป</button>
       <button class="slip-ov-btn gold" onclick="closeSlip()">✕ ปิด</button>
     </div>
   </div>
@@ -1779,19 +1779,19 @@ function toast(msg){
   setTimeout(function(){el.classList.remove('show');},2200);
 }
 
-// fix fullwidth
+// showSlip = alias ของ doPrint (เรียกจากปุ่มหลายจุด)
+function showSlip(){
+  // เปิด overlay ก่อน แล้วค่อยโหลด content ของลูกค้าที่เลือกอยู่
+  var cid = curCustId;
+  // ถ้ายังไม่ได้เลือก — แสดงทุกลูกค้า หรือ toast
+  if(!cid){ toast('เลือกลูกค้าก่อนครับ'); return; }
+  var html = buildSlipHTML(cid);
+  if(!html){ toast('ยังไม่มีรายการ'); return; }
+  document.getElementById('slip-pages').innerHTML = html;
+  document.getElementById('slip-ov').classList.add('show');
+  document.getElementById('slip-ov').scrollTop = 0;
+}
 
 </script>
-
-<!-- SLIP OVERLAY -->
-<div class="slip-ov" id="slip-ov">
-  <div class="slip-ov-inner">
-    <div class="slip-top-bar">
-      <button class="slip-top-btn close" onclick="closeSlip()">← กลับ</button>
-      <button class="slip-top-btn blue" onclick="window.print()">🖨️ พิมพ์ / Save รูป</button>
-    </div>
-    <div class="slip-pages-grid" id="slip-pages"></div>
-  </div>
-</div>
 </body>
 </html>
