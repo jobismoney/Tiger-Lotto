@@ -1174,31 +1174,33 @@ function renderKpFields(){
     var pr=document.getElementById('pr-'+k);
     if(pr&&klbKeys[k]){
       if(npKlbOpen[k]&&npLek.length>=2){
-        // กรอง perm ที่ถูกลบออก (blacklist)
-        var perms=getPerms(npLek).filter(function(p){return p!==npLek&&!npDeletedPerms[p];});
-        var h='';
-        var mainVal=npFields[k];
-        if(mainVal===null&&npBuffer){
-          var curK=['bon','tod','lang','na'][npStep-1];
-          if(curK===k) mainVal=parseInt(npBuffer)||null;
+        // ถ้า focus อยู่ใน perm-rows นี้อยู่แล้ว → อย่า re-render (จะทำให้ focus หาย)
+        var focusInPr=pr.contains(document.activeElement);
+        if(!focusInPr){
+          var perms=getPerms(npLek).filter(function(p){return p!==npLek&&!npDeletedPerms[p];});
+          var h='';
+          var mainVal=npFields[k];
+          if(mainVal===null&&npBuffer){
+            var curK=['bon','tod','lang','na'][npStep-1];
+            if(curK===k) mainVal=parseInt(npBuffer)||null;
+          }
+          perms.forEach(function(p){
+            if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
+            if(npPerms[p][k]===null&&mainVal!==null) npPerms[p][k]=mainVal;
+          });
+          perms.forEach(function(p){
+            var pv2=npPerms[p][k]!==null?npPerms[p][k]:'';
+            var fieldStep=['bon','tod','lang','na'].indexOf(k)+1;
+            h+='<div class="perm-row">'
+              +'<div class="perm-num">'+p+'</div>'
+              +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onfocus="npPhase=\'price\';npStep='+fieldStep+';npBuffer=\'\';renderKpFields()" onkeydown="permKey(event,this.dataset.perm)">'
+              +'<button class="perm-del" onclick="delPerm(\''+p+'\',\''+k+'\')" title="ลบ">✕</button>'
+              +'</div>';
+          });
+          pr.innerHTML=h;
+          pr.className='perm-rows show';
+          if(npKlbJustOpened===k) npKlbJustOpened=null;
         }
-        // copy ราคาหลักลงทุก perm ที่ยังไม่มีราคา (และไม่อยู่ใน blacklist)
-        perms.forEach(function(p){
-          if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
-          if(npPerms[p][k]===null&&mainVal!==null) npPerms[p][k]=mainVal;
-        });
-        perms.forEach(function(p){
-          var pv2=npPerms[p][k]!==null?npPerms[p][k]:'';
-          var fieldStep=['bon','tod','lang','na'].indexOf(k)+1;
-          h+='<div class="perm-row">'
-            +'<div class="perm-num">'+p+'</div>'
-            +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onfocus="npPhase=\'price\';npStep='+fieldStep+';npBuffer=\'\';renderKpFields()" onkeydown="permKey(event,this.dataset.perm)">'
-            +'<button class="perm-del" onclick="delPerm(\''+p+'\',\''+k+'\')" title="ลบ">✕</button>'
-            +'</div>';
-        });
-        pr.innerHTML=h;
-        pr.className='perm-rows show';
-        if(npKlbJustOpened===k) npKlbJustOpened=null;
       } else {
         pr.innerHTML='';
         pr.className='perm-rows';
