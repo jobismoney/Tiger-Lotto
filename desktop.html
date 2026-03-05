@@ -1224,17 +1224,19 @@ function syncPermFocus(fieldStep, selectAll){
   npPhase='price';
   npStep=fieldStep;
   npBuffer='';
-  if(selectAll){
-    setTimeout(function(){
-      var el=document.activeElement;
-      if(el&&el.classList.contains('perm-inp')) el.select();
-    },0);
-  }
-  // scroll ให้ช่องที่ focus อยู่ในวิวเสมอ
+  // scroll kp-body ให้ช่องที่ focus อยู่ในวิว
   setTimeout(function(){
     var el=document.activeElement;
     if(el&&el.classList.contains('perm-inp')){
-      el.scrollIntoView({block:'nearest',behavior:'smooth'});
+      var body=document.getElementById('kp-body');
+      if(body){
+        var elTop=el.getBoundingClientRect().top;
+        var bodyTop=body.getBoundingClientRect().top;
+        var bodyBot=body.getBoundingClientRect().bottom;
+        var elBot=el.getBoundingClientRect().bottom;
+        if(elBot>bodyBot-10) body.scrollTop+=elBot-bodyBot+16;
+        else if(elTop<bodyTop+10) body.scrollTop-=bodyTop-elTop+16;
+      }
     }
   },30);
   var order=['bon','tod','lang','na'];
@@ -1291,7 +1293,14 @@ function permKey(e,perm){
     e.preventDefault(); e.stopPropagation();
     var group=Array.from(e.target.closest('.perm-rows').querySelectorAll('.perm-inp'));
     var idx=group.indexOf(e.target);
-    if(idx>0){ var t=group[idx-1]; t.focus(); setTimeout(function(){t.select();t.scrollIntoView({block:'nearest',behavior:'smooth'});},0); }
+    if(idx>0){
+      var t=group[idx-1]; t.focus();
+      setTimeout(function(){
+        t.select();
+        var body=document.getElementById('kp-body');
+        if(body){var r=t.getBoundingClientRect(),br=body.getBoundingClientRect();if(r.top<br.top+10)body.scrollTop-=br.top-r.top+16;}
+      },0);
+    }
     return;
   }
 
@@ -1300,7 +1309,14 @@ function permKey(e,perm){
     e.preventDefault(); e.stopPropagation();
     var group=Array.from(e.target.closest('.perm-rows').querySelectorAll('.perm-inp'));
     var idx=group.indexOf(e.target);
-    if(idx>=0&&idx<group.length-1){ var t=group[idx+1]; t.focus(); setTimeout(function(){t.select();t.scrollIntoView({block:'nearest',behavior:'smooth'});},0); }
+    if(idx>=0&&idx<group.length-1){
+      var t=group[idx+1]; t.focus();
+      setTimeout(function(){
+        t.select();
+        var body=document.getElementById('kp-body');
+        if(body){var r=t.getBoundingClientRect(),br=body.getBoundingClientRect();if(r.bottom>br.bottom-10)body.scrollTop+=r.bottom-br.bottom+16;}
+      },0);
+    }
     return;
   }
 
