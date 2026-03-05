@@ -1077,7 +1077,7 @@ function toggleKlb(k){
     if(!moved){ npStep=curIdx+1; npBuffer=''; renderKpFields(); }
   } else {
     var anyOpen=Object.keys(npKlbOpen).some(function(f){return npKlbOpen[f];});
-    if(!anyOpen) npPermsData={bon:{},lang:{},na:{}};
+    if(!anyOpen){ npPermsData={bon:{},lang:{},na:{}}; npPermsDeleted={bon:{},lang:{},na:{}}; }
     npKlbJustOpened=null;
     renderKpFields();
   }
@@ -1088,6 +1088,7 @@ function hasPerms(){
 }
 
 var npPermsData={bon:{},lang:{},na:{}};  // แยกอิสระต่อ field
+var npPermsDeleted={bon:{},lang:{},na:{}};  // ลบแล้วห้าม copy กลับ
 // npDeletedPerms removed — ใช้ npPermsData แทน (delete key = ลบถาวร)
 var npKlbOpen={bon:false,lang:false,na:false};
 var npKlbJustOpened=null;
@@ -1097,7 +1098,7 @@ var npPermField='bon';
 function resetNp(){
   npLek='';npPhase='lek';npStep=0;npBuffer='';
   npFields={bon:null,tod:null,lang:null,na:null};
-  npPermsData={bon:{},lang:{},na:{}}; npPermStep=0; npKlbOpen={bon:false,lang:false,na:false}; npPermField='bon'; npKlbJustOpened=null;
+  npPermsData={bon:{},lang:{},na:{}}; npPermsDeleted={bon:{},lang:{},na:{}}; npPermStep=0; npKlbOpen={bon:false,lang:false,na:false}; npPermField='bon'; npKlbJustOpened=null;
   renderKpFields();
 }
 
@@ -1199,12 +1200,13 @@ function renderKpFields(){
             var curK=['bon','tod','lang','na'][npStep-1];
             if(curK===k) mainVal=parseInt(npBuffer)||null;
           }
-          // copy mainVal เฉพาะ perm ที่ยังไม่มีราคาใน field นี้
+          // copy mainVal เฉพาะ perm ที่ยังไม่มีราคา และไม่เคยถูกลบ
           perms.forEach(function(p){
-            if(!(p in npPermsData[k]) && mainVal!==null) npPermsData[k][p]=mainVal;
+            if(!npPermsDeleted[k][p] && !(p in npPermsData[k]) && mainVal!==null) npPermsData[k][p]=mainVal;
           });
           perms.forEach(function(p){
-            if(!(p in npPermsData[k])) return; // ถูกลบแล้ว ข้าม
+            if(npPermsDeleted[k][p]) return; // ถูกลบแล้ว ข้าม
+            if(!(p in npPermsData[k])) return;
             var pv2=npPermsData[k][p]!==null?npPermsData[k][p]:'';
             var fieldStep=['bon','tod','lang','na'].indexOf(k)+1;
             h+='<div class="perm-row">'
@@ -1267,14 +1269,13 @@ function syncPermFocus(fieldStep, selectAll){
 }
 
 function onPermInput(el){
-  var p=el.dataset.perm;
-  var f=el.dataset.field||'bon';
   var f=el.dataset.field; var p=el.dataset.perm;
   if(!npPermsData[f]) npPermsData[f]={};
   npPermsData[f][p]=parseInt(el.value)||null;
 }
 function delPerm(p,k){
-  delete npPermsData[k][p];  // ลบออกจาก object → ไม่มีวันกลับมา
+  delete npPermsData[k][p];
+  npPermsDeleted[k][p]=true;  // ห้าม copy mainVal กลับ
   renderKpFields();
 }
 function spv(el){setPermVal(el.dataset.pp,el.dataset.pk,parseInt(el.dataset.pn));}
