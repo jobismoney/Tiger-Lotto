@@ -1193,7 +1193,7 @@ function renderKpFields(){
             var fieldStep=['bon','tod','lang','na'].indexOf(k)+1;
             h+='<div class="perm-row">'
               +'<div class="perm-num">'+p+'</div>'
-              +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onfocus="syncPermFocus('+fieldStep+')" onkeydown="permKey(event,this.dataset.perm)">'
+              +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onfocus="syncPermFocus('+fieldStep+',false)" onkeydown="permKey(event,this.dataset.perm)">'
               +'<button class="perm-del" onclick="delPerm(\''+p+'\',\''+k+'\')" title="ลบ">✕</button>'
               +'</div>';
           });
@@ -1220,17 +1220,22 @@ function renderKpFields(){
   syncFloat();
 }
 
-function syncPermFocus(fieldStep){
+function syncPermFocus(fieldStep, selectAll){
   npPhase='price';
   npStep=fieldStep;
   npBuffer='';
-  // อัพเดทเฉพาะ highlight ของ field-main ไม่ re-render perm rows
+  if(selectAll){
+    // focus จากลูกศร → select ทั้งหมดเพื่อพิมพ์ทับได้เลย
+    setTimeout(function(){
+      var el=document.activeElement;
+      if(el&&el.classList.contains('perm-inp')) el.select();
+    },0);
+  }
   var order=['bon','tod','lang','na'];
   order.forEach(function(k,i){
     var fm=document.getElementById('fm-'+k);
     if(fm) fm.className='field-main'+(i===fieldStep-1?' active-field':'');
   });
-  // อัพเดท hint text
   var knames={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
   var curKey=order[fieldStep-1];
   var hintEl=document.getElementById('kp-lek-hint');
@@ -1275,21 +1280,21 @@ function permKey(e,perm){
     return;
   }
 
-  // ↑ = เลื่อนขึ้น row ก่อนหน้า (ใน group เดียวกัน)
+  // ↑ = เลื่อนขึ้น row ก่อนหน้า
   if(e.code==='ArrowUp'){
     e.preventDefault();
     var group=Array.from(e.target.closest('.perm-rows').querySelectorAll('.perm-inp'));
     var idx=group.indexOf(e.target);
-    if(idx>0) group[idx-1].focus();
+    if(idx>0){ group[idx-1].focus(); group[idx-1].select(); }
     return;
   }
 
-  // ↓ = เลื่อนลง row ถัดไป (ใน group เดียวกัน)
+  // ↓ = เลื่อนลง row ถัดไป
   if(e.code==='ArrowDown'){
     e.preventDefault();
     var group=Array.from(e.target.closest('.perm-rows').querySelectorAll('.perm-inp'));
     var idx=group.indexOf(e.target);
-    if(idx>=0&&idx<group.length-1) group[idx+1].focus();
+    if(idx>=0&&idx<group.length-1){ group[idx+1].focus(); group[idx+1].select(); }
     return;
   }
 
