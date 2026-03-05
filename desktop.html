@@ -1042,7 +1042,7 @@ function getPerms(s){
 }
 
 function initPerms(k){
-  var perms=getPerms(npLek).filter(function(p){return p!==npLek;});
+  var perms=getPerms(npLek).filter(function(p){return p!==npLek&&!npDeletedPerms[p];});
   perms.forEach(function(p){if(!npPerms[p])npPerms[p]={bon:null,lang:null,na:null};});
 }
 
@@ -1067,15 +1067,16 @@ function toggleKlb(k){
 function hasPerms(){return Object.keys(npPerms).length>0;}
 
 var npPerms={};  // {perm: {bon:null,lang:null,na:null}}
+var npDeletedPerms={};  // blacklist perm ที่ถูกลบแล้ว
 var npKlbOpen={bon:false,lang:false,na:false};
 var npKlbJustOpened=null;
-var npPermStep=0; // index ของ perm ที่กำลัง active
-var npPermField='bon'; // field ที่กำลัง active ใน perm row
+var npPermStep=0;
+var npPermField='bon';
 
 function resetNp(){
   npLek='';npPhase='lek';npStep=0;npBuffer='';
   npFields={bon:null,tod:null,lang:null,na:null};
-  npPerms={}; npPermStep=0; npKlbOpen={bon:false,lang:false,na:false}; npPermField='bon'; npKlbJustOpened=null;
+  npPerms={}; npDeletedPerms={}; npPermStep=0; npKlbOpen={bon:false,lang:false,na:false}; npPermField='bon'; npKlbJustOpened=null;
   renderKpFields();
 }
 
@@ -1156,15 +1157,15 @@ function renderKpFields(){
     var pr=document.getElementById('pr-'+k);
     if(pr&&klbKeys[k]){
       if(npKlbOpen[k]&&npLek.length>=2){
-        var perms=getPerms(npLek).filter(function(p){return p!==npLek;});
+        // กรอง perm ที่ถูกลบออก (blacklist)
+        var perms=getPerms(npLek).filter(function(p){return p!==npLek&&!npDeletedPerms[p];});
         var h='';
-        // อ่านราคาจากช่องหลัก รวม buffer ที่กำลังพิมพ์อยู่ด้วย
         var mainVal=npFields[k];
         if(mainVal===null&&npBuffer){
           var curK=['bon','tod','lang','na'][npStep-1];
           if(curK===k) mainVal=parseInt(npBuffer)||null;
         }
-        // copy ราคาหลักลงทุก perm ที่ยังไม่มีราคา
+        // copy ราคาหลักลงทุก perm ที่ยังไม่มีราคา (และไม่อยู่ใน blacklist)
         perms.forEach(function(p){
           if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
           if(npPerms[p][k]===null&&mainVal!==null) npPerms[p][k]=mainVal;
@@ -1179,7 +1180,6 @@ function renderKpFields(){
         });
         pr.innerHTML=h;
         pr.className='perm-rows show';
-        // reset just-opened flag
         if(npKlbJustOpened===k) npKlbJustOpened=null;
       } else {
         pr.innerHTML='';
@@ -1207,8 +1207,8 @@ function onPermInput(el){
   npPerms[p][f]=parseInt(el.value)||null;
 }
 function delPerm(p,k){
-  // ลบเลข perm นั้นออกจาก npPerms ทุก field
   delete npPerms[p];
+  npDeletedPerms[p]=true;  // blacklist ไม่ให้ generate กลับมา
   renderKpFields();
 }
 function spv(el){setPermVal(el.dataset.pp,el.dataset.pk,parseInt(el.dataset.pn));}
@@ -1320,7 +1320,7 @@ function renderHist(){
     // kd (กลับ/ชุด)
     var kd=e.kd||{};
     var permMap={};
-    ['bon','lang','na'].forEach(function(k){(kd[k]||[]).forEach(function(x){if(!permMap[x.perm])permMap[x.perm]={};permMap[x.perm][k]=x.price;});});
+    ['bon','lang','na'].forEach(function(fk){(kd[fk]||[]).forEach(function(x){if(!permMap[x.perm])permMap[x.perm]={};permMap[x.perm][fk]=x.price;});});
     Object.keys(permMap).sort().forEach(function(p){
       var pm=permMap[p];
       h+='<div class="hrow" style="background:rgba(167,139,250,.02);">'
@@ -1328,7 +1328,7 @@ function renderHist(){
         +'<div class="hd'+(pm.bon?'':' e')+'">'+(pm.bon||'—')+'</div>'
         +'<div class="hd e">—</div>'
         +'<div class="hd'+(pm.lang?'':' e')+'">'+(pm.lang||'—')+'</div>'
-        +'<div class="hd e">—</div>'
+        +'<div class="hd'+(pm.na?'':' e')+'">'+(pm.na||'—')+'</div>'
         +'<div class="hd"></div>'
         +'</div>';
     });
