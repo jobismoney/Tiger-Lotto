@@ -1245,7 +1245,31 @@ function npQset(k,n){
 function permKey(e,perm){
   var key=e.key||'';
   if(key.length===1&&!/[0-9]/.test(key)){e.preventDefault();return;}
-  if(key==='Enter'||e.code==='NumpadEnter'){e.preventDefault();addEntry();return;}
+  if(key==='Enter'||e.code==='NumpadEnter'){
+    e.preventDefault();
+    // บันทึกค่า input ที่กำลังพิมพ์อยู่ก่อน
+    onPermInput(e.target);
+    // เลื่อนไป perm ถัดไปในกลุ่มเดียวกัน
+    var allInGroup=Array.from(e.target.closest('.perm-rows').querySelectorAll('.perm-inp'));
+    var idx=allInGroup.indexOf(e.target);
+    if(idx>=0&&idx<allInGroup.length-1){
+      allInGroup[idx+1].focus();
+    } else {
+      // จบ perm กลุ่มนี้ → เลื่อนไปช่องหลักถัดไป (หน้า หรือ OK)
+      var curField=e.target.dataset.field||'bon';
+      var order=['bon','tod','lang','na'];
+      var fields=getActiveFields();
+      var curIdx=order.indexOf(curField);
+      var moved=false;
+      for(var i=curIdx+1;i<order.length;i++){
+        if(fields.indexOf(order[i])>=0){
+          npStep=i+1; npBuffer=''; e.target.blur(); renderKpFields(); moved=true; break;
+        }
+      }
+      if(!moved){ e.target.blur(); document.getElementById('btn-ok').focus(); }
+    }
+    return;
+  }
   if(key==='+'||e.code==='NumpadAdd'||e.code==='ArrowDown'||e.code==='ArrowRight'){
     e.preventDefault();
     var all=Array.from(document.querySelectorAll('.perm-inp'));
