@@ -1193,7 +1193,7 @@ function renderKpFields(){
             var fieldStep=['bon','tod','lang','na'].indexOf(k)+1;
             h+='<div class="perm-row">'
               +'<div class="perm-num">'+p+'</div>'
-              +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onfocus="npPhase=\'price\';npStep='+fieldStep+';npBuffer=\'\';renderKpFields()" onkeydown="permKey(event,this.dataset.perm)">'
+              +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onfocus="syncPermFocus('+fieldStep+')" onkeydown="permKey(event,this.dataset.perm)">'
               +'<button class="perm-del" onclick="delPerm(\''+p+'\',\''+k+'\')" title="ลบ">✕</button>'
               +'</div>';
           });
@@ -1218,6 +1218,23 @@ function renderKpFields(){
   }
   if(permContainer){permContainer.innerHTML='';permContainer.style.display='none';}
   syncFloat();
+}
+
+function syncPermFocus(fieldStep){
+  npPhase='price';
+  npStep=fieldStep;
+  npBuffer='';
+  // อัพเดทเฉพาะ highlight ของ field-main ไม่ re-render perm rows
+  var order=['bon','tod','lang','na'];
+  order.forEach(function(k,i){
+    var fm=document.getElementById('fm-'+k);
+    if(fm) fm.className='field-main'+(i===fieldStep-1?' active-field':'');
+  });
+  // อัพเดท hint text
+  var knames={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
+  var curKey=order[fieldStep-1];
+  var hintEl=document.getElementById('kp-lek-hint');
+  if(hintEl&&curKey) hintEl.textContent='กำลังใส่ '+knames[curKey];
 }
 
 function onPermInput(el){
