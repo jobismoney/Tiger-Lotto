@@ -242,10 +242,11 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 }
 
 
+@media print{
   .hdr,.main,.slip-ov-bar{display:none!important;}
-  .slip-ov{position:static;background:#fff;display:block!important;}
-  .slip-ov-inner{padding:0;}
-  .slip-page-single,.slip-page-sum{box-shadow:none;border-radius:0;page-break-after:always;}
+  .slip-ov{position:static!important;background:#fff!important;display:block!important;overflow:visible!important;}
+  .slip-ov-inner{padding:0!important;max-width:none!important;}
+  .slip-page-single,.slip-page-sum{box-shadow:none!important;border-radius:0!important;page-break-after:always;}
 }
 
 /* FLOATING KEYPAD */
