@@ -1053,6 +1053,9 @@ function initPerms(k){
 function toggleKlb(k){
   npKlbOpen[k]=!npKlbOpen[k];
   if(npKlbOpen[k]){
+    // reset ข้อมูล perm ของ field นี้ใหม่ทั้งหมด (เปิดใหม่ = เริ่มใหม่)
+    npPermsData[k]={};
+    npPermsDeleted[k]={};
     initPerms(k);
     npKlbJustOpened=k;
     renderKpFields();
