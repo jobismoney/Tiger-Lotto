@@ -397,7 +397,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 <div class="main" id="main-grid">
 
   <!-- ZONE 1: แฟ้มลูกค้า -->
-  <div class="zone z1" id="zone1" style="width:160px;">
+  <div class="zone z1" id="zone1" style="width:175px;">
     <div class="zhdr">
       <span class="ztitle">📂 แฟ้ม</span>
       <span id="cust-count" style="font-size:11px;color:#4a5570;font-weight:700;">0</span>
@@ -440,7 +440,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
   <div class="rzh" id="rzh2"></div>
   <!-- ZONE 3: คีย์เลข (ย้ายมาอยู่ที่ 3) -->
-  <div class="zone z2" id="zone2" style="width:230px;">
+  <div class="zone z2" id="zone2" style="width:360px;">
     <div class="zhdr">
       <span class="ztitle">⌨️ คีย์เลข</span>
       <button class="float-toggle" onclick="toggleFloat()" title="ลอย/ฝัง">⤢</button>
@@ -501,7 +501,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
   <div class="rzh" id="rzh3"></div>
   <!-- ZONE 4: สรุป/ตั้งค่า -->
-  <div class="zone z4" id="zone4" style="width:185px;">
+  <div class="zone z4" id="zone4" style="width:200px;">
     <div class="rtabs">
       <div class="rtab on" onclick="switchTab('sum',this)">สรุป</div>
       <div class="rtab" onclick="switchTab('check',this)">ตรวจ</div>
@@ -1282,7 +1282,7 @@ function permKey(e,perm){
 
   // ↑ = เลื่อนขึ้น row ก่อนหน้า
   if(e.code==='ArrowUp'){
-    e.preventDefault();
+    e.preventDefault(); e.stopPropagation();
     var group=Array.from(e.target.closest('.perm-rows').querySelectorAll('.perm-inp'));
     var idx=group.indexOf(e.target);
     if(idx>0){ var t=group[idx-1]; t.focus(); setTimeout(function(){t.select();},0); }
@@ -1291,7 +1291,7 @@ function permKey(e,perm){
 
   // ↓ = เลื่อนลง row ถัดไป
   if(e.code==='ArrowDown'){
-    e.preventDefault();
+    e.preventDefault(); e.stopPropagation();
     var group=Array.from(e.target.closest('.perm-rows').querySelectorAll('.perm-inp'));
     var idx=group.indexOf(e.target);
     if(idx>=0&&idx<group.length-1){ var t=group[idx+1]; t.focus(); setTimeout(function(){t.select();},0); }
