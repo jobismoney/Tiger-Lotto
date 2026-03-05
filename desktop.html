@@ -1043,7 +1043,7 @@ function updateFieldStates(){
     if(fields.indexOf(k)<0) npFields[k]=null;
   });
   // ล้าง perms ถ้าเปลี่ยนเลข
-  npPerms={}; npPermStep=0; npKlbOpen={bon:false,lang:false,na:false};
+  npPermsData={bon:{},lang:{},na:{}}; npPermStep=0; npKlbOpen={bon:false,lang:false,na:false};
 }
 
 function getPerms(s){
@@ -1054,8 +1054,7 @@ function getPerms(s){
 }
 
 function initPerms(k){
-  var perms=getPerms(npLek).filter(function(p){return p!==npLek&&!npDeletedPerms[k][p];});
-  perms.forEach(function(p){if(!npPerms[p])npPerms[p]={bon:null,lang:null,na:null};});
+  // ไม่ต้องทำอะไร — npPermsData[k] จัดการตรงใน renderKpFields
 }
 
 function toggleKlb(k){
@@ -1078,16 +1077,18 @@ function toggleKlb(k){
     if(!moved){ npStep=curIdx+1; npBuffer=''; renderKpFields(); }
   } else {
     var anyOpen=Object.keys(npKlbOpen).some(function(f){return npKlbOpen[f];});
-    if(!anyOpen) npPerms={};
+    if(!anyOpen) npPermsData={bon:{},lang:{},na:{}};
     npKlbJustOpened=null;
     renderKpFields();
   }
 }
 
-function hasPerms(){return Object.keys(npPerms).length>0;}
+function hasPerms(){
+  return ['bon','lang','na'].some(function(k){return Object.keys(npPermsData[k]).length>0;});
+}
 
-var npPerms={};  // {perm: {bon:null,lang:null,na:null}}
-var npDeletedPerms={bon:{},lang:{},na:{}};  // blacklist แยกตาม field
+var npPermsData={bon:{},lang:{},na:{}};  // แยกอิสระต่อ field
+// npDeletedPerms removed — ใช้ npPermsData แทน (delete key = ลบถาวร)
 var npKlbOpen={bon:false,lang:false,na:false};
 var npKlbJustOpened=null;
 var npPermStep=0;
@@ -1096,7 +1097,7 @@ var npPermField='bon';
 function resetNp(){
   npLek='';npPhase='lek';npStep=0;npBuffer='';
   npFields={bon:null,tod:null,lang:null,na:null};
-  npPerms={}; npDeletedPerms={bon:{},lang:{},na:{}}; npPermStep=0; npKlbOpen={bon:false,lang:false,na:false}; npPermField='bon'; npKlbJustOpened=null;
+  npPermsData={bon:{},lang:{},na:{}}; npPermStep=0; npKlbOpen={bon:false,lang:false,na:false}; npPermField='bon'; npKlbJustOpened=null;
   renderKpFields();
 }
 
@@ -1191,20 +1192,20 @@ function renderKpFields(){
         // ถ้า focus อยู่ใน perm-rows นี้อยู่แล้ว → อย่า re-render (จะทำให้ focus หาย)
         var focusInPr=pr.contains(document.activeElement);
         if(!focusInPr){
-          var perms=getPerms(npLek).filter(function(p){return p!==npLek&&!npDeletedPerms[k][p];});
+          var perms=getPerms(npLek).filter(function(p){return p!==npLek;});
           var h='';
           var mainVal=npFields[k];
           if(mainVal===null&&npBuffer){
             var curK=['bon','tod','lang','na'][npStep-1];
             if(curK===k) mainVal=parseInt(npBuffer)||null;
           }
+          // copy mainVal เฉพาะ perm ที่ยังไม่มีราคาใน field นี้
           perms.forEach(function(p){
-            if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
-            // copy mainVal เฉพาะที่ยังไม่เคยถูก set และไม่ได้ถูก delete
-            if(npPerms[p][k]===null && mainVal!==null && !npDeletedPerms[k][p]) npPerms[p][k]=mainVal;
+            if(!(p in npPermsData[k]) && mainVal!==null) npPermsData[k][p]=mainVal;
           });
           perms.forEach(function(p){
-            var pv2=npPerms[p][k]!==null?npPerms[p][k]:'';
+            if(!(p in npPermsData[k])) return; // ถูกลบแล้ว ข้าม
+            var pv2=npPermsData[k][p]!==null?npPermsData[k][p]:'';
             var fieldStep=['bon','tod','lang','na'].indexOf(k)+1;
             h+='<div class="perm-row">'
               +'<div class="perm-num">'+p+'</div>'
@@ -1268,19 +1269,18 @@ function syncPermFocus(fieldStep, selectAll){
 function onPermInput(el){
   var p=el.dataset.perm;
   var f=el.dataset.field||'bon';
-  if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
-  npPerms[p][f]=parseInt(el.value)||null;
+  var f=el.dataset.field; var p=el.dataset.perm;
+  if(!npPermsData[f]) npPermsData[f]={};
+  npPermsData[f][p]=parseInt(el.value)||null;
 }
 function delPerm(p,k){
-  if(npPerms[p]) npPerms[p][k]=null;  // ล้างค่าของ field นั้น
-  if(!npDeletedPerms[k]) npDeletedPerms[k]={};
-  npDeletedPerms[k][p]=true;  // blacklist เฉพาะ field นี้
+  delete npPermsData[k][p];  // ลบออกจาก object → ไม่มีวันกลับมา
   renderKpFields();
 }
 function spv(el){setPermVal(el.dataset.pp,el.dataset.pk,parseInt(el.dataset.pn));}
 function setPermVal(p,f,n){
-  if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
-  npPerms[p][f]=n;
+  if(!npPermsData[f]) npPermsData[f]={};
+  npPermsData[f][p]=n;
   renderKpFields();
 }
 function npQset(k,n){
@@ -1363,11 +1363,11 @@ function addEntry(){
   custEid[curCustId]++;
   // สร้าง kd จาก perms
   var kd={bon:[],lang:[],na:[]};
-  Object.keys(npPerms).forEach(function(p){
-    var pv=npPerms[p];
-    if(pv.bon) kd.bon.push({perm:p,price:pv.bon});
-    if(pv.lang) kd.lang.push({perm:p,price:pv.lang});
-    if(pv.na) kd.na.push({perm:p,price:pv.na});
+  ['bon','lang','na'].forEach(function(k){
+    Object.keys(npPermsData[k]).forEach(function(p){
+      var price=npPermsData[k][p];
+      if(price) kd[k].push({perm:p,price:price});
+    });
   });
   custEntries[curCustId].unshift({
     id:custEid[curCustId],lek:npLek,d:npLek.length,
