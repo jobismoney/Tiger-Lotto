@@ -50,14 +50,14 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .hbtn{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--lg);font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer;font-family:'Sarabun',sans-serif;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:44px;}
 .hbtn:hover{color:var(--white);border-color:#3e4268;}
 .hbtn-icon{font-size:18px;line-height:1;}
-.hbtn-lbl{font-size:11px;font-weight:800;line-height:1;}
+.hbtn-lbl{font-size:10px;font-weight:800;line-height:1;}
 .hbtn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:none;font-weight:900;}
 
 
 /* ══ 4 ZONES ══ */
 .main{display:flex;height:calc(100vh - 48px);}
-.zone{display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
-.zone.z3{flex:1;min-width:200px;}
+.zone{display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;min-width:0;}
+.zone.z3{flex:1;min-width:220px;}
 .zone:last-child{border-right:none;}
 /* resize handle */
 .rzh{width:5px;background:transparent;cursor:col-resize;flex-shrink:0;border-right:1px solid var(--border);transition:background .15s;position:relative;z-index:10;}
@@ -198,7 +198,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .slip-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;overflow-y:auto;}
 .slip-ov.show{display:flex;flex-direction:column;}
 .slip-ov-inner{max-width:900px;width:100%;margin:0 auto;padding:14px 16px 50px;}
-.slip-top-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+
 .slip-top-btn{background:#1e293b;border:1px solid #334155;border-radius:8px;color:#94a3b8;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;padding:8px 16px;cursor:pointer;}
 .slip-top-btn.blue{background:linear-gradient(135deg,#1d4ed8,#1e40af);color:#fff;border:none;}
 .slip-top-btn.close{background:#1e293b;border-color:#475569;color:#94a3b8;}
@@ -233,19 +233,13 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .slip-ft .fv{color:#f5c518;font-size:20px;font-weight:900;}
 .slip-legend{font-size:10px;color:#888;padding:3px 8px;text-align:right;background:#fff;border-top:1px solid #eee;}
 @media print{
-  .hdr,.main,.slip-top-bar{display:none!important;}
+  .hdr,.main,.slip-ov-bar{display:none!important;}
   .slip-ov{display:block!important;position:static!important;background:transparent!important;overflow:visible!important;}
   .slip-ov-inner{padding:0!important;max-width:none!important;}
   .slip-pages-grid{display:grid!important;grid-template-columns:1fr 1fr!important;}
   .slip-page-sum{grid-column:1/-1!important;}
 }
 
-
-  .hdr,.main,.slip-ov-bar{display:none!important;}
-  .slip-ov{position:static;background:#fff;display:block!important;}
-  .slip-ov-inner{padding:0;}
-  .slip-page-single,.slip-page-sum{box-shadow:none;border-radius:0;page-break-after:always;}
-}
 
 /* FLOATING KEYPAD */
 .float-kp{position:fixed;background:var(--card);border:1.5px solid var(--gold);border-radius:12px;width:220px;box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:200;display:none;overflow:hidden;}
@@ -403,7 +397,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 <div class="main" id="main-grid">
 
   <!-- ZONE 1: แฟ้มลูกค้า -->
-  <div class="zone z1" id="zone1" style="width:130px;">
+  <div class="zone z1" id="zone1" style="width:160px;">
     <div class="zhdr">
       <span class="ztitle">📂 แฟ้ม</span>
       <span id="cust-count" style="font-size:9px;color:#2a3050;">0</span>
@@ -416,7 +410,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
   <div class="rzh" id="rzh1"></div>
   <!-- ZONE 2: คีย์เลข -->
-  <div class="zone z2" id="zone2" style="width:200px;">
+  <div class="zone z2" id="zone2" style="width:230px;">
     <div class="zhdr">
       <span class="ztitle">⌨️ คีย์เลข</span>
       <button class="float-toggle" onclick="toggleFloat()" title="ลอย/ฝัง">⤢</button>
@@ -507,7 +501,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
   <div class="rzh" id="rzh3"></div>
   <!-- ZONE 4: สรุป/ตั้งค่า -->
-  <div class="zone z4" id="zone4" style="width:160px;">
+  <div class="zone z4" id="zone4" style="width:185px;">
     <div class="rtabs">
       <div class="rtab on" onclick="switchTab('sum',this)">สรุป</div>
       <div class="rtab" onclick="switchTab('check',this)">ตรวจ</div>
@@ -732,7 +726,7 @@ function autoNgodDate(){
   var now = new Date();
   var d = now.getDate(), m = now.getMonth()+1, y = now.getFullYear();
   var nextD, nextM = m, nextY = y;
-  if(d < 1){ nextD=1; }
+  if(d <= 1){ nextD=16; }
   else if(d < 16){ nextD=16; }
   else { nextD=1; nextM=m+1; if(nextM>12){nextM=1;nextY++;} }
   var thY = (nextY - 2500 + 2500 - 2000 + 43); // แปลงเป็น พ.ศ. 2 หลัก
@@ -1781,14 +1775,6 @@ function toast(msg){
 </script>
 
 <!-- SLIP OVERLAY -->
-<div class="slip-ov" id="slip-ov">
-  <div class="slip-ov-inner">
-    <div class="slip-top-bar">
-      <button class="slip-top-btn close" onclick="closeSlip()">← กลับ</button>
-      <button class="slip-top-btn blue" onclick="window.print()">🖨️ พิมพ์ / Save รูป</button>
-    </div>
-    <div class="slip-pages-grid" id="slip-pages"></div>
-  </div>
-</div>
+
 </body>
 </html>
