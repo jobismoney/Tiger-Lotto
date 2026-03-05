@@ -1192,7 +1192,7 @@ function renderKpFields(){
           var fieldStep=['bon','tod','lang','na'].indexOf(k)+1;
           h+='<div class="perm-row">'
             +'<div class="perm-num">'+p+'</div>'
-            +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onfocus="npStep='+fieldStep+';npBuffer=\'\';renderKpFields()" onkeydown="permKey(event,this.dataset.perm)">'
+            +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onfocus="npPhase=\'price\';npStep='+fieldStep+';npBuffer=\'\';renderKpFields()" onkeydown="permKey(event,this.dataset.perm)">'
             +'<button class="perm-del" onclick="delPerm(\''+p+'\',\''+k+'\')" title="ลบ">✕</button>'
             +'</div>';
         });
