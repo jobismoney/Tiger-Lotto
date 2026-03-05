@@ -57,7 +57,10 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 /* ══ 4 ZONES ══ */
 .main{display:flex;height:calc(100vh - 48px);}
 .zone{display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;min-width:0;}
-.zone.z3{flex:1;min-width:220px;}
+.zone.z1{flex:1;}
+.zone.z3{flex:2;min-width:0;}
+.zone.z2{flex:1;min-width:0;}
+.zone.z4{flex:1;min-width:0;}
 .zone:last-child{border-right:none;}
 /* resize handle */
 .rzh{width:5px;background:transparent;cursor:col-resize;flex-shrink:0;border-right:1px solid var(--border);transition:background .15s;position:relative;z-index:10;}
@@ -397,7 +400,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 <div class="main" id="main-grid">
 
   <!-- ZONE 1: แฟ้มลูกค้า -->
-  <div class="zone z1" id="zone1" style="width:160px;">
+  <div class="zone z1" id="zone1">
     <div class="zhdr">
       <span class="ztitle">📂 แฟ้ม</span>
       <span id="cust-count" style="font-size:11px;color:#4a5570;font-weight:700;">0</span>
@@ -440,7 +443,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
   <div class="rzh" id="rzh2"></div>
   <!-- ZONE 3: คีย์เลข (ย้ายมาอยู่ที่ 3) -->
-  <div class="zone z2" id="zone2" style="width:280px;">
+  <div class="zone z2" id="zone2">
     <div class="zhdr">
       <span class="ztitle">⌨️ คีย์เลข</span>
       <button class="float-toggle" onclick="toggleFloat()" title="ลอย/ฝัง">⤢</button>
@@ -501,7 +504,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
   <div class="rzh" id="rzh3"></div>
   <!-- ZONE 4: สรุป/ตั้งค่า -->
-  <div class="zone z4" id="zone4" style="width:200px;">
+  <div class="zone z4" id="zone4">
     <div class="rtabs">
       <div class="rtab on" onclick="switchTab('sum',this)">สรุป</div>
       <div class="rtab" onclick="switchTab('check',this)">ตรวจ</div>
@@ -1637,8 +1640,8 @@ function setupResize(){
     document.addEventListener('mousemove',function(e){
       if(!dragging) return;
       var diff = pair[0]==='rzh3' ? startX-e.clientX : e.clientX-startX;
-      var newW=Math.max(100,Math.min(400,startW+diff));
-      zone.style.width=newW+'px';
+      var newW=Math.max(100,Math.min(600,startW+diff));
+      zone.style.flex='0 0 '+newW+'px';
     });
     document.addEventListener('mouseup',function(){
       if(dragging){dragging=false;handle.classList.remove('dragging');}
