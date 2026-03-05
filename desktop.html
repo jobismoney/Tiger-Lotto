@@ -134,6 +134,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 /* action btns */
 .kp-btns{display:flex;gap:5px;}
 .kp-btn{flex:1;border:none;border-radius:7px;padding:10px 4px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;cursor:pointer;transition:all .15s;}
+.kp-btn:focus{outline:2px solid var(--gold);outline-offset:2px;}
 .kp-btn.ok{background:linear-gradient(135deg,var(--green),#16a34a);color:#fff;}
 .kp-btn.clr{background:#141b2e;border:1px solid #1a2040;color:#667;}
 .kp-btn.pak{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.2);color:var(--gold);}
@@ -198,7 +199,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .slip-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;overflow-y:auto;}
 .slip-ov.show{display:flex;flex-direction:column;}
 .slip-ov-inner{max-width:900px;width:100%;margin:0 auto;padding:14px 16px 50px;}
-
+.slip-top-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
 .slip-top-btn{background:#1e293b;border:1px solid #334155;border-radius:8px;color:#94a3b8;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;padding:8px 16px;cursor:pointer;}
 .slip-top-btn.blue{background:linear-gradient(135deg,#1d4ed8,#1e40af);color:#fff;border:none;}
 .slip-top-btn.close{background:#1e293b;border-color:#475569;color:#94a3b8;}
@@ -233,13 +234,19 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .slip-ft .fv{color:#f5c518;font-size:20px;font-weight:900;}
 .slip-legend{font-size:10px;color:#888;padding:3px 8px;text-align:right;background:#fff;border-top:1px solid #eee;}
 @media print{
-  .hdr,.main,.slip-ov-bar{display:none!important;}
+  .hdr,.main,.slip-top-bar{display:none!important;}
   .slip-ov{display:block!important;position:static!important;background:transparent!important;overflow:visible!important;}
   .slip-ov-inner{padding:0!important;max-width:none!important;}
   .slip-pages-grid{display:grid!important;grid-template-columns:1fr 1fr!important;}
   .slip-page-sum{grid-column:1/-1!important;}
 }
 
+
+  .hdr,.main,.slip-ov-bar{display:none!important;}
+  .slip-ov{position:static;background:#fff;display:block!important;}
+  .slip-ov-inner{padding:0;}
+  .slip-page-single,.slip-page-sum{box-shadow:none;border-radius:0;page-break-after:always;}
+}
 
 /* FLOATING KEYPAD */
 .float-kp{position:fixed;background:var(--card);border:1.5px solid var(--gold);border-radius:12px;width:220px;box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:200;display:none;overflow:hidden;}
@@ -409,7 +416,37 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   </div>
 
   <div class="rzh" id="rzh1"></div>
-  <!-- ZONE 2: คีย์เลข -->
+  <!-- ZONE 2: รายการ (ย้ายมาอยู่ที่ 2) -->
+  <div class="zone z3" id="zone3">
+    <div class="zhdr">
+      <span class="ztitle">📋 รายการ — <span id="mid-cust-name" style="color:var(--gold);">—</span></span>
+      <button onclick="lockSet()" style="background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.15);border-radius:4px;padding:3px 7px;font-size:9px;font-weight:800;color:var(--gold);cursor:pointer;font-family:'Sarabun',sans-serif;">🔒 ล็อคชุด</button>
+    </div>
+    <div class="zbody">
+      <!-- current set bar -->
+      <div class="cur-set-bar">
+        <span class="csb-lbl" id="cur-set-lbl">ชุดที่ 1 — กำลังคีย์</span>
+        <span class="csb-val" id="cur-set-total">฿0</span>
+      </div>
+      <!-- table header -->
+      <div class="tbl-hdr">
+        <div class="th" style="text-align:left;">เลข</div>
+        <div class="th">บน</div>
+        <div class="th">โต๊ด</div>
+        <div class="th">ล่าง</div>
+        <div class="th">หน้า</div>
+        <div class="th">รวม</div>
+      </div>
+      <div class="hist-scroll" id="hist-scroll"></div>
+      <div class="totbar">
+        <span class="totlbl" id="tot-lbl">รวมทั้งหมด</span>
+        <span class="totval" id="tot-val">฿0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="rzh" id="rzh2"></div>
+  <!-- ZONE 3: คีย์เลข (ย้ายมาอยู่ที่ 3) -->
   <div class="zone z2" id="zone2" style="width:230px;">
     <div class="zhdr">
       <span class="ztitle">⌨️ คีย์เลข</span>
@@ -459,42 +496,12 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         </div>
 
         <!-- action -->
-        <div class="kp-btns">
-          <button class="kp-btn clr" onclick="resetNp()" onkeydown="if(event.key==='ArrowUp'){event.preventDefault();var f=getActiveFields();if(f.length){npPhase='price';npStep=(['bon','tod','lang','na'].indexOf(f[f.length-1]))+1;renderKpFields();}}">✕ ล้าง</button>
-          <button class="kp-btn pak" onclick="openPak()">📌 ปัก</button>
-          <button class="kp-btn ok" onclick="addEntry()" onkeydown="if(event.key==='Enter'||event.code==='NumpadEnter'){event.preventDefault();addEntry();}else if(event.code==='ArrowUp'){event.preventDefault();var f=getActiveFields();if(f.length){npPhase='price';npStep=(['bon','tod','lang','na'].indexOf(f[f.length-1]))+1;renderKpFields();document.activeElement.blur();}}">✓ OK</button>
+        <div class="kp-btns" id="kp-action-btns">
+          <button class="kp-btn clr" id="btn-clr" onclick="resetNp()">✕ ล้าง</button>
+          <button class="kp-btn pak" id="btn-pak" onclick="openPak()">📌 ปัก</button>
+          <button class="kp-btn ok" id="btn-ok" onclick="addEntry()">✓ OK</button>
         </div>
 
-      </div>
-    </div>
-  </div>
-
-  <div class="rzh" id="rzh2"></div>
-  <!-- ZONE 3: History -->
-  <div class="zone z3" id="zone3">
-    <div class="zhdr">
-      <span class="ztitle">📋 รายการ — <span id="mid-cust-name" style="color:var(--gold);">—</span></span>
-      <button onclick="lockSet()" style="background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.15);border-radius:4px;padding:3px 7px;font-size:9px;font-weight:800;color:var(--gold);cursor:pointer;font-family:'Sarabun',sans-serif;">🔒 ล็อคชุด</button>
-    </div>
-    <div class="zbody">
-      <!-- current set bar -->
-      <div class="cur-set-bar">
-        <span class="csb-lbl" id="cur-set-lbl">ชุดที่ 1 — กำลังคีย์</span>
-        <span class="csb-val" id="cur-set-total">฿0</span>
-      </div>
-      <!-- table header -->
-      <div class="tbl-hdr">
-        <div class="th" style="text-align:left;">เลข</div>
-        <div class="th">บน</div>
-        <div class="th">โต๊ด</div>
-        <div class="th">ล่าง</div>
-        <div class="th">หน้า</div>
-        <div class="th">รวม</div>
-      </div>
-      <div class="hist-scroll" id="hist-scroll"></div>
-      <div class="totbar">
-        <span class="totlbl" id="tot-lbl">รวมทั้งหมด</span>
-        <span class="totval" id="tot-val">฿0</span>
       </div>
     </div>
   </div>
@@ -726,7 +733,7 @@ function autoNgodDate(){
   var now = new Date();
   var d = now.getDate(), m = now.getMonth()+1, y = now.getFullYear();
   var nextD, nextM = m, nextY = y;
-  if(d <= 1){ nextD=16; }
+  if(d < 1){ nextD=1; }
   else if(d < 16){ nextD=16; }
   else { nextD=1; nextM=m+1; if(nextM>12){nextM=1;nextY++;} }
   var thY = (nextY - 2500 + 2500 - 2000 + 43); // แปลงเป็น พ.ศ. 2 หลัก
@@ -897,9 +904,13 @@ function setupNumpad(){
 
     switch(e.code||e.key){
 
-      // Enter = เลื่อนช่องถัดไปเรื่อยๆ จนถึง submit
+      // Enter = ถ้าโฟกัสอยู่ที่ปุ่ม ล้าง/ปัก/OK → กด click ทันที ไม่ต้องเดิน step
       case 'NumpadEnter': case 'Enter':
         e.preventDefault();
+        var focusedBtn=document.activeElement;
+        if(focusedBtn&&focusedBtn.closest('#kp-action-btns')){
+          focusedBtn.click(); break;
+        }
         if(npPhase==='lek'){
           if(!npLek){toast('กรอกเลขก่อนครับ');return;}
           npPhase='price';
@@ -956,20 +967,18 @@ function setupNumpad(){
         if(getActiveFields().indexOf('na')>=0){npStep=4;}
         npBuffer=''; renderKpFields(); break;
 
-      // ลูกศร = เลื่อน cursor
-      case 'ArrowUp': case 'ArrowLeft':
+      // ลูกศร = เลื่อนโฟกัสระหว่างปุ่ม ล้าง / ปัก / OK อิสระ
+      case 'ArrowUp': case 'ArrowLeft': case 'ArrowDown': case 'ArrowRight':
         e.preventDefault();
-        if(npPhase==='price'){commitBuffer();var ps=prevValidStep(npStep);if(ps>0){npStep=ps;npBuffer='';}renderKpFields();}
-        break;
-
-      case 'ArrowDown': case 'ArrowRight':
-        e.preventDefault();
-        if(npPhase==='lek'&&npLek){npPhase='price';npStep=getFirstStep();npBuffer='';renderKpFields();}
-        else if(npPhase==='price'){
-          commitBuffer();
-          var nsd=nextStep(npStep);
-          if(nsd>0){npStep=nsd;npBuffer='';renderKpFields();}
-          else document.querySelector('.kp-btn.ok').focus();
+        var actionBtns=Array.from(document.querySelectorAll('#kp-action-btns .kp-btn')).filter(function(b){return b.offsetParent!==null;});
+        var curIdx=actionBtns.indexOf(document.activeElement);
+        var dir2=(e.code==='ArrowUp'||e.code==='ArrowLeft')?-1:1;
+        if(curIdx===-1){
+          var tgt=dir2===1?actionBtns[0]:actionBtns[actionBtns.length-1];
+          if(tgt)tgt.focus();
+        } else {
+          var nxt=curIdx+dir2;
+          if(nxt>=0&&nxt<actionBtns.length)actionBtns[nxt].focus();
         }
         break;
 
@@ -1775,6 +1784,14 @@ function toast(msg){
 </script>
 
 <!-- SLIP OVERLAY -->
-
+<div class="slip-ov" id="slip-ov">
+  <div class="slip-ov-inner">
+    <div class="slip-top-bar">
+      <button class="slip-top-btn close" onclick="closeSlip()">← กลับ</button>
+      <button class="slip-top-btn blue" onclick="window.print()">🖨️ พิมพ์ / Save รูป</button>
+    </div>
+    <div class="slip-pages-grid" id="slip-pages"></div>
+  </div>
+</div>
 </body>
 </html>
