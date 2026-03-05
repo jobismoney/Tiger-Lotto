@@ -126,6 +126,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .perm-num{font-size:18px;font-weight:900;color:var(--purple);width:34px;flex-shrink:0;}
 .perm-inp{width:60px;background:var(--card);border:1.5px solid var(--border);border-radius:7px;color:var(--white);font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:4px 3px;text-align:center;outline:none;flex-shrink:0;}
 .perm-inp:focus{border-color:var(--purple);}
+.perm-del{background:none;border:none;color:#e74c3c;font-size:14px;cursor:pointer;padding:2px 5px;opacity:.5;flex-shrink:0;}
+.perm-del:hover{opacity:1;}
 
 
 /* quick presets */
@@ -1049,12 +1051,17 @@ function toggleKlb(k){
   if(npKlbOpen[k]){
     initPerms(k);
     npKlbJustOpened=k;
+    // เมื่อเปิดชุด → เลื่อน focus ไปโต๊ดทันที (ถ้ามี) ไม่งั้นไปล่าง
+    renderKpFields();
+    var fields=getActiveFields();
+    if(fields.indexOf('tod')>=0){ npStep=2; npBuffer=''; renderKpFields(); }
+    else if(fields.indexOf('lang')>=0){ npStep=3; npBuffer=''; renderKpFields(); }
   } else {
     var anyOpen=Object.keys(npKlbOpen).some(function(f){return npKlbOpen[f];});
     if(!anyOpen) npPerms={};
     npKlbJustOpened=null;
+    renderKpFields();
   }
-  renderKpFields();
 }
 
 function hasPerms(){return Object.keys(npPerms).length>0;}
@@ -1167,6 +1174,7 @@ function renderKpFields(){
           h+='<div class="perm-row">'
             +'<div class="perm-num">'+p+'</div>'
             +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onkeydown="permKey(event,this.dataset.perm)">'
+            +'<button class="perm-del" onclick="delPerm(\''+p+'\',\''+k+'\')" title="ลบ">✕</button>'
             +'</div>';
         });
         pr.innerHTML=h;
@@ -1197,6 +1205,11 @@ function onPermInput(el){
   var f=el.dataset.field||'bon';
   if(!npPerms[p]) npPerms[p]={bon:null,lang:null,na:null};
   npPerms[p][f]=parseInt(el.value)||null;
+}
+function delPerm(p,k){
+  // ลบเลข perm นั้นออกจาก npPerms ทุก field
+  delete npPerms[p];
+  renderKpFields();
 }
 function spv(el){setPermVal(el.dataset.pp,el.dataset.pk,parseInt(el.dataset.pn));}
 function setPermVal(p,f,n){
