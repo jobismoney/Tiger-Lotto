@@ -1060,11 +1060,19 @@ function toggleKlb(k){
   if(npKlbOpen[k]){
     initPerms(k);
     npKlbJustOpened=k;
-    // เมื่อเปิดชุด → เลื่อน focus ไปโต๊ดทันที (ถ้ามี) ไม่งั้นไปล่าง
     renderKpFields();
+    // เลื่อน focus ไปช่องถัดไปหลังจากช่องที่กดชุด
     var fields=getActiveFields();
-    if(fields.indexOf('tod')>=0){ npStep=2; npBuffer=''; renderKpFields(); }
-    else if(fields.indexOf('lang')>=0){ npStep=3; npBuffer=''; renderKpFields(); }
+    var order=['bon','tod','lang','na'];
+    var curIdx=order.indexOf(k);
+    var moved=false;
+    for(var i=curIdx+1;i<order.length;i++){
+      if(fields.indexOf(order[i])>=0){
+        npStep=i+1; npBuffer=''; renderKpFields(); moved=true; break;
+      }
+    }
+    // ถ้าไม่มีช่องถัดไป → อยู่ที่ช่องเดิม
+    if(!moved){ npStep=curIdx+1; npBuffer=''; renderKpFields(); }
   } else {
     var anyOpen=Object.keys(npKlbOpen).some(function(f){return npKlbOpen[f];});
     if(!anyOpen) npPerms={};
