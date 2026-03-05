@@ -1205,7 +1205,7 @@ function renderKpFields(){
             h+='<div class="perm-row">'
               +'<div class="perm-num">'+p+'</div>'
               +'<input type="tel" class="perm-inp" data-perm="'+p+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv2||'')+'" oninput="onPermInput(this)" onfocus="syncPermFocus('+fieldStep+',false)" onkeydown="permKey(event,this.dataset.perm)">'
-              +'<button class="perm-del" onclick="delPerm(\''+p+'\',\''+k+'\')" title="ลบ">✕</button>'
+              +'<button class="perm-del" onmousedown="event.preventDefault()" onclick="delPerm(\''+p+'\',\''+k+'\')" title="ลบ">✕</button>'
               +'</div>';
           });
           pr.innerHTML=h;
@@ -1282,7 +1282,7 @@ function delPerm(p,k){
     h+='<div class="perm-row">'
       +'<div class="perm-num">'+pm+'</div>'
       +'<input type="tel" class="perm-inp" data-perm="'+pm+'" data-field="'+k+'" inputmode="numeric" placeholder="฿" value="'+(pv||'')+'" oninput="onPermInput(this)" onfocus="syncPermFocus('+fieldStep+',false)" onkeydown="permKey(event,this.dataset.perm)">'
-      +'<button class="perm-del" onclick="delPerm(\''+pm+'\',\''+k+'\')" title="ลบ">✕</button>'
+      +'<button class="perm-del" onmousedown="event.preventDefault()" onclick="delPerm(\''+pm+'\',\''+k+'\')" title="ลบ">✕</button>'
       +'</div>';
   });
   if(h){ pr.innerHTML=h; pr.className='perm-rows show'; }
