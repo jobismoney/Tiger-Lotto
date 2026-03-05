@@ -80,8 +80,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .cdot.on{background:var(--gold);}
 .ctotal{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);margin-top:2px;}
 .ccount{font-size:12px;color:#7a8aaa;margin-top:1px;}
-.cadd{margin:3px 5px 5px;border:1px dashed #1a2040;border-radius:5px;padding:7px;text-align:center;font-size:13px;color:#4a5570;cursor:pointer;transition:all .15s;}
-.cadd:hover{color:var(--gold);border-color:rgba(245,197,24,.2);}
+.cadd{margin:6px 6px 4px;background:rgba(245,197,24,.07);border:1.5px solid rgba(245,197,24,.25);border-radius:8px;padding:10px;text-align:center;font-size:14px;font-weight:900;color:var(--gold);cursor:pointer;transition:all .15s;flex-shrink:0;}
+.cadd:hover{background:rgba(245,197,24,.15);border-color:rgba(245,197,24,.5);}
 
 /* ZONE 2: คีย์เลข (keypad panel) */
 .z2{background:var(--z2);}
@@ -357,19 +357,19 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .pbtn-add{flex:2;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:7px;padding:9px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:900;color:#111;cursor:pointer;}
 
 /* MODALS */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;display:none;align-items:center;justify-content:center;}
 .modal-overlay.show{display:flex;}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:13px;width:300px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.8);}
-.modal-title{font-size:15px;font-weight:900;color:var(--gold);margin-bottom:14px;}
-.modal-inp{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:9px 11px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;color:#fff;outline:none;margin-bottom:9px;}
-.modal-inp:focus{border-color:rgba(245,197,24,.3);}
-.modal-btns{display:flex;gap:7px;margin-top:4px;}
-.mbtn{flex:1;border:none;border-radius:7px;padding:9px;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:800;cursor:pointer;}
-.mbtn.cancel{background:#141b2e;border:1px solid #1a2040;color:var(--lg);}
+.modal{background:var(--card);border:1px solid rgba(245,197,24,.3);border-radius:16px;width:340px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.8);}
+.modal-title{font-size:20px;font-weight:900;color:var(--gold);margin-bottom:18px;}
+.modal-inp{width:100%;background:var(--bg);border:2px solid var(--border);border-radius:9px;padding:13px 14px;font-family:'Sarabun',sans-serif;font-size:17px;font-weight:700;color:#fff;outline:none;margin-bottom:12px;}
+.modal-inp:focus{border-color:rgba(245,197,24,.5);}
+.modal-btns{display:flex;gap:9px;margin-top:6px;}
+.mbtn{flex:1;border:none;border-radius:9px;padding:13px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;cursor:pointer;}
+.mbtn.cancel{background:#141b2e;border:1px solid #1a2040;color:#aab;}
 .mbtn.ok{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;}
 
 /* TOAST */
-.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1d27;border:1px solid var(--border);border-radius:9px;padding:9px 16px;font-size:12px;font-weight:700;color:#f0f2ff;z-index:9999;transition:transform .3s ease;pointer-events:none;}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1d27;border:1px solid var(--border);border-radius:10px;padding:12px 22px;font-size:15px;font-weight:700;color:#f0f2ff;z-index:9999;transition:transform .3s ease;pointer-events:none;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
 ::-webkit-scrollbar{width:3px;}
@@ -398,11 +398,11 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <div class="zone z1" id="zone1" style="width:160px;">
     <div class="zhdr">
       <span class="ztitle">📂 แฟ้ม</span>
-      <span id="cust-count" style="font-size:9px;color:#2a3050;">0</span>
+      <span id="cust-count" style="font-size:11px;color:#4a5570;font-weight:700;">0</span>
     </div>
     <div class="zbody">
+      <div class="cadd" onclick="openAddCust()">➕ เพิ่มลูกค้า</div>
       <div class="clist" id="clist"></div>
-      <div class="cadd" onclick="openAddCust()">+ เพิ่มลูกค้า</div>
     </div>
   </div>
 
