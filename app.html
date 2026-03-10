@@ -1081,16 +1081,17 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     updatePakUI:function(){
       var lek=curLek;
       var midBtn=document.getElementById('pak-mid-btn');
-      if(APP.pakType==='3bon'||APP.pakType==='2bon'){APP.pakType='3bon';
+      var d=lek||'?';
+      if(APP.pakType==='3bon'){
         midBtn.style.display='';
-        document.getElementById('pak-ex-na').textContent=(lek[0]||'X')+'XX';
-        document.getElementById('pak-ex-mid').textContent='X'+(lek[1]||'X')+'X';
-        document.getElementById('pak-ex-lang').textContent='XX'+(lek[2]||'X');
+        document.getElementById('pak-ex-na').textContent=d+'_ _';
+        document.getElementById('pak-ex-mid').textContent='_ '+d+' _';
+        document.getElementById('pak-ex-lang').textContent='_ _'+d;
       } else {
         midBtn.style.display='none';
         if(APP.pakPos==='mid'){APP.pakPos='na';document.querySelectorAll('#pak-pos-grid .pak-pbtn').forEach(function(b){b.classList.remove('on');});document.querySelector('#pak-pos-grid .pak-pbtn').classList.add('on');}
-        document.getElementById('pak-ex-na').textContent=(lek[0]||'X')+'X';
-        document.getElementById('pak-ex-lang').textContent='X'+(lek[1]||'X');
+        document.getElementById('pak-ex-na').textContent=d+'_';
+        document.getElementById('pak-ex-lang').textContent='_'+d;
       }
     },
     setPakPreset:function(n){document.getElementById('pak-price').value=n;},
@@ -3378,15 +3379,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     <div class="pak-pos-row" id="pak-pos-grid">
       <div class="pak-pbtn on" data-pos="na" onclick="APP.selPakPos(this)">
         <div class="pak-pbtn-lbl">หน้า</div>
-        <div class="pak-pbtn-ex" id="pak-ex-na">3XX</div>
+        <div class="pak-pbtn-ex" id="pak-ex-na">?_ _</div>
       </div>
       <div class="pak-pbtn" data-pos="mid" onclick="APP.selPakPos(this)" id="pak-mid-btn">
         <div class="pak-pbtn-lbl">กลาง</div>
-        <div class="pak-pbtn-ex" id="pak-ex-mid">X3X</div>
+        <div class="pak-pbtn-ex" id="pak-ex-mid">_ ? _</div>
       </div>
       <div class="pak-pbtn" data-pos="lang" onclick="APP.selPakPos(this)">
         <div class="pak-pbtn-lbl">หลัง</div>
-        <div class="pak-pbtn-ex" id="pak-ex-lang">XX3</div>
+        <div class="pak-pbtn-ex" id="pak-ex-lang">_ _?</div>
       </div>
     </div>
     <div class="pak-sec">ราคา</div>
