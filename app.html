@@ -813,6 +813,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var nio=document.getElementById('name-inp-ov');
     if(nio)nio.style.display='none';
     document.getElementById('cf-ov').classList.remove('show');
+    document.getElementById('hist-ov').classList.remove('show');
+    document.getElementById('slip-ov').classList.remove('show');
+    var co=document.getElementById('check-ov');if(co)co.classList.remove('show');
     document.getElementById('welcome-screen').style.display='flex';
     document.getElementById('main-wrap').classList.remove('show');
   }
