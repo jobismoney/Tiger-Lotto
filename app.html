@@ -842,22 +842,42 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var _cfCb=null;
   var _cfExtraCb=null;
   function showInputConfirm(title,placeholder,onOk){
-    document.getElementById('cf-msg').innerHTML=
-      '<div style="font-size:17px;font-weight:900;color:var(--gold);margin-bottom:14px;">'+title+'</div>'
-      +'<input id="basket-name-inp" type="text" placeholder="'+placeholder+'" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;font-size:17px;font-weight:700;padding:10px 12px;outline:none;">';
+    // รวบรวมชื่อที่เคยใช้จาก history (unique, ไม่เกิน 8)
+    var hist=getHistory();
+    var seen={};var recentNames=[];
+    hist.forEach(function(h){
+      if(h.isBasket&&h.basketName&&!/^ชุดที่/.test(h.basketName)&&!seen[h.basketName]){
+        seen[h.basketName]=1;recentNames.push(h.basketName);
+      }
+    });
+    recentNames=recentNames.slice(0,8);
+    var chipHtml='';
+    if(recentNames.length){
+      chipHtml='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">'
+        +recentNames.map(function(n){
+          return '<button onclick="document.getElementById('basket-name-inp').value=''+n.replace(/'/g,"\'")+'';" '
+            +'style="background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--white);'
+            +'font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 12px;cursor:pointer;">'+n+'</button>';
+        }).join('')
+        +'</div>';
+    }
     var noBtn=document.getElementById('cf-no');
+    var origNoBtnOnclick=noBtn.onclick;
+    document.getElementById('cf-msg').innerHTML=
+      '<div style="font-size:17px;font-weight:900;color:var(--gold);margin-bottom:12px;">'+title+'</div>'
+      +chipHtml
+      +'<input id="basket-name-inp" type="text" placeholder="'+placeholder+'" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;font-size:17px;font-weight:700;padding:10px 12px;outline:none;">';
     noBtn.textContent='ข้าม';noBtn.style.display='';
     var yesBtn=document.getElementById('cf-yes');
     yesBtn.textContent='ตกลง';yesBtn.className='cf-yes';
     document.getElementById('cf-extra').style.display='none';
-    _cfCb=function(){
-      var inp=document.getElementById('basket-name-inp');
-      onOk(inp?inp.value.trim():'');
-    };
-    noBtn.onclick=function(){
+    function doClose(val){
+      noBtn.onclick=origNoBtnOnclick;
       document.getElementById('cf-ov').classList.remove('show');
-      onOk('');
-    };
+      onOk(val);
+    }
+    _cfCb=function(){doClose(document.getElementById('basket-name-inp')?document.getElementById('basket-name-inp').value.trim():'');};
+    noBtn.onclick=function(){doClose('');};
     document.getElementById('cf-ov').classList.add('show');
     setTimeout(function(){
       var inp=document.getElementById('basket-name-inp');
