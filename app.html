@@ -1073,7 +1073,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       document.querySelectorAll('#pak-type-tabs .pak-ttab').forEach(function(t){t.classList.remove('on');});
       el.classList.add('on');
       APP.pakType=el.dataset.type;
-      // reset pos ที่ไม่ valid (กลางใช้ได้แค่ 3บน)
       if(APP.pakType!=='3bon'){
         APP.pakPos=APP.pakPos.filter(function(p){return p!=='mid';});
         document.getElementById('pak-mid-btn').classList.remove('on');
@@ -1081,7 +1080,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       APP.updatePakUI();
     },
     selPakPos:function(el){
-      // multi-select toggle — ใช้ closest เพื่อกัน child div รับ event
       var btn=el.closest('.pak-pbtn');
       if(!btn)return;
       var pos=btn.dataset.pos;
@@ -1581,7 +1579,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var h='';
     sorted.forEach(function(e){
       var rmDisabled=isLocked?' disabled':'';
-         // pak entry — แสดงทุกตำแหน่งในแถวเดียว
+      // pak entry — แสดงทุกตำแหน่งในแถวเดียว
       if(e.paks&&e.paks.length){
         var posLbls=e.paks.map(function(p){return {na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;});
         var isBon=e.paks[0].type==='3bon';
