@@ -1545,6 +1545,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     return entries.reduce(function(s,e){
       var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);
       ['bon','lang','na'].forEach(function(k){(e.kd[k]||[]).forEach(function(x){t+=x.price;});});
+      (e.paks||[]).forEach(function(p){t+=p.price;});
       return s+t;
     },0);
   }
@@ -1559,6 +1560,18 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var h='';
     sorted.forEach(function(e){
       var rmDisabled=isLocked?' disabled':'';
+      // pak entry — row เดียว ไม่แสดง row หลักที่ว่าง
+      if(e.paks&&e.paks.length){
+        (e.paks||[]).forEach(function(p){
+          var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
+          var lbl=e.lek+' ปัก'+posLbl+' '+(p.typeLabel||p.type);
+          h+='<div class="bet-row'+(isLocked?' locked':'')+'">'
+            +'<div class="lek-cell" style="font-size:12px;color:#fb923c;grid-column:1/5;">📌 '+lbl+'</div>'
+            +'<div class="cel" style="color:#fb923c;font-weight:800;">฿'+p.price+'</div>'
+            +'<button class="rm-btn" onclick="removeEntry('+e.id+')"'+rmDisabled+'>✕</button></div>';
+        });
+        return;
+      }
       h+='<div class="bet-row'+(isLocked?' locked':'')+'"><div class="lek-cell">'+e.lek+'</div>'
         +cellV(e.bon)+cellV(e.tod)+cellV(e.lang)+cellV(e.na)
         +'<button class="rm-btn" onclick="removeEntry('+e.id+')"'+rmDisabled+'>✕</button></div>';
@@ -1674,6 +1687,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     } else {
       if(t>0)push(lek,'ต'+fmt(t),t);
     }
+    // pak lines
+    (e.paks||[]).forEach(function(p){
+      var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
+      lines.push({lek:e.lek, price:'ปัก'+posLbl+' '+(p.typeLabel||p.type), total:p.price});
+    });
     return lines;
   }
 
@@ -2179,6 +2197,31 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(d===1&&e.lang>0&&win2bot.length===2){
         if(win2bot.indexOf(lek)>=0)hits.push({type:'วิ่งล่าง',amt:e.lang});
       }
+
+      // ─ PAK (ปักหลัก) ─
+      (e.paks||[]).forEach(function(p){
+        var price=p.price;
+        var type=p.type; // '3bon','2bon','2lang'
+        var pos=p.pos;   // 'na','mid','lang'
+        var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[pos]||pos;
+        var lek3=e.lek;  // เลขที่ซื้อ (1 หลัก = ตัวที่ปัก)
+        if(type==='3bon' && win3.length===3){
+          // ปักหน้า: lek[0]===win3[0], ปักกลาง: lek[0]===win3[1], ปักหลัง: lek[0]===win3[2]
+          var posIdx={na:0,mid:1,lang:2}[pos];
+          if(posIdx!==undefined && lek3===win3[posIdx])
+            hits.push({type:'ปัก'+posLbl+' 3ตัวบน',amt:price});
+        }
+        if(type==='2bon' && win2top.length===2){
+          var posIdx2={na:0,lang:1}[pos];
+          if(posIdx2!==undefined && lek3===win2top[posIdx2])
+            hits.push({type:'ปัก'+posLbl+' 2ตัวบน',amt:price});
+        }
+        if(type==='2lang' && win2bot.length===2){
+          var posIdx3={na:0,lang:1}[pos];
+          if(posIdx3!==undefined && lek3===win2bot[posIdx3])
+            hits.push({type:'ปัก'+posLbl+' 2ตัวล่าง',amt:price});
+        }
+      });
 
       if(hits.length){
         results.push({lek:lek,hits:hits,_setNum:e._setNum,_rowNum:e._rowNum});
