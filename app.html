@@ -1887,7 +1887,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       ['bon','lang','na'].reduce(function(s,k){return s+pEntries.reduce(function(ss,e){return ss+(e.kd[k]||[]).reduce(function(sss,x){return sss+x.price;},0);},0);},0);
     return '<div class="slip-hd">'
       +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
-      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span><span>วันที่ <strong>'+inf.date+'</strong></span></div>'
+      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+(ngodInfo.basketName?'/'+ngodInfo.basketName:'')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span><span>วันที่ <strong>'+inf.date+'</strong></span></div>'
       +'</div>'
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
       +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
@@ -1984,7 +1984,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       });
       return '<div class="slip-hd">'
         +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+(i+1)+'/'+totalPages+'</span></div>'
-        +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span><span>วันที่ <strong>'+inf.date+'</strong></span></div>'
+        +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+(inf.label?'/'+inf.label:'')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span><span>วันที่ <strong>'+inf.date+'</strong></span></div>'
         +'</div>'
         +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
         +sumTableHTML(buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false))
@@ -2281,7 +2281,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var pt=pgEntries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
     return '<div class="slip-hd">'
       +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
-      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span><span>วันที่ <strong>'+inf.date+'</strong></span></div>'
+      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+(ngodInfo.basketName?'/'+ngodInfo.basketName:'')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span><span>วันที่ <strong>'+inf.date+'</strong></span></div>'
       +'</div>'
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
       +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
@@ -2818,6 +2818,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById('ov-print-merged').addEventListener('click',function(){
       window.print();
     });
+    document.getElementById('ov-share-line').addEventListener('click',shareSlip);
 
     // Open ngod
     document.getElementById('open-ngod-btn').addEventListener('click',function(){openNgodModal(entries.length>0);});
