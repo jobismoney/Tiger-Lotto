@@ -1056,12 +1056,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
     // ── PAK FUNCTIONS ──
     pakType:'3bon',
-    pakPos:'na',
+    pakPos:[],
     openPak:function(){
       var lek=curLek;
       if(!lek){toast('กรอกเลขก่อนครับ');return;}
       document.getElementById('pak-lek-show').textContent=lek;
       document.getElementById('pak-price').value='';
+      APP.pakPos=[];
+      document.querySelectorAll('#pak-pos-grid .pak-pbtn').forEach(function(b){b.classList.remove('on');});
       APP.updatePakUI();
       document.getElementById('pak-overlay').classList.add('show');
       setTimeout(function(){document.getElementById('pak-price').focus();},100);
@@ -1071,12 +1073,24 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       document.querySelectorAll('#pak-type-tabs .pak-ttab').forEach(function(t){t.classList.remove('on');});
       el.classList.add('on');
       APP.pakType=el.dataset.type;
+      // reset pos ที่ไม่ valid (กลางใช้ได้แค่ 3บน)
+      if(APP.pakType!=='3bon'){
+        APP.pakPos=APP.pakPos.filter(function(p){return p!=='mid';});
+        document.getElementById('pak-mid-btn').classList.remove('on');
+      }
       APP.updatePakUI();
     },
     selPakPos:function(el){
-      document.querySelectorAll('#pak-pos-grid .pak-pbtn').forEach(function(b){b.classList.remove('on');});
-      el.classList.add('on');
-      APP.pakPos=el.dataset.pos;
+      // multi-select toggle
+      var pos=el.dataset.pos;
+      var idx=APP.pakPos.indexOf(pos);
+      if(idx>=0){
+        APP.pakPos.splice(idx,1);
+        el.classList.remove('on');
+      } else {
+        APP.pakPos.push(pos);
+        el.classList.add('on');
+      }
     },
     updatePakUI:function(){
       var lek=curLek;
@@ -1089,7 +1103,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         document.getElementById('pak-ex-lang').textContent='_ _'+d;
       } else {
         midBtn.style.display='none';
-        if(APP.pakPos==='mid'){APP.pakPos='na';document.querySelectorAll('#pak-pos-grid .pak-pbtn').forEach(function(b){b.classList.remove('on');});document.querySelector('#pak-pos-grid .pak-pbtn').classList.add('on');}
         document.getElementById('pak-ex-na').textContent=d+'_';
         document.getElementById('pak-ex-lang').textContent='_'+d;
       }
@@ -1099,21 +1112,25 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var price=parseInt(document.getElementById('pak-price').value)||0;
       if(!price){toast('ใส่ราคาด้วยครับ');return;}
       if(!curLek){toast('กรอกเลขก่อนครับ');return;}
+      if(!APP.pakPos.length){toast('เลือกตำแหน่งด้วยครับ');return;}
       var typeLabels={'3bon':'บน','2lang':'ล่าง'};
       var posLabels={'na':'หน้า','mid':'กลาง','lang':'หลัง'};
+      var paks=APP.pakPos.map(function(pos){
+        return {type:APP.pakType,pos:pos,price:price,
+                typeLabel:typeLabels[APP.pakType],posLabel:posLabels[pos]};
+      });
       eid++;
       entries.unshift({
         id:eid,lek:curLek,d:curLek.length,
         bon:null,tod:null,lang:null,na:null,kd:{},
-        paks:[{type:APP.pakType,pos:APP.pakPos,price:price,
-               typeLabel:typeLabels[APP.pakType],posLabel:posLabels[APP.pakPos]}]
+        paks:paks
       });
       APP.closePak();
       setLek('');
       var inp=document.getElementById('lek-inp');if(inp)inp.value='';
       FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
       var ab=document.getElementById('add-btn');if(ab)ab.classList.remove('ready');
-      toast('เพิ่มปักหลักแล้ว ✅');
+      toast('เพิ่มปักหลัก '+APP.pakPos.length+' ตำแหน่ง ✅');
     },
     fldPress:function(e,k){
       // space (มือถือ) หรือ + (คอมพิวเตอร์) → click OK ทันที
@@ -1561,21 +1578,22 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var h='';
     sorted.forEach(function(e){
       var rmDisabled=isLocked?' disabled':'';
-      // pak entry — row เดียว ไม่แสดง row หลักที่ว่าง
+         // pak entry — แสดงทุกตำแหน่งในแถวเดียว
       if(e.paks&&e.paks.length){
-        (e.paks||[]).forEach(function(p){
-          var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
-          var isBon=p.type==='3bon';
-          var priceVal='<div class="cel" style="color:#fb923c;font-weight:800;">฿'+p.price+'</div>';
-          var dash='<div class="cel e">-</div>';
-          h+='<div class="bet-row'+(isLocked?' locked':'')+'">'
-            +'<div class="lek-cell" style="color:#fb923c;font-size:15px;">'+e.lek+'<span style="font-size:11px;">📍'+posLbl+'</span></div>'
-            +(isBon?priceVal:dash)
-            +dash
-            +(!isBon?priceVal:dash)
-            +dash
-            +'<button class="rm-btn" onclick="removeEntry('+e.id+')"'+rmDisabled+'>✕</button></div>';
-        });
+        var posLbls=e.paks.map(function(p){return {na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;});
+        var isBon=e.paks[0].type==='3bon';
+        var pricePerPos=e.paks[0].price;
+        var total=e.paks.length*pricePerPos;
+        var posTag=posLbls.map(function(l){return '📍'+l;}).join(' ');
+        var priceVal='<div class="cel" style="color:#fb923c;font-weight:800;">฿'+total+'</div>';
+        var dash='<div class="cel e">-</div>';
+        h+='<div class="bet-row'+(isLocked?' locked':'')+'">'
+          +'<div class="lek-cell" style="color:#fb923c;font-size:14px;">'+e.lek+'<span style="font-size:10px;"> '+posTag+'</span></div>'
+          +(isBon?priceVal:dash)
+          +dash
+          +(!isBon?priceVal:dash)
+          +dash
+          +'<button class="rm-btn" onclick="removeEntry('+e.id+')"'+rmDisabled+'>✕</button></div>';
         return;
       }
       h+='<div class="bet-row'+(isLocked?' locked':'')+'"><div class="lek-cell">'+e.lek+'</div>'
