@@ -842,7 +842,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var _cfCb=null;
   var _cfExtraCb=null;
   function showInputConfirm(title,placeholder,onOk){
-    // รวบรวมชื่อที่เคยใช้จาก history (unique, ไม่เกิน 8)
     var hist=getHistory();
     var seen={};var recentNames=[];
     hist.forEach(function(h){
@@ -851,22 +850,32 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       }
     });
     recentNames=recentNames.slice(0,8);
-    var chipHtml='';
-    if(recentNames.length){
-      chipHtml='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">'
-        +recentNames.map(function(n){
-          return '<button onclick="document.getElementById('basket-name-inp').value=''+n.replace(/'/g,"\'")+'';" '
-            +'style="background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--white);'
-            +'font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 12px;cursor:pointer;">'+n+'</button>';
-        }).join('')
-        +'</div>';
-    }
     var noBtn=document.getElementById('cf-no');
     var origNoBtnOnclick=noBtn.onclick;
+    var chipHtml='';
+    if(recentNames.length){
+      var chips=recentNames.map(function(n){
+        return '<button type="button" class="inp-chip" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 12px;cursor:pointer;">'+n+'</button>';
+      });
+      chipHtml='<div id="name-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">'+chips.join('')+'</div>';
+    }
     document.getElementById('cf-msg').innerHTML=
-      '<div style="font-size:17px;font-weight:900;color:var(--gold);margin-bottom:12px;">'+title+'</div>'
-      +chipHtml
-      +'<input id="basket-name-inp" type="text" placeholder="'+placeholder+'" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;font-size:17px;font-weight:700;padding:10px 12px;outline:none;">';
+      '<div style="font-size:17px;font-weight:900;color:var(--gold);margin-bottom:12px;">'
+      +title+'</div>'+chipHtml
+      +'<input id="basket-name-inp" type="text" placeholder="'+placeholder
+      +'" style="width:100%;background:var(--bg);border:1.5px solid var(--border);'
+      +'border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;'
+      +'font-size:17px;font-weight:700;padding:10px 12px;outline:none;">';
+    // bind chip clicks after innerHTML set
+    var chipContainer=document.getElementById('name-chips');
+    if(chipContainer){
+      chipContainer.querySelectorAll('.inp-chip').forEach(function(btn){
+        btn.addEventListener('click',function(){
+          var inp=document.getElementById('basket-name-inp');
+          if(inp)inp.value=btn.textContent;
+        });
+      });
+    }
     noBtn.textContent='ข้าม';noBtn.style.display='';
     var yesBtn=document.getElementById('cf-yes');
     yesBtn.textContent='ตกลง';yesBtn.className='cf-yes';
@@ -876,7 +885,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       document.getElementById('cf-ov').classList.remove('show');
       onOk(val);
     }
-    _cfCb=function(){doClose(document.getElementById('basket-name-inp')?document.getElementById('basket-name-inp').value.trim():'');};
+    _cfCb=function(){
+      var inp=document.getElementById('basket-name-inp');
+      doClose(inp?inp.value.trim():'');
+    };
     noBtn.onclick=function(){doClose('');};
     document.getElementById('cf-ov').classList.add('show');
     setTimeout(function(){
