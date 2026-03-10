@@ -1081,7 +1081,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     updatePakUI:function(){
       var lek=curLek;
       var midBtn=document.getElementById('pak-mid-btn');
-      if(APP.pakType==='3bon'){
+      if(APP.pakType==='3bon'||APP.pakType==='2bon'){APP.pakType='3bon';
         midBtn.style.display='';
         document.getElementById('pak-ex-na').textContent=(lek[0]||'X')+'XX';
         document.getElementById('pak-ex-mid').textContent='X'+(lek[1]||'X')+'X';
@@ -1098,7 +1098,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var price=parseInt(document.getElementById('pak-price').value)||0;
       if(!price){toast('ใส่ราคาด้วยครับ');return;}
       if(!curLek){toast('กรอกเลขก่อนครับ');return;}
-      var typeLabels={'3bon':'3ตัวบน','2bon':'2ตัวบน','2lang':'2ตัวล่าง'};
+      var typeLabels={'3bon':'บน','2lang':'ล่าง'};
       var posLabels={'na':'หน้า','mid':'กลาง','lang':'หลัง'};
       eid++;
       entries.unshift({
@@ -1564,11 +1564,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(e.paks&&e.paks.length){
         (e.paks||[]).forEach(function(p){
           var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
-          var typLbl=p.type==='3bon'?'บน':p.type==='2bon'?'บน':'ล่าง';
-          var lbl='📌 '+e.lek+' ปัก'+posLbl+' '+typLbl;
+          var lbl=e.lek+' ปัก'+posLbl+' '+(p.typeLabel||p.type);
           h+='<div class="bet-row'+(isLocked?' locked':'')+'">'
-            +'<div class="lek-cell" style="font-size:13px;color:#fb923c;">📌'+e.lek+'</div>'
-            +'<div style="font-size:11px;color:#fb923c;font-weight:800;grid-column:2/6;">ปัก'+posLbl+' '+(p.typeLabel||typLbl)+'</div>'
+            +'<div class="lek-cell" style="font-size:12px;color:#fb923c;grid-column:1/5;">📌 '+lbl+'</div>'
             +'<div class="cel" style="color:#fb923c;font-weight:800;">฿'+p.price+'</div>'
             +'<button class="rm-btn" onclick="removeEntry('+e.id+')"'+rmDisabled+'>✕</button></div>';
         });
@@ -2212,11 +2210,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           var posIdx={na:0,mid:1,lang:2}[pos];
           if(posIdx!==undefined && lek3===win3[posIdx])
             hits.push({type:'ปัก'+posLbl+' 3ตัวบน',amt:price});
-        }
-        if(type==='2bon' && win2top.length===2){
-          var posIdx2={na:0,lang:1}[pos];
-          if(posIdx2!==undefined && lek3===win2top[posIdx2])
-            hits.push({type:'ปัก'+posLbl+' 2ตัวบน',amt:price});
         }
         if(type==='2lang' && win2bot.length===2){
           var posIdx3={na:0,lang:1}[pos];
@@ -3377,7 +3370,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     <div class="pak-sec">ประเภท</div>
     <div class="pak-type-row" id="pak-type-tabs">
       <div class="pak-ttab on" data-type="3bon" onclick="APP.selPakType(this)">3ตัวบน</div>
-      <div class="pak-ttab" data-type="2bon" onclick="APP.selPakType(this)">2ตัวบน</div>
       <div class="pak-ttab" data-type="2lang" onclick="APP.selPakType(this)">2ตัวล่าง</div>
     </div>
     <div class="pak-sec">ตำแหน่ง</div>
