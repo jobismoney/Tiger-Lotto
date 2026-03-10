@@ -1687,12 +1687,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var msg='ปิดงวด <b>'+ngodInfo.ngod+'</b>?<br>หลังปิดแล้วจะเปิดงวดใหม่ได้เลย';
       if(hasEntries)msg+='<br><br><span style="color:#f59e0b">⚠️ มีเลขค้างอยู่ '+entries.length+' รายการ<br>ยืนยัน = ทิ้งเลยโดยไม่เก็บ</span>';
       showConfirm(msg,function(){
-        entries=[];eid=0;pageBreakIds=[];
+        var closedNgod=ngodInfo.ngod;
+        entries=[];eid=0;pageBreakIds=[];isLocked=false;
         ngodOpen=false;
+        ngodInfo={sender:'',receiver:'',ngod:'',date:'',basketName:''};
         save();renderList();
         document.getElementById('hist-ov').classList.remove('show');
+        document.getElementById('slip-ov').classList.remove('show');
         showWelcome();
-        toast('ปิดงวด '+ngodInfo.ngod+' แล้วครับ ✅');
+        toast('ปิดงวด '+closedNgod+' แล้วครับ ✅');
       });
     }
   };
