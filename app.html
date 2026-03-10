@@ -2001,7 +2001,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         custSets.forEach(function(h,ci){
           var realIdx=hist.indexOf(h);
           innerRows+='<div class="hist-set" style="padding-left:20px;">'
-            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(ci+1)+'</div>'
+            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(custSets.length-ci)+'</div>'
             +'<div class="hist-set-time">⏰ '+(h.savedAt||'')+'</div></div>'
             +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
             +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
@@ -2070,7 +2070,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         cSets.forEach(function(x,ci){
           var h=x.h,realIdx=x.i;
           innerRows+='<div class="hist-set" style="padding-left:20px;">'
-            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(ci+1)+'</div>'
+            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(cSets.length-ci)+'</div>'
             +'<div class="hist-set-time">⏰ '+(h.savedAt||h.closedAt||'')+'</div></div>'
             +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
             +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
