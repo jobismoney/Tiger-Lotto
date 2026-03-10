@@ -160,10 +160,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .ov-basket{width:100%;background:linear-gradient(135deg,#e67e22,#d35400);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:12px;cursor:pointer;margin-bottom:8px;}
 .ov-print{width:100%;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:12px;cursor:pointer;margin-bottom:8px;}
 .slip-pages-grid{display:flex;flex-direction:column;gap:10px;}
-.slip-page-single{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);}
-.slip-page-sum{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);}
+.slip-page-single{background:#fff;border-radius:4px;overflow:hidden;border:1px solid #ccc;margin-bottom:2px;}
+.slip-page-sum{background:#fff;border-radius:4px;overflow:hidden;border:1px solid #ccc;margin-top:4px;}
 .slip-page{background:#fff;overflow:hidden;}
-.slip-hd{background:#fff;padding:10px 14px 8px;border-bottom:2px solid #000;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.slip-hd{background:#fff;padding:8px 14px 6px;border-bottom:1.5px solid #000;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .slip-hd-row1{display:flex;justify-content:space-between;align-items:center;}
 .slip-hd-row1 h2{color:#000;font-size:18px;font-weight:900;}
 .slip-hd-row1 .pg{color:#444;font-size:13px;font-weight:700;}
@@ -183,14 +183,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .td-brace-empty{width:14px;}
 .td-total{font-size:14px;font-weight:900;color:#111;text-align:left;white-space:nowrap;padding-left:4px;width:auto;}
 .row-sep td{padding:0!important;border-top:1.5px dashed #ccc!important;background:none!important;}
-.sum-tbl-wrap{border-top:2px solid #000;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.sum-tbl-wrap{border-top:1.5px solid #000;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .sum-tbl{width:100%;border-collapse:collapse;}
-.sh{background:#222;color:#fff;font-size:12px;font-weight:800;padding:4px 2px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.sh{background:#fff;color:#000;font-size:12px;font-weight:800;padding:4px 2px;text-align:center;border-bottom:1px solid #000;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .sh-no{width:26px;}
 .sc{font-size:13px;font-weight:700;color:#111;text-align:center;padding:5px 2px;border-bottom:1px solid #f0f0f0;}
 .sc-no{color:#888;font-size:12px;}
 .sf td{background:#eee;font-weight:900;font-size:13px;color:#111;border-top:2px solid #bbb;padding:5px 2px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-.slip-ft{background:#f5f5f5;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;border-top:2px solid #000;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.slip-ft{background:#fff;padding:6px 14px;display:flex;justify-content:space-between;align-items:center;border-top:1.5px solid #000;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .slip-ft .fl{color:#000;font-size:14px;font-weight:800;}
 .slip-ft .fv{color:#000;font-size:22px;font-weight:900;}
 .slip-legend{font-size:11px;color:#888;padding:3px 8px;text-align:right;background:#fff;border-top:1px solid #eee;}
@@ -417,7 +417,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   .slip-pages-grid{display:block!important;}
   .slip-page-single{display:inline-block!important;width:49.5%!important;vertical-align:top!important;page-break-inside:avoid;border-radius:0!important;box-shadow:none!important;}
   .slip-page-single:nth-child(odd){border-right:1px dashed #bbb!important;}
-  .slip-page-pair-break{display:block;width:100%;page-break-after:always;height:0;}
+  .slip-page-pair-break{border-top:3px double #666;margin:6px 0;display:block;width:100%;page-break-after:always;height:0;}
   .slip-page-sum{display:block!important;width:100%!important;clear:both;page-break-before:always;border-radius:0!important;box-shadow:none!important;}
   .slip-hd{background:#fff!important;border-bottom:1.5px solid #000!important;padding:6px 10px 5px!important;}
   .slip-hd-row1 h2{color:#000!important;font-size:14px!important;}
@@ -1983,7 +1983,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       return '<div class="slip-hd">'
         +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+(i+1)+'/'+totalPages+'</span></div>'
         +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span><span>วันที่ <strong>'+inf.date+'</strong></span></div>'
-        +(label?'<div style="background:#f5c518;color:#111;font-size:13px;font-weight:900;padding:3px 8px;border-radius:4px;display:inline-block;margin-top:4px;">👤 '+label+'</div>':'')
+        ''
         +'</div>'
         +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
         +sumTableHTML(buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false))
@@ -1994,7 +1994,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
     var sumHTML='<div class="slip-hd"><div class="slip-hd-row1"><h2>📊 สรุปรวมทุกแผ่น</h2><span class="pg">'+totalPages+' แผ่น</span></div>'
       +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
-      +(label?'<div style="background:#f5c518;color:#111;font-size:13px;font-weight:900;padding:3px 8px;border-radius:4px;display:inline-block;margin-top:4px;">👤 '+label+'</div>':'')
+      ''
       +'</div>'+sumTableHTML(allSumRows)+'<div class="slip-ft"><span class="fl">ยอดรวมทั้งหมด</span><span class="fv">฿'+fmt(grandTotal)+'</span></div>';
     var allHTML='';
     for(var pi=0;pi<pageHTMLs.length;pi++){
