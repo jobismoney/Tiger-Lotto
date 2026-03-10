@@ -1122,6 +1122,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       }
       var newKeys=paks.map(function(p){return curLek+'|'+p.type+'|'+p.pos;});
       var dupMsgs=[];
+      var dupMsgSeen={};
       function checkSrc(srcEntries,srcName){
         srcEntries.forEach(function(e){
           if(e.confirmedDup)return;
@@ -1129,7 +1130,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           newKeys.forEach(function(nk){
             if(existKeys.indexOf(nk)>=0){
               var parts=nk.split('|');
-              dupMsgs.push('เลข <b>'+parts[0]+'</b> ปัก'+(posLabels[parts[2]]||parts[2])+' ('+srcName+')');
+              var msgKey=parts[0]+'|'+srcName;
+              if(!dupMsgSeen[msgKey]){
+                dupMsgSeen[msgKey]=1;
+                dupMsgs.push('เลข <b>'+parts[0]+'</b> ('+srcName+')');
+              }
             }
           });
         });
@@ -1546,8 +1551,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var dupSeen={};
       dupLekList.forEach(function(nl){
         dupMap[nl].forEach(function(src){
-          var key=nl+'|'+src;
-          if(!dupSeen[key]){dupSeen[key]=1;dupLines2arr.push('เลข <b>'+nl+'</b> ('+src+')');}
+          var key=nl.split('|')[0]+'|'+src;
+          if(!dupSeen[key]){dupSeen[key]=1;dupLines2arr.push('เลข <b>'+(nl.split('|')[0]||nl)+'</b> ('+src+')');}
         });
       });
       var dupExtra=dupLines2arr.length>3?dupLines2arr.length-3:0;
