@@ -552,7 +552,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     <div class="hdr-btns">
       <button class="hbtn" id="guide-btn"><span class="hbtn-icon">💡</span><span class="hbtn-lbl">วิธีใช้</span></button>
       <button class="hbtn" id="hist-btn"><span class="hbtn-icon">📂</span><span class="hbtn-lbl">แฟ้ม</span></button>
-      <button class="hbtn gold" id="new-ngod-btn"><span class="hbtn-icon">🎯</span><span class="hbtn-lbl">งวดใหม่</span></button>
+      <button class="hbtn gold" id="new-ngod-btn"><span class="hbtn-icon">🎯</span><span class="hbtn-lbl">+ ชุดใหม่</span></button>
 
     </div>
   </div>
@@ -615,7 +615,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 <!-- OPEN NGOD MODAL -->
 <div class="modal-ov" id="modal-ngod">
   <div class="modal-box">
-    <div class="modal-title">🎯 เปิดงวดใหม่</div>
+    <div class="modal-title">🎯 เปิดชุดใหม่</div>
+    <div class="modal-field"><label>ชื่อชุด</label><div id="m-name-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;"></div><input type="text" id="m-basket-name" placeholder="เช่น แมน, ป้าดา..."></div>
     <div class="modal-field"><label>ผู้ส่ง (ชื่อของคุณ)</label><input type="text" id="m-sender" placeholder="ชื่อผู้ส่ง"></div>
     <div class="modal-field"><label>ผู้รับ</label><input type="text" id="m-receiver" placeholder="ชื่อผู้รับ"></div>
     <div class="modal-field"><label>งวดที่</label><input type="text" id="m-ngod" placeholder="1/3/2569"></div>
@@ -921,9 +922,23 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   // ─── OPEN NGOD ───
   function openNgodModal(hasOld){
     var m=document.getElementById('modal-ngod');
+    document.getElementById('m-basket-name').value='';
     document.getElementById('m-sender').value=ngodInfo.sender||'';
     document.getElementById('m-receiver').value=ngodInfo.receiver||'';
     document.getElementById('m-ngod').value=getNextNgod();
+    // chips ชื่อเก่า
+    var hist=getHistory();
+    var seen={};var rn=[];
+    hist.forEach(function(h){if(h.isBasket&&h.basketName&&!/^ชุดที่/.test(h.basketName)&&!seen[h.basketName]){seen[h.basketName]=1;rn.push(h.basketName);}});
+    var chipBox=document.getElementById('m-name-chips');
+    chipBox.innerHTML='';
+    rn.slice(0,8).forEach(function(n){
+      var b=document.createElement('button');
+      b.type='button';b.textContent=n;
+      b.style.cssText='background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 12px;cursor:pointer;';
+      b.addEventListener('click',function(){document.getElementById('m-basket-name').value=n;});
+      chipBox.appendChild(b);
+    });
     // ถ้ามีงวดเก่าค้างอยู่
     if(hasOld&&entries.length){
       showConfirm(
@@ -971,42 +986,39 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var time=getNowTime();
     var ngod=ngodInfo.ngod||'—';
     // popup ถามชื่อชุดก่อน
-    showInputConfirm(
-      'ตั้งชื่อชุด (ไม่บังคับ)',
-      'เช่น แมน, ป้าดา, ต้อม...',
-      function(basketName){
-        var msg='เก็บ <b>'+count+' รายการ</b> รวม <b>฿'+fmt(total)+'</b><br>'
-               +'เข้าโพยงวด <b>'+ngod+'</b><br>'
-               +'เวลา <b>'+time+'</b><br><br>'
-               +'<span style="color:#f59e0b;font-size:13px;">⚠️ ตรวจสอบความถูกต้องก่อนนะครับ<br>เก็บเข้าแฟ้มแล้วแก้ไขไม่ได้</span>';
-        showConfirm(msg, function(){
-          var hist=getHistory();
-          var countBefore=hist.filter(function(h){return h.ngod===ngod&&h.isBasket;}).length;
-          var newCount=countBefore+1;
-          hist.unshift({
-            id:Date.now(),
-            ngod:ngodInfo.ngod,
-            date:ngodInfo.date,
-            sender:ngodInfo.sender,
-            receiver:ngodInfo.receiver,
-            entries:entries.slice(),
-            eid:eid,
-            pageBreakIds:pageBreakIds.slice(),
-            total:total,
-            savedAt:time,
-            closedAt:ngodInfo.date,
-            isBasket:true,
-            basketName:basketName||('ชุดที่ '+newCount),
-            checkResult:null,
-            checkNumbers:null
-          });
-          saveHistory(hist);
-          entries=[];eid=0;pageBreakIds=[];isLocked=false;
-          resetForm();save();renderList();updateTotal();updateLockUI();
-          toast('📂 เก็บเข้าแฟ้มแล้ว · '+(basketName||'ชุดที่ '+newCount)+' · ฿'+fmt(total)+' ครับ ✅', 5000);
-        }, false);
-      }
-    );
+    var basketName=ngodInfo.basketName||'';
+    var hist2=getHistory();
+    var countBefore=hist2.filter(function(h){return h.ngod===ngod&&h.isBasket;}).length;
+    var newCount=countBefore+1;
+    var displayName=basketName||('ชุดที่ '+newCount);
+    var msg='เก็บ <b>'+count+' รายการ</b> รวม <b>฿'+fmt(total)+'</b><br>'
+           +'ชุด: <b>'+displayName+'</b><br>'
+           +'งวด <b>'+ngod+'</b> เวลา <b>'+time+'</b><br><br>'
+           +'<span style="color:#f59e0b;font-size:13px;">⚠️ ตรวจสอบความถูกต้องก่อนนะครับ<br>เก็บเข้าแฟ้มแล้วแก้ไขไม่ได้</span>';
+    showConfirm(msg, function(){
+      var hist=getHistory();
+      hist.unshift({
+        id:Date.now(),
+        ngod:ngodInfo.ngod,
+        date:ngodInfo.date,
+        sender:ngodInfo.sender,
+        receiver:ngodInfo.receiver,
+        entries:entries.slice(),
+        eid:eid,
+        pageBreakIds:pageBreakIds.slice(),
+        total:total,
+        savedAt:time,
+        closedAt:ngodInfo.date,
+        isBasket:true,
+        basketName:displayName,
+        checkResult:null,
+        checkNumbers:null
+      });
+      saveHistory(hist);
+      entries=[];eid=0;pageBreakIds=[];isLocked=false;
+      resetForm();save();renderList();updateTotal();updateLockUI();
+      toast('📂 เก็บเข้าแฟ้มแล้ว · '+displayName+' · ฿'+fmt(total)+' ครับ ✅', 5000);
+    }, false);
   }
 
   function updateBasketBadge(){
@@ -1038,7 +1050,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var receiver=document.getElementById('m-receiver').value.trim();
     var ngod=document.getElementById('m-ngod').value.trim();
     if(!ngod){toast('กรุณาใส่งวดครับ');return;}
-    ngodInfo={sender:sender,receiver:receiver,ngod:ngod,date:getToday()};
+    var bname=document.getElementById('m-basket-name').value.trim();
+    ngodInfo={sender:sender,receiver:receiver,ngod:ngod,date:getToday(),basketName:bname||''};
     ngodOpen=true;
     entries=[];eid=0;pageBreakIds=[];isLocked=false;
     save();
@@ -1469,6 +1482,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     },
     closeNgodFromCheck:function(){doCloseNgodFromCheck();},
     doCheck:function(){doCheck();},
+    toggleCustGroup:function(el){
+      var b=el.nextElementSibling;
+      b.style.display=b.style.display==='none'?'':'none';
+    },
     toggleFolder:function(hdEl){
       var body=hdEl.nextElementSibling;
       var toggle=hdEl.querySelector('.hist-folder-toggle');
@@ -1987,16 +2004,41 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           +'<div class="hist-set-btns"><button class="hist-set-btn" style="color:var(--green);border-color:var(--green)" onclick="APP.closeHist()">✏️ ไป</button></div>'
           +'</div>';
       }
-      // แสดงชุดที่เก็บแล้ว
-      basketSets.forEach(function(h,si){
-        var realIdx=hist.indexOf(h);
-        var setNum=basketSets.length-si;
-        setRows+='<div class="hist-set">'
-          +'<div class="hist-set-left"><div class="hist-set-num">'+(basketSets[basketSets.length-1-si].basketName||('ชุดที่ '+setNum))+'</div>'
-          +'<div class="hist-set-time">⏰ '+(h.savedAt||'')+'</div></div>'
-          +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
-          +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
-          +'<div class="hist-set-btns"><button class="hist-set-btn" onclick="APP.viewHist('+realIdx+')">📋 ดู</button></div>'
+      // จัดกลุ่มตามชื่อลูกค้า
+      var custGroups={};var custOrder=[];
+      basketSets.forEach(function(h){
+        var name=h.basketName||'ไม่ระบุชื่อ';
+        // ตัดเลขท้ายออกเพื่อ group เช่น "แมน ชุดที่1" → "แมน" ไม่ได้ใช้ เพราะ basketName คือชื่อคนแล้ว
+        if(!custGroups[name]){custGroups[name]=[];custOrder.push(name);}
+        custGroups[name].push(h);
+      });
+      custOrder.forEach(function(name){
+        var custSets=custGroups[name];
+        var custTotal=custSets.reduce(function(s,h){return s+h.total;},0);
+        var firstChar=name.charAt(0)||'?';
+        var avatarColors=['linear-gradient(135deg,#f5c518,#c9a010)','linear-gradient(135deg,#a78bfa,#7c3aed)','linear-gradient(135deg,#27ae60,#1a8a4a)','linear-gradient(135deg,#e74c3c,#c0392b)','linear-gradient(135deg,#3b82f6,#1d4ed8)'];
+        var avatarColor=avatarColors[custOrder.indexOf(name)%avatarColors.length];
+        var avatarTextColor=custOrder.indexOf(name)===0?'#111':'#fff';
+        var innerRows='';
+        custSets.forEach(function(h,ci){
+          var realIdx=hist.indexOf(h);
+          innerRows+='<div class="hist-set" style="padding-left:20px;">'
+            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(ci+1)+'</div>'
+            +'<div class="hist-set-time">⏰ '+(h.savedAt||'')+'</div></div>'
+            +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
+            +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
+            +'<div class="hist-set-btns"><button class="hist-set-btn" onclick="APP.viewHist('+realIdx+')">📋 ดู</button></div>'
+            +'</div>';
+        });
+        setRows+='<div style="border-bottom:1px solid var(--border);">'
+          +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);cursor:pointer;" onclick="APP.toggleCustGroup(this)">'
+          +'<div style="display:flex;align-items:center;gap:8px;">'
+          +'<div style="width:30px;height:30px;border-radius:50%;background:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:'+avatarTextColor+';flex-shrink:0;">'+firstChar+'</div>'
+          +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+name+'</div>'
+          +'<div style="font-size:11px;color:var(--lg);">'+custSets.length+' ชุด · '+custSets.reduce(function(s,h){return s+h.entries.length;},0)+' รายการ</div></div></div>'
+          +'<div style="text-align:right;"><div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(custTotal)+'</div></div>'
+          +'</div>'
+          +'<div>'+innerRows+'</div>'
           +'</div>';
       });
       cards.push('<div class="hist-folder" style="border-color:rgba(39,174,96,.5)">'
@@ -2032,16 +2074,40 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var hasCheck=sets.some(function(x){return x.h.checkResult;});
       var ngodEsc=ngod.replace(/'/g,"\'");
       var setRows='';
-      sets.forEach(function(x,si){
-        var h=x.h,realIdx=x.i;
-        var setNum=sets.length-si;
-        setRows+='<div class="hist-set">'
-          +'<div class="hist-set-left"><div class="hist-set-num">'+(sets[sets.length-1-si].basketName||('ชุดที่ '+setNum))+'</div>'
-          +'<div class="hist-set-time">⏰ '+(h.savedAt||h.closedAt||'')+'</div></div>'
-          +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
-          +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
-          +'<div class="hist-set-btns"><button class="hist-set-btn" onclick="APP.viewHist('+realIdx+')">📋 ดู</button>'
+      // จัดกลุ่มตามชื่อลูกค้า
+      var hcGroups={};var hcOrder=[];
+      sets.forEach(function(x){
+        var name=x.h.basketName||'ไม่ระบุชื่อ';
+        if(!hcGroups[name]){hcGroups[name]=[];hcOrder.push(name);}
+        hcGroups[name].push(x);
+      });
+      var avatarColors2=['linear-gradient(135deg,#f5c518,#c9a010)','linear-gradient(135deg,#a78bfa,#7c3aed)','linear-gradient(135deg,#27ae60,#1a8a4a)','linear-gradient(135deg,#e74c3c,#c0392b)','linear-gradient(135deg,#3b82f6,#1d4ed8)'];
+      hcOrder.forEach(function(name){
+        var cSets=hcGroups[name];
+        var cTotal=cSets.reduce(function(s,x){return s+x.h.total;},0);
+        var firstChar=name.charAt(0)||'?';
+        var avatarColor=avatarColors2[hcOrder.indexOf(name)%avatarColors2.length];
+        var avatarTextColor=hcOrder.indexOf(name)===0?'#111':'#fff';
+        var innerRows='';
+        cSets.forEach(function(x,ci){
+          var h=x.h,realIdx=x.i;
+          innerRows+='<div class="hist-set" style="padding-left:20px;">'
+            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(ci+1)+'</div>'
+            +'<div class="hist-set-time">⏰ '+(h.savedAt||h.closedAt||'')+'</div></div>'
+            +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
+            +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
+            +'<div class="hist-set-btns"><button class="hist-set-btn" onclick="APP.viewHist('+realIdx+')">📋 ดู</button></div>'
+            +'</div>';
+        });
+        setRows+='<div style="border-bottom:1px solid var(--border);">'
+          +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);cursor:pointer;" onclick="APP.toggleCustGroup(this)">'
+          +'<div style="display:flex;align-items:center;gap:8px;">'
+          +'<div style="width:30px;height:30px;border-radius:50%;background:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:'+avatarTextColor+';flex-shrink:0;">'+firstChar+'</div>'
+          +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+name+'</div>'
+          +'<div style="font-size:11px;color:var(--lg);">'+cSets.length+' ชุด · '+cSets.reduce(function(s,x){return s+x.h.entries.length;},0)+' รายการ</div></div></div>'
+          +'<div style="text-align:right;"><div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(cTotal)+'</div></div>'
           +'</div>'
+          +'<div>'+innerRows+'</div>'
           +'</div>';
       });
       cards.push('<div class="hist-folder">'
@@ -2680,25 +2746,18 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     // Guide
     function openGuide(){document.getElementById('guide-ov').classList.add('show');}
     document.getElementById('new-ngod-btn').addEventListener('click',function(){
-      if(APP_MODE==='customer'){
-        if(ngodOpen){
-          // customer: งวดเปิดอยู่ → แจ้งเตือน
-          showConfirm(
-            '⚠️ เวอร์ชั่นนี้ไม่สามารถเปิดงวดซ้อนได้<br><br>อัปเกรดเป็น <b>เวอร์ชั่น Pro</b> เพื่อเปิดได้ไม่จำกัด',
-            function(){},
-            false,
-            '🙏 จัดเลย',
-            function(){window.open('https://lin.ee/F0PXniE','_blank');},
-            'ไม่เป็นไร',
-            '',
-            true
-          );
-          return;
-        }
-        // ยังไม่ได้เปิดงวด → เปิดได้เลย
-        openNgodModal(entries.length>0);
+      // เปิดชุดใหม่ได้เลยไม่จำกัด — ถ้ามีรายการค้างให้ถามก่อน
+      if(ngodOpen && entries.length>0){
+        showConfirm(
+          'มีรายการ <b>'+entries.length+' รายการ</b> ค้างอยู่<br><br>เก็บเข้าแฟ้มก่อนเปิดชุดใหม่?',
+          function(){ doBasket(); },
+          false,
+          '+ ชุดใหม่เลย',
+          function(){ openNgodModal(false); },
+          'เก็บแฟ้มก่อน',
+          'ยกเลิก'
+        );
       } else {
-        // seller: เปิดเพิ่มลูกค้าได้เลยไม่ต้องปิด
         openNgodModal(entries.length>0);
       }
     });
