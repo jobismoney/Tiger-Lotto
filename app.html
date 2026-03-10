@@ -1579,22 +1579,25 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var h='';
     sorted.forEach(function(e){
       var rmDisabled=isLocked?' disabled':'';
-      // pak entry — แสดงทุกตำแหน่งในแถวเดียว
+      // pak entry — แยกบรรทัดต่อตำแหน่ง
       if(e.paks&&e.paks.length){
-        var posLbls=e.paks.map(function(p){return {na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;});
-        var isBon=e.paks[0].type==='3bon';
-        var pricePerPos=e.paks[0].price;
-        var total=e.paks.length*pricePerPos;
-        var posTag=posLbls.map(function(l){return '📍'+l;}).join(' ');
-        var priceVal='<div class="cel" style="color:#fb923c;font-weight:800;">฿'+total+'</div>';
-        var dash='<div class="cel e">-</div>';
-        h+='<div class="bet-row'+(isLocked?' locked':'')+'">'
-          +'<div class="lek-cell" style="color:#fb923c;font-size:14px;">'+e.lek+'<span style="font-size:10px;"> '+posTag+'</span></div>'
-          +(isBon?priceVal:dash)
-          +dash
-          +(!isBon?priceVal:dash)
-          +dash
-          +'<button class="rm-btn" onclick="removeEntry('+e.id+')"'+rmDisabled+'>✕</button></div>';
+        var posMap={na:'หน้า',mid:'กลาง',lang:'หลัง'};
+        e.paks.forEach(function(p,pi){
+          var posLbl=posMap[p.pos]||p.pos;
+          var isBon=p.type==='3bon';
+          var priceVal='<div class="cel" style="color:#fb923c;font-weight:800;">฿'+p.price+'</div>';
+          var dash='<div class="cel e">-</div>';
+          var isFirst=pi===0;
+          h+='<div class="bet-row'+(isLocked?' locked':'')+'">'
+            +'<div class="lek-cell" style="color:#fb923c;font-size:14px;">'+(isFirst?e.lek:'')
+            +'<span style="font-size:11px;color:#fb923c;"> '+({na:'📍หน้า',mid:'กล📍าง',lang:'หลัง📍'}[p.pos]||p.pos)+'</span></div>'
+            +(isBon?priceVal:dash)
+            +dash
+            +(!isBon?priceVal:dash)
+            +dash
+            +(isFirst?'<button class="rm-btn" onclick="removeEntry('+e.id+')"'+rmDisabled+'>✕</button>':'<div></div>')
+            +'</div>';
+        });
         return;
       }
       h+='<div class="bet-row'+(isLocked?' locked':'')+'"><div class="lek-cell">'+e.lek+'</div>'
