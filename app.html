@@ -689,6 +689,19 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   </div>
 </div>
 
+<!-- NAME INPUT OVERLAY -->
+<div id="name-inp-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;width:90%;max-width:340px;">
+    <div id="name-inp-title" style="font-size:17px;font-weight:900;color:var(--gold);margin-bottom:12px;"></div>
+    <div id="name-inp-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
+    <input id="name-inp-field" type="text" placeholder="" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;font-size:17px;font-weight:700;padding:10px 12px;outline:none;margin-bottom:16px;">
+    <div style="display:flex;gap:8px;">
+      <button id="name-inp-skip" style="flex:1;padding:12px;border-radius:10px;background:var(--card2);color:var(--lg);border:1px solid var(--border);font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">ข้าม</button>
+      <button id="name-inp-ok" style="flex:1;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:none;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">ตกลง</button>
+    </div>
+  </div>
+</div>
+
 <div id="_toast"></div>
 
 <script>
@@ -842,6 +855,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var _cfCb=null;
   var _cfExtraCb=null;
   function showInputConfirm(title,placeholder,onOk){
+    var ov=document.getElementById('name-inp-ov');
+    var field=document.getElementById('name-inp-field');
+    var chipsBox=document.getElementById('name-inp-chips');
+    document.getElementById('name-inp-title').textContent=title;
+    field.value='';
+    field.placeholder=placeholder;
+    // chips ชื่อเก่า
     var hist=getHistory();
     var seen={};var recentNames=[];
     hist.forEach(function(h){
@@ -849,54 +869,23 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         seen[h.basketName]=1;recentNames.push(h.basketName);
       }
     });
-    recentNames=recentNames.slice(0,8);
-    var noBtn=document.getElementById('cf-no');
-    var origNoBtnOnclick=noBtn.onclick;
-    var chipHtml='';
-    if(recentNames.length){
-      var chips=recentNames.map(function(n){
-        return '<button type="button" class="inp-chip" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 12px;cursor:pointer;">'+n+'</button>';
-      });
-      chipHtml='<div id="name-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">'+chips.join('')+'</div>';
-    }
-    document.getElementById('cf-msg').innerHTML=
-      '<div style="font-size:17px;font-weight:900;color:var(--gold);margin-bottom:12px;">'
-      +title+'</div>'+chipHtml
-      +'<input id="basket-name-inp" type="text" placeholder="'+placeholder
-      +'" style="width:100%;background:var(--bg);border:1.5px solid var(--border);'
-      +'border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;'
-      +'font-size:17px;font-weight:700;padding:10px 12px;outline:none;">';
-    // bind chip clicks after innerHTML set
-    var chipContainer=document.getElementById('name-chips');
-    if(chipContainer){
-      chipContainer.querySelectorAll('.inp-chip').forEach(function(btn){
-        btn.addEventListener('click',function(){
-          var inp=document.getElementById('basket-name-inp');
-          if(inp)inp.value=btn.textContent;
-        });
-      });
-    }
-    noBtn.textContent='ข้าม';noBtn.style.display='';
-    var yesBtn=document.getElementById('cf-yes');
-    yesBtn.textContent='ตกลง';yesBtn.className='cf-yes';
-    document.getElementById('cf-extra').style.display='none';
+    chipsBox.innerHTML='';
+    recentNames.slice(0,8).forEach(function(n){
+      var b=document.createElement('button');
+      b.type='button';b.textContent=n;
+      b.style.cssText='background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 12px;cursor:pointer;';
+      b.addEventListener('click',function(){field.value=n;field.focus();});
+      chipsBox.appendChild(b);
+    });
+    ov.style.display='flex';
+    setTimeout(function(){field.focus();},100);
     function doClose(val){
-      noBtn.onclick=origNoBtnOnclick;
-      document.getElementById('cf-ov').classList.remove('show');
+      ov.style.display='none';
       onOk(val);
     }
-    _cfCb=function(){
-      var inp=document.getElementById('basket-name-inp');
-      doClose(inp?inp.value.trim():'');
-    };
-    noBtn.onclick=function(){doClose('');};
-    document.getElementById('cf-ov').classList.add('show');
-    setTimeout(function(){
-      var inp=document.getElementById('basket-name-inp');
-      if(inp){inp.focus();
-        inp.onkeydown=function(e){if(e.key==='Enter'){yesBtn&&yesBtn.click();}};
-      }
-    },100);
+    document.getElementById('name-inp-ok').onclick=function(){doClose(field.value.trim());};
+    document.getElementById('name-inp-skip').onclick=function(){doClose('');};
+    field.onkeydown=function(e){if(e.key==='Enter'){doClose(field.value.trim());}};
   }
   function showConfirm(msg,onYes,danger,extraLabel,onExtra,yesLabel,noLabel,hideNo){
     document.getElementById('cf-msg').innerHTML=msg;
