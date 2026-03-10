@@ -1115,23 +1115,50 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(!curLek){toast('กรอกเลขก่อนครับ');return;}
       if(!APP.pakPos.length){toast('เลือกตำแหน่งด้วยครับ');return;}
       var typeLabels={'3bon':'บน','2lang':'ล่าง'};
-      var posLabels={'na':'หน้า','mid':'กลาง','lang':'หลัง'};
+      var posLabels={'na':'📍หน้า','mid':'กล📍าง','lang':'หลัง📍'};
       var paks=APP.pakPos.map(function(pos){
         return {type:APP.pakType,pos:pos,price:price,
                 typeLabel:typeLabels[APP.pakType],posLabel:posLabels[pos]};
       });
-      eid++;
-      entries.unshift({
-        id:eid,lek:curLek,d:curLek.length,
-        bon:null,tod:null,lang:null,na:null,kd:{},
-        paks:paks
+      function getPakKeys(e){
+        var keys=[];
+        (e.paks||[]).forEach(function(p){keys.push(e.lek+'|'+p.type+'|'+p.pos);});
+        return keys;
+      }
+      var newKeys=paks.map(function(p){return curLek+'|'+p.type+'|'+p.pos;});
+      var dupMsgs=[];
+      function checkSrc(srcEntries,srcName){
+        srcEntries.forEach(function(e){
+          var existKeys=getPakKeys(e);
+          newKeys.forEach(function(nk){
+            if(existKeys.indexOf(nk)>=0){
+              var parts=nk.split('|');
+              dupMsgs.push('เลข <b>'+parts[0]+'</b> ปัก'+posLabels[parts[2]]+' ('+srcName+')');
+            }
+          });
+        });
+      }
+      checkSrc(entries,'ชุดปัจจุบัน');
+      var hist=getHistory();
+      hist.forEach(function(h,si){
+        if(h.ngod===ngodInfo.ngod&&h.isBasket)checkSrc(h.entries,'ชุดที่ '+(si+1));
       });
-      APP.closePak();
-      setLek('');
-      var inp=document.getElementById('lek-inp');if(inp)inp.value='';
-      FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
-      var ab=document.getElementById('add-btn');if(ab)ab.classList.remove('ready');
-      toast('เพิ่มปักหลัก '+APP.pakPos.length+' ตำแหน่ง ✅');
+      function doAdd(){
+        eid++;
+        entries.unshift({id:eid,lek:curLek,d:curLek.length,
+          bon:null,tod:null,lang:null,na:null,kd:{},paks:paks});
+        APP.closePak();
+        setLek('');
+        var inp=document.getElementById('lek-inp');if(inp)inp.value='';
+        FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
+        var ab=document.getElementById('add-btn');if(ab)ab.classList.remove('ready');
+        toast('เพิ่มปักหลัก '+APP.pakPos.length+' ตำแหน่ง ✅');
+      }
+      if(dupMsgs.length){
+        showConfirm('พบซ้ำ<br><br>'+dupMsgs.join('<br>')+'<br><br>ต้องการเพิ่มซ้ำหรือไม่?',doAdd,false);
+      } else {
+        doAdd();
+      }
     },
     fldPress:function(e,k){
       // space (มือถือ) หรือ + (คอมพิวเตอร์) → click OK ทันที
