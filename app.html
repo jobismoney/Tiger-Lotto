@@ -1081,15 +1081,18 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       APP.updatePakUI();
     },
     selPakPos:function(el){
-      // multi-select toggle
-      var pos=el.dataset.pos;
+      // multi-select toggle — ใช้ closest เพื่อกัน child div รับ event
+      var btn=el.closest('.pak-pbtn');
+      if(!btn)return;
+      var pos=btn.dataset.pos;
+      if(!pos)return;
       var idx=APP.pakPos.indexOf(pos);
       if(idx>=0){
         APP.pakPos.splice(idx,1);
-        el.classList.remove('on');
+        btn.classList.remove('on');
       } else {
         APP.pakPos.push(pos);
-        el.classList.add('on');
+        btn.classList.add('on');
       }
     },
     updatePakUI:function(){
@@ -3400,7 +3403,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
     <div class="pak-sec">ตำแหน่ง</div>
     <div class="pak-pos-row" id="pak-pos-grid">
-      <div class="pak-pbtn on" data-pos="na" onclick="APP.selPakPos(this)">
+      <div class="pak-pbtn" data-pos="na" onclick="APP.selPakPos(this)">
         <div class="pak-pbtn-lbl">หน้า</div>
         <div class="pak-pbtn-ex" id="pak-ex-na">?_ _</div>
       </div>
