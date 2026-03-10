@@ -1469,6 +1469,59 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var b=el.nextElementSibling;
       b.style.display=b.style.display==='none'?'':'none';
     },
+    viewCust:function(ngod,name){
+      var hist=getHistory();
+      var custSets=hist.filter(function(h){return h.ngod===ngod&&h.isBasket&&h.basketName===name;});
+      if(!custSets.length){toast('ไม่มีรายการ');return;}
+      custSets=custSets.slice().reverse(); // เก่าก่อน
+      var inf=custSets[0];
+      // build allItems สำหรับ printMerged style แต่เฉพาะคนนี้
+      var allItems=[];
+      custSets.forEach(function(h,ci){
+        allItems.push({type:'divider',label:name+' — ชุดที่ '+(ci+1)});
+        h.entries.forEach(function(e){allItems.push({type:'entry',e:e});});
+      });
+      var MAX_R=28;
+      var pages=[],pItems=[],rc=0;
+      allItems.forEach(function(item){
+        var lc=item.type==='divider'?1:toLines(item.e).length;
+        if(rc>0&&rc+lc>MAX_R){pages.push(pItems);pItems=[];rc=0;}
+        pItems.push(item);rc+=lc;
+      });
+      if(pItems.length)pages.push(pItems);
+      var totalPages=pages.length;
+      var grandTotal=custSets.reduce(function(s,h){return s+h.total;},0);
+      var infO={ngod:inf.ngod,date:inf.date,sender:inf.sender,receiver:inf.receiver};
+      var pageHTMLs=[];var allSumRows='';
+      pages.forEach(function(pg,i){
+        pageHTMLs.push(makeMergedPageHTML(pg,i+1,totalPages,infO));
+        var pgE=pg.filter(function(x){return x.type==='entry';}).map(function(x){return x.e;});
+        var ps=pageSumTotals(pgE);var pt=pgE.reduce(function(s,e){return s+calcEntryTotal(e);},0);
+        allSumRows+=buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false);
+      });
+      var grandS={c3:0,c2:0,c1:0,ct:0,cl:0};
+      pages.forEach(function(pg){var pgE=pg.filter(function(x){return x.type==='entry';}).map(function(x){return x.e;});var s=pageSumTotals(pgE);grandS.c3+=s.c3;grandS.c2+=s.c2;grandS.c1+=s.c1;grandS.ct+=s.ct;grandS.cl+=s.cl;});
+      allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
+      var sumHTML='<div class="slip-hd"><div class="slip-hd-row1"><h2>📊 สรุป · '+name+'</h2><span class="pg">'+totalPages+' แผ่น · '+custSets.length+' ชุด</span></div>'
+        +'<div class="slip-hd-row2"><span>งวด <strong>'+infO.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(infO.sender||'—')+'/'+name+'</strong></span><span>ผู้รับ <strong>'+(infO.receiver||'—')+'</strong></span></div>'
+        +'</div>'+sumTableHTML(allSumRows)+'<div class="slip-ft"><span class="fl">ยอดรวม '+name+'</span><span class="fv">฿'+fmt(grandTotal)+'</span></div>';
+      var allHTML='';
+      for(var pi=0;pi<pageHTMLs.length;pi++){
+        allHTML+='<div class="slip-page-single"><div class="slip-page">'+pageHTMLs[pi]+'</div></div>';
+        if((pi+1)%2===0&&pi<pageHTMLs.length-1)allHTML+='<div class="slip-page-pair-break"></div>';
+      }
+      if(pageHTMLs.length%2===1)allHTML+='<div class="slip-page-pair-break"></div>';
+      allHTML+='<div class="slip-page-sum"><div class="slip-page">'+sumHTML+'</div></div>';
+      document.getElementById('slip-pages').innerHTML=allHTML;
+      document.getElementById('ov-basket').style.display='none';
+      document.getElementById('ov-print-merged').style.display='';
+      document.getElementById('ov-share-line').style.display='';
+      document.getElementById('ov-del-set').style.display='none';
+      var ob=document.getElementById('ov-back');
+      ob._mergedMode=true;ob.innerHTML='◀ กลับ';
+      document.getElementById('slip-ov').classList.add('show');
+      document.getElementById('hist-ov').classList.remove('show');
+    },
     toggleFolder:function(hdEl){
       var body=hdEl.nextElementSibling;
       var toggle=hdEl.querySelector('.hist-folder-toggle');
@@ -2007,44 +2060,47 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   function shareSlip(){
-    var el=document.getElementById('slip-pages');
-    if(!el||!el.children.length){toast('ไม่มีรายการครับ');return;}
+    var container=document.getElementById('slip-pages');
+    if(!container||!container.children.length){toast('ไม่มีรายการครับ');return;}
     var shareBtn=document.getElementById('ov-share-line');
     shareBtn.textContent='⏳ กำลังสร้างรูป...';
     shareBtn.disabled=true;
-    // ตั้ง background ชั่วคราวให้ขาว
-    var origBg=el.style.background;
-    el.style.background='#fff';
-    html2canvas(el,{
-      backgroundColor:'#ffffff',
-      scale:2,
-      useCORS:true,
-      logging:false
-    }).then(function(canvas){
-      el.style.background=origBg;
-      shareBtn.textContent='📤 แชร์ผ่าน Line';
-      shareBtn.disabled=false;
-      canvas.toBlob(function(blob){
-        if(!blob){toast('สร้างรูปไม่สำเร็จ');return;}
-        var file=new File([blob],'slip.png',{type:'image/png'});
-        if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-          navigator.share({files:[file],title:'โพย Tiger 999'})
-          .catch(function(e){if(e.name!=='AbortError')toast('แชร์ไม่สำเร็จ: '+e.message);});
+    // เก็บเฉพาะ .slip-page-single และ .slip-page-sum (ข้าม pair-break)
+    var pages=Array.from(container.querySelectorAll('.slip-page-single,.slip-page-sum'));
+    if(!pages.length){shareBtn.textContent='📤 แชร์ผ่าน Line';shareBtn.disabled=false;toast('ไม่มีรายการ');return;}
+    var captures=[];
+    function captureNext(idx){
+      if(idx>=pages.length){
+        // ส่งทุกรูปพร้อมกัน
+        Promise.all(captures.map(function(blob,i){
+          return new File([blob],'slip_'+(i+1)+'.png',{type:'image/png'});
+        })).then ? void 0 : void 0;
+        var files=captures.map(function(blob,i){return new File([blob],'slip_'+(i+1)+'.png',{type:'image/png'});});
+        shareBtn.textContent='📤 แชร์ผ่าน Line';
+        shareBtn.disabled=false;
+        if(navigator.share&&navigator.canShare&&navigator.canShare({files:files})){
+          navigator.share({files:files,title:'โพย Tiger 999'})
+          .catch(function(e){if(e.name!=='AbortError')toast('แชร์ไม่สำเร็จ');});
         } else {
-          // fallback: download
-          var url=URL.createObjectURL(blob);
-          var a=document.createElement('a');
-          a.href=url;a.download='slip.png';a.click();
-          setTimeout(function(){URL.revokeObjectURL(url);},3000);
-          toast('บันทึกรูปแล้ว (browser ไม่รองรับแชร์โดยตรง)');
+          // fallback: download ทีละรูป
+          files.forEach(function(f,i){
+            var url=URL.createObjectURL(f);
+            var a=document.createElement('a');a.href=url;a.download=f.name;
+            setTimeout(function(){a.click();setTimeout(function(){URL.revokeObjectURL(url);},2000);},i*300);
+          });
+          toast('บันทึกรูป '+files.length+' แผ่นแล้ว');
         }
-      },'image/png');
-    }).catch(function(err){
-      el.style.background=origBg;
-      shareBtn.textContent='📤 แชร์ผ่าน Line';
-      shareBtn.disabled=false;
-      toast('เกิดข้อผิดพลาด: '+err.message);
-    });
+        return;
+      }
+      html2canvas(pages[idx],{backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false})
+      .then(function(canvas){
+        canvas.toBlob(function(blob){
+          captures.push(blob);
+          captureNext(idx+1);
+        },'image/png');
+      }).catch(function(){captureNext(idx+1);});
+    }
+    captureNext(0);
   }
 
   var _lastSlipHTML=null;
@@ -2121,13 +2177,18 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             +'<div class="hist-set-btns"><button class="hist-set-btn" onclick="APP.viewHist('+realIdx+')">📋 ดู</button></div>'
             +'</div>';
         });
+        var nameEsc=name.replace(/'/g,"\'");
+        var ngodEscC=curNgod.replace(/'/g,"\'");
         setRows+='<div style="border-bottom:1px solid var(--border);">'
-          +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);cursor:pointer;" onclick="APP.toggleCustGroup(this)">'
-          +'<div style="display:flex;align-items:center;gap:8px;">'
+          +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);">'
+          +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;" onclick="APP.toggleCustGroup(this.parentElement)">'
           +'<div style="width:30px;height:30px;border-radius:50%;background:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:'+avatarTextColor+';flex-shrink:0;">'+firstChar+'</div>'
           +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+name+'</div>'
           +'<div style="font-size:11px;color:var(--lg);">'+custSets.length+' ชุด · '+custSets.reduce(function(s,h){return s+h.entries.length;},0)+' รายการ</div></div></div>'
-          +'<div style="text-align:right;"><div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(custTotal)+'</div></div>'
+          +'<div style="display:flex;align-items:center;gap:8px;">'
+          +'<div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(custTotal)+'</div>'
+          +'<button class="hist-set-btn" style="white-space:nowrap;" onclick="APP.viewCust(''+ngodEscC+'',''+nameEsc+'')">📋 ดูรวม</button>'
+          +'</div>'
           +'</div>'
           +'<div>'+innerRows+'</div>'
           +'</div>';
@@ -2190,13 +2251,18 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             +'<div class="hist-set-btns"><button class="hist-set-btn" onclick="APP.viewHist('+realIdx+')">📋 ดู</button></div>'
             +'</div>';
         });
+        var nameEscH=name.replace(/'/g,"\'");
+        var ngodEscH=ngod.replace(/'/g,"\'");
         setRows+='<div style="border-bottom:1px solid var(--border);">'
-          +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);cursor:pointer;" onclick="APP.toggleCustGroup(this)">'
-          +'<div style="display:flex;align-items:center;gap:8px;">'
+          +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);">'
+          +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;" onclick="APP.toggleCustGroup(this.parentElement)">'
           +'<div style="width:30px;height:30px;border-radius:50%;background:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:'+avatarTextColor+';flex-shrink:0;">'+firstChar+'</div>'
           +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+name+'</div>'
           +'<div style="font-size:11px;color:var(--lg);">'+cSets.length+' ชุด · '+cSets.reduce(function(s,x){return s+x.h.entries.length;},0)+' รายการ</div></div></div>'
-          +'<div style="text-align:right;"><div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(cTotal)+'</div></div>'
+          +'<div style="display:flex;align-items:center;gap:8px;">'
+          +'<div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(cTotal)+'</div>'
+          +'<button class="hist-set-btn" style="white-space:nowrap;" onclick="APP.viewCust(''+ngodEscH+'',''+nameEscH+'')">📋 ดูรวม</button>'
+          +'</div>'
           +'</div>'
           +'<div>'+innerRows+'</div>'
           +'</div>';
