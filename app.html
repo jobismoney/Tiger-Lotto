@@ -1054,6 +1054,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           var hist=getHistory();
           hist.unshift({
             id:Date.now(),
+            ngodId:ngodInfo.ngodId||0,
             ngod:ngodInfo.ngod,
             date:ngodInfo.date,
             sender:ngodInfo.sender,
@@ -1108,7 +1109,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var receiver=document.getElementById('m-receiver').value.trim();
     var ngod=document.getElementById('m-ngod').value.trim();
     if(!ngod){toast('กรุณาใส่งวดครับ');return;}
-    ngodInfo={sender:sender,receiver:receiver,ngod:ngod,date:getToday(),basketName:''};
+    var now=new Date();
+    var hh=String(now.getHours()).padStart(2,'0');
+    var mm=String(now.getMinutes()).padStart(2,'0');
+    var ngodWithTime=ngod+' '+hh+':'+mm;
+    ngodInfo={sender:sender,receiver:receiver,ngod:ngodWithTime,date:getToday(),basketName:'',ngodId:Date.now()};
     ngodOpen=true;
     entries=[];eid=0;pageBreakIds=[];isLocked=false;
     save();
@@ -1532,7 +1537,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       document.getElementById('hist-ov').classList.remove('show');
       // รวมทุกชุดของงวดนี้
       var allSets=[];
-      hist.forEach(function(x,xi){if(x.ngod===ngod&&x.isBasket)allSets.push({h:x,i:xi});});
+      var refNgodId=h.ngodId||0;
+      hist.forEach(function(x,xi){if(x.ngod===ngod&&x.isBasket&&(refNgodId?x.ngodId===refNgodId:true))allSets.push({h:x,i:xi});});
       allSets=allSets.slice().reverse(); // เรียงจากเก่า→ใหม่
       // ส่งทุกชุด พร้อม setNum — ตรวจใหม่ทุกครั้ง
       var mergedEntries=[];
@@ -1684,7 +1690,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     closeNgodMain:function(){
       if(!ngodOpen){toast('ยังไม่ได้เปิดงวดครับ');return;}
       var hist=getHistory();
-      var sets=hist.filter(function(h){return h.ngod===ngodInfo.ngod&&h.isBasket;});
+      var curNgodId2=ngodInfo.ngodId||0;
+      var sets=hist.filter(function(h){return h.ngod===ngodInfo.ngod&&h.isBasket&&(curNgodId2?h.ngodId===curNgodId2:true);});
       if(!sets.length){toast('ยังไม่มีชุดที่เก็บไว้เลยครับ');return;}
       var hasEntries=entries.length>0;
       var msg='ปิดงวด <b>'+ngodInfo.ngod+'</b>?<br>หลังปิดแล้วจะเปิดงวดใหม่ได้เลย';
@@ -2292,7 +2299,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(ngodOpen&&ngodInfo&&ngodInfo.ngod){
       var curNgod=ngodInfo.ngod;
       var curTotal=calcTotal();
-      var basketSets=hist.filter(function(h){return h.ngod===curNgod&&h.isBasket;});
+      var curNgodId=ngodInfo.ngodId||0;
+      var basketSets=hist.filter(function(h){return h.ngod===curNgod&&h.isBasket&&(curNgodId?h.ngodId===curNgodId:true);});
       var basketTotal=basketSets.reduce(function(s,h){return s+h.total;},0);
       var allTotal=curTotal+basketTotal;
       var totalSets=basketSets.length+(curTotal>0?1:0);
