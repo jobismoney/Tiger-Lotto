@@ -692,7 +692,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 </div>
 
 <!-- NAME INPUT OVERLAY -->
-<div id="name-inp-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;">
+<div id="name-inp-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;">
   <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;width:90%;max-width:340px;">
     <div id="name-inp-title" style="font-size:17px;font-weight:900;color:var(--gold);margin-bottom:12px;"></div>
     <div id="name-inp-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
@@ -776,6 +776,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   // ─── UI STATE ───
   function showWelcome(){
+    var nio=document.getElementById('name-inp-ov');
+    if(nio)nio.style.display='none';
+    document.getElementById('cf-ov').classList.remove('show');
     document.getElementById('welcome-screen').style.display='flex';
     document.getElementById('main-wrap').classList.remove('show');
   }
@@ -2191,7 +2194,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           +'<div style="font-size:11px;color:var(--lg);">'+custSets.length+' ชุด · '+custSets.reduce(function(s,h){return s+h.entries.length;},0)+' รายการ</div></div></div>'
           +'<div style="display:flex;align-items:center;gap:8px;">'
           +'<div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(custTotal)+'</div>'
-          +'<button class="hist-set-btn" style="white-space:nowrap;" onclick="APP.viewCust(''+ngodEscC+'',''+nameEsc+'')">📋 ดูรวม</button>'
+          +'<button class="hist-set-btn" style="white-space:nowrap;" data-ng="'+ngodEscC+'" data-nm="'+nameEsc+'" onclick="APP.viewCust(this.dataset.ng,this.dataset.nm)">📋 ดูรวม</button>'
           +'</div>'
           +'</div>'
           +'<div>'+innerRows+'</div>'
@@ -2265,7 +2268,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           +'<div style="font-size:11px;color:var(--lg);">'+cSets.length+' ชุด · '+cSets.reduce(function(s,x){return s+x.h.entries.length;},0)+' รายการ</div></div></div>'
           +'<div style="display:flex;align-items:center;gap:8px;">'
           +'<div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(cTotal)+'</div>'
-          +'<button class="hist-set-btn" style="white-space:nowrap;" onclick="APP.viewCust(''+ngodEscH+'',''+nameEscH+'')">📋 ดูรวม</button>'
+          +'<button class="hist-set-btn" style="white-space:nowrap;" data-ng="'+ngodEscH+'" data-nm="'+nameEscH+'" onclick="APP.viewCust(this.dataset.ng,this.dataset.nm)">📋 ดูรวม</button>'
           +'</div>'
           +'</div>'
           +'<div>'+innerRows+'</div>'
@@ -2763,6 +2766,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   // ─── INIT ───
   function init(){
+    // ปิด overlay ที่อาจค้างจากครั้งก่อน
+    var nio=document.getElementById('name-inp-ov');
+    if(nio)nio.style.display='none';
+    document.getElementById('cf-ov').classList.remove('show');
     // PWA icon
     try{
       var cv=document.createElement('canvas');cv.width=192;cv.height=192;
