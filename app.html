@@ -1466,7 +1466,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     closeNgodFromCheck:function(){doCloseNgodFromCheck();},
     doCheck:function(){doCheck();},
     toggleCustGroup:function(el){
-      var b=el.nextElementSibling;
+      // el = outer div (border-bottom wrapper)
+      // ลูกคนสุดท้ายคือ div innerRows
+      var children=el.children;
+      var b=children[children.length-1];
+      if(!b)return;
       b.style.display=b.style.display==='none'?'':'none';
     },
     viewCust:function(ngod,name){
@@ -2181,7 +2185,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var ngodEscC=curNgod.replace(/'/g,"\'");
         setRows+='<div style="border-bottom:1px solid var(--border);">'
           +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);">'
-          +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;" onclick="APP.toggleCustGroup(this.parentElement)">'
+          +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;" onclick="APP.toggleCustGroup(this.parentElement.parentElement)">'
           +'<div style="width:30px;height:30px;border-radius:50%;background:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:'+avatarTextColor+';flex-shrink:0;">'+firstChar+'</div>'
           +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+name+'</div>'
           +'<div style="font-size:11px;color:var(--lg);">'+custSets.length+' ชุด · '+custSets.reduce(function(s,h){return s+h.entries.length;},0)+' รายการ</div></div></div>'
@@ -2255,7 +2259,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var ngodEscH=ngod.replace(/'/g,"\'");
         setRows+='<div style="border-bottom:1px solid var(--border);">'
           +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);">'
-          +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;" onclick="APP.toggleCustGroup(this.parentElement)">'
+          +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;" onclick="APP.toggleCustGroup(this.parentElement.parentElement)">'
           +'<div style="width:30px;height:30px;border-radius:50%;background:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:'+avatarTextColor+';flex-shrink:0;">'+firstChar+'</div>'
           +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+name+'</div>'
           +'<div style="font-size:11px;color:var(--lg);">'+cSets.length+' ชุด · '+cSets.reduce(function(s,x){return s+x.h.entries.length;},0)+' รายการ</div></div></div>'
