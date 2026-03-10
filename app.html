@@ -1057,6 +1057,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     // ── PAK FUNCTIONS ──
     pakType:'3bon',
     pakPos:[],
+    allowedDupKeys:[],
     openPak:function(){
       var lek=curLek;
       if(!lek){toast('กรอกเลขก่อนครับ');return;}
@@ -1127,7 +1128,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         srcEntries.forEach(function(e){
           if(e.confirmedDup)return;
           var existKeys=getPakKeys(e);
-          newKeys.forEach(function(nk){
+          filteredNewKeys.forEach(function(nk){
             if(existKeys.indexOf(nk)>=0){
               var parts=nk.split('|');
               var msgKey=parts[0]+'|'+srcName;
@@ -1139,15 +1140,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           });
         });
       }
+      var filteredNewKeys=newKeys.filter(function(k){return APP.allowedDupKeys.indexOf(k)<0;});
       checkSrc(entries,'ชุดปัจจุบัน');
-      var hist=getHistory();
-      hist.forEach(function(h,si){
-        if(h.ngod===ngodInfo.ngod&&h.isBasket)checkSrc(h.entries,'ชุดที่ '+(si+1));
-      });
       function doAdd(){
+        newKeys.forEach(function(k){if(APP.allowedDupKeys.indexOf(k)<0)APP.allowedDupKeys.push(k);});
         eid++;
         entries.unshift({id:eid,lek:curLek,d:curLek.length,
-          bon:null,tod:null,lang:null,na:null,kd:{},paks:paks,confirmedDup:dupMsgs.length>0?true:undefined});
+          bon:null,tod:null,lang:null,na:null,kd:{},paks:paks});
         APP.closePak();
         setLek('');
         var inp=document.getElementById('lek-inp');if(inp)inp.value='';
@@ -1517,22 +1516,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(!dupMap[nl])dupMap[nl]=[];
       if(dupMap[nl].indexOf(source)<0)dupMap[nl].push(source);
     }
+    var filteredNewLeks=allNewLeks.filter(function(nl){return APP.allowedDupKeys.indexOf(nl)<0;});
     entries.forEach(function(e){
       var existLeks=getExistLeks(e);
-      allNewLeks.forEach(function(nl){
-        if(existLeks.indexOf(nl)>=0&&!e.confirmedDup)addDupReg(nl,'ชุดปัจจุบัน');
-      });
-    });
-    // ตรวจชุดที่เก็บแล้วในประวัติ
-    var histReg=getHistory();
-    var bsReg=[];
-    histReg.forEach(function(h){if(h.ngod===ngodInfo.ngod&&h.isBasket)bsReg.push(h);});
-    bsReg.forEach(function(h,si){
-      h.entries.forEach(function(e){
-        var existLeks=getExistLeks(e);
-        allNewLeks.forEach(function(nl){
-          if(existLeks.indexOf(nl)>=0&&!e.confirmedDup)addDupReg(nl,'ชุดที่ '+(si+1));
-        });
+      filteredNewLeks.forEach(function(nl){
+        if(existLeks.indexOf(nl)>=0)addDupReg(nl,'ชุดปัจจุบัน');
       });
     });
 
@@ -1564,8 +1552,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       showConfirm(
         'พบเลขซ้ำ<br><br>'+dupMsg2+'<br><br>ต้องการเพิ่มซ้ำหรือไม่?',
         function(){
+          allNewLeks.forEach(function(nl){if(APP.allowedDupKeys.indexOf(nl)<0)APP.allowedDupKeys.push(nl);});
           eid++;
-          entries.unshift({id:eid,lek:_dupLek,d:_dupD,bon:_dupMp.bon||null,tod:_dupMp.tod||null,lang:_dupMp.lang||null,na:_dupMp.na||null,kd:_dupKd,confirmedDup:true});
+          entries.unshift({id:eid,lek:_dupLek,d:_dupD,bon:_dupMp.bon||null,tod:_dupMp.tod||null,lang:_dupMp.lang||null,na:_dupMp.na||null,kd:_dupKd});
           setLek('');var inp2=document.getElementById('lek-inp');inp2.value='';
           FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
           var ab3=document.getElementById('add-btn');if(ab3)ab3.classList.remove('ready');
