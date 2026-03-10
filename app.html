@@ -1256,8 +1256,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           return;
         }
       }
-      // ช่องสุดท้าย → OK
-      document.getElementById('add-btn').click();
+      // ช่องสุดท้าย → focus OK แล้ว scroll ให้เห็น
+      var ab=document.getElementById('add-btn');
+      ab.focus();
+      ab.scrollIntoView({behavior:'smooth',block:'center'});
     },
     permKey:function(e,k){
       if(e.key!=='Enter'&&e.keyCode!==13)return;
@@ -1273,7 +1275,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           return;
         }
       }
-      addEntry();
+      var ab=document.getElementById('add-btn');
+      ab.focus();
+      ab.scrollIntoView({behavior:'smooth',block:'center'});
     },
     ofp:function(el){
       var raw=el.value;
@@ -2818,6 +2822,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           return;
         }
       }
+      // ทุกช่อง disabled → focus OK
+      var ab=document.getElementById('add-btn');
+      ab.focus();
+      ab.scrollIntoView({behavior:'smooth',block:'center'});
     });
 
     // Buttons
