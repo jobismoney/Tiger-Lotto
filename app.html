@@ -526,6 +526,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 .pak-btn-add{flex:2;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;padding:12px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;color:#111;}
 .pak-btn-mobile{width:100%;margin-top:8px;background:rgba(251,146,60,.12);border:1.5px solid rgba(251,146,60,.4);border-radius:10px;color:#fb923c;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;display:none;letter-spacing:0.5px;}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -607,6 +608,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     <button class="ov-back" id="ov-back">✏️ ซื้อเพิ่ม / แก้ไข</button>
     <button class="ov-basket" id="ov-basket">📂 เก็บเข้าแฟ้ม</button>
     <button class="ov-print-merged" id="ov-print-merged" style="display:none">🖨️ พิมพ์</button>
+    <button class="ov-share-line" id="ov-share-line" style="display:none;width:100%;background:linear-gradient(135deg,#06c755,#04a543);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:12px;cursor:pointer;margin-bottom:8px;">📤 แชร์ผ่าน Line</button>
     <button class="ov-del-set" id="ov-del-set" style="display:none">🗑️ ลบชุดนี้</button>
     <div class="slip-pages-grid" id="slip-pages"></div>
   </div>
@@ -1983,7 +1985,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       return '<div class="slip-hd">'
         +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+(i+1)+'/'+totalPages+'</span></div>'
         +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span><span>วันที่ <strong>'+inf.date+'</strong></span></div>'
-        ''
         +'</div>'
         +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
         +sumTableHTML(buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false))
@@ -1994,7 +1995,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
     var sumHTML='<div class="slip-hd"><div class="slip-hd-row1"><h2>📊 สรุปรวมทุกแผ่น</h2><span class="pg">'+totalPages+' แผ่น</span></div>'
       +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
-      ''
       +'</div>'+sumTableHTML(allSumRows)+'<div class="slip-ft"><span class="fl">ยอดรวมทั้งหมด</span><span class="fv">฿'+fmt(grandTotal)+'</span></div>';
     var allHTML='';
     for(var pi=0;pi<pageHTMLs.length;pi++){
@@ -2006,6 +2006,47 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     return allHTML;
   }
 
+  function shareSlip(){
+    var el=document.getElementById('slip-pages');
+    if(!el||!el.children.length){toast('ไม่มีรายการครับ');return;}
+    var shareBtn=document.getElementById('ov-share-line');
+    shareBtn.textContent='⏳ กำลังสร้างรูป...';
+    shareBtn.disabled=true;
+    // ตั้ง background ชั่วคราวให้ขาว
+    var origBg=el.style.background;
+    el.style.background='#fff';
+    html2canvas(el,{
+      backgroundColor:'#ffffff',
+      scale:2,
+      useCORS:true,
+      logging:false
+    }).then(function(canvas){
+      el.style.background=origBg;
+      shareBtn.textContent='📤 แชร์ผ่าน Line';
+      shareBtn.disabled=false;
+      canvas.toBlob(function(blob){
+        if(!blob){toast('สร้างรูปไม่สำเร็จ');return;}
+        var file=new File([blob],'slip.png',{type:'image/png'});
+        if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+          navigator.share({files:[file],title:'โพย Tiger 999'})
+          .catch(function(e){if(e.name!=='AbortError')toast('แชร์ไม่สำเร็จ: '+e.message);});
+        } else {
+          // fallback: download
+          var url=URL.createObjectURL(blob);
+          var a=document.createElement('a');
+          a.href=url;a.download='slip.png';a.click();
+          setTimeout(function(){URL.revokeObjectURL(url);},3000);
+          toast('บันทึกรูปแล้ว (browser ไม่รองรับแชร์โดยตรง)');
+        }
+      },'image/png');
+    }).catch(function(err){
+      el.style.background=origBg;
+      shareBtn.textContent='📤 แชร์ผ่าน Line';
+      shareBtn.disabled=false;
+      toast('เกิดข้อผิดพลาด: '+err.message);
+    });
+  }
+
   var _lastSlipHTML=null;
   function showSlip(){
     var html=buildAllSlips();if(!html)return;
@@ -2013,6 +2054,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById('slip-pages').innerHTML=html;
     document.getElementById('slip-ov').classList.add('show');
     document.getElementById('slip-ov').scrollTop=0;
+    document.getElementById('ov-share-line').style.display='';
   }
 
   function doPrint(){
@@ -2328,6 +2370,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     ob.innerHTML='◀ กลับ';
     document.getElementById('slip-ov').classList.add('show');
     document.getElementById('hist-ov').classList.remove('show');
+    document.getElementById('ov-share-line').style.display='';
   }
 
   // ─── CHECK RESULT ───
