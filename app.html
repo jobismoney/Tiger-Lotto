@@ -1129,6 +1129,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var dupMsgs=[];
       function checkSrc(srcEntries,srcName){
         srcEntries.forEach(function(e){
+          if(e.confirmedDup)return;
           var existKeys=getPakKeys(e);
           newKeys.forEach(function(nk){
             if(existKeys.indexOf(nk)>=0){
@@ -1146,7 +1147,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       function doAdd(){
         eid++;
         entries.unshift({id:eid,lek:curLek,d:curLek.length,
-          bon:null,tod:null,lang:null,na:null,kd:{},paks:paks});
+          bon:null,tod:null,lang:null,na:null,kd:{},paks:paks,confirmedDup:dupMsgs.length>0?true:undefined});
         APP.closePak();
         setLek('');
         var inp=document.getElementById('lek-inp');if(inp)inp.value='';
@@ -1519,7 +1520,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     entries.forEach(function(e){
       var existLeks=getExistLeks(e);
       allNewLeks.forEach(function(nl){
-        if(existLeks.indexOf(nl)>=0)addDupReg(nl,'ชุดปัจจุบัน');
+        if(existLeks.indexOf(nl)>=0&&!e.confirmedDup)addDupReg(nl,'ชุดปัจจุบัน');
       });
     });
     // ตรวจชุดที่เก็บแล้วในประวัติ
@@ -1530,7 +1531,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       h.entries.forEach(function(e){
         var existLeks=getExistLeks(e);
         allNewLeks.forEach(function(nl){
-          if(existLeks.indexOf(nl)>=0)addDupReg(nl,'ชุดที่ '+(si+1));
+          if(existLeks.indexOf(nl)>=0&&!e.confirmedDup)addDupReg(nl,'ชุดที่ '+(si+1));
         });
       });
     });
@@ -1558,7 +1559,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         'พบเลขซ้ำ<br><br>'+dupMsg2+'<br><br>ต้องการเพิ่มซ้ำหรือไม่?',
         function(){
           eid++;
-          entries.unshift({id:eid,lek:_dupLek,d:_dupD,bon:_dupMp.bon||null,tod:_dupMp.tod||null,lang:_dupMp.lang||null,na:_dupMp.na||null,kd:_dupKd});
+          entries.unshift({id:eid,lek:_dupLek,d:_dupD,bon:_dupMp.bon||null,tod:_dupMp.tod||null,lang:_dupMp.lang||null,na:_dupMp.na||null,kd:_dupKd,confirmedDup:true});
           setLek('');var inp2=document.getElementById('lek-inp');inp2.value='';
           FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
           var ab3=document.getElementById('add-btn');if(ab3)ab3.classList.remove('ready');
