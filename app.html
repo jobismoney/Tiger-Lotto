@@ -841,6 +841,28 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   // ─── CONFIRM DIALOG ───
   var _cfCb=null;
   var _cfExtraCb=null;
+  function showInputConfirm(title,placeholder,onOk){
+    var overlay=document.getElementById('confirm-overlay');
+    var box=document.getElementById('confirm-box');
+    box.innerHTML='<div class="modal-title" style="margin-bottom:14px;">'+title+'</div>'
+      +'<input id="basket-name-inp" type="text" placeholder="'+placeholder+'" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;font-size:17px;font-weight:700;padding:10px 12px;outline:none;margin-bottom:16px;">'
+      +'<div style="display:flex;gap:8px;">'
+      +'<button onclick="document.getElementById('confirm-overlay').style.display='none';" style="flex:1;padding:12px;border-radius:10px;background:var(--card2);color:var(--lg);border:1px solid var(--border);font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">ยกเลิก</button>'
+      +'<button id="basket-name-ok" style="flex:1;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:none;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">ตกลง</button>'
+      +'</div>';
+    overlay.style.display='flex';
+    setTimeout(function(){
+      var inp=document.getElementById('basket-name-inp');
+      if(inp)inp.focus();
+      var okBtn=document.getElementById('basket-name-ok');
+      if(okBtn)okBtn.onclick=function(){
+        var val=(inp?inp.value.trim():'');
+        overlay.style.display='none';
+        onOk(val);
+      };
+      if(inp)inp.onkeydown=function(e){if(e.key==='Enter'){okBtn&&okBtn.click();}};
+    },100);
+  }
   function showConfirm(msg,onYes,danger,extraLabel,onExtra,yesLabel,noLabel,hideNo){
     document.getElementById('cf-msg').innerHTML=msg;
     document.getElementById('cf-yes').className='cf-yes'+(danger?' danger':'');
@@ -913,43 +935,43 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var count=entries.length;
     var time=getNowTime();
     var ngod=ngodInfo.ngod||'—';
-    var msg='เก็บ <b>'+count+' รายการ</b> รวม <b>฿'+fmt(total)+'</b><br>'
-           +'เข้าโพยงวด <b>'+ngod+'</b><br>'
-           +'เวลา <b>'+time+'</b><br><br>'
-           +'<span style="color:#f59e0b;font-size:13px;">⚠️ ตรวจสอบความถูกต้องก่อนนะครับ<br>เก็บเข้าแฟ้มแล้วแก้ไขไม่ได้</span>';
-    showConfirm(msg, function(){
-      // archive ลงประวัติโดยตรง
-      var hist=getHistory();
-      var countBefore=hist.filter(function(h){return h.ngod===ngod&&h.isBasket;}).length;
-      hist.unshift({
-        id:Date.now(),
-        ngod:ngodInfo.ngod,
-        date:ngodInfo.date,
-        sender:ngodInfo.sender,
-        receiver:ngodInfo.receiver,
-        entries:entries.slice(),
-        eid:eid,
-        pageBreakIds:pageBreakIds.slice(),
-        total:total,
-        savedAt:time,
-        closedAt:ngodInfo.date,
-        isBasket:true,
-        checkResult:null,
-        checkNumbers:null
-      });
-      saveHistory(hist);
-      // ล้างรายการ เริ่มใหม่
-      entries=[];eid=0;pageBreakIds=[];isLocked=false;
-      resetForm();
-      save();
-      renderList();
-      updateTotal();
-      updateLockUI();
-      var newCount=countBefore+1;
-      var histNgod=hist.filter(function(h){return h.ngod===ngod&&h.isBasket;});
-      var ngodTotal=histNgod.reduce(function(s,h){return s+h.total;},0);
-      toast('📂 เก็บเข้าแฟ้มแล้ว · ชุดที่ '+newCount+' · ฿'+fmt(total)+' ครับ ✅', 5000);
-    }, false);
+    // popup ถามชื่อชุดก่อน
+    showInputConfirm(
+      'ตั้งชื่อชุด (ไม่บังคับ)',
+      'เช่น แมน, ป้าดา, ต้อม...',
+      function(basketName){
+        var msg='เก็บ <b>'+count+' รายการ</b> รวม <b>฿'+fmt(total)+'</b><br>'
+               +'เข้าโพยงวด <b>'+ngod+'</b><br>'
+               +'เวลา <b>'+time+'</b><br><br>'
+               +'<span style="color:#f59e0b;font-size:13px;">⚠️ ตรวจสอบความถูกต้องก่อนนะครับ<br>เก็บเข้าแฟ้มแล้วแก้ไขไม่ได้</span>';
+        showConfirm(msg, function(){
+          var hist=getHistory();
+          var countBefore=hist.filter(function(h){return h.ngod===ngod&&h.isBasket;}).length;
+          var newCount=countBefore+1;
+          hist.unshift({
+            id:Date.now(),
+            ngod:ngodInfo.ngod,
+            date:ngodInfo.date,
+            sender:ngodInfo.sender,
+            receiver:ngodInfo.receiver,
+            entries:entries.slice(),
+            eid:eid,
+            pageBreakIds:pageBreakIds.slice(),
+            total:total,
+            savedAt:time,
+            closedAt:ngodInfo.date,
+            isBasket:true,
+            basketName:basketName||('ชุดที่ '+newCount),
+            checkResult:null,
+            checkNumbers:null
+          });
+          saveHistory(hist);
+          entries=[];eid=0;pageBreakIds=[];isLocked=false;
+          resetForm();save();renderList();updateTotal();updateLockUI();
+          toast('📂 เก็บเข้าแฟ้มแล้ว · '+(basketName||'ชุดที่ '+newCount)+' · ฿'+fmt(total)+' ครับ ✅', 5000);
+        }, false);
+      }
+    );
   }
 
   function updateBasketBadge(){
@@ -1935,7 +1957,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var realIdx=hist.indexOf(h);
         var setNum=basketSets.length-si;
         setRows+='<div class="hist-set">'
-          +'<div class="hist-set-left"><div class="hist-set-num">ชุดที่ '+setNum+'</div>'
+          +'<div class="hist-set-left"><div class="hist-set-num">'+(basketSets[basketSets.length-1-si].basketName||('ชุดที่ '+setNum))+'</div>'
           +'<div class="hist-set-time">⏰ '+(h.savedAt||'')+'</div></div>'
           +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
           +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
@@ -1979,7 +2001,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var h=x.h,realIdx=x.i;
         var setNum=sets.length-si;
         setRows+='<div class="hist-set">'
-          +'<div class="hist-set-left"><div class="hist-set-num">ชุดที่ '+setNum+'</div>'
+          +'<div class="hist-set-left"><div class="hist-set-num">'+(sets[sets.length-1-si].basketName||('ชุดที่ '+setNum))+'</div>'
           +'<div class="hist-set-time">⏰ '+(h.savedAt||h.closedAt||'')+'</div></div>'
           +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
           +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
@@ -2308,7 +2330,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     });
     setOrder.forEach(function(setNum){
       var rows=bySet[setNum];
-      if(setNum)lineMsg+='ชุดที่ '+setNum+'\n';
+      if(setNum)lineMsg+=(bySetObj&&bySetObj[setNum]&&bySetObj[setNum].basketName?bySetObj[setNum].basketName:('ชุดที่ '+setNum))+'\n';
       rows.forEach(function(x){
         totalWin+=x.amt;totalItems++;
         html+='<div class="result-row">'
