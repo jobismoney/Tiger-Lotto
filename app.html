@@ -1564,9 +1564,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(e.paks&&e.paks.length){
         (e.paks||[]).forEach(function(p){
           var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
-          var lbl=e.lek+' ปัก'+posLbl+' '+(p.typeLabel||p.type);
+          var typLbl=p.type==='3bon'?'บน':p.type==='2bon'?'บน':'ล่าง';
+          var lbl='📌 '+e.lek+' ปัก'+posLbl+' '+typLbl;
           h+='<div class="bet-row'+(isLocked?' locked':'')+'">'
-            +'<div class="lek-cell" style="font-size:12px;color:#fb923c;grid-column:1/5;">📌 '+lbl+'</div>'
+            +'<div class="lek-cell" style="font-size:13px;color:#fb923c;">📌'+e.lek+'</div>'
+            +'<div style="font-size:11px;color:#fb923c;font-weight:800;grid-column:2/6;">ปัก'+posLbl+' '+(p.typeLabel||typLbl)+'</div>'
             +'<div class="cel" style="color:#fb923c;font-weight:800;">฿'+p.price+'</div>'
             +'<button class="rm-btn" onclick="removeEntry('+e.id+')"'+rmDisabled+'>✕</button></div>';
         });
