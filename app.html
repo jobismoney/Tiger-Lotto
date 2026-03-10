@@ -733,7 +733,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var DISC_KEY='lotto_v2_disc';
   // ค่า default ส่วนลด (%) แต่ละประเภท — map ตรงกับคอลัมน์ตาราง
   // c3=3ตัวบน+หน้า, c2=2ตัวบน+2ตัวล่าง, c1=วิ่ง, ct=โต๊ด, cl=3ตัวล่าง
-  var DEFAULT_DISC={c3:35,c2:25,c1:12,ct:25,cl:20};
+  var DEFAULT_DISC={c3:20,c2:20,c1:5,ct:10,cl:10};
   function getDiscRates(){try{return JSON.parse(localStorage.getItem(DISC_KEY)||'null')||{};}catch(e){return {};}}
   function saveDiscRates(obj){try{localStorage.setItem(DISC_KEY,JSON.stringify(obj));}catch(e){}}
   function getDiscForName(name){
