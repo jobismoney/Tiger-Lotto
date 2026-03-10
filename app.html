@@ -1142,8 +1142,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       }
       var filteredNewKeys=newKeys.filter(function(k){return APP.allowedDupKeys.indexOf(k)<0;});
       checkSrc(entries,'ชุดปัจจุบัน');
-      function doAdd(){
-        newKeys.forEach(function(k){if(APP.allowedDupKeys.indexOf(k)<0)APP.allowedDupKeys.push(k);});
+      function doAdd(confirmed){
+        if(confirmed)newKeys.forEach(function(k){if(APP.allowedDupKeys.indexOf(k)<0)APP.allowedDupKeys.push(k);});
         eid++;
         entries.unshift({id:eid,lek:curLek,d:curLek.length,
           bon:null,tod:null,lang:null,na:null,kd:{},paks:paks});
@@ -1155,7 +1155,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         toast('เพิ่มปักหลัก '+APP.pakPos.length+' ตำแหน่ง ✅');
       }
       if(dupMsgs.length){
-        showConfirm('พบซ้ำ<br><br>'+dupMsgs.join('<br>')+'<br><br>ต้องการเพิ่มซ้ำหรือไม่?',doAdd,false);
+        showConfirm('พบซ้ำ<br><br>'+dupMsgs.join('<br>')+'<br><br>ต้องการเพิ่มซ้ำหรือไม่?',function(){doAdd(true);},false);
       } else {
         doAdd();
       }
