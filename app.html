@@ -70,11 +70,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 
 /* ─── LIST ─── */
 .list-wrap{margin:10px 12px 0;background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden;}
-.tbl-hd{display:grid;grid-template-columns:52px 1fr 1fr 1fr 1fr 28px;gap:2px;padding:6px 8px;background:var(--card2);border-bottom:1px solid var(--border);}
+.tbl-hd{display:grid;grid-template-columns:90px 1fr 1fr 1fr 1fr 28px;gap:2px;padding:6px 8px;background:var(--card2);border-bottom:1px solid var(--border);}
 .tbl-hd span{font-size:13px;font-weight:700;color:var(--lg);text-align:center;}
 .tbl-hd span:first-child{text-align:left;}
 .list-scroll{max-height:220px;overflow-y:auto;}
-.bet-row{display:grid;grid-template-columns:52px 1fr 1fr 1fr 1fr 28px;gap:2px;padding:7px 8px;border-bottom:1px solid var(--border);align-items:center;}
+.bet-row{display:grid;grid-template-columns:90px 1fr 1fr 1fr 1fr 28px;gap:2px;padding:7px 8px;border-bottom:1px solid var(--border);align-items:center;}
 .bet-row:last-child{border-bottom:none;}
 .bet-row.sub{background:rgba(167,139,250,.06);}
 .bet-row.locked{opacity:.6;}
@@ -1543,12 +1543,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         });
       });
       var dupLines2arr=[];
+      var dupSeen={};
       dupLekList.forEach(function(nl){
         dupMap[nl].forEach(function(src){
-          dupLines2arr.push('เลข <b>'+nl+'</b> ('+src+')');
+          var key=nl+'|'+src;
+          if(!dupSeen[key]){dupSeen[key]=1;dupLines2arr.push('เลข <b>'+nl+'</b> ('+src+')');}
         });
       });
-      var dupMsg2=dupLines2arr.join('<br>');
+      var dupExtra=dupLines2arr.length>3?dupLines2arr.length-3:0;
+      var dupMsg2=dupLines2arr.slice(0,3).join('<br>')+(dupExtra>0?'<br><span style="color:#9ca3af;font-size:13px;">และอีก '+dupExtra+' รายการ...</span>':'');
       if(!dupLines2arr.length){
         // ซ้ำล้วน confirmedDup → ผ่านทันที ไม่ต้องถาม
       } else {
