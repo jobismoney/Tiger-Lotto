@@ -1115,7 +1115,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(!curLek){toast('กรอกเลขก่อนครับ');return;}
       if(!APP.pakPos.length){toast('เลือกตำแหน่งด้วยครับ');return;}
       var typeLabels={'3bon':'บน','2lang':'ล่าง'};
-      var posLabels={'na':'📍หน้า','mid':'กล📍าง','lang':'หลัง📍'};
+      var posLabels={'na':'📍หน้า','mid':'_📍_','lang':'หลัง📍'};
       var paks=APP.pakPos.map(function(pos){
         return {type:APP.pakType,pos:pos,price:price,
                 typeLabel:typeLabels[APP.pakType],posLabel:posLabels[pos]};
@@ -1618,7 +1618,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           var isFirst=pi===0;
           h+='<div class="bet-row'+(isLocked?' locked':'')+'">'
             +'<div class="lek-cell" style="color:#fb923c;font-size:14px;">'+(isFirst?e.lek:'')
-            +'<span style="font-size:11px;color:#fb923c;"> '+({na:'📍หน้า',mid:'กล📍าง',lang:'หลัง📍'}[p.pos]||p.pos)+'</span></div>'
+            +'<span style="font-size:11px;color:#fb923c;"> '+({na:'📍หน้า',mid:'_📍_',lang:'หลัง📍'}[p.pos]||p.pos)+'</span></div>'
             +(isBon?priceVal:dash)
             +dash
             +(!isBon?priceVal:dash)
