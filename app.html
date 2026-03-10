@@ -1085,13 +1085,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var pos=btn.dataset.pos;
       if(!pos)return;
       var idx=APP.pakPos.indexOf(pos);
-      if(idx>=0){
-        APP.pakPos.splice(idx,1);
-        btn.classList.remove('on');
-      } else {
-        APP.pakPos.push(pos);
-        btn.classList.add('on');
-      }
+      if(idx>=0){APP.pakPos.splice(idx,1);btn.classList.remove('on');}
+      else{APP.pakPos.push(pos);btn.classList.add('on');}
     },
     updatePakUI:function(){
       var lek=curLek;
@@ -1134,7 +1129,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           newKeys.forEach(function(nk){
             if(existKeys.indexOf(nk)>=0){
               var parts=nk.split('|');
-              dupMsgs.push('เลข <b>'+parts[0]+'</b> ปัก'+posLabels[parts[2]]+' ('+srcName+')');
+              dupMsgs.push('เลข <b>'+parts[0]+'</b> ปัก'+(posLabels[parts[2]]||parts[2])+' ('+srcName+')');
             }
           });
         });
@@ -1554,6 +1549,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         });
       });
       var dupMsg2=dupLines2arr.join('<br>');
+      if(!dupLines2arr.length){
+        // ซ้ำล้วน confirmedDup → ผ่านทันที ไม่ต้องถาม
+      } else {
       var _dupMp=mp,_dupKd=kd,_dupLek=curLek,_dupD=d;
       showConfirm(
         'พบเลขซ้ำ<br><br>'+dupMsg2+'<br><br>ต้องการเพิ่มซ้ำหรือไม่?',
@@ -1568,6 +1566,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         }, false
       );
       return;
+      } // end else
     }
     eid++;
     entries.unshift({id:eid,lek:curLek,d:d,bon:mp.bon||null,tod:mp.tod||null,lang:mp.lang||null,na:mp.na||null,kd:kd});
@@ -1607,24 +1606,20 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var h='';
     sorted.forEach(function(e){
       var rmDisabled=isLocked?' disabled':'';
-      // pak entry — แยกบรรทัดต่อตำแหน่ง
+      // pak entry — row เดียว ไม่แสดง row หลักที่ว่าง
       if(e.paks&&e.paks.length){
-        var posMap={na:'หน้า',mid:'กลาง',lang:'หลัง'};
-        e.paks.forEach(function(p,pi){
-          var posLbl=posMap[p.pos]||p.pos;
+        (e.paks||[]).forEach(function(p){
+          var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
           var isBon=p.type==='3bon';
           var priceVal='<div class="cel" style="color:#fb923c;font-weight:800;">฿'+p.price+'</div>';
           var dash='<div class="cel e">-</div>';
-          var isFirst=pi===0;
           h+='<div class="bet-row'+(isLocked?' locked':'')+'">'
-            +'<div class="lek-cell" style="color:#fb923c;font-size:14px;">'+(isFirst?e.lek:'')
-            +'<span style="font-size:11px;color:#fb923c;"> '+({na:'หน้า 📍__',mid:'กลาง _📍_',lang:'หลัง __📍'}[p.pos]||p.pos)+'</span></div>'
+            +'<div class="lek-cell" style="color:#fb923c;font-size:15px;">'+e.lek+'<span style="font-size:11px;color:#fb923c;"> '+({na:'หน้า 📍__',mid:'กลาง _📍_',lang:'หลัง __📍'}[p.pos]||p.pos)+'</span></div>'
             +(isBon?priceVal:dash)
             +dash
             +(!isBon?priceVal:dash)
             +dash
-            +(isFirst?'<button class="rm-btn" onclick="removeEntry('+e.id+')"'+rmDisabled+'>✕</button>':'<div></div>')
-            +'</div>';
+            +'<button class="rm-btn" onclick="removeEntry('+e.id+')"'+rmDisabled+'>✕</button></div>';
         });
         return;
       }
