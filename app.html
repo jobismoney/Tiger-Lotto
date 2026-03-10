@@ -1464,7 +1464,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var mergedEntries=[];
       allSets.forEach(function(s,si){
         s.h.entries.forEach(function(e,ei){
-          mergedEntries.push(Object.assign({},e,{_setNum:si+1,_rowNum:ei+1}));
+          mergedEntries.push(Object.assign({},e,{_setNum:si+1,_rowNum:ei+1,_setName:s.h.basketName||''}));
         });
       });
       _checkHistIdx=i;
@@ -2570,7 +2570,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       });
 
       if(hits.length){
-        results.push({lek:lek,hits:hits,_setNum:e._setNum,_rowNum:e._rowNum});
+        results.push({lek:lek,hits:hits,_setNum:e._setNum,_rowNum:e._rowNum,_setName:e._setName||''});
       }
     });
 
@@ -2600,22 +2600,29 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     lineMsg+='\n';
 
     var html='<div class="result-card"><div class="result-title">🎉 ถูกรางวัล!</div>';
-    // จัดกลุ่มตามชุด
-    var bySet={};var setOrder=[];
+    // จัดกลุ่มตามชุด (key = setNum)
+    var bySet={};var setOrder=[];var setMeta={};
     results.forEach(function(r){
       var k=r._setNum||0;
-      if(!bySet[k]){bySet[k]=[];setOrder.push(k);}
-      r.hits.forEach(function(h){bySet[k].push({lek:r.lek,type:h.type,amt:h.amt});});
+      if(!bySet[k]){bySet[k]=[];setOrder.push(k);setMeta[k]={name:r._setName||'',num:r._setNum||0};}
+      r.hits.forEach(function(h){bySet[k].push({lek:r.lek,type:h.type,amt:h.amt,row:r._rowNum});});
     });
     setOrder.forEach(function(setNum){
       var rows=bySet[setNum];
-      if(setNum)lineMsg+=(bySetObj&&bySetObj[setNum]&&bySetObj[setNum].basketName?bySetObj[setNum].basketName:('ชุดที่ '+setNum))+'\n';
+      var meta=setMeta[setNum];
+      var setLabel=meta.name?(meta.name+' (ชุดที่ '+meta.num+')'):'ชุดที่ '+meta.num;
+      if(setNum){
+        lineMsg+=setLabel+'\n';
+        html+='<div style="background:rgba(245,197,24,.12);border-left:3px solid var(--gold);padding:6px 10px;margin:6px 0 2px;border-radius:4px;">'
+          +'<span style="font-size:13px;font-weight:900;color:var(--gold);">'+setLabel+'</span>'
+          +'</div>';
+      }
       rows.forEach(function(x){
         totalWin+=x.amt;totalItems++;
         html+='<div class="result-row">'
-          +'<div>'+(setNum?'<div class="result-set-info">ชุดที่ '+setNum+'</div>':'')
+          +'<div>'
           +'<div class="result-lek">'+x.lek+'</div>'
-          +'<div class="result-type">'+x.type+'</div></div>'
+          +'<div class="result-type">'+x.type+(x.row?' · แถวที่ '+x.row:'')+'</div></div>'
           +'<div class="result-prize">฿'+x.amt.toLocaleString()+'</div>'
           +'</div>';
         lineMsg+='• '+x.lek+' '+x.type+' ฿'+x.amt.toLocaleString()+'\n';
