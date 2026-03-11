@@ -1054,31 +1054,42 @@ function setupNumpad(){
       // ลูกศร
       case 'ArrowUp': case 'ArrowLeft': case 'ArrowDown': case 'ArrowRight':
         e.preventDefault();
+        var isDown=(e.code==='ArrowDown'||e.code==='ArrowRight');
+        var isUp=(e.code==='ArrowUp'||e.code==='ArrowLeft');
         var actionBtns=Array.from(document.querySelectorAll('#kp-action-btns .kp-btn')).filter(function(b){return b.offsetParent!==null;});
         var curIdx=actionBtns.indexOf(document.activeElement);
-        var dir2=(e.code==='ArrowUp'||e.code==='ArrowLeft')?-1:1;
 
         if(curIdx>=0){
-          // อยู่ที่ปุ่ม action แล้ว → เลื่อนระหว่างปุ่ม
-          var nxt=curIdx+dir2;
+          // อยู่ที่ปุ่ม action → เลื่อนระหว่างปุ่ม
+          var nxt=curIdx+(isDown?1:-1);
           if(nxt>=0&&nxt<actionBtns.length) actionBtns[nxt].focus();
+          else if(isUp&&nxt<0){
+            // ย้อนกลับไป field ราคาสุดท้าย
+            actionBtns[curIdx].blur();
+            var lastS=0;
+            var fields=getActiveFields();var order=['bon','tod','lang','na'];
+            for(var i=order.length-1;i>=0;i--){if(fields.indexOf(order[i])>=0){lastS=i+1;break;}}
+            if(lastS>0){npStep=lastS;npBuffer='';renderKpFields();}
+          }
         } else if(npPhase==='price'){
-          // อยู่ใน field ราคา → ลูกศรลง=field ถัดไป, ลูกศรขึ้น=field ก่อนหน้า
-          if(e.code==='ArrowDown'||e.code==='ArrowRight'){
+          if(isDown){
             commitBuffer();
             var ns=nextStep(npStep);
             if(ns>0){npStep=ns;npBuffer='';renderKpFields();}
             else{
-              // ถึง field สุดท้ายแล้ว → โฟกัสปุ่ม ล้าง
               npBuffer=''; renderKpFields();
               if(actionBtns[0]) actionBtns[0].focus();
             }
           } else {
-            // ขึ้น/ซ้าย → field ก่อนหน้า
             commitBuffer();
             var ps=prevStep(npStep);
             if(ps>0){npStep=ps;npBuffer='';renderKpFields();}
           }
+        } else if(npPhase==='lek'&&isDown&&npLek){
+          // อยู่ที่ phase lek มีเลขแล้ว → เข้า price phase
+          npPhase='price';
+          npStep=(npLek.length>=4)?2:1;
+          npBuffer=''; renderKpFields();
         }
         break;
 
