@@ -860,11 +860,7 @@ function showImportBanner(data, fp, log, dupMsg){
     }
     if(!cid){ toast('กรุณาเลือกลูกค้าครับ'); return; }
     document.getElementById('imp-banner').style.display='none';
-    // inject cid เพื่อให้ doImport ใช้
-    var fakesel = document.getElementById('imp-cust-sel');
-    if(!fakesel){ fakesel=document.createElement('select'); fakesel.id='imp-cust-sel'; fakesel.style.display='none'; document.body.appendChild(fakesel); }
-    fakesel.innerHTML = '<option value="'+cid+'" selected></option>';
-    doImport(data, fp, log);
+    doImport(data, fp, log, cid);
   };
   document.getElementById('imp-banner-cancel').onclick = function(){
     document.getElementById('imp-banner').style.display='none';
@@ -893,28 +889,8 @@ function handleImportParam(){
   } catch(err){ console.error(err); toast('อ่าน QR ไม่ได้: '+err.message); }
 }
 
-function doImport(data, fp, log){
-  var sel = document.getElementById('imp-cust-sel');
-  var cid = sel ? sel.value : null;
-
-  // ถ้าเลือกลูกค้าใหม่ → ดึงชื่อจาก input
-  if(cid === '__new__'){
-    var ni = document.getElementById('imp-new-name');
-    var newName = ni ? ni.value.trim() : '';
-    if(!newName){ toast('กรุณาใส่ชื่อลูกค้าครับ'); return; }
-    cid = 'c'+Date.now();
-    customers.push({id:cid, name:newName});
-    custEntries[cid] = []; custEid[cid] = 0; custSets[cid] = [];
-  }
-
-  // ถ้าไม่มี sel (กรณีสแกนซ้ำ) ให้หาลูกค้าจากชื่อ sender
-  if(!cid){
-    var match = customers.find(function(cu){ return cu.name === data.sender; });
-    cid = match ? match.id : null;
-  }
-
-  // ถ้ายังไม่มี cid เลย → สร้างใหม่
-  if(!cid || cid === ''){
+function doImport(data, fp, log, cid){
+  if(!cid || cid === '' || cid === '__new__'){
     toast('กรุณาเลือกลูกค้าครับ'); return;
   }
   if(!custEntries[cid]) custEntries[cid] = [];
@@ -922,19 +898,19 @@ function doImport(data, fp, log){
 
   data.entries.forEach(function(e){
     custEid[cid]++;
+    var lek = String(e.lek||'');
     custEntries[cid].push({
-      id: custEid[cid], lek: e.lek, d: e.lek.length,
+      id: custEid[cid], lek: lek, d: lek.length,
       bon: e.bon||null, tod: e.tod||null, lang: e.lang||null, na: e.na||null, kd: e.kd||{}
     });
   });
 
-  // บันทึก fingerprint
-  log.push({ fp: fp, time: Date.now(), sender: data.sender, ngod: data.ngod, pg: data.pg });
+  log.push({ fp: fp, time: Date.now(), sender: data.sender||'', ngod: data.ngod||'', pg: data.pg });
   saveScannedLog(log);
 
   curCustId = cid;
   save(); renderCustList(); renderHist(); updateSummary();
-  toast('✅ รับ '+data.entries.length+' รายการจาก '+(data.sender||'?')+' แล้ว');
+  toast('✅ รับ '+data.entries.length+' รายการแล้วครับ');
 }
 
 window.addEventListener('DOMContentLoaded', function(){
