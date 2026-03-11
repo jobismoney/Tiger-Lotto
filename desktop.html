@@ -2046,14 +2046,19 @@ function showSlip(){
 }
 
 function showSlipCust(cid){
-  var html=buildSlipHTML(cid);
-  if(!html){toast('ยังไม่มีรายการ');return;}
-  var cust=customers.find(function(c){return c.id===cid;})||{name:'?'};
-  var t=document.getElementById('slip-ov-title');
-  if(t) t.textContent='📋 โพย — '+cust.name;
-  document.getElementById('slip-pages').innerHTML=html;
-  document.getElementById('slip-ov').classList.add('show');
-  document.getElementById('slip-ov').scrollTop=0;
+  try{
+    var html=buildSlipHTML(cid);
+    if(!html){toast('ยังไม่มีรายการ');return;}
+    var cust=customers.find(function(cc){return cc.id===cid;})||{name:'?'};
+    var t=document.getElementById('slip-ov-title');
+    if(t) t.textContent='📋 โพย — '+cust.name;
+    document.getElementById('slip-pages').innerHTML=html;
+    document.getElementById('slip-ov').classList.add('show');
+    document.getElementById('slip-ov').scrollTop=0;
+  }catch(err){
+    toast('Error: '+err.message);
+    console.error('showSlipCust error:',err);
+  }
 }
 
 function showSlipAll(){
