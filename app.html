@@ -194,6 +194,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .slip-ft .fl{color:#000;font-size:14px;font-weight:800;}
 .slip-ft .fv{color:#000;font-size:22px;font-weight:900;}
 .slip-legend{font-size:11px;color:#888;padding:3px 8px;text-align:right;background:#fff;border-top:1px solid #eee;}
+.slip-qr-wrap{display:flex;justify-content:flex-end;align-items:center;padding:4px 10px 2px;background:#fff;}
+.slip-qr-wrap canvas,.slip-qr-wrap img{width:80px!important;height:80px!important;}
 .slip-page-sum .slip-hd{padding:8px 12px 6px;}
 .slip-page-sum .slip-hd-row1 h2{font-size:17px;}
 .slip-page-sum .slip-hd-row2 span{font-size:12px;}
@@ -527,6 +529,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 .pak-btn-mobile{width:100%;margin-top:8px;background:rgba(251,146,60,.12);border:1.5px solid rgba(251,146,60,.4);border-radius:10px;color:#fb923c;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;display:none;letter-spacing:0.5px;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -1940,6 +1943,21 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   // ─── BUILD SLIPS ───
+  function encodePageData(pEntries, inf, pgNum){
+    var data={ngod:inf.ngod,sender:inf.sender||'',receiver:inf.receiver||'',date:inf.date,pg:pgNum,entries:pEntries.map(function(e){return {id:e.id,d:e.d,lek:e.lek,bon:e.bon||0,tod:e.tod||0,lang:e.lang||0,na:e.na||0,kd:e.kd||{}};})};
+    var json=JSON.stringify(data);
+    var b64=btoa(unescape(encodeURIComponent(json)));
+    return 'https://tiger999.online/desktop.html?import='+b64;
+  }
+  function renderPageQR(pEntries, inf, pgNum){
+    var el=document.getElementById('slip-qr-pg-'+pgNum);
+    if(!el)return;
+    el.innerHTML='';
+    if(typeof QRCode==='undefined')return;
+    var url=encodePageData(pEntries,inf,pgNum);
+    try{new QRCode(el,{text:url,width:80,height:80,correctLevel:QRCode.CorrectLevel.M});}catch(e){}
+  }
+
   var LEGEND='<div class="slip-legend">บ=บน  ล=ล่าง  ต=โต๊ด  หน้า=หน้า  ช=ชุด  ก=กลับ</div>';
 
   function fmt(n){return parseInt(n).toLocaleString();}
@@ -2118,6 +2136,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
       +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
       +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmt(pt)+'</span></div>'
+      +'<div class="slip-qr-wrap" id="slip-qr-pg-'+pgNum+'"></div>'
       +LEGEND;
   }
 
@@ -2163,7 +2182,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     }
     if(pageHTMLs.length%2===1)allHTML+='<div class="slip-page-pair-break"></div>';
     allHTML+='<div class="slip-page-sum"><div class="slip-page">'+sumHTML+'</div></div>';
-    return allHTML;
+    return {html:allHTML, pages:pages, inf:inf};
   }
 
   // buildAllSlipsWithLabel: เหมือน buildAllSlips แต่ใส่ชื่อลูกค้าในหัว
@@ -2278,24 +2297,25 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   var _lastSlipHTML=null;
   function showSlip(){
-    var html=buildAllSlips();if(!html)return;
-    _lastSlipHTML=html;
-    document.getElementById('slip-pages').innerHTML=html;
+    var result=buildAllSlips();if(!result)return;
+    _lastSlipHTML=result.html;
+    document.getElementById('slip-pages').innerHTML=result.html;
     document.getElementById('slip-ov').classList.add('show');
     document.getElementById('slip-ov').scrollTop=0;
     document.getElementById('ov-share-line').style.display='';
+    setTimeout(function(){result.pages.forEach(function(pg,i){renderPageQR(pg,result.inf,i+1);});},100);
   }
 
   function doPrint(){
     if(!entries.length){toast('ยังไม่มีรายการ');return;}
-    // ล็อคก่อน เพื่อให้แน่ใจว่าข้อมูลไม่เปลี่ยนระหว่างดูกับพิมพ์
     isLocked=true;save();updateLockUI();renderList();
-    // build จาก entries ที่ lock แล้ว
-    var html=buildAllSlips();if(!html)return;
-    document.getElementById('slip-pages').innerHTML=html;
+    var result=buildAllSlips();if(!result)return;
+    document.getElementById('slip-pages').innerHTML=result.html;
     document.getElementById('slip-ov').classList.add('show');
-    // รอให้ DOM render เสร็จก่อนค่อย print
-    setTimeout(function(){window.print();},300);
+    setTimeout(function(){
+      result.pages.forEach(function(pg,i){renderPageQR(pg,result.inf,i+1);});
+      setTimeout(function(){window.print();},300);
+    },100);
   }
 
   // ─── HISTORY ───
