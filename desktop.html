@@ -603,6 +603,11 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;color:#94a3b8;background:#1a1a2e;border:1px solid #333;border-radius:7px;padding:5px 10px;"><input type="checkbox" id="rcb-tod" style="accent-color:#f5c518;width:14px;height:14px;cursor:pointer;"> โต๊ด</label>
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;color:#94a3b8;background:#1a1a2e;border:1px solid #333;border-radius:7px;padding:5px 10px;"><input type="checkbox" id="rcb-lang" style="accent-color:#f5c518;width:14px;height:14px;cursor:pointer;"> ล่าง</label>
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;color:#94a3b8;background:#1a1a2e;border:1px solid #333;border-radius:7px;padding:5px 10px;"><input type="checkbox" id="rcb-na" style="accent-color:#f5c518;width:14px;height:14px;cursor:pointer;"> หน้า</label>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;color:#a78bfa;background:#1a1a2e;border:1px solid #4c3d7a;border-radius:7px;padding:5px 10px;"><input type="checkbox" id="rcb-klb" style="accent-color:#a78bfa;width:14px;height:14px;cursor:pointer;"> กลับ/ชุด</label>
+        </div>
+
+        <div style="font-size:11px;color:#f59e0b;margin-bottom:10px;padding:6px 8px;background:rgba(245,158,11,.07);border-radius:6px;border-left:2px solid #f59e0b;">
+          ⚠️ เรทที่ตั้งไว้จะมีผลกับเลขที่คีย์เข้ามา<strong>หลังจากกด + เพิ่ม</strong> เท่านั้น
         </div>
 
         <!-- รายการที่ตั้งไว้ -->
@@ -1495,8 +1500,9 @@ function renderHist(){
   // current entries (active)
   curEntries.forEach(function(e){
     var tot=entryTotal(e);
-    h+='<div class="hrow">'
-      +'<div class="hd lek">'+e.lek+'</div>'
+    var hasRate=hasRateOverride(e.lek);
+    h+='<div class="hrow"'+(hasRate?' style="border-left:2px solid #f59e0b;"':'')+' title="'+(hasRate?'มีการตั้งเรทพิเศษ':'')+'">'
+      +'<div class="hd lek" style="'+(hasRate?'color:#f59e0b;':'')+'">'+e.lek+(hasRate?' ⚡':'')+' </div>'
       +'<div class="hd'+(e.bon?'':' e')+'">'+(e.bon||'—')+'</div>'
       +'<div class="hd'+(e.tod?'':' e')+'">'+(e.tod||'—')+'</div>'
       +'<div class="hd'+(e.lang?'':' e')+'">'+(e.lang||'—')+'</div>'
@@ -2149,12 +2155,23 @@ function addRateOverride(){
     var cb = document.getElementById('rcb-'+fk);
     return cb && cb.checked;
   });
-  if(!fields.length){ toast('เลือก field อย่างน้อย 1 ช่อง'); return; }
+  var inclKlb = document.getElementById('rcb-klb') && document.getElementById('rcb-klb').checked;
+  if(!fields.length && !inclKlb){ toast('เลือก field อย่างน้อย 1 ช่อง'); return; }
   var nk = getRateKey();
   if(!rateOverrides[nk]) rateOverrides[nk]={};
   fields.forEach(function(fk){
     rateOverrides[nk][lek+'|'+fk] = pct;
   });
+  if(inclKlb){
+    // เก็บ perms ของเลขนี้
+    var perms = getPerms(lek).filter(function(p){ return p!==lek; });
+    perms.forEach(function(p){
+      // klb ครอบ bon, lang, na (ไม่ครอบ tod)
+      ['bon','lang','na'].forEach(function(fk){
+        rateOverrides[nk][p+'|'+fk+'|klb'] = pct;
+      });
+    });
+  }
   saveRates();
   document.getElementById('rate-lek-inp').value='';
   renderRateList();
@@ -2189,7 +2206,20 @@ function renderRateList(){
   });
   var fieldLabels={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
   var h='';
+  // แยก klb perms ออกจาก normal
+  var klbLeks={};
+  Object.keys(ov).forEach(function(k){
+    var parts=k.split('|');
+    if(parts[2]==='klb'){
+      var src=parts[0]; // perm lek
+      if(!klbLeks[src]) klbLeks[src]=[];
+      klbLeks[src].push({fk:parts[1],pct:ov[k]});
+    }
+  });
+
   Object.keys(byLek).sort().forEach(function(lek){
+    // หา perms ที่มี klb สำหรับ lek นี้
+    var myPerms=getPerms(lek).filter(function(p){return p!==lek&&klbLeks[p];});
     h+='<div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:8px 10px;margin-bottom:6px;">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
       +'<span style="font-size:16px;font-weight:900;color:#f5c518;">'+lek+'</span>'
@@ -2204,7 +2234,15 @@ function renderRateList(){
         +'<button data-lek="'+lek+'" data-fk="'+x.fk+'" onclick="removeRateOverride(this.dataset.lek,this.dataset.fk)" style="background:none;border:none;color:#475569;font-size:13px;cursor:pointer;padding:0 2px;line-height:1;">✕</button>'
         +'</div>';
     });
-    h+='</div></div>';
+    h+='</div>';
+    // แสดง perms ที่กระจาย
+    if(myPerms.length){
+      h+='<div style="margin-top:6px;padding-top:6px;border-top:1px solid #1e293b;">'
+        +'<span style="font-size:11px;color:#6b7280;">กลับ/ชุด: </span>'
+        +'<span style="font-size:12px;color:#a78bfa;font-weight:700;">'+myPerms.join(', ')+'</span>'
+        +'</div>';
+    }
+    h+='</div>';
   });
   el.innerHTML=h;
 }
@@ -2217,11 +2255,22 @@ function removeRateLek(lek){
 }
 window.removeRateLek = removeRateLek;
 
-function getLekRatePct(lek, fk){
+function getLekRatePct(lek, fk, isKlb){
   var nk=getRateKey();
   var ov=rateOverrides[nk]||{};
+  // ถ้าเป็น perm (กลับ/ชุด) เช็ค klb key ก่อน
+  if(isKlb){
+    var vk=ov[lek+'|'+fk+'|klb'];
+    if(vk!==undefined&&vk!==null) return vk;
+  }
   var v=ov[lek+'|'+fk];
   return (v===undefined||v===null)?100:v;
+}
+
+function hasRateOverride(lek){
+  var nk=getRateKey();
+  var ov=rateOverrides[nk]||{};
+  return Object.keys(ov).some(function(k){ return k.split('|')[0]===lek; });
 }
 
 function entryTotalWithRate(e){
@@ -2235,7 +2284,7 @@ function entryTotalWithRate(e){
   var kd=e.kd||{};
   ['bon','lang','na'].forEach(function(k){
     (kd[k]||[]).forEach(function(x){
-      var pct=getLekRatePct(x.lek||e.lek,k);
+      var pct=getLekRatePct(x.perm||x.lek||e.lek, k, true);
       t+=pct===100?(x.price||0):Math.round((x.price||0)*pct/100);
     });
   });
