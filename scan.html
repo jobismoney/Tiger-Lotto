@@ -9,42 +9,84 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-:root{--bg:#0f1117;--card:#1a1d27;--card2:#222533;--border:#2e3248;--gold:#f5c518;--gold2:#c9a010;--red:#e74c3c;--white:#f0f2ff;--gray:#6b7280;--lg:#9ca3af;--green:#27ae60;}
-body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;max-width:480px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;}
-.logo{font-size:48px;margin-bottom:8px;}
-.title{font-size:24px;font-weight:900;color:var(--gold);margin-bottom:4px;}
-.sub{font-size:14px;color:var(--lg);margin-bottom:32px;text-align:center;line-height:1.6;}
-.upload-zone{width:100%;background:var(--card);border:2px dashed var(--border);border-radius:20px;padding:32px 20px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative;}
+:root{--bg:#0f1117;--card:#1a1d27;--card2:#222533;--border:#2e3248;--gold:#f5c518;--gold2:#c9a010;--white:#f0f2ff;--gray:#6b7280;--lg:#9ca3af;--green:#27ae60;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;max-width:500px;margin:0 auto;display:flex;flex-direction:column;align-items:center;padding:20px 16px;}
+.logo{font-size:40px;margin-bottom:6px;margin-top:8px;}
+.title{font-size:22px;font-weight:900;color:var(--gold);margin-bottom:4px;}
+.sub{font-size:13px;color:var(--lg);margin-bottom:20px;text-align:center;line-height:1.6;}
+
+/* mode tabs */
+.mode-tabs{display:flex;gap:8px;width:100%;margin-bottom:16px;}
+.mode-tab{flex:1;padding:10px;border-radius:12px;border:2px solid var(--border);background:var(--card);color:var(--lg);font-family:'Sarabun',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;}
+.mode-tab.on{border-color:var(--gold);color:var(--gold);background:rgba(245,197,24,.08);}
+
+/* upload zone */
+.upload-zone{width:100%;background:var(--card);border:2px dashed var(--border);border-radius:18px;padding:28px 20px;text-align:center;cursor:pointer;position:relative;display:none;}
+.upload-zone.active{display:block;}
 .upload-zone.drag{border-color:var(--gold);background:rgba(245,197,24,.06);}
-.upload-icon{font-size:52px;margin-bottom:12px;}
-.upload-txt{font-size:18px;font-weight:800;color:var(--white);margin-bottom:6px;}
-.upload-sub{font-size:13px;color:var(--lg);}
+.upload-icon{font-size:44px;margin-bottom:10px;}
+.upload-txt{font-size:17px;font-weight:800;color:var(--white);margin-bottom:4px;}
+.upload-sub{font-size:12px;color:var(--lg);}
 #file-inp{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;}
-.preview-wrap{width:100%;margin-top:16px;display:none;}
-.preview-img{width:100%;border-radius:14px;border:2px solid var(--border);}
-.status{width:100%;margin-top:16px;padding:16px;border-radius:14px;font-size:16px;font-weight:800;text-align:center;display:none;}
+
+/* camera */
+.cam-wrap{width:100%;display:none;flex-direction:column;align-items:center;gap:10px;}
+.cam-wrap.active{display:flex;}
+.cam-box{width:100%;max-width:400px;position:relative;border-radius:16px;overflow:hidden;background:#000;}
+#cam-video{width:100%;display:block;border-radius:16px;}
+.cam-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.cam-frame{width:60%;aspect-ratio:1;border:3px solid var(--gold);border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.45);}
+.cam-hint{font-size:13px;color:var(--lg);text-align:center;}
+.cam-stop-btn{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--card2);color:var(--lg);font-family:'Sarabun',sans-serif;font-size:15px;font-weight:800;cursor:pointer;}
+
+/* preview */
+.preview-wrap{width:100%;margin-top:12px;display:none;}
+.preview-img{width:100%;border-radius:12px;border:2px solid var(--border);}
+
+/* status */
+.status{width:100%;margin-top:12px;padding:14px;border-radius:12px;font-size:15px;font-weight:800;text-align:center;display:none;}
 .status.scanning{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.3);color:var(--gold);}
 .status.success{background:rgba(39,174,96,.12);border:1px solid rgba(39,174,96,.4);color:#6ee7b7;}
 .status.error{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);color:#fca5a5;}
-.result-box{width:100%;margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;display:none;}
-.result-title{font-size:13px;font-weight:700;color:var(--lg);margin-bottom:8px;}
-.result-info{font-size:15px;font-weight:800;color:var(--white);line-height:1.8;}
+
+/* result */
+.result-box{width:100%;margin-top:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;display:none;}
+.result-title{font-size:12px;font-weight:700;color:var(--lg);margin-bottom:6px;}
+.result-info{font-size:14px;font-weight:800;color:var(--white);line-height:1.9;}
 .result-info span{color:var(--gold);}
-.go-btn{width:100%;margin-top:16px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:14px;color:#111;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:16px;cursor:pointer;display:none;}
-.reset-btn{width:100%;margin-top:10px;background:var(--card2);border:1px solid var(--border);border-radius:14px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;padding:13px;cursor:pointer;display:none;}
-.tip{margin-top:24px;font-size:12px;color:var(--gray);text-align:center;line-height:1.7;}
+
+.go-btn{width:100%;margin-top:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;color:#111;font-family:'Sarabun',sans-serif;font-size:19px;font-weight:900;padding:14px;cursor:pointer;display:none;}
+.reset-btn{width:100%;margin-top:8px;background:var(--card2);border:1px solid var(--border);border-radius:12px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:800;padding:11px;cursor:pointer;display:none;}
+.tip{margin-top:20px;font-size:12px;color:var(--gray);text-align:center;line-height:1.7;}
 </style>
 </head>
 <body>
+
 <div class="logo">🐯</div>
 <div class="title">TIGER 999 — Scan</div>
-<div class="sub">อัพโหลดรูปโพยที่มี QR code<br>ระบบจะนำข้อมูลเข้า desktop อัตโนมัติ</div>
+<div class="sub">รับข้อมูลโพยจาก QR code<br>เข้า Desktop อัตโนมัติ</div>
 
-<div class="upload-zone" id="upload-zone">
+<div class="mode-tabs">
+  <button class="mode-tab on" id="tab-upload" onclick="switchMode('upload')">📁 อัพรูป</button>
+  <button class="mode-tab" id="tab-cam" onclick="switchMode('cam')">📷 กล้อง</button>
+</div>
+
+<!-- Upload mode -->
+<div class="upload-zone active" id="upload-zone">
   <input type="file" id="file-inp" accept="image/*">
-  <div class="upload-icon">📷</div>
+  <div class="upload-icon">🖼️</div>
   <div class="upload-txt">แตะเพื่อเลือกรูป</div>
-  <div class="upload-sub">รองรับ JPG, PNG, WebP — รูปจาก Line ได้เลย</div>
+  <div class="upload-sub">JPG, PNG, WebP — screenshot จาก Line ได้เลย</div>
+</div>
+
+<!-- Camera mode -->
+<div class="cam-wrap" id="cam-wrap">
+  <div class="cam-box">
+    <video id="cam-video" autoplay playsinline muted></video>
+    <div class="cam-overlay"><div class="cam-frame"></div></div>
+  </div>
+  <div class="cam-hint">จ่อ QR ให้อยู่ในกรอบ — ระบบ scan อัตโนมัติ</div>
+  <button class="cam-stop-btn" onclick="stopCamera()">⏹ หยุดกล้อง</button>
 </div>
 
 <div class="preview-wrap" id="preview-wrap">
@@ -59,20 +101,38 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 </div>
 
 <button class="go-btn" id="go-btn">🚀 นำเข้า Desktop เลย</button>
-<button class="reset-btn" id="reset-btn">🔄 scan รูปใหม่</button>
+<button class="reset-btn" id="reset-btn">🔄 scan ใหม่</button>
 
-<div class="tip">💡 ถ่ายรูปให้ QR ชัด ไม่เบลอ<br>หรือ screenshot จาก Line แล้วอัพขึ้นมาได้เลย</div>
+<div class="tip" id="tip-txt">💡 screenshot โพยจาก Line แล้วอัพขึ้นมาได้เลย</div>
 
 <canvas id="qr-canvas" style="display:none;"></canvas>
 
 <script>
 var _qrUrl = null;
+var _camStream = null;
+var _camRaf = null;
+var _curMode = 'upload';
 
+// ── MODE SWITCH ──
+function switchMode(m){
+  _curMode = m;
+  document.getElementById('tab-upload').className = 'mode-tab'+(m==='upload'?' on':'');
+  document.getElementById('tab-cam').className = 'mode-tab'+(m==='cam'?' on':'');
+  document.getElementById('upload-zone').className = 'upload-zone'+(m==='upload'?' active':'');
+  document.getElementById('cam-wrap').className = 'cam-wrap'+(m==='cam'?' active':'');
+  document.getElementById('tip-txt').textContent = m==='cam'
+    ? '💡 จ่อกล้องไปที่ QR บนหน้าจอหรือรูปพิมพ์ได้เลย'
+    : '💡 screenshot โพยจาก Line แล้วอัพขึ้นมาได้เลย';
+  resetResult();
+  if(m==='cam') startCamera();
+  else stopCamera();
+}
+
+// ── UPLOAD MODE ──
 document.getElementById('file-inp').addEventListener('change', function(e){
   var file = e.target.files[0];
   if(file) handleFile(file);
 });
-
 var zone = document.getElementById('upload-zone');
 zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('drag'); });
 zone.addEventListener('dragleave', function(){ zone.classList.remove('drag'); });
@@ -88,44 +148,77 @@ function handleFile(file){
     var img = document.getElementById('preview-img');
     img.src = ev.target.result;
     document.getElementById('preview-wrap').style.display = 'block';
-    document.getElementById('result-box').style.display = 'none';
-    document.getElementById('go-btn').style.display = 'none';
-    document.getElementById('reset-btn').style.display = 'none';
+    resetResult();
     setStatus('scanning', '🔍 กำลัง scan QR code...');
-    img.onload = function(){ setTimeout(function(){ scanQR(img); }, 50); };
+    img.onload = function(){ scanFromImage(img); };
   };
   reader.readAsDataURL(file);
 }
 
-function scanQR(img){
+function scanFromImage(img){
   var canvas = document.getElementById('qr-canvas');
   var ctx = canvas.getContext('2d');
-  // resize ให้ไม่เกิน 1200px เพื่อความเร็ว
   var MAX = 800;
   var w = img.naturalWidth, h = img.naturalHeight;
-  if(w > MAX || h > MAX){
-    var ratio = Math.min(MAX/w, MAX/h);
-    w = Math.round(w*ratio); h = Math.round(h*ratio);
-  }
+  if(w > MAX || h > MAX){ var r=Math.min(MAX/w,MAX/h); w=Math.round(w*r); h=Math.round(h*r); }
   canvas.width = w; canvas.height = h;
   ctx.drawImage(img, 0, 0, w, h);
   var imageData = ctx.getImageData(0, 0, w, h);
-  var code = jsQR(imageData.data, imageData.width, imageData.height, {inversionAttempts:'dontInvert'});
-  if(!code) code = jsQR(imageData.data, imageData.width, imageData.height, {inversionAttempts:'onlyInvert'});
-
+  var code = jsQR(imageData.data, w, h, {inversionAttempts:'dontInvert'});
+  if(!code) code = jsQR(imageData.data, w, h, {inversionAttempts:'onlyInvert'});
   if(!code){
-    setStatus('error', '❌ ไม่พบ QR code ในรูปนี้<br><span style="font-size:13px;font-weight:600;">ลอง crop ให้เห็นเฉพาะ QR หรือถ่ายใหม่</span>');
-    document.getElementById('reset-btn').style.display = 'block';
+    setStatus('error', '❌ ไม่พบ QR code ในรูปนี้<br><span style="font-size:12px;font-weight:600;">ลอง crop ให้เห็น QR ชัดๆ แล้วอัพใหม่</span>');
+    document.getElementById('reset-btn').style.display='block';
     return;
   }
+  handleQRResult(code.data);
+}
 
-  var url = code.data;
+// ── CAMERA MODE ──
+function startCamera(){
+  if(!navigator.mediaDevices){ setStatus('error','❌ browser นี้ไม่รองรับกล้อง'); return; }
+  setStatus('scanning','🎥 เปิดกล้อง...');
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}})
+  .then(function(stream){
+    _camStream = stream;
+    var v = document.getElementById('cam-video');
+    v.srcObject = stream;
+    v.onloadedmetadata = function(){ v.play(); document.getElementById('status').style.display='none'; scanLoop(); };
+  })
+  .catch(function(){ setStatus('error','❌ ไม่สามารถเปิดกล้องได้'); });
+}
+
+function stopCamera(){
+  if(_camRaf){ cancelAnimationFrame(_camRaf); _camRaf=null; }
+  if(_camStream){ _camStream.getTracks().forEach(function(t){t.stop();}); _camStream=null; }
+  var v = document.getElementById('cam-video');
+  v.srcObject = null;
+}
+
+function scanLoop(){
+  var v = document.getElementById('cam-video');
+  if(!v.videoWidth){ _camRaf=requestAnimationFrame(scanLoop); return; }
+  var canvas = document.getElementById('qr-canvas');
+  var ctx = canvas.getContext('2d');
+  canvas.width = v.videoWidth; canvas.height = v.videoHeight;
+  ctx.drawImage(v, 0, 0);
+  var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  var code = jsQR(imageData.data, canvas.width, canvas.height, {inversionAttempts:'dontInvert'});
+  if(code){
+    stopCamera();
+    handleQRResult(code.data);
+    return;
+  }
+  _camRaf = requestAnimationFrame(scanLoop);
+}
+
+// ── RESULT ──
+function handleQRResult(url){
   if(url.indexOf('tiger999.online') < 0 && url.indexOf('desktop.html') < 0){
-    setStatus('error', '❌ QR นี้ไม่ใช่โพย Tiger 999');
-    document.getElementById('reset-btn').style.display = 'block';
+    setStatus('error','❌ QR นี้ไม่ใช่โพย Tiger 999');
+    document.getElementById('reset-btn').style.display='block';
     return;
   }
-
   try{
     var imp = url.split('import=')[1];
     if(!imp){ setStatus('error','❌ QR ไม่มีข้อมูล'); return; }
@@ -134,26 +227,21 @@ function scanQR(img){
     var cnt = (norm.entries||[]).length;
     document.getElementById('result-info').innerHTML =
       '<span>งวด</span> '+(norm.ngod||'—')+'<br>'
-      +'<span>ผู้ส่ง</span> '+(norm.sender||'—')
-      +'&nbsp;&nbsp;<span>ผู้รับ</span> '+(norm.receiver||'—')+'<br>'
-      +'<span>แผ่น</span> '+(norm.pg||1)
-      +'&nbsp;&nbsp;<span>จำนวน</span> '+cnt+' รายการ';
-    document.getElementById('result-box').style.display = 'block';
-    setStatus('success', '✅ อ่าน QR สำเร็จ! พบ '+cnt+' รายการ');
+      +'<span>ผู้ส่ง</span> '+(norm.sender||'—')+'<br>'
+      +'<span>แผ่น</span> '+(norm.pg||1)+'  <span>จำนวน</span> '+cnt+' รายการ';
+    document.getElementById('result-box').style.display='block';
+    setStatus('success','✅ อ่าน QR สำเร็จ! พบ '+cnt+' รายการ');
     _qrUrl = url;
-    document.getElementById('go-btn').style.display = 'block';
-    document.getElementById('reset-btn').style.display = 'block';
-  } catch(err){
-    setStatus('error', '❌ อ่านข้อมูลใน QR ไม่ได้');
-    document.getElementById('reset-btn').style.display = 'block';
+    document.getElementById('go-btn').style.display='block';
+    document.getElementById('reset-btn').style.display='block';
+  } catch(e){
+    setStatus('error','❌ อ่านข้อมูลใน QR ไม่ได้');
+    document.getElementById('reset-btn').style.display='block';
   }
 }
 
 function normalizeData(data){
-  if(data.e){
-    return { ngod:data.g||'', sender:data.s||'', receiver:data.r||'',
-             date:data.dt||'', pg:data.p||1, entries:data.e||[] };
-  }
+  if(data.e) return {ngod:data.g||'',sender:data.s||'',receiver:data.r||'',date:data.dt||'',pg:data.p||1,entries:data.e||[]};
   return data;
 }
 
@@ -164,19 +252,24 @@ function setStatus(type, msg){
   el.style.display = 'block';
 }
 
+function resetResult(){
+  _qrUrl = null;
+  document.getElementById('status').style.display='none';
+  document.getElementById('result-box').style.display='none';
+  document.getElementById('go-btn').style.display='none';
+  document.getElementById('reset-btn').style.display='none';
+}
+
 document.getElementById('go-btn').addEventListener('click', function(){
   if(_qrUrl) window.location.href = _qrUrl;
 });
 
 document.getElementById('reset-btn').addEventListener('click', function(){
-  _qrUrl = null;
-  document.getElementById('preview-wrap').style.display = 'none';
-  document.getElementById('status').style.display = 'none';
-  document.getElementById('result-box').style.display = 'none';
-  document.getElementById('go-btn').style.display = 'none';
-  document.getElementById('reset-btn').style.display = 'none';
-  document.getElementById('preview-img').src = '';
-  document.getElementById('file-inp').value = '';
+  resetResult();
+  document.getElementById('preview-wrap').style.display='none';
+  document.getElementById('preview-img').src='';
+  document.getElementById('file-inp').value='';
+  if(_curMode==='cam') startCamera();
 });
 </script>
 </body>

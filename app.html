@@ -195,7 +195,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .slip-ft .fv{color:#000;font-size:22px;font-weight:900;}
 .slip-legend{font-size:11px;color:#888;padding:3px 8px;text-align:right;background:#fff;border-top:1px solid #eee;}
 .slip-qr-wrap{display:flex;justify-content:flex-end;align-items:center;padding:4px 10px 2px;background:#fff;}
-.slip-qr-wrap canvas,.slip-qr-wrap img{width:80px!important;height:80px!important;}
+.slip-qr-wrap canvas,.slip-qr-wrap img{width:150px!important;height:150px!important;}
 .slip-page-sum .slip-hd{padding:8px 12px 6px;}
 .slip-page-sum .slip-hd-row1 h2{font-size:17px;}
 .slip-page-sum .slip-hd-row2 span{font-size:12px;}
@@ -1999,7 +1999,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       return;
     }
     try{
-      new QRCode(el,{text:url,width:120,height:120,correctLevel:QRCode.CorrectLevel.L});
+      new QRCode(el,{text:url,width:150,height:150,correctLevel:QRCode.CorrectLevel.L});
     }catch(e){
       el.innerHTML='<div style="font-size:10px;color:#aaa;text-align:right;">QR error</div>';
     }
