@@ -1967,23 +1967,23 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   // ─── BUILD SLIPS ───
   function encodePageData(pEntries, inf, pgNum){
-    // compact entries - เก็บเฉพาะ field ที่ไม่เป็น 0
+    // เก็บแค่เลขและราคา — ข้อมูลน้อยที่สุดเพื่อให้ QR โปร่ง
     var compEntries=pEntries.map(function(e){
       var o={l:e.lek};
       if(e.bon)o.b=e.bon;
       if(e.tod)o.t=e.tod;
       if(e.lang)o.la=e.lang;
       if(e.na)o.n=e.na;
-      // kd compact
+      // kd - ปักหลัก (ราคาพิเศษรายตัว)
       var kd={};
       ['bon','lang','na'].forEach(function(k){
-        if(e.kd&&e.kd[k]&&e.kd[k].length){kd[k]=e.kd[k].map(function(x){return {l:x.lek,p:x.price};});}
+        if(e.kd&&e.kd[k]&&e.kd[k].length){kd[k]=e.kd[k].map(function(x){return [x.lek,x.price];});}
       });
       if(Object.keys(kd).length)o.k=kd;
       return o;
     });
-    // ตัด receiver, date ออก desktop มีอยู่แล้ว
-    var data={g:inf.ngod,s:inf.sender||'',p:pgNum,e:compEntries};
+    // ไม่เก็บ ngod/sender/receiver/date — desktop ใส่เองตอน import
+    var data={p:pgNum,e:compEntries};
     var json=JSON.stringify(data);
     var b64=btoa(unescape(encodeURIComponent(json)));
     return 'https://tiger999.online/desktop.html?import='+b64;

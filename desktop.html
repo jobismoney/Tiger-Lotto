@@ -778,8 +778,7 @@ var settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 // INIT
 // ================================================================
 function normalizeQRData(data){
-  // รองรับทั้ง format เก่า (ngod,sender,entries) และใหม่ (g,s,e compact)
-  if(data.e){ // format ใหม่
+  if(data.e){
     return {
       ngod: data.g||'',
       sender: data.s||'',
@@ -788,18 +787,18 @@ function normalizeQRData(data){
       pg: data.p||1,
       entries: (data.e||[]).map(function(e){
         return {
-          lek: e.l, d: e.d||String(e.l).length,
+          lek: e.l, d: String(e.l).length,
           bon: e.b||null, tod: e.t||null, lang: e.la||null, na: e.n||null,
           kd: e.k ? {
-            bon: (e.k.bon||[]).map(function(x){return {lek:x.l,price:x.p};}),
-            lang: (e.k.lang||[]).map(function(x){return {lek:x.l,price:x.p};}),
-            na: (e.k.na||[]).map(function(x){return {lek:x.l,price:x.p};})
+            bon: (e.k.bon||[]).map(function(x){return {lek:x[0],price:x[1]};}),
+            lang: (e.k.lang||[]).map(function(x){return {lek:x[0],price:x[1]};}),
+            na: (e.k.na||[]).map(function(x){return {lek:x[0],price:x[1]};})
           } : {}
         };
       })
     };
   }
-  return data; // format เก่า
+  return data;
 }
 function makeQRFingerprint(data){
   var leks = (data.entries||[]).map(function(e){ return e.lek; }).join(',');
@@ -830,27 +829,25 @@ function handleImportParam(){
     var prev = log.find(function(x){ return x.fp === fp; });
 
     if(prev){
-      // เคยสแกนแล้ว — แจ้งเตือน พร้อมถามว่าจะรับซ้ำไหม
       var prevTime = prev.time ? new Date(prev.time).toLocaleString('th-TH') : '—';
       showConfirm(
         '⚠️ <b>สแกนซ้ำ!</b><br>'
         +'รับข้อมูลนี้ไปแล้วเมื่อ<br><b>'+prevTime+'</b><br><br>'
-        +'ผู้ส่ง: <b>'+(data.sender||'?')+'</b> งวด <b>'+(data.ngod||'?')+'</b> แผ่น <b>'+data.pg+'</b><br><br>'
+        +'แผ่น <b>'+data.pg+'</b> · <b>'+data.entries.length+' รายการ</b><br><br>'
         +'ต้องการรับซ้ำอีกครั้งไหมครับ?',
         function(){ doImport(data, fp, log); },
-        true // danger style
+        true
       );
     } else {
-      // ยังไม่เคยสแกน — import ปกติ
-      var custOpts = '';
+      var custOpts = '<option value="">— เลือกลูกค้า —</option>';
       customers.forEach(function(cu){
-        custOpts += '<option value="'+cu.id+'"'+(cu.name===data.sender?' selected':'')+'>'+cu.name+'</option>';
+        custOpts += '<option value="'+cu.id+'">'+cu.name+'</option>';
       });
-      custOpts += '<option value="__new__">+ สร้างใหม่ "'+(data.sender||'ไม่ระบุ')+'"</option>';
+      custOpts += '<option value="__new__">+ ลูกค้าใหม่</option>';
 
-      var msg = 'รับข้อมูลจาก <b>'+(data.sender||'?')+'</b> งวด <b>'+(data.ngod||'?')+'</b><br>'
-        +'แผ่น <b>'+data.pg+'</b> · <b>'+data.entries.length+' รายการ</b><br><br>'
-        +'<select id="imp-cust-sel" style="width:100%;margin-top:6px;padding:8px;border-radius:8px;border:1px solid #444;background:#1e2235;color:#f0f2ff;font-size:14px;">'+custOpts+'</select>';
+      var msg = '📋 รับโพย <b>'+data.entries.length+' รายการ</b> · แผ่น <b>'+data.pg+'</b><br><br>'
+        +'<select id="imp-cust-sel" style="width:100%;margin-top:4px;padding:8px;border-radius:8px;border:1px solid #444;background:#1e2235;color:#f0f2ff;font-size:14px;" onchange="(function(s){var ni=document.getElementById('imp-new-name');if(ni)ni.style.display=s.value==='__new__'?'block':'none';})(this)">'+custOpts+'</select>'
+        +'<input id="imp-new-name" type="text" placeholder="ชื่อลูกค้าใหม่" style="display:none;width:100%;margin-top:8px;padding:8px;border-radius:8px;border:1px solid #444;background:#1e2235;color:#f0f2ff;font-size:14px;font-family:Sarabun,sans-serif;">';
 
       showConfirm(msg, function(){ doImport(data, fp, log); });
     }
@@ -863,16 +860,25 @@ function doImport(data, fp, log){
   var sel = document.getElementById('imp-cust-sel');
   var cid = sel ? sel.value : null;
 
+  // ถ้าเลือกลูกค้าใหม่ → ดึงชื่อจาก input
+  if(cid === '__new__'){
+    var ni = document.getElementById('imp-new-name');
+    var newName = ni ? ni.value.trim() : '';
+    if(!newName){ toast('กรุณาใส่ชื่อลูกค้าครับ'); return; }
+    cid = 'c'+Date.now();
+    customers.push({id:cid, name:newName});
+    custEntries[cid] = []; custEid[cid] = 0; custSets[cid] = [];
+  }
+
   // ถ้าไม่มี sel (กรณีสแกนซ้ำ) ให้หาลูกค้าจากชื่อ sender
   if(!cid){
     var match = customers.find(function(cu){ return cu.name === data.sender; });
-    cid = match ? match.id : '__new__';
+    cid = match ? match.id : null;
   }
 
-  if(cid === '__new__'){
-    cid = 'c'+Date.now();
-    customers.push({id:cid, name:data.sender||'ไม่ระบุ'});
-    custEntries[cid] = []; custEid[cid] = 0; custSets[cid] = [];
+  // ถ้ายังไม่มี cid เลย → สร้างใหม่
+  if(!cid || cid === ''){
+    toast('กรุณาเลือกลูกค้าครับ'); return;
   }
   if(!custEntries[cid]) custEntries[cid] = [];
   if(!custEid[cid]) custEid[cid] = 0;
