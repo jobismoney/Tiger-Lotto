@@ -234,6 +234,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .hist-set-count{font-size:11px;color:var(--lg);}
 .hist-set-btns{display:flex;gap:6px;}
 .hist-set-btn{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:12px;font-weight:700;padding:5px 10px;cursor:pointer;}
+.sent-btn{background:rgba(39,174,96,.15);border:1px solid #27ae60;color:#6ee7b7;}
+.sent-btn.on{background:#27ae60;color:#fff;border-color:#27ae60;}
 .hist-folder-actions{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;}
 .hist-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;}
 .hist-card-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
@@ -1617,6 +1619,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       showConfirm('<div style="text-align:left;"><div style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:12px;">💰 ยอดเก็บเงิน · งวด '+ngod+'</div>'+rows+'</div>',
         function(){},false,null,null,'ปิด',null,true);
     },
+    toggleSent:function(idx,btn){
+      var hist=getHistory();
+      if(!hist[idx])return;
+      hist[idx].sentLine=!hist[idx].sentLine;
+      saveHistory(hist);
+      var on=hist[idx].sentLine;
+      btn.textContent=on?'✅ ส่งแล้ว':'☐ ส่งแล้ว';
+      btn.className='hist-set-btn sent-btn'+(on?' on':'');
+    },
     toggleCustGroup:function(el){
       // el = outer div (border-bottom wrapper)
       // ลูกคนสุดท้ายคือ div innerRows
@@ -2389,7 +2400,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             +'<div class="hist-set-time">⏰ '+(h.savedAt||'')+'</div></div>'
             +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
             +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
-            +'<div class="hist-set-btns"><button class="hist-set-btn" onclick="APP.viewHist('+realIdx+')">📋 ดู</button></div>'
+            +'<div class="hist-set-btns">'
+            +'<button class="hist-set-btn sent-btn'+(h.sentLine?' on':'')+'" onclick="APP.toggleSent('+realIdx+',this)">'+(h.sentLine?'✅ ส่งแล้ว':'☐ ส่งแล้ว')+'</button>'
+            +'<button class="hist-set-btn" onclick="APP.viewHist('+realIdx+')">📋 ดู</button></div>'
             +'</div>';
         });
         var nameEsc=name.replace(/'/g,"\'");
@@ -2568,6 +2581,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
       +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
       +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmt(pt)+'</span></div>'
+      +'<div class="slip-qr-wrap" id="slip-qr-pg-'+pgNum+'"></div>'
       +LEGEND;
   }
 
@@ -2644,7 +2658,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     allHTML+='<div class="slip-page-sum"><div class="slip-page">'+sumHTML+'</div></div>';
 
     document.getElementById('slip-pages').innerHTML=allHTML;
-    // ซ่อน basket แสดงปุ่มพิมพ์ และเปลี่ยน back → กลับ
     document.getElementById('ov-basket').style.display='none';
     document.getElementById('ov-print-merged').style.display='';
     var ob=document.getElementById('ov-back');
@@ -2653,6 +2666,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById('slip-ov').classList.add('show');
     document.getElementById('hist-ov').classList.remove('show');
     document.getElementById('ov-share-line').style.display='';
+    // render QR แต่ละหน้า (ใช้ entries จริงในหน้านั้น)
+    setTimeout(function(){
+      pages.forEach(function(pg,pi){
+        var pgEntries=pg.filter(function(x){return x.type==='entry';}).map(function(x){return x.e;});
+        renderPageQR(pgEntries,inf,pi+1);
+      });
+    },100);
   }
 
   // ─── CHECK RESULT ───
