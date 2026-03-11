@@ -92,7 +92,7 @@ function handleFile(file){
     document.getElementById('go-btn').style.display = 'none';
     document.getElementById('reset-btn').style.display = 'none';
     setStatus('scanning', '🔍 กำลัง scan QR code...');
-    img.onload = function(){ scanQR(img); };
+    img.onload = function(){ setTimeout(function(){ scanQR(img); }, 50); };
   };
   reader.readAsDataURL(file);
 }
@@ -101,7 +101,7 @@ function scanQR(img){
   var canvas = document.getElementById('qr-canvas');
   var ctx = canvas.getContext('2d');
   // resize ให้ไม่เกิน 1200px เพื่อความเร็ว
-  var MAX = 1200;
+  var MAX = 800;
   var w = img.naturalWidth, h = img.naturalHeight;
   if(w > MAX || h > MAX){
     var ratio = Math.min(MAX/w, MAX/h);
