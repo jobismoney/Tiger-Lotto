@@ -1821,6 +1821,20 @@ function slipFmt(n){ return parseInt(n||0).toLocaleString(); }
 
 
 
+function permCount(lek){
+  var d=lek.length;
+  if(d===2){ var a=lek[0],b=lek[1]; return a===b?1:2; }
+  if(d===3){
+    var s=new Set();
+    var dd=lek.split('');
+    [0,1,2].forEach(function(a){[0,1,2].forEach(function(b){[0,1,2].forEach(function(cc){
+      if(a!==b&&b!==cc&&a!==cc) s.add(dd[a]+dd[b]+dd[cc]);
+    });});});
+    return s.size;
+  }
+  return 1;
+}
+
 function toLines(e){
   var d=e.d, b=e.bon||0, t=e.tod||0, l=e.lang||0, n=e.na||0;
   var lek=e.lek;
