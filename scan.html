@@ -120,7 +120,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:#f0f2ff;min-hei
 <!-- LOADING -->
 <div class="loading" id="loading">
   <div class="spin"></div>
-  <div class="load-txt">AI กำลังอ่านโพย...</div>
+  <div class="load-txt" id="load-txt">กำลังเริ่มต้น...</div>
 </div>
 
 <!-- ERROR -->
@@ -239,64 +239,112 @@ async function doScan(){
   var btn = document.getElementById('scan-btn');
   btn.disabled = true;
   document.getElementById('loading').classList.add('show');
+  document.getElementById('load-txt').textContent = 'กำลังโหลด OCR engine...';
   document.getElementById('err-box').classList.remove('show');
   document.getElementById('result-card').classList.remove('show');
 
-  var prompt = `คุณกำลังอ่านโพยหวยจากแอป Tiger999
-โปรดอ่านรายการทั้งหมดในภาพแล้วตอบเป็น JSON เท่านั้น ห้ามมี text อื่น ห้ามมี markdown backtick
-
-JSON format:
-{
-  "customerName": "ชื่อลูกค้าหรือผู้ส่ง (ถ้าไม่มีให้ใส่ null)",
-  "ngod": "งวดที่เช่น 16/03/68 (ถ้าไม่มีให้ใส่ null)",
-  "entries": [
-    {
-      "lek": "ตัวเลข เช่น 365",
-      "bon": 100,
-      "tod": null,
-      "lang": null,
-      "na": null
-    }
-  ],
-  "total": 100
-}
-
-หมายเหตุ:
-- บ หรือ บน = bon
-- ต หรือ โต๊ด = tod  
-- ล หรือ ล่าง = lang
-- หน้า หรือ น = na
-- ถ้าไม่มีราคาให้ใส่ null
-- total คือยอดรวมทั้งหมด`;
-
   try{
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{
-          role:'user',
-          content:[
-            {type:'image', source:{type:'base64', media_type:'image/jpeg', data:imageBase64}},
-            {type:'text', text:prompt}
-          ]
-        }]
-      })
-    });
+    // โหลด Tesseract
+    if(typeof Tesseract === 'undefined'){
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js');
+    }
+    document.getElementById('load-txt').textContent = 'กำลังอ่านตัวเลข...';
 
-    var data = await res.json();
-    var text = (data.content||[]).map(function(c){return c.text||'';}).join('');
-    text = text.replace(/```json|```/g,'').trim();
-    scannedData = JSON.parse(text);
-    renderResult(scannedData);
+    // OCR — ใช้ภาษา eng เพราะโพยเป็นตัวเลขและ abbrev ภาษาอังกฤษ
+    var result = await Tesseract.recognize(
+      'data:image/jpeg;base64,' + imageBase64,
+      'tha+eng',
+      { logger: function(m){ if(m.status==='recognizing text') document.getElementById('load-txt').textContent = 'อ่านโพย '+Math.round((m.progress||0)*100)+'%...' } }
+    );
+
+    var rawText = result.data.text;
+    parseSlipText(rawText);
+
   } catch(e){
-    showErr('อ่านโพยไม่สำเร็จครับ ลองใหม่อีกครั้ง\n'+e.message);
+    showErr('อ่านโพยไม่สำเร็จครับ ลองใหม่\n'+e.message);
   }
 
   btn.disabled = false;
   document.getElementById('loading').classList.remove('show');
+}
+
+function loadScript(src){
+  return new Promise(function(resolve,reject){
+    var s=document.createElement('script');
+    s.src=src; s.onload=resolve; s.onerror=reject;
+    document.head.appendChild(s);
+  });
+}
+
+function parseSlipText(text){
+  // แยก lines ทำความสะอาด
+  var lines = text.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length>0;});
+
+  var entries = [];
+  var customerName = null;
+  var ngod = null;
+  var total = 0;
+
+  // regex สำหรับแต่ละ pattern
+  // เลข 1-5 หลัก ตามด้วย บ/ต/ล/หน้า และตัวเลขราคา
+  var rLek = /^(\d{1,5})/;
+  // หา งวด pattern เช่น 16/03/68 หรือ 16/3/2568
+  var rNgod = /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/;
+  // หา ผู้ส่ง
+  var rSender = /ผู้ส่ง[:\s]+([^\s]+)/;
+
+  lines.forEach(function(line){
+    // งวด
+    var mn = line.match(rNgod);
+    if(mn && !ngod) ngod = mn[1];
+
+    // ผู้ส่ง
+    var ms = line.match(rSender);
+    if(ms && !customerName) customerName = ms[1];
+
+    // entry — เลข + ราคา
+    var ml = line.match(rLek);
+    if(!ml) return;
+    var lek = ml[1];
+    if(lek.length < 1 || lek.length > 5) return;
+
+    // หาราคาในบรรทัดเดียวกัน
+    var rest = line.slice(lek.length).trim();
+
+    // pattern: บ100 ล50 ต200 หน้า30
+    var bon=null,tod=null,lang=null,na=null;
+
+    // บน / บ
+    var rb = rest.match(/บ[นon]?\s*(\d+)/i) || rest.match(/u\s*(\d+)/i);
+    if(rb) bon = parseInt(rb[1]);
+
+    // โต๊ด / ต
+    var rt = rest.match(/[ตt][โo]?[้]?[๊]?[ดd]?\s*(\d+)/i);
+    if(rt) tod = parseInt(rt[1]);
+
+    // ล่าง / ล
+    var rl = rest.match(/ล[่า]?\s*(\d+)/i);
+    if(rl) lang = parseInt(rl[1]);
+
+    // หน้า
+    var rn = rest.match(/หน[้า]+\s*(\d+)/i);
+    if(rn) na = parseInt(rn[1]);
+
+    // ถ้ามีตัวเลขอย่างน้อย 1 ราคา → เพิ่ม entry
+    if(bon||tod||lang||na){
+      entries.push({lek:lek, bon:bon, tod:tod, lang:lang, na:na});
+      total += (bon||0)+(tod||0)+(lang||0)+(na||0);
+    }
+  });
+
+  if(!entries.length){
+    // fallback — แสดง raw text ให้ user ดู
+    showErr('อ่านโพยอัตโนมัติไม่ได้ครับ ข้อความที่อ่านได้:\n\n'+text.slice(0,300));
+    return;
+  }
+
+  scannedData = {customerName:customerName, ngod:ngod, entries:entries, total:total};
+  renderResult(scannedData);
 }
 
 function renderResult(d){
