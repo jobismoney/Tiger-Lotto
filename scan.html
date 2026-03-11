@@ -100,10 +100,16 @@ function handleFile(file){
 function scanQR(img){
   var canvas = document.getElementById('qr-canvas');
   var ctx = canvas.getContext('2d');
-  canvas.width = img.naturalWidth;
-  canvas.height = img.naturalHeight;
-  ctx.drawImage(img, 0, 0);
-  var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  // resize ให้ไม่เกิน 1200px เพื่อความเร็ว
+  var MAX = 1200;
+  var w = img.naturalWidth, h = img.naturalHeight;
+  if(w > MAX || h > MAX){
+    var ratio = Math.min(MAX/w, MAX/h);
+    w = Math.round(w*ratio); h = Math.round(h*ratio);
+  }
+  canvas.width = w; canvas.height = h;
+  ctx.drawImage(img, 0, 0, w, h);
+  var imageData = ctx.getImageData(0, 0, w, h);
   var code = jsQR(imageData.data, imageData.width, imageData.height, {inversionAttempts:'dontInvert'});
   if(!code) code = jsQR(imageData.data, imageData.width, imageData.height, {inversionAttempts:'onlyInvert'});
 
