@@ -95,6 +95,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .cdot.on{background:var(--gold);}
 .ctotal{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);margin-top:2px;}
 .ccount{font-size:12px;color:#7a8aaa;margin-top:1px;}
+.cslip-btn{margin-left:auto;background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.25);border-radius:6px;color:var(--gold);font-size:13px;cursor:pointer;padding:2px 8px;flex-shrink:0;align-self:center;}
+.cslip-btn:hover{background:rgba(245,197,24,.3);}
 .cadd{margin:6px 6px 4px;background:rgba(245,197,24,.07);border:1.5px solid rgba(245,197,24,.25);border-radius:8px;padding:10px;text-align:center;font-size:14px;font-weight:900;color:var(--gold);cursor:pointer;transition:all .15s;flex-shrink:0;}
 .cadd:hover{background:rgba(245,197,24,.15);border-color:rgba(245,197,24,.5);}
 
@@ -456,7 +458,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <!-- ZONE 3: คีย์เลข (ย้ายมาอยู่ที่ 3) -->
   <div class="zone z2" id="zone2">
     <div class="zhdr">
-      <span class="ztitle">⌨️ คีย์เลข</span>
+      <span class="ztitle">⌨️ คีย์เลข — <span id="kp-cust-name" style="color:var(--gold);">—</span></span>
       <button class="float-toggle" onclick="toggleFloat()" title="ลอย/ฝัง">⤢</button>
     </div>
     <div class="zbody" id="kp-zone-body">
@@ -540,7 +542,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         <div class="sum-row"><span class="sum-row-lbl">3 ล่าง</span><span class="sum-row-val zero" id="sg-3l">฿0</span></div>
         <div class="sum-btns">
           <button class="sbtn basket" onclick="lockSet()">📂 ล็อคชุด / เก็บแฟ้ม</button>
-          <button class="sbtn print" onclick="showSlip()">📋 ดูโพย / พิมพ์</button>
+          <button class="sbtn print" onclick="showSlip()">📋 โพยลูกค้านี้</button>
+          <button class="sbtn print" style="background:linear-gradient(135deg,#1d4ed8,#1e40af)" onclick="showSlipAll()">📋 โพยรวมทุกคน</button>
           <button class="sbtn newngod" onclick="openNgodModal()">+ งวดใหม่</button>
         </div>
       </div>
@@ -639,7 +642,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 <!-- SLIP OVERLAY -->
 <div class="slip-ov" id="slip-ov">
   <div class="slip-ov-bar">
-    <span class="slip-ov-title">📋 ดูรายการ / พิมพ์โพย</span>
+    <span class="slip-ov-title" id="slip-ov-title">📋 ดูรายการ / พิมพ์โพย</span>
     <div class="slip-ov-btns">
       <button class="slip-ov-btn" onclick="window.print()">🖨️ พิมพ์ / Save รูป</button>
       <button class="slip-ov-btn gold" onclick="closeSlip()">✕ ปิด</button>
@@ -863,6 +866,7 @@ function renderCustList(){
       +'<div class="cname"><div class="cdot'+(active?' on':'')+'"></div>'+c.name+'</div>'
       +'<div class="ctotal">฿'+tot.toLocaleString()+'</div>'
       +'<div class="ccount">'+cnt+' รายการ</div>'
+      +'<button class="cslip-btn" onclick="event.stopPropagation();showSlipCust(\''+c.id+'\')" title="ดูโพย">📋</button>'
       +'</div>';
   });
   document.getElementById('clist').innerHTML=h;
@@ -1523,6 +1527,8 @@ function renderHist(){
   var cust=customers.find(function(c){return c.id===curCustId;});
   var name=cust?cust.name:'—';
   document.getElementById('mid-cust-name').textContent=name;
+  var kpName=document.getElementById('kp-cust-name');
+  if(kpName) kpName.textContent=name;
   document.getElementById('tot-lbl').textContent='รวม'+name;
 
   var sets=custSets[curCustId]||[];
@@ -2033,17 +2039,53 @@ function toast(msg){
   setTimeout(function(){el.classList.remove('show');},2200);
 }
 
-// showSlip = alias ของ doPrint (เรียกจากปุ่มหลายจุด)
 function showSlip(){
-  // เปิด overlay ก่อน แล้วค่อยโหลด content ของลูกค้าที่เลือกอยู่
-  var cid = curCustId;
-  // ถ้ายังไม่ได้เลือก — แสดงทุกลูกค้า หรือ toast
-  if(!cid){ toast('เลือกลูกค้าก่อนครับ'); return; }
-  var html = buildSlipHTML(cid);
-  if(!html){ toast('ยังไม่มีรายการ'); return; }
-  document.getElementById('slip-pages').innerHTML = html;
+  var cid=curCustId;
+  if(!cid){toast('เลือกลูกค้าก่อนครับ');return;}
+  showSlipCust(cid);
+}
+
+function showSlipCust(cid){
+  var html=buildSlipHTML(cid);
+  if(!html){toast('ยังไม่มีรายการ');return;}
+  var cust=customers.find(function(c){return c.id===cid;})||{name:'?'};
+  var t=document.getElementById('slip-ov-title');
+  if(t) t.textContent='📋 โพย — '+cust.name;
+  document.getElementById('slip-pages').innerHTML=html;
   document.getElementById('slip-ov').classList.add('show');
-  document.getElementById('slip-ov').scrollTop = 0;
+  document.getElementById('slip-ov').scrollTop=0;
+}
+
+function showSlipAll(){
+  if(!customers.length){toast('ยังไม่มีลูกค้า');return;}
+  var html=buildAllCustSlip();
+  if(!html){toast('ยังไม่มีรายการ');return;}
+  var t=document.getElementById('slip-ov-title');
+  if(t) t.textContent='📋 โพยรวมทุกลูกค้า';
+  document.getElementById('slip-pages').innerHTML=html;
+  document.getElementById('slip-ov').classList.add('show');
+  document.getElementById('slip-ov').scrollTop=0;
+}
+
+function buildAllCustSlip(){
+  var hasAny=customers.some(function(c){return getAllEntries(c.id).length>0;});
+  if(!hasAny) return null;
+  var inf=ngodInfo||{ngod:'—'};
+  var html='';
+  var grandTotal=0;
+  customers.forEach(function(c){
+    var entries=getAllEntries(c.id);
+    if(!entries.length) return;
+    var tot=calcCustTotal(c.id);
+    grandTotal+=tot;
+    // header ชื่อลูกค้า
+    html+='<div style="background:var(--card2);border:1px solid var(--gold);border-radius:10px;padding:8px 14px;margin-bottom:6px;color:var(--gold);font-weight:900;font-size:15px;">👤 '+c.name+' — ฿'+fmtN(tot)+'</div>';
+    html+=buildSlipHTML(c.id)||'';
+    html+='<div style="height:18px;"></div>';
+  });
+  // grand total footer
+  html+='<div style="background:linear-gradient(135deg,#1a2040,#0d0f18);border:2px solid var(--gold);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;"><span style="color:#aab;font-size:14px;font-weight:700;">ยอดรวมทุกลูกค้า</span><span style="color:var(--gold);font-size:22px;font-weight:900;">฿'+fmtN(grandTotal)+'</span></div>';
+  return html;
 }
 
 // ================================================================
