@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>T999 — Scan โพย</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{--gold:#f5c518;--gold2:#c9a010;--bg:#0a0c14;--card:#141720;--card2:#1e2235;--border:#2e3248;--lg:#9ca3af;--green:#22c55e;--red:#e74c3c;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:#f0f2ff;min-height:100vh;max-width:520px;margin:0 auto;padding:16px 16px 80px;}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:3px;}
+.back-btn{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--lg);cursor:pointer;text-decoration:none;font-family:'Sarabun',sans-serif;}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--border);border-radius:16px;padding:32px 16px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:var(--card);margin-bottom:16px;}
+.upload-zone.drag{border-color:var(--gold);background:rgba(245,197,24,.05);}
+.upload-zone.has-img{border-color:rgba(245,197,24,.3);border-style:solid;padding:0;overflow:hidden;}
+.upload-icon{font-size:40px;margin-bottom:10px;}
+.upload-title{font-size:16px;font-weight:800;color:#f0f2ff;margin-bottom:6px;}
+.upload-sub{font-size:12px;color:#445;line-height:1.7;}
+.upload-inp{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.preview-img{width:100%;display:block;border-radius:14px;}
+.change-btn{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.7);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:#f0f2ff;cursor:pointer;}
+
+/* SCAN BTN */
+.scan-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;padding:14px;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:900;color:#111;cursor:pointer;transition:all .2s;margin-bottom:16px;display:none;}
+.scan-btn.show{display:block;}
+.scan-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* LOADING */
+.loading{text-align:center;padding:24px;display:none;}
+.loading.show{display:block;}
+.spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.load-txt{font-size:13px;color:#556;font-weight:700;}
+
+/* RESULT CARD */
+.result-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;display:none;}
+.result-card.show{display:block;}
+.rc-hdr{background:#0d0f18;padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.rc-title{font-size:13px;font-weight:800;color:var(--gold);}
+.rc-cust{font-size:14px;font-weight:900;color:#f0f2ff;}
+
+/* ENTRIES TABLE */
+.entries-tbl{width:100%;}
+.etbl-hdr{display:grid;grid-template-columns:44px 1fr 1fr 1fr 1fr;background:#0d0f18;border-bottom:1px solid var(--border);}
+.eth{padding:6px 4px;text-align:center;font-size:9px;font-weight:800;color:#445;border-right:1px solid var(--border);}
+.eth:first-child{text-align:left;padding-left:10px;}
+.eth:last-child{border-right:none;}
+.erow{display:grid;grid-template-columns:44px 1fr 1fr 1fr 1fr;border-bottom:1px solid #141720;transition:background .1s;}
+.erow:hover{background:rgba(255,255,255,.02);}
+.ed{padding:7px 4px;text-align:center;font-size:11px;font-weight:700;color:#888;border-right:1px solid #141720;display:flex;align-items:center;justify-content:center;}
+.ed:first-child{justify-content:flex-start;padding-left:10px;}
+.ed:last-child{border-right:none;}
+.ed.lek{font-family:'Bebas Neue',sans-serif;font-size:17px;color:#c8cadf;letter-spacing:1px;}
+.ed.val{color:#f0f2ff;}
+.ed.e{color:#252840;font-size:9px;}
+
+/* TOTAL ROW */
+.total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(245,197,24,.05);border-top:1px solid rgba(245,197,24,.1);}
+.total-lbl{font-size:12px;color:#556;}
+.total-val{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);}
+
+/* CUST SELECT */
+.cust-section{padding:12px 16px;border-top:1px solid var(--border);}
+.cust-lbl{font-size:11px;font-weight:800;color:#445;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.cust-row{display:flex;gap:8px;align-items:center;}
+.cust-sel{flex:1;background:#0d0f18;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;color:#f0f2ff;outline:none;}
+.cust-sel:focus{border-color:rgba(245,197,24,.4);}
+.new-cust-btn{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.2);border-radius:8px;padding:8px 12px;font-size:12px;font-weight:800;color:var(--gold);cursor:pointer;white-space:nowrap;font-family:'Sarabun',sans-serif;}
+
+/* CONFIRM BTN */
+.confirm-btn{width:calc(100% - 32px);margin:12px 16px;background:linear-gradient(135deg,var(--green),#16a34a);border:none;border-radius:10px;padding:13px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;color:#fff;cursor:pointer;transition:all .2s;}
+.confirm-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(34,197,94,.3);}
+
+/* ERROR */
+.err-box{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.2);border-radius:10px;padding:14px;margin-bottom:14px;font-size:13px;color:#f87171;display:none;}
+.err-box.show{display:block;}
+
+/* SUCCESS */
+.success-box{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:20px;text-align:center;margin-bottom:16px;display:none;}
+.success-box.show{display:block;}
+.success-icon{font-size:36px;margin-bottom:8px;}
+.success-title{font-size:16px;font-weight:900;color:var(--green);margin-bottom:4px;}
+.success-sub{font-size:12px;color:#556;}
+.goto-desktop{display:inline-block;margin-top:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:8px;padding:10px 20px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;color:#111;cursor:pointer;text-decoration:none;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;color:#f0f2ff;z-index:9999;transition:transform .3s ease;max-width:300px;text-align:center;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo">🐯 T999 Scan</div>
+  <a class="back-btn" href="desktop.html">← Desktop</a>
+</div>
+
+<!-- UPLOAD ZONE -->
+<div class="upload-zone" id="upload-zone">
+  <input class="upload-inp" type="file" accept="image/*" id="file-inp" onchange="onFileSelect(event)">
+  <div class="upload-icon">📷</div>
+  <div class="upload-title">อัพรูปโพย</div>
+  <div class="upload-sub">
+    📱 มือถือ — ถ่ายรูปหรือเลือกจากคลัง<br>
+    💻 คอม — คลิกเลือกไฟล์ หรือ Drag & Drop<br>
+    📋 Ctrl+V — Paste รูปจาก Clipboard
+  </div>
+</div>
+
+<!-- SCAN BTN -->
+<button class="scan-btn" id="scan-btn" onclick="doScan()">🔍 อ่านโพย</button>
+
+<!-- LOADING -->
+<div class="loading" id="loading">
+  <div class="spin"></div>
+  <div class="load-txt">AI กำลังอ่านโพย...</div>
+</div>
+
+<!-- ERROR -->
+<div class="err-box" id="err-box"></div>
+
+<!-- RESULT -->
+<div class="result-card" id="result-card">
+  <div class="rc-hdr">
+    <span class="rc-title">📋 รายการที่อ่านได้</span>
+    <span class="rc-cust" id="rc-cust-name">—</span>
+  </div>
+
+  <div class="entries-tbl">
+    <div class="etbl-hdr">
+      <div class="eth">เลข</div>
+      <div class="eth">บน</div>
+      <div class="eth">โต๊ด</div>
+      <div class="eth">ล่าง</div>
+      <div class="eth">หน้า</div>
+    </div>
+    <div id="result-rows"></div>
+  </div>
+
+  <div class="total-row">
+    <span class="total-lbl">รวมทั้งหมด</span>
+    <span class="total-val" id="result-total">฿0</span>
+  </div>
+
+  <!-- เลือกลูกค้า -->
+  <div class="cust-section">
+    <div class="cust-lbl">บันทึกเข้าลูกค้า</div>
+    <div class="cust-row">
+      <select class="cust-sel" id="cust-sel"></select>
+      <button class="new-cust-btn" onclick="addNewCust()">+ ใหม่</button>
+    </div>
+  </div>
+
+  <button class="confirm-btn" onclick="confirmImport()">✓ Confirm เข้า Desktop</button>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-box" id="success-box">
+  <div class="success-icon">✅</div>
+  <div class="success-title">บันทึกเรียบร้อยแล้ว!</div>
+  <div class="success-sub" id="success-sub">เพิ่มรายการเข้าแล้ว</div>
+  <a class="goto-desktop" href="desktop.html">ไป Desktop →</a>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+var STORE_KEY = 't999_desktop_v1';
+var imageBase64 = null;
+var scannedData = null;
+
+// ── DRAG & DROP ──
+var zone = document.getElementById('upload-zone');
+zone.addEventListener('dragover', function(e){e.preventDefault();zone.classList.add('drag');});
+zone.addEventListener('dragleave', function(){zone.classList.remove('drag');});
+zone.addEventListener('drop', function(e){
+  e.preventDefault();zone.classList.remove('drag');
+  var file = e.dataTransfer.files[0];
+  if(file && file.type.startsWith('image/')) loadFile(file);
+});
+
+// ── PASTE ──
+document.addEventListener('paste', function(e){
+  var items = e.clipboardData.items;
+  for(var i=0;i<items.length;i++){
+    if(items[i].type.startsWith('image/')){
+      loadFile(items[i].getAsFile());
+      break;
+    }
+  }
+});
+
+function onFileSelect(e){
+  var file = e.target.files[0];
+  if(file) loadFile(file);
+}
+
+function loadFile(file){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    imageBase64 = e.target.result.split(',')[1];
+    // แสดง preview
+    zone.classList.add('has-img');
+    zone.innerHTML = '<img class="preview-img" src="'+e.target.result+'">'
+      +'<div class="change-btn" onclick="resetUpload()">เปลี่ยนรูป</div>';
+    document.getElementById('scan-btn').classList.add('show');
+    // ซ่อน result เก่า
+    document.getElementById('result-card').classList.remove('show');
+    document.getElementById('success-box').classList.remove('show');
+    document.getElementById('err-box').classList.remove('show');
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetUpload(){
+  imageBase64 = null;
+  scannedData = null;
+  zone.classList.remove('has-img');
+  zone.innerHTML = '<input class="upload-inp" type="file" accept="image/*" id="file-inp" onchange="onFileSelect(event)">'
+    +'<div class="upload-icon">📷</div>'
+    +'<div class="upload-title">อัพรูปโพย</div>'
+    +'<div class="upload-sub">📱 มือถือ — ถ่ายรูปหรือเลือกจากคลัง<br>💻 คอม — คลิกเลือกไฟล์ หรือ Drag & Drop<br>📋 Ctrl+V — Paste รูปจาก Clipboard</div>';
+  document.getElementById('scan-btn').classList.remove('show');
+  document.getElementById('result-card').classList.remove('show');
+  document.getElementById('success-box').classList.remove('show');
+}
+
+// ── SCAN ──
+async function doScan(){
+  if(!imageBase64){toast('กรุณาอัพรูปก่อนครับ');return;}
+  var btn = document.getElementById('scan-btn');
+  btn.disabled = true;
+  document.getElementById('loading').classList.add('show');
+  document.getElementById('err-box').classList.remove('show');
+  document.getElementById('result-card').classList.remove('show');
+
+  var prompt = `คุณกำลังอ่านโพยหวยจากแอป Tiger999
+โปรดอ่านรายการทั้งหมดในภาพแล้วตอบเป็น JSON เท่านั้น ห้ามมี text อื่น ห้ามมี markdown backtick
+
+JSON format:
+{
+  "customerName": "ชื่อลูกค้าหรือผู้ส่ง (ถ้าไม่มีให้ใส่ null)",
+  "ngod": "งวดที่เช่น 16/03/68 (ถ้าไม่มีให้ใส่ null)",
+  "entries": [
+    {
+      "lek": "ตัวเลข เช่น 365",
+      "bon": 100,
+      "tod": null,
+      "lang": null,
+      "na": null
+    }
+  ],
+  "total": 100
+}
+
+หมายเหตุ:
+- บ หรือ บน = bon
+- ต หรือ โต๊ด = tod  
+- ล หรือ ล่าง = lang
+- หน้า หรือ น = na
+- ถ้าไม่มีราคาให้ใส่ null
+- total คือยอดรวมทั้งหมด`;
+
+  try{
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{
+          role:'user',
+          content:[
+            {type:'image', source:{type:'base64', media_type:'image/jpeg', data:imageBase64}},
+            {type:'text', text:prompt}
+          ]
+        }]
+      })
+    });
+
+    var data = await res.json();
+    var text = (data.content||[]).map(function(c){return c.text||'';}).join('');
+    text = text.replace(/```json|```/g,'').trim();
+    scannedData = JSON.parse(text);
+    renderResult(scannedData);
+  } catch(e){
+    showErr('อ่านโพยไม่สำเร็จครับ ลองใหม่อีกครั้ง\n'+e.message);
+  }
+
+  btn.disabled = false;
+  document.getElementById('loading').classList.remove('show');
+}
+
+function renderResult(d){
+  // ชื่อลูกค้า
+  document.getElementById('rc-cust-name').textContent = d.customerName || '—';
+
+  // rows
+  var h = '';
+  (d.entries||[]).forEach(function(e){
+    h += '<div class="erow">'
+      +'<div class="ed lek">'+e.lek+'</div>'
+      +'<div class="ed'+(e.bon?' val':' e')+'">'+(e.bon||'—')+'</div>'
+      +'<div class="ed'+(e.tod?' val':' e')+'">'+(e.tod||'—')+'</div>'
+      +'<div class="ed'+(e.lang?' val':' e')+'">'+(e.lang||'—')+'</div>'
+      +'<div class="ed'+(e.na?' val':' e')+'">'+(e.na||'—')+'</div>'
+      +'</div>';
+  });
+  document.getElementById('result-rows').innerHTML = h;
+
+  // total
+  var total = d.total || (d.entries||[]).reduce(function(s,e){
+    return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);
+  },0);
+  document.getElementById('result-total').textContent = '฿'+total.toLocaleString();
+
+  // เติม customer dropdown
+  populateCustSel(d.customerName);
+
+  document.getElementById('result-card').classList.add('show');
+}
+
+function populateCustSel(suggestedName){
+  var state = loadDesktopState();
+  var custs = (state && state.customers) || [];
+  var sel = document.getElementById('cust-sel');
+  var h = '';
+
+  // หาชื่อที่ตรงกัน
+  var matchId = null;
+  custs.forEach(function(c){
+    var match = suggestedName && c.name === suggestedName;
+    if(match) matchId = c.id;
+    h += '<option value="'+c.id+'"'+(match?' selected':'')+'>'+c.name+'</option>';
+  });
+
+  // ถ้าไม่มีลูกค้าเลย หรือไม่เจอชื่อ → เพิ่มตัวเลือก "สร้างใหม่"
+  if(!matchId && suggestedName){
+    h = '<option value="__new__">+ สร้าง "'+suggestedName+'" ใหม่</option>' + h;
+  }
+  if(!h) h = '<option value="__new__">+ สร้างลูกค้าใหม่</option>';
+
+  sel.innerHTML = h;
+}
+
+function addNewCust(){
+  var name = prompt('ชื่อลูกค้า:');
+  if(!name) return;
+  var state = loadDesktopState();
+  if(!state){toast('ยังไม่มีข้อมูล Desktop ครับ');return;}
+  var id = 'c'+Date.now();
+  state.customers.push({id:id, name:name});
+  state.custEntries[id] = [];
+  state.custEid[id] = 0;
+  saveDesktopState(state);
+  populateCustSel(name);
+  // เลือก option ใหม่
+  document.getElementById('cust-sel').value = id;
+  toast('เพิ่ม '+name+' แล้ว ✅');
+}
+
+// ── CONFIRM ──
+function confirmImport(){
+  if(!scannedData){toast('ยังไม่มีข้อมูลครับ');return;}
+  var sel = document.getElementById('cust-sel');
+  var custId = sel.value;
+  var custName = sel.options[sel.selectedIndex].text.replace('+ สร้าง "','').replace('" ใหม่','');
+
+  var state = loadDesktopState();
+  if(!state){
+    // สร้าง state ใหม่
+    state = {customers:[],curCustId:null,custEntries:{},custEid:{},ngodInfo:{ngod:'',sender:'',receiver:'',date:''},ngodOpen:false};
+  }
+
+  // สร้างลูกค้าใหม่ถ้าจำเป็น
+  if(custId === '__new__'){
+    custId = 'c'+Date.now();
+    var name = scannedData.customerName || custName;
+    state.customers.push({id:custId, name:name});
+    state.custEntries[custId] = [];
+    state.custEid[custId] = 0;
+  }
+
+  if(!state.custEntries[custId]) state.custEntries[custId] = [];
+  if(!state.custEid[custId]) state.custEid[custId] = 0;
+
+  // เปิดงวดถ้ายังไม่ได้เปิด
+  if(!state.ngodOpen && scannedData.ngod){
+    state.ngodOpen = true;
+    state.ngodInfo = {ngod:scannedData.ngod, sender:'', receiver:'', date:new Date().toLocaleDateString('th-TH')};
+  }
+
+  // เพิ่ม entries
+  var count = 0;
+  (scannedData.entries||[]).forEach(function(e){
+    state.custEid[custId]++;
+    state.custEntries[custId].push({
+      id: state.custEid[custId],
+      lek: e.lek,
+      d: e.lek.length,
+      bon: e.bon||null,
+      tod: e.tod||null,
+      lang: e.lang||null,
+      na: e.na||null,
+      paks: []
+    });
+    count++;
+  });
+
+  state.curCustId = custId;
+  saveDesktopState(state);
+
+  // แสดง success
+  document.getElementById('result-card').classList.remove('show');
+  document.getElementById('success-sub').textContent = 'เพิ่ม '+count+' รายการ เข้า "'+custName+'" แล้วครับ';
+  document.getElementById('success-box').classList.add('show');
+  toast('✅ บันทึกสำเร็จ '+count+' รายการ');
+}
+
+// ── DESKTOP STATE ──
+function loadDesktopState(){
+  try{
+    var raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){return null;}
+}
+function saveDesktopState(state){
+  localStorage.setItem(STORE_KEY, JSON.stringify(state));
+}
+
+function showErr(msg){
+  var el = document.getElementById('err-box');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function toast(msg){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show');},2500);
+}
+
+// fix fullwidth paren in template
+
+</script>
+</body>
+</html>
