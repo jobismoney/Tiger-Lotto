@@ -586,24 +586,23 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         <div style="font-size:11px;color:#555;margin:4px 0 10px;">default = 100% ทุกเลข · ตั้งเฉพาะเลขที่ต้องการลด</div>
 
         <!-- input เพิ่มเลข -->
-        <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center;">
+        <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center;">
           <input id="rate-lek-inp" type="tel" inputmode="numeric" maxlength="3" placeholder="เลข"
             style="width:64px;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#f5c518;font-size:16px;font-weight:900;padding:7px 8px;text-align:center;font-family:'Sarabun',sans-serif;outline:none;box-sizing:border-box;">
-          <select id="rate-field-sel" style="flex:1;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:7px 8px;font-family:'Sarabun',sans-serif;cursor:pointer;">
-            <option value="bon">บน</option>
-            <option value="tod">โต๊ด</option>
-            <option value="lang">ล่าง</option>
-            <option value="na">หน้า</option>
-            <option value="all">ทุก field</option>
-          </select>
-          <select id="rate-pct-sel" style="width:76px;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#f87171;font-size:13px;font-weight:900;padding:7px 6px;font-family:'Sarabun',sans-serif;cursor:pointer;">
+          <select id="rate-pct-sel" style="flex:1;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#f87171;font-size:13px;font-weight:900;padding:7px 6px;font-family:'Sarabun',sans-serif;cursor:pointer;">
             <option value="75">75%</option>
             <option value="50">50%</option>
             <option value="25">25%</option>
             <option value="10">10%</option>
-            <option value="0">0%</option>
+            <option value="0">0% (ไม่รับ)</option>
           </select>
           <button onclick="addRateOverride()" style="background:#f5c518;border:none;border-radius:8px;color:#111;font-size:13px;font-weight:900;padding:7px 10px;cursor:pointer;font-family:'Sarabun',sans-serif;">+ เพิ่ม</button>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;color:#94a3b8;background:#1a1a2e;border:1px solid #333;border-radius:7px;padding:5px 10px;"><input type="checkbox" id="rcb-bon" checked style="accent-color:#f5c518;width:14px;height:14px;cursor:pointer;"> บน</label>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;color:#94a3b8;background:#1a1a2e;border:1px solid #333;border-radius:7px;padding:5px 10px;"><input type="checkbox" id="rcb-tod" style="accent-color:#f5c518;width:14px;height:14px;cursor:pointer;"> โต๊ด</label>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;color:#94a3b8;background:#1a1a2e;border:1px solid #333;border-radius:7px;padding:5px 10px;"><input type="checkbox" id="rcb-lang" style="accent-color:#f5c518;width:14px;height:14px;cursor:pointer;"> ล่าง</label>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;color:#94a3b8;background:#1a1a2e;border:1px solid #333;border-radius:7px;padding:5px 10px;"><input type="checkbox" id="rcb-na" style="accent-color:#f5c518;width:14px;height:14px;cursor:pointer;"> หน้า</label>
         </div>
 
         <!-- รายการที่ตั้งไว้ -->
@@ -2144,12 +2143,15 @@ function getRateKey(){ return ngodInfo&&ngodInfo.ngod?ngodInfo.ngod:'_'; }
 
 function addRateOverride(){
   var lek = (document.getElementById('rate-lek-inp').value||'').trim();
-  var field = document.getElementById('rate-field-sel').value;
   var pct = parseInt(document.getElementById('rate-pct-sel').value);
   if(!lek){ toast('ใส่เลขก่อนครับ'); return; }
+  var fields = ['bon','tod','lang','na'].filter(function(fk){
+    var cb = document.getElementById('rcb-'+fk);
+    return cb && cb.checked;
+  });
+  if(!fields.length){ toast('เลือก field อย่างน้อย 1 ช่อง'); return; }
   var nk = getRateKey();
   if(!rateOverrides[nk]) rateOverrides[nk]={};
-  var fields = field==='all' ? ['bon','tod','lang','na'] : [field];
   fields.forEach(function(fk){
     rateOverrides[nk][lek+'|'+fk] = pct;
   });
@@ -2231,7 +2233,12 @@ function entryTotalWithRate(e){
   var t=adj(e.bon,'bon')+adj(e.tod,'tod')+adj(e.lang,'lang')+adj(e.na,'na');
   (e.paks||[]).forEach(function(p){t+=p.price;});
   var kd=e.kd||{};
-  ['bon','lang','na'].forEach(function(k){(kd[k]||[]).forEach(function(x){t+=x.price;});});
+  ['bon','lang','na'].forEach(function(k){
+    (kd[k]||[]).forEach(function(x){
+      var pct=getLekRatePct(x.lek||e.lek,k);
+      t+=pct===100?(x.price||0):Math.round((x.price||0)*pct/100);
+    });
+  });
   return t;
 }
 
