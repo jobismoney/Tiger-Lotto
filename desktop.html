@@ -787,17 +787,33 @@ function normalizeQRData(data){
       date: data.dt||'',
       pg: data.p||1,
       entries: (data.e||[]).map(function(e){
+        var lekVal = e.l||e.lek||e.T||e.d||''; // รองรับทุก format รวม format เก่า T
         return {
-          lek: e.l, d: String(e.l).length,
-          bon: e.b||null, tod: e.t||null, lang: e.la||null, na: e.n||null,
+          lek: String(lekVal),
+          d: String(lekVal).length,
+          bon: e.b||e.bon||null,
+          tod: e.t||e.tod||null,
+          lang: e.la||e.lang||null,
+          na: e.n||e.na||null,
           kd: e.k ? {
-            bon: (e.k.bon||[]).map(function(x){return {perm:x[0],price:x[1]};}),
-            lang: (e.k.lang||[]).map(function(x){return {perm:x[0],price:x[1]};}),
-            na: (e.k.na||[]).map(function(x){return {perm:x[0],price:x[1]};})
+            bon: (e.k.bon||[]).map(function(x){return Array.isArray(x)?{perm:x[0],price:x[1]}:{perm:x.perm||'',price:x.p||x.price||0};}),
+            lang: (e.k.lang||[]).map(function(x){return Array.isArray(x)?{perm:x[0],price:x[1]}:{perm:x.perm||'',price:x.p||x.price||0};}),
+            na: (e.k.na||[]).map(function(x){return Array.isArray(x)?{perm:x[0],price:x[1]}:{perm:x.perm||'',price:x.p||x.price||0};})
           } : {}
         };
       })
     };
+  }
+  // format เก่า — map ตรง
+  if(data.entries){
+    data.entries = data.entries.map(function(e){
+      return {
+        lek: String(e.lek||e.l||''),
+        d: e.d||(String(e.lek||e.l||'').length),
+        bon: e.bon||null, tod: e.tod||null, lang: e.lang||null, na: e.na||null,
+        kd: e.kd||{}
+      };
+    });
   }
   return data;
 }
