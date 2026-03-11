@@ -911,7 +911,7 @@ function doImport(data, fp, log, cid){
     var lek = String(e.lek||'');
     custEntries[cid].push({
       id: custEid[cid], lek: lek, d: lek.length,
-      bon: e.bon||null, tod: e.tod||null, lang: e.lang||null, na: e.na||null, kd: e.kd||{}
+      bon: e.bon||null, tod: e.tod||null, lang: e.lang||null, na: e.na||null, kd: e.kd||{}, paks: e.paks||[]
     });
   });
 
