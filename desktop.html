@@ -309,6 +309,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .sbtn{width:100%;border:none;border-radius:5px;padding:7px;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:900;cursor:pointer;transition:all .15s;}
 .sbtn:hover{transform:translateY(-1px);}
 .sbtn.basket{background:linear-gradient(135deg,#e67e22,#c0392b);color:#fff;}
+.set-act-btn{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.2);border-radius:5px;color:var(--gold);font-size:12px;cursor:pointer;padding:1px 6px;}
+.set-act-btn.del{background:rgba(231,76,60,.1);border-color:rgba(231,76,60,.3);color:#e74c3c;}
 .sbtn.print{background:#141b2e;border:1px solid #1a2040;color:#f0f2ff;}
 .sbtn.newngod{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;}
 
@@ -524,7 +526,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         <div class="sum-row"><span class="sum-row-lbl">โต๊ด</span><span class="sum-row-val zero" id="sg-tod">฿0</span></div>
         <div class="sum-row"><span class="sum-row-lbl">3 ล่าง</span><span class="sum-row-val zero" id="sg-3l">฿0</span></div>
         <div class="sum-btns">
-          <button class="sbtn basket" onclick="lockSet()">📂 ล็อคชุด / เก็บแฟ้ม</button>
+          <button class="sbtn basket" onclick="lockSet()">📂 เก็บเข้าแฟ้ม</button>
           <button class="sbtn print" onclick="showSlip()">📋 โพยลูกค้านี้</button>
           <button class="sbtn print" style="background:linear-gradient(135deg,#1d4ed8,#1e40af)" onclick="showSlipAll()">📋 โพยรวมทุกคน</button>
           <button class="sbtn newngod" onclick="openNgodModal()">+ งวดใหม่</button>
@@ -928,6 +930,47 @@ function confirmNgod(){
 // ================================================================
 // SET SYSTEM
 // ================================================================
+function toggleSetView(cid, idx){
+  if(!custSets[cid]||!custSets[cid][idx]) return;
+  custSets[cid][idx]._open = !custSets[cid][idx]._open;
+  renderHist();
+}
+
+function showSlipSet(cid, idx){
+  var s=(custSets[cid]||[])[idx];
+  if(!s||!s.entries.length){toast('ไม่มีรายการในชุดนี้');return;}
+  var inf=ngodInfo||{ngod:'—'};
+  var cust=customers.find(function(c){return c.id===cid;})||{name:'?'};
+  var setNum=idx+1;
+  // build slip จาก entries ของชุดนี้อย่างเดียว
+  var sorted=s.entries.slice().sort(function(a,b){return a.id-b.id;});
+  var pages=[],pEn=[],rc=0;
+  sorted.forEach(function(e){
+    var lc=toLines(e).length||1;
+    if(rc>0&&rc+lc>MAX_ROWS){pages.push(pEn);pEn=[];rc=0;}
+    pEn.push(e);rc+=lc;
+  });
+  if(pEn.length)pages.push(pEn);
+  var html='';
+  pages.forEach(function(pg,i){
+    html+='<div class="slip-page-single"><div class="slip-page">'+makePageHTML(pg,i+1,pages.length,inf)+'</div></div>';
+  });
+  var t=document.getElementById('slip-ov-title');
+  if(t) t.textContent='📋 โพย '+cust.name+' ชุดที่ '+setNum;
+  document.getElementById('slip-pages').innerHTML=html;
+  document.getElementById('slip-ov').classList.add('show');
+  document.getElementById('slip-ov').scrollTop=0;
+}
+
+function deleteSet(cid, idx){
+  showConfirm('ลบชุดที่ '+(idx+1)+' ออก?', function(){
+    if(!custSets[cid]) return;
+    custSets[cid].splice(idx,1);
+    save(); renderHist(); renderCustList(); updateSummary();
+    toast('ลบชุดแล้ว ✅');
+  });
+}
+
 function lockSet(){
   if(!curCustId){openAddCust();return;}
   var entries=custEntries[curCustId]||[];
@@ -1561,19 +1604,29 @@ function renderHist(){
 
   // locked sets
   sets.slice().reverse().forEach(function(s,si){
+    var realIdx=sets.length-1-si;
     var setNum=sets.length-si;
     var setTotal=s.entries.reduce(function(st,e){return st+entryTotal(e);},0);
-    h+='<div class="set-div"><span>🔒 ชุดที่ '+setNum+'</span><span>฿'+setTotal.toLocaleString()+'</span></div>';
-    s.entries.forEach(function(e){
-      h+='<div class="hrow locked">'
-        +'<div class="hd lek">'+e.lek+'</div>'
-        +'<div class="hd'+(e.bon?'':' e')+'">'+(e.bon||'—')+'</div>'
-        +'<div class="hd'+(e.tod?'':' e')+'">'+(e.tod||'—')+'</div>'
-        +'<div class="hd'+(e.lang?'':' e')+'">'+(e.lang||'—')+'</div>'
-        +'<div class="hd'+(e.na?'':' e')+'">'+(e.na||'—')+'</div>'
-        +'<div class="hd"></div>'
-        +'</div>';
-    });
+    var isOpen=s._open;
+    h+='<div class="set-div" onclick="toggleSetView(\''+curCustId+'\','+realIdx+')" style="cursor:pointer;">'
+      +'<span>'+(isOpen?'🔓':'🔒')+' ชุดที่ '+setNum+' <small style="color:#556;font-size:10px;">'+(isOpen?'▲':'▼')+'</small></span>'
+      +'<span style="display:flex;align-items:center;gap:6px;">'
+      +'<span>฿'+setTotal.toLocaleString()+'</span>'
+      +'<button class="set-act-btn" onclick="event.stopPropagation();showSlipSet(\''+curCustId+'\','+realIdx+')">📋</button>'
+      +'<button class="set-act-btn del" onclick="event.stopPropagation();deleteSet(\''+curCustId+'\','+realIdx+')">🗑️</button>'
+      +'</span></div>';
+    if(isOpen){
+      s.entries.forEach(function(e){
+        h+='<div class="hrow locked">'
+          +'<div class="hd lek">'+e.lek+'</div>'
+          +'<div class="hd'+(e.bon?'':' e')+'">'+(e.bon||'—')+'</div>'
+          +'<div class="hd'+(e.tod?'':' e')+'">'+(e.tod||'—')+'</div>'
+          +'<div class="hd'+(e.lang?'':' e')+'">'+(e.lang||'—')+'</div>'
+          +'<div class="hd'+(e.na?'':' e')+'">'+(e.na||'—')+'</div>'
+          +'<div class="hd"></div>'
+          +'</div>';
+      });
+    }
   });
 
   if(!h) h='<div style="padding:20px;text-align:center;font-size:12px;color:#2a3050;">ยังไม่มีรายการ</div>';
