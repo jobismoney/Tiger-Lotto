@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="robots" content="noindex, nofollow">
 <title>TIGER 999 — Scan</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -158,9 +158,8 @@ function handleFile(file){
 function scanFromImage(img){
   var canvas = document.getElementById('qr-canvas');
   var ctx = canvas.getContext('2d');
-  var MAX = 800;
+  // วาดขนาดเต็ม ไม่ resize เพื่อไม่ให้ pixel เพี้ยน
   var w = img.naturalWidth, h = img.naturalHeight;
-  if(w > MAX || h > MAX){ var r=Math.min(MAX/w,MAX/h); w=Math.round(w*r); h=Math.round(h*r); }
   canvas.width = w; canvas.height = h;
   ctx.drawImage(img, 0, 0, w, h);
   var imageData = ctx.getImageData(0, 0, w, h);
