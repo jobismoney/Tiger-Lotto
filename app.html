@@ -875,7 +875,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var r=ngodInfo.receiver||'ผู้รับ...';
     var g=ngodInfo.ngod||'...';
     document.getElementById('hd-info').textContent=s+' → '+r;
-    document.getElementById('hd-ngod').textContent=' | '+g;
+    document.getElementById('hd-ngod').textContent=' | '+g.replace(/ \d{2}:\d{2}$/,'');
   }
 
   function updateLockUI(){
@@ -1492,7 +1492,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       entries=h.entries;eid=h.eid;pageBreakIds=h.pageBreakIds||[];
       // inject ชื่อลูกค้าและชุดที่เข้า ngodInfo ชั่วคราว
       ngodInfo={sender:h.sender,receiver:h.receiver,ngod:h.ngod,date:h.date,
-                basketName:h.basketName,_viewLabel:h.basketName||''};
+                savedAt:h.savedAt||'',basketName:h.basketName,_viewLabel:h.basketName||''};
       document.getElementById('hist-ov').classList.remove('show');
       var html=buildAllSlipsWithLabel(h.basketName||'');
       entries=tmpE;eid=tmpEid;pageBreakIds=tmpPb;ngodInfo=tmpNI;
@@ -2176,8 +2176,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var pt=(pEntries.reduce(function(s,e){return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);},0))+
       ['bon','lang','na'].reduce(function(s,k){return s+pEntries.reduce(function(ss,e){return ss+(e.kd[k]||[]).reduce(function(sss,x){return sss+x.price;},0);},0);},0);
     return '<div class="slip-hd">'
-      +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
-      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+(ngodInfo.basketName?'/'+ngodInfo.basketName:'')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span><span>วันที่ <strong>'+inf.date+'</strong></span></div>'
+      +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+(''+inf.ngod).replace(/ \\d{2}:\\d{2}$/,'')+'</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
+      +(inf.savedAt?'<div style="font-size:11px;color:#555;margin-top:2px;">บันทึก '+inf.savedAt+'</div>':'')
+      +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+(ngodInfo.basketName?'/'+ngodInfo.basketName:'')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
       +'</div>'
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
       +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
@@ -2233,7 +2234,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   // buildAllSlipsWithLabel: เหมือน buildAllSlips แต่ใส่ชื่อลูกค้าในหัว
   function buildAllSlipsWithLabel(label){
-    var inf={sender:ngodInfo.sender,receiver:ngodInfo.receiver,ngod:ngodInfo.ngod,date:ngodInfo.date,label:label};
+    var inf={sender:ngodInfo.sender,receiver:ngodInfo.receiver,ngod:ngodInfo.ngod,date:ngodInfo.date,savedAt:ngodInfo.savedAt||'',label:label};
     var MAX_ROWS_V=20;
     if(!entries.length)return '';
     // paginate entries
@@ -2274,8 +2275,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
       });
       return '<div class="slip-hd">'
-        +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+(i+1)+'/'+totalPages+'</span></div>'
-        +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+(inf.label?'/'+inf.label:'')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span><span>วันที่ <strong>'+inf.date+'</strong></span></div>'
+        +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+(''+inf.ngod).replace(/ \\d{2}:\\d{2}$/,'')+'</h2><span class="pg">แผ่นที่ '+(i+1)+'/'+totalPages+'</span></div>'
+        +(inf.savedAt?'<div style="font-size:11px;color:#555;margin-top:2px;">บันทึก '+inf.savedAt+'</div>':'')
+        +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+(inf.label?'/'+inf.label:'')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
         +'</div>'
         +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
         +sumTableHTML(buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false))
@@ -2604,8 +2606,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var ps=pageSumTotals(pgEntries);
     var pt=pgEntries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
     return '<div class="slip-hd">'
-      +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
-      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+(ngodInfo.basketName?'/'+ngodInfo.basketName:'')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span><span>วันที่ <strong>'+inf.date+'</strong></span></div>'
+      +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+(''+inf.ngod).replace(/ \\d{2}:\\d{2}$/,'')+'</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
+      +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+(ngodInfo.basketName?'/'+ngodInfo.basketName:'')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
       +'</div>'
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
       +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
