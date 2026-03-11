@@ -1467,7 +1467,7 @@ function addEntry(){
     });
   });
   custEntries[curCustId].unshift({
-    id:custEid[curCustId],lek:npLek,d:npLek.length,
+    id:Date.now(),lek:npLek,d:npLek.length,
     bon:npFields.bon,tod:npFields.tod,lang:npFields.lang,na:npFields.na,
     paks:[],kd:kd
   });
@@ -2261,8 +2261,15 @@ function renderRateList(){
     getKlbPerms(ownerLek).forEach(function(p){ permOfOwner[p]=ownerLek; });
   });
 
+  // เรียงตาม at ล่าสุดก่อน (ใหม่บน เก่าล่าง)
+  allOwners.sort(function(a,b){
+    var atA=normalByLek[a].reduce(function(mx,x){ var t=(typeof x.pct==='object'&&x.pct)?x.pct.at:0; return t>mx?t:mx; },0);
+    var atB=normalByLek[b].reduce(function(mx,x){ var t=(typeof x.pct==='object'&&x.pct)?x.pct.at:0; return t>mx?t:mx; },0);
+    return atB-atA; // ล่าสุดก่อน
+  });
+
   var h='';
-  allOwners.sort().forEach(function(lek){
+  allOwners.forEach(function(lek){
     if(permOfOwner[lek]) return; // ข้าม — เป็น perm ของคนอื่น
     var myKlbPerms=getKlbPerms(lek);
     // หัว: lek + perms รวมในบรรทัดเดียว
