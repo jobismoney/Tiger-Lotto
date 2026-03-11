@@ -1259,6 +1259,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       function checkSrc(srcEntries,srcName){
         srcEntries.forEach(function(e){
           if(e.confirmedDup)return;
+          // entry ปกติ (ไม่มี paks) ไม่นับซ้ำกับปักหลัก
+          if(!e.paks||!e.paks.length) return;
           var existKeys=getPakKeys(e);
           filteredNewKeys.forEach(function(nk){
             if(existKeys.indexOf(nk)>=0){
@@ -1762,6 +1764,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
     // สร้าง existLeks ฟังก์ชันกลาง
     function getExistLeks(e){
+      // entry ที่เป็นปักหลัก (มี paks) ไม่นับเป็น dup กับ entry ปกติ
+      if(e.paks&&e.paks.length) return [];
       var leks=[e.lek];
       if(e.kd){Object.keys(e.kd).forEach(function(k){e.kd[k].forEach(function(x){if(leks.indexOf(x.perm)<0)leks.push(x.perm);});});}
       // โต๊ดของ entry เก่า
@@ -2053,7 +2057,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function sumTableHTML(rows){
     return '<div class="sum-tbl-wrap"><table class="sum-tbl"><thead><tr>'
       +'<th class="sh sh-no">แผ่น</th><th class="sh">3ตัว</th><th class="sh">2ตัว</th>'
-      +'<th class="sh">วิ่ง</th><th class="sh">โต๊ด</th><th class="sh">ล่าง</th><th class="sh">รวม</th>'
+      +'<th class="sh">1ตัว</th><th class="sh">โต๊ด</th><th class="sh">3ล่าง</th><th class="sh">รวม</th>'
       +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
   }
 
