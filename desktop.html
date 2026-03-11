@@ -587,7 +587,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
         <!-- input เพิ่มเลข -->
         <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center;">
-          <input id="rate-lek-inp" type="tel" inputmode="numeric" maxlength="3" placeholder="เลข"
+          <input id="rate-lek-inp" type="tel" inputmode="numeric" maxlength="5" placeholder="เลข"
+            oninput="updateRateCbState()"
             style="width:64px;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#f5c518;font-size:16px;font-weight:900;padding:7px 8px;text-align:center;font-family:'Sarabun',sans-serif;outline:none;box-sizing:border-box;">
           <select id="rate-pct-sel" style="flex:1;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#f87171;font-size:13px;font-weight:900;padding:7px 6px;font-family:'Sarabun',sans-serif;cursor:pointer;">
             <option value="75">75%</option>
@@ -2146,6 +2147,36 @@ function saveRates(){
   try{ localStorage.setItem(RATE_STORE,JSON.stringify(rateOverrides)); }catch(e){}
 }
 function getRateKey(){ return ngodInfo&&ngodInfo.ngod?ngodInfo.ngod:'_'; }
+
+function updateRateCbState(){
+  var lek=(document.getElementById('rate-lek-inp').value||'').trim();
+  var n=lek.length;
+  // กำหนด field ที่ใช้ได้ตามความยาว
+  var allowed={bon:false,tod:false,lang:false,na:false,klb:false};
+  if(n===1){
+    allowed.bon=true; allowed.lang=true; allowed.na=false; allowed.tod=false; allowed.klb=false;
+  } else if(n===2){
+    allowed.bon=true; allowed.lang=true; allowed.na=true; allowed.tod=true; allowed.klb=false;
+  } else if(n===3){
+    allowed.bon=true; allowed.tod=true; allowed.lang=true; allowed.na=true; allowed.klb=true;
+  } else if(n===4||n===5){
+    allowed.bon=false; allowed.tod=true; allowed.lang=false; allowed.na=false; allowed.klb=false;
+  }
+  ['bon','tod','lang','na','klb'].forEach(function(fk){
+    var cb=document.getElementById('rcb-'+fk);
+    if(!cb) return;
+    var lbl=cb.parentElement;
+    cb.disabled=!allowed[fk];
+    if(!allowed[fk]){
+      cb.checked=false;
+      lbl.style.opacity='0.3';
+      lbl.style.cursor='not-allowed';
+    } else {
+      lbl.style.opacity='1';
+      lbl.style.cursor='pointer';
+    }
+  });
+}
 
 function addRateOverride(){
   var lek = (document.getElementById('rate-lek-inp').value||'').trim();
