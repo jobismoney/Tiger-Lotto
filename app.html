@@ -1665,7 +1665,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       document.getElementById('slip-pages').innerHTML=allHTML;
       document.getElementById('ov-basket').style.display='none';
       document.getElementById('ov-print-merged').style.display='';
-      document.getElementById('ov-share-line').style.display='';
+      document.getElementById('ov-share-line').style.display=isLocked?'':'none';
       document.getElementById('ov-del-set').style.display='none';
       var ob=document.getElementById('ov-back');
       ob._mergedMode=true;ob.innerHTML='◀ กลับ';
@@ -2297,13 +2297,28 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   var _lastSlipHTML=null;
   function showSlip(){
+    if(!isLocked){
+      showConfirm(
+        '📂 ควรเก็บเข้าแฟ้มก่อนครับ<br><br>QR code จะถูกต้องก็ต่อเมื่อล็อคชุดแล้ว',
+        function(){doBasket();},
+        false,
+        '📋 ดูโพยแบบไม่มี QR',
+        function(){_doShowSlip();},
+        '📂 เก็บเข้าแฟ้มเลย',
+        'ยกเลิก'
+      );
+      return;
+    }
+    _doShowSlip();
+  }
+  function _doShowSlip(){
     var result=buildAllSlips();if(!result)return;
     _lastSlipHTML=result.html;
     document.getElementById('slip-pages').innerHTML=result.html;
     document.getElementById('slip-ov').classList.add('show');
     document.getElementById('slip-ov').scrollTop=0;
-    document.getElementById('ov-share-line').style.display='';
-    setTimeout(function(){result.pages.forEach(function(pg,i){renderPageQR(pg,result.inf,i+1);});},100);
+    document.getElementById('ov-share-line').style.display=isLocked?'':'none';
+    if(isLocked)setTimeout(function(){result.pages.forEach(function(pg,i){renderPageQR(pg,result.inf,i+1);});},100);
   }
 
   function doPrint(){
@@ -2631,7 +2646,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     ob.innerHTML='◀ กลับ';
     document.getElementById('slip-ov').classList.add('show');
     document.getElementById('hist-ov').classList.remove('show');
-    document.getElementById('ov-share-line').style.display='';
+    document.getElementById('ov-share-line').style.display=isLocked?'':'none';
   }
 
   // ─── CHECK RESULT ───
