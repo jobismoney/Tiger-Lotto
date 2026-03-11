@@ -1665,7 +1665,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       document.getElementById('slip-pages').innerHTML=allHTML;
       document.getElementById('ov-basket').style.display='none';
       document.getElementById('ov-print-merged').style.display='';
-      document.getElementById('ov-share-line').style.display=isLocked?'':'none';
+      document.getElementById('ov-share-line').style.display='';
       document.getElementById('ov-del-set').style.display='none';
       var ob=document.getElementById('ov-back');
       ob._mergedMode=true;ob.innerHTML='◀ กลับ';
@@ -2301,9 +2301,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       showConfirm(
         '📂 ควรเก็บเข้าแฟ้มก่อนครับ<br><br>QR code จะถูกต้องก็ต่อเมื่อล็อคชุดแล้ว',
         function(){doBasket();},
-        false,
-        '📋 ดูโพยแบบไม่มี QR',
-        function(){_doShowSlip();},
+        false,null,null,
         '📂 เก็บเข้าแฟ้มเลย',
         'ยกเลิก'
       );
@@ -2646,7 +2644,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     ob.innerHTML='◀ กลับ';
     document.getElementById('slip-ov').classList.add('show');
     document.getElementById('hist-ov').classList.remove('show');
-    document.getElementById('ov-share-line').style.display=isLocked?'':'none';
+    document.getElementById('ov-share-line').style.display='';
   }
 
   // ─── CHECK RESULT ───
