@@ -1500,7 +1500,7 @@ function renderHist(){
   // current entries (active)
   curEntries.forEach(function(e){
     var tot=entryTotal(e);
-    var hasRate=hasRateOverride(e.lek);
+    var hasRate=hasRateOverride(e.lek, e.id||Date.now());
     h+='<div class="hrow"'+(hasRate?' style="border-left:2px solid #f59e0b;"':'')+' title="'+(hasRate?'มีการตั้งเรทพิเศษ':'')+'">'
       +'<div class="hd lek" style="'+(hasRate?'color:#f59e0b;':'')+'">'+e.lek+(hasRate?' ⚡':'')+' </div>'
       +'<div class="hd'+(e.bon?'':' e')+'">'+(e.bon||'—')+'</div>'
@@ -2159,16 +2159,15 @@ function addRateOverride(){
   if(!fields.length && !inclKlb){ toast('เลือก field อย่างน้อย 1 ช่อง'); return; }
   var nk = getRateKey();
   if(!rateOverrides[nk]) rateOverrides[nk]={};
+  var rateAt = Date.now();
   fields.forEach(function(fk){
-    rateOverrides[nk][lek+'|'+fk] = pct;
+    rateOverrides[nk][lek+'|'+fk] = {pct:pct, at:rateAt};
   });
   if(inclKlb){
-    // เก็บ perms ของเลขนี้
     var perms = getPerms(lek).filter(function(p){ return p!==lek; });
     perms.forEach(function(p){
-      // klb ครอบ bon, lang, na (ไม่ครอบ tod)
       ['bon','lang','na'].forEach(function(fk){
-        rateOverrides[nk][p+'|'+fk+'|klb'] = pct;
+        rateOverrides[nk][p+'|'+fk+'|klb'] = {pct:pct, at:rateAt};
       });
     });
   }
@@ -2197,94 +2196,136 @@ function renderRateList(){
     el.innerHTML='<div style="color:#444;font-size:12px;text-align:center;padding:16px;">ยังไม่มีการตั้งค่า — ทุกเลขจ่าย 100%</div>';
     return;
   }
-  // จัดกลุ่มตามเลข
-  var byLek={};
-  keys.forEach(function(k){
-    var parts=k.split('|'); var lek=parts[0]; var fk=parts[1];
-    if(!byLek[lek]) byLek[lek]=[];
-    byLek[lek].push({fk:fk,pct:ov[k]});
-  });
   var fieldLabels={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
-  var h='';
-  // แยก klb perms ออกจาก normal
-  var klbLeks={};
-  Object.keys(ov).forEach(function(k){
+
+  // จัดกลุ่ม: normal keys และ klb keys
+  var normalByLek={}; // lek -> [{fk,pct}]
+  var klbOwner={};    // permLek -> ownerLek (เพื่อซ่อน perm ออกจาก list หลัก)
+
+  keys.forEach(function(k){
     var parts=k.split('|');
-    if(parts[2]==='klb'){
-      var src=parts[0]; // perm lek
-      if(!klbLeks[src]) klbLeks[src]=[];
-      klbLeks[src].push({fk:parts[1],pct:ov[k]});
+    var lek=parts[0], fk=parts[1], isKlb=parts[2]==='klb';
+    if(isKlb){
+      // หา owner lex จาก perms
+      // เก็บ perm lek ไว้ใน klbOwner แต่ไม่ render แยก
+    } else {
+      if(!normalByLek[lek]) normalByLek[lek]=[];
+      normalByLek[lek].push({fk:fk,pct:ov[k]});
     }
   });
 
-  Object.keys(byLek).sort().forEach(function(lek){
-    // หา perms ที่มี klb สำหรับ lek นี้
-    var myPerms=getPerms(lek).filter(function(p){return p!==lek&&klbLeks[p];});
+  // หา klb perms ต่อ owner lek
+  function getKlbPerms(ownerLek){
+    var perms=getPerms(ownerLek).filter(function(p){return p!==ownerLek;});
+    // ตรวจว่า perm นั้นมี klb key อยู่จริง
+    return perms.filter(function(p){
+      return keys.some(function(k){ return k.startsWith(p+'|')&&k.endsWith('|klb'); });
+    });
+  }
+
+  // ซ่อน lek ที่เป็น perm ของ owner อื่น
+  var allOwners=Object.keys(normalByLek);
+  var permOfOwner={};
+  allOwners.forEach(function(ownerLek){
+    getKlbPerms(ownerLek).forEach(function(p){ permOfOwner[p]=ownerLek; });
+  });
+
+  var h='';
+  allOwners.sort().forEach(function(lek){
+    if(permOfOwner[lek]) return; // ข้าม — เป็น perm ของคนอื่น
+    var myKlbPerms=getKlbPerms(lek);
+    // หัว: lek + perms รวมในบรรทัดเดียว
+    var lekLabel=lek+(myKlbPerms.length?' <span style="font-size:12px;color:#a78bfa;font-weight:700;">+ '+myKlbPerms.join(', ')+'</span>':'');
     h+='<div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:8px 10px;margin-bottom:6px;">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
-      +'<span style="font-size:16px;font-weight:900;color:#f5c518;">'+lek+'</span>'
-      +'<button data-lek="'+lek+'" onclick="removeRateLek(this.dataset.lek)" style="background:none;border:1px solid #333;border-radius:5px;color:#666;font-size:11px;padding:2px 7px;cursor:pointer;font-family:inherit;">ลบทั้งหมด</button>'
+      +'<div style="font-size:16px;font-weight:900;color:#f5c518;line-height:1.4;">'+lekLabel+'</div>'
+      +'<button data-lek="'+lek+'" onclick="removeRateLekFull(this.dataset.lek)" style="background:none;border:1px solid #333;border-radius:5px;color:#666;font-size:11px;padding:2px 7px;cursor:pointer;font-family:inherit;">ลบทั้งหมด</button>'
       +'</div>'
       +'<div style="display:flex;flex-wrap:wrap;gap:5px;">';
-    byLek[lek].forEach(function(x){
-      var col=PCT_COLORS[x.pct]||'#f87171';
+    normalByLek[lek].forEach(function(x){
+      if(x.fk==='undefined'||!fieldLabels[x.fk]) return;
+      var pctVal=(typeof x.pct==='object'&&x.pct)?x.pct.pct:x.pct;
+      var col=PCT_COLORS[pctVal]||'#f87171';
       h+='<div style="display:flex;align-items:center;gap:4px;background:#1e293b;border-radius:6px;padding:4px 8px;">'
         +'<span style="font-size:12px;color:#94a3b8;">'+fieldLabels[x.fk]+'</span>'
-        +'<span style="font-size:13px;font-weight:900;color:'+col+';">'+x.pct+'%</span>'
+        +'<span style="font-size:13px;font-weight:900;color:'+col+';">'+pctVal+'%</span>'
         +'<button data-lek="'+lek+'" data-fk="'+x.fk+'" onclick="removeRateOverride(this.dataset.lek,this.dataset.fk)" style="background:none;border:none;color:#475569;font-size:13px;cursor:pointer;padding:0 2px;line-height:1;">✕</button>'
         +'</div>';
     });
-    h+='</div>';
-    // แสดง perms ที่กระจาย
-    if(myPerms.length){
-      h+='<div style="margin-top:6px;padding-top:6px;border-top:1px solid #1e293b;">'
-        +'<span style="font-size:11px;color:#6b7280;">กลับ/ชุด: </span>'
-        +'<span style="font-size:12px;color:#a78bfa;font-weight:700;">'+myPerms.join(', ')+'</span>'
-        +'</div>';
-    }
-    h+='</div>';
+    h+='</div></div>';
   });
   el.innerHTML=h;
 }
 
-function removeRateLek(lek){
+function removeRateLekFull(lek){
   var nk=getRateKey();
   if(!rateOverrides[nk]) return;
+  // ลบ normal keys
   ['bon','tod','lang','na'].forEach(function(fk){ delete rateOverrides[nk][lek+'|'+fk]; });
+  // ลบ klb perms ด้วย
+  var perms=getPerms(lek).filter(function(p){return p!==lek;});
+  perms.forEach(function(p){
+    ['bon','lang','na'].forEach(function(fk){ delete rateOverrides[nk][p+'|'+fk+'|klb']; });
+  });
   saveRates(); renderRateList();
+}
+window.removeRateLekFull = removeRateLekFull;
+
+function removeRateLek(lek){
+  removeRateLekFull(lek);
 }
 window.removeRateLek = removeRateLek;
 
-function getLekRatePct(lek, fk, isKlb){
+function getLekRateEntry(lek, fk, isKlb){
   var nk=getRateKey();
   var ov=rateOverrides[nk]||{};
-  // ถ้าเป็น perm (กลับ/ชุด) เช็ค klb key ก่อน
+  var raw;
   if(isKlb){
-    var vk=ov[lek+'|'+fk+'|klb'];
-    if(vk!==undefined&&vk!==null) return vk;
+    raw=ov[lek+'|'+fk+'|klb'];
+    if(raw===undefined||raw===null) raw=ov[lek+'|'+fk];
+  } else {
+    raw=ov[lek+'|'+fk];
   }
-  var v=ov[lek+'|'+fk];
-  return (v===undefined||v===null)?100:v;
+  if(raw===undefined||raw===null) return {pct:100,at:0};
+  // support old format (number) and new format ({pct,at})
+  if(typeof raw==='object') return raw;
+  return {pct:raw, at:0};
 }
 
-function hasRateOverride(lek){
+function getLekRatePct(lek, fk, isKlb){
+  return getLekRateEntry(lek, fk, isKlb).pct;
+}
+
+function hasRateOverride(lek, entryId){
   var nk=getRateKey();
   var ov=rateOverrides[nk]||{};
-  return Object.keys(ov).some(function(k){ return k.split('|')[0]===lek; });
+  // เช็คเฉพาะ normal key (ไม่ใช่ klb) และ rate ถูกตั้งก่อน entry นี้
+  return Object.keys(ov).some(function(k){
+    var parts=k.split('|');
+    if(parts[0]!==lek||parts[2]==='klb') return false;
+    var raw=ov[k];
+    var at=(typeof raw==='object'&&raw)?raw.at:0;
+    // rate ต้องถูกตั้ง ก่อน entry นี้ (entryId = Date.now() ตอนคีย์)
+    return at < entryId;
+  });
 }
 
 function entryTotalWithRate(e){
+  var entryAt = e.id||0; // timestamp ตอนคีย์
   function adj(val,fk){
-    var pct=getLekRatePct(e.lek,fk);
-    if(pct===100) return val||0;
-    return Math.round((val||0)*pct/100);
+    var info=getLekRateEntry(e.lek,fk,false);
+    // rate ที่ตั้งหลัง entry นี้ → ไม่นับ ใช้ 100%
+    if(info.pct===100||info.at>=entryAt) return val||0;
+    return Math.round((val||0)*info.pct/100);
   }
   var t=adj(e.bon,'bon')+adj(e.tod,'tod')+adj(e.lang,'lang')+adj(e.na,'na');
   (e.paks||[]).forEach(function(p){t+=p.price;});
   var kd=e.kd||{};
   ['bon','lang','na'].forEach(function(k){
     (kd[k]||[]).forEach(function(x){
-      var pct=getLekRatePct(x.perm||x.lek||e.lek, k, true);
+      var permLek=x.perm||x.lek||e.lek;
+      var info=getLekRateEntry(permLek,k,true);
+      var pct=(info.pct===100||info.at>=entryAt)?100:info.pct;
       t+=pct===100?(x.price||0):Math.round((x.price||0)*pct/100);
     });
   });
