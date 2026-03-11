@@ -2337,13 +2337,15 @@ function getLekRatePct(lek, fk, isKlb){
 function hasRateOverride(lek, entryId){
   var nk=getRateKey();
   var ov=rateOverrides[nk]||{};
-  // เช็คเฉพาะ normal key (ไม่ใช่ klb) และ rate ถูกตั้งก่อน entry นี้
   return Object.keys(ov).some(function(k){
     var parts=k.split('|');
-    if(parts[0]!==lek||parts[2]==='klb') return false;
+    var keyLek=parts[0];
+    var isKlb=parts[2]==='klb';
+    // ตรงกับ lek โดยตรง (normal key)
+    // หรือ lek นี้เป็น klb perm ที่ถูก encode ไว้
+    if(keyLek!==lek) return false;
     var raw=ov[k];
     var at=(typeof raw==='object'&&raw)?raw.at:0;
-    // rate ต้องถูกตั้ง ก่อน entry นี้ (entryId = Date.now() ตอนคีย์)
     return at < entryId;
   });
 }
