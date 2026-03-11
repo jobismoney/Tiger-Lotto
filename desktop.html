@@ -791,9 +791,9 @@ function normalizeQRData(data){
           lek: e.l, d: String(e.l).length,
           bon: e.b||null, tod: e.t||null, lang: e.la||null, na: e.n||null,
           kd: e.k ? {
-            bon: (e.k.bon||[]).map(function(x){return {lek:x[0],price:x[1]};}),
-            lang: (e.k.lang||[]).map(function(x){return {lek:x[0],price:x[1]};}),
-            na: (e.k.na||[]).map(function(x){return {lek:x[0],price:x[1]};})
+            bon: (e.k.bon||[]).map(function(x){return {perm:x[0],price:x[1]};}),
+            lang: (e.k.lang||[]).map(function(x){return {perm:x[0],price:x[1]};}),
+            na: (e.k.na||[]).map(function(x){return {perm:x[0],price:x[1]};})
           } : {}
         };
       })
@@ -819,7 +819,7 @@ function impBannerSelChange(s){
   var ni=document.getElementById('imp-banner-input');
   if(ni) ni.style.display=s.value==='__new__'?'block':'none';
 }
-function showImportBanner(data, fp, log){
+function showImportBanner(data, fp, log, dupMsg){
   var custOpts = '<option value="">— เลือกลูกค้า —</option>';
   customers.forEach(function(cu){
     custOpts += '<option value="'+cu.id+'">'+cu.name+'</option>';
@@ -828,7 +828,7 @@ function showImportBanner(data, fp, log){
   var sel = document.getElementById('imp-banner-sel');
   sel.innerHTML = custOpts;
   document.getElementById('imp-banner-info').innerHTML =
-    'แผ่น <b>'+data.pg+'</b> · <b>'+data.entries.length+' รายการ</b>';
+    (dupMsg||'')+'แผ่น <b>'+data.pg+'</b> · <b>'+data.entries.length+' รายการ</b>';
   document.getElementById('imp-banner-input').value = '';
   document.getElementById('imp-banner-input').style.display = 'none';
   document.getElementById('imp-banner').style.display = 'block';
@@ -869,19 +869,9 @@ function handleImportParam(){
     var log = getScannedLog();
     var prev = log.find(function(x){ return x.fp === fp; });
 
-    if(prev){
-      var prevTime = prev.time ? new Date(prev.time).toLocaleString('th-TH') : '—';
-      showConfirm(
-        '⚠️ <b>สแกนซ้ำ!</b><br>'
-        +'รับข้อมูลนี้ไปแล้วเมื่อ<br><b>'+prevTime+'</b><br><br>'
-        +'แผ่น <b>'+data.pg+'</b> · <b>'+data.entries.length+' รายการ</b><br><br>'
-        +'ต้องการรับซ้ำอีกครั้งไหมครับ?',
-        function(){ doImport(data, fp, log); },
-        true
-      );
-    } else {
-      showImportBanner(data, fp, log);
-    }
+    // ใช้ banner เสมอ ทั้ง scan ใหม่และซ้ำ
+    var dupMsg = prev ? ('⚠️ สแกนซ้ำ! รับไปแล้วเมื่อ '+(prev.time?new Date(prev.time).toLocaleString('th-TH'):'—')+'<br>') : '';
+    showImportBanner(data, fp, log, dupMsg);
 
     window.history.replaceState({}, '', window.location.pathname);
   } catch(err){ console.error(err); toast('อ่าน QR ไม่ได้: '+err.message); }

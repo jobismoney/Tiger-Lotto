@@ -1977,7 +1977,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       // kd - ปักหลัก (ราคาพิเศษรายตัว)
       var kd={};
       ['bon','lang','na'].forEach(function(k){
-        if(e.kd&&e.kd[k]&&e.kd[k].length){kd[k]=e.kd[k].map(function(x){return [x.lek,x.price];});}
+        if(e.kd&&e.kd[k]&&e.kd[k].length){kd[k]=e.kd[k].map(function(x){return [x.perm,x.price];});}
       });
       if(Object.keys(kd).length)o.k=kd;
       return o;
