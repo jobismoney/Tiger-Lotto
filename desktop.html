@@ -778,6 +778,7 @@ var settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 // INIT
 // ================================================================
 function normalizeQRData(data){
+  console.log('raw QR data:', JSON.stringify(data).substring(0,200));
   if(data.e){
     return {
       ngod: data.g||'',
