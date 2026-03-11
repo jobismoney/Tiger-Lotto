@@ -1688,6 +1688,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       ob._mergedMode=true;ob.innerHTML='◀ กลับ';
       document.getElementById('slip-ov').classList.add('show');
       document.getElementById('hist-ov').classList.remove('show');
+      setTimeout(function(){
+        pages.forEach(function(pg,pi){
+          var pgEntries=pg.filter(function(x){return x.type==='entry';}).map(function(x){return x.e;});
+          renderPageQR(pgEntries,infO,pi+1);
+        });
+      },100);
     },
     toggleFolder:function(hdEl){
       var body=hdEl.nextElementSibling;
