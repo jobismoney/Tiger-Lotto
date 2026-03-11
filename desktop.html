@@ -814,6 +814,41 @@ function saveScannedLog(log){
   localStorage.setItem('t999_qr_log', JSON.stringify(log));
 }
 
+function showImportBanner(data, fp, log){
+  var custOpts = '<option value="">— เลือกลูกค้า —</option>';
+  customers.forEach(function(cu){
+    custOpts += '<option value="'+cu.id+'">'+cu.name+'</option>';
+  });
+  custOpts += '<option value="__new__">+ ลูกค้าใหม่</option>';
+  var sel = document.getElementById('imp-banner-sel');
+  sel.innerHTML = custOpts;
+  document.getElementById('imp-banner-info').innerHTML =
+    'แผ่น <b>'+data.pg+'</b> · <b>'+data.entries.length+' รายการ</b>';
+  document.getElementById('imp-banner-input').value = '';
+  document.getElementById('imp-banner-input').style.display = 'none';
+  document.getElementById('imp-banner').style.display = 'block';
+  document.getElementById('imp-banner-ok').onclick = function(){
+    var cid = document.getElementById('imp-banner-sel').value;
+    var ni = document.getElementById('imp-banner-input');
+    if(cid === '__new__'){
+      var nm = ni.value.trim();
+      if(!nm){ toast('กรุณาใส่ชื่อลูกค้าครับ'); return; }
+      cid = 'c'+Date.now();
+      customers.push({id:cid, name:nm});
+      custEntries[cid]=[]; custEid[cid]=0; custSets[cid]=[];
+    }
+    if(!cid){ toast('กรุณาเลือกลูกค้าครับ'); return; }
+    document.getElementById('imp-banner').style.display='none';
+    // inject cid เพื่อให้ doImport ใช้
+    var fakesel = document.getElementById('imp-cust-sel');
+    if(!fakesel){ fakesel=document.createElement('select'); fakesel.id='imp-cust-sel'; fakesel.style.display='none'; document.body.appendChild(fakesel); }
+    fakesel.innerHTML = '<option value="'+cid+'" selected></option>';
+    doImport(data, fp, log);
+  };
+  document.getElementById('imp-banner-cancel').onclick = function(){
+    document.getElementById('imp-banner').style.display='none';
+  };
+}
 function handleImportParam(){
   var params = new URLSearchParams(window.location.search);
   var imp = params.get('import');
@@ -840,17 +875,7 @@ function handleImportParam(){
         true
       );
     } else {
-      var custOpts = '<option value="">— เลือกลูกค้า —</option>';
-      customers.forEach(function(cu){
-        custOpts += '<option value="'+cu.id+'">'+cu.name+'</option>';
-      });
-      custOpts += '<option value="__new__">+ ลูกค้าใหม่</option>';
-
-      var msg = '📋 รับโพย <b>'+data.entries.length+' รายการ</b> · แผ่น <b>'+data.pg+'</b><br><br>'
-        +'<select id="imp-cust-sel" style="width:100%;margin-top:4px;padding:8px;border-radius:8px;border:1px solid #444;background:#1e2235;color:#f0f2ff;font-size:14px;" onchange="(function(s){var ni=document.getElementById('imp-new-name');if(ni)ni.style.display=s.value==='__new__'?'block':'none';})(this)">'+custOpts+'</select>'
-        +'<input id="imp-new-name" type="text" placeholder="ชื่อลูกค้าใหม่" style="display:none;width:100%;margin-top:8px;padding:8px;border-radius:8px;border:1px solid #444;background:#1e2235;color:#f0f2ff;font-size:14px;font-family:Sarabun,sans-serif;">';
-
-      showConfirm(msg, function(){ doImport(data, fp, log); });
+      showImportBanner(data, fp, log);
     }
 
     window.history.replaceState({}, '', window.location.pathname);
@@ -2680,5 +2705,26 @@ selectCust = function(id){
 };
 
 </script>
+
+<style>
+#imp-banner{position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#1a1d27,#12151f);border-bottom:3px solid var(--gold);padding:16px;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+#imp-banner-title{font-size:16px;font-weight:900;color:var(--gold);margin-bottom:8px;}
+#imp-banner-info{font-size:14px;color:var(--white);margin-bottom:10px;line-height:1.6;}
+#imp-banner-sel{width:100%;padding:8px;border-radius:8px;border:1px solid #444;background:#0f1117;color:#f0f2ff;font-size:14px;font-family:'Sarabun',sans-serif;margin-bottom:8px;}
+#imp-banner-input{width:100%;padding:8px;border-radius:8px;border:1px solid #444;background:#0f1117;color:#f0f2ff;font-size:14px;font-family:'Sarabun',sans-serif;display:none;margin-bottom:8px;}
+.imp-banner-btns{display:flex;gap:8px;}
+#imp-banner-ok{flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#111;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;}
+#imp-banner-cancel{background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;padding:10px 16px;cursor:pointer;}
+</style>
+<div id="imp-banner">
+  <div id="imp-banner-title">📋 รับโพยใหม่</div>
+  <div id="imp-banner-info"></div>
+  <select id="imp-banner-sel" onchange="var ni=document.getElementById('imp-banner-input');ni.style.display=this.value==='__new__'?'block':'none'"></select>
+  <input id="imp-banner-input" type="text" placeholder="ชื่อลูกค้าใหม่">
+  <div class="imp-banner-btns">
+    <button id="imp-banner-ok">✅ รับเข้าระบบ</button>
+    <button id="imp-banner-cancel">ยกเลิก</button>
+  </div>
+</div>
 </body>
 </html>
