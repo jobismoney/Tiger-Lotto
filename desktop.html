@@ -853,7 +853,7 @@ function handleImportParam(){
     }
 
     window.history.replaceState({}, '', window.location.pathname);
-  } catch(err){ toast('อ่าน QR ไม่ได้ครับ'); }
+  } catch(err){ console.error(err); toast('อ่าน QR ไม่ได้: '+err.message); }
 }
 
 function doImport(data, fp, log){
@@ -902,7 +902,7 @@ function doImport(data, fp, log){
 
 window.addEventListener('DOMContentLoaded', function(){
   loadSettings();
-  setTimeout(handleImportParam, 300);
+  setTimeout(handleImportParam, 800);
   load();
   renderCfgRows();
   setupNumpad();
