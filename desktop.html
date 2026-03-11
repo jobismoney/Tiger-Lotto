@@ -776,8 +776,31 @@ var settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 // ================================================================
 // INIT
 // ================================================================
+function normalizeQRData(data){
+  // รองรับทั้ง format เก่า (ngod,sender,entries) และใหม่ (g,s,e compact)
+  if(data.e){ // format ใหม่
+    return {
+      ngod: data.g||'',
+      sender: data.s||'',
+      receiver: data.r||'',
+      date: data.dt||'',
+      pg: data.p||1,
+      entries: (data.e||[]).map(function(e){
+        return {
+          lek: e.l, d: e.d||String(e.l).length,
+          bon: e.b||null, tod: e.t||null, lang: e.la||null, na: e.n||null,
+          kd: e.k ? {
+            bon: (e.k.bon||[]).map(function(x){return {lek:x.l,price:x.p};}),
+            lang: (e.k.lang||[]).map(function(x){return {lek:x.l,price:x.p};}),
+            na: (e.k.na||[]).map(function(x){return {lek:x.l,price:x.p};})
+          } : {}
+        };
+      })
+    };
+  }
+  return data; // format เก่า
+}
 function makeQRFingerprint(data){
-  // fingerprint = sender|ngod|pg|lek1,lek2,...
   var leks = (data.entries||[]).map(function(e){ return e.lek; }).join(',');
   return (data.sender||'') + '|' + (data.ngod||'') + '|' + (data.pg||'') + '|' + leks;
 }
@@ -798,6 +821,7 @@ function handleImportParam(){
   try{
     var json = decodeURIComponent(escape(atob(imp)));
     var data = JSON.parse(json);
+    data = normalizeQRData(data);
     if(!data.entries||!data.entries.length) return;
 
     var fp = makeQRFingerprint(data);
