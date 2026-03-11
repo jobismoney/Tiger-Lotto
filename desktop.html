@@ -818,6 +818,7 @@ function handleImportParam(){
   var params = new URLSearchParams(window.location.search);
   var imp = params.get('import');
   if(!imp) return;
+  toast('📋 กำลังโหลดข้อมูล QR...');
   try{
     var json = decodeURIComponent(escape(atob(imp)));
     var data = JSON.parse(json);
