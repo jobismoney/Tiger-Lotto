@@ -776,8 +776,102 @@ var settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 // ================================================================
 // INIT
 // ================================================================
+function makeQRFingerprint(data){
+  // fingerprint = sender|ngod|pg|lek1,lek2,...
+  var leks = (data.entries||[]).map(function(e){ return e.lek; }).join(',');
+  return (data.sender||'') + '|' + (data.ngod||'') + '|' + (data.pg||'') + '|' + leks;
+}
+
+function getScannedLog(){
+  try{ return JSON.parse(localStorage.getItem('t999_qr_log')||'[]'); }
+  catch(e){ return []; }
+}
+
+function saveScannedLog(log){
+  localStorage.setItem('t999_qr_log', JSON.stringify(log));
+}
+
+function handleImportParam(){
+  var params = new URLSearchParams(window.location.search);
+  var imp = params.get('import');
+  if(!imp) return;
+  try{
+    var json = decodeURIComponent(escape(atob(imp)));
+    var data = JSON.parse(json);
+    if(!data.entries||!data.entries.length) return;
+
+    var fp = makeQRFingerprint(data);
+    var log = getScannedLog();
+    var prev = log.find(function(x){ return x.fp === fp; });
+
+    if(prev){
+      // เคยสแกนแล้ว — แจ้งเตือน พร้อมถามว่าจะรับซ้ำไหม
+      var prevTime = prev.time ? new Date(prev.time).toLocaleString('th-TH') : '—';
+      showConfirm(
+        '⚠️ <b>สแกนซ้ำ!</b><br>'
+        +'รับข้อมูลนี้ไปแล้วเมื่อ<br><b>'+prevTime+'</b><br><br>'
+        +'ผู้ส่ง: <b>'+(data.sender||'?')+'</b> งวด <b>'+(data.ngod||'?')+'</b> แผ่น <b>'+data.pg+'</b><br><br>'
+        +'ต้องการรับซ้ำอีกครั้งไหมครับ?',
+        function(){ doImport(data, fp, log); },
+        true // danger style
+      );
+    } else {
+      // ยังไม่เคยสแกน — import ปกติ
+      var custOpts = '';
+      customers.forEach(function(cu){
+        custOpts += '<option value="'+cu.id+'"'+(cu.name===data.sender?' selected':'')+'>'+cu.name+'</option>';
+      });
+      custOpts += '<option value="__new__">+ สร้างใหม่ "'+(data.sender||'ไม่ระบุ')+'"</option>';
+
+      var msg = 'รับข้อมูลจาก <b>'+(data.sender||'?')+'</b> งวด <b>'+(data.ngod||'?')+'</b><br>'
+        +'แผ่น <b>'+data.pg+'</b> · <b>'+data.entries.length+' รายการ</b><br><br>'
+        +'<select id="imp-cust-sel" style="width:100%;margin-top:6px;padding:8px;border-radius:8px;border:1px solid #444;background:#1e2235;color:#f0f2ff;font-size:14px;">'+custOpts+'</select>';
+
+      showConfirm(msg, function(){ doImport(data, fp, log); });
+    }
+
+    window.history.replaceState({}, '', window.location.pathname);
+  } catch(err){ toast('อ่าน QR ไม่ได้ครับ'); }
+}
+
+function doImport(data, fp, log){
+  var sel = document.getElementById('imp-cust-sel');
+  var cid = sel ? sel.value : null;
+
+  // ถ้าไม่มี sel (กรณีสแกนซ้ำ) ให้หาลูกค้าจากชื่อ sender
+  if(!cid){
+    var match = customers.find(function(cu){ return cu.name === data.sender; });
+    cid = match ? match.id : '__new__';
+  }
+
+  if(cid === '__new__'){
+    cid = 'c'+Date.now();
+    customers.push({id:cid, name:data.sender||'ไม่ระบุ'});
+    custEntries[cid] = []; custEid[cid] = 0; custSets[cid] = [];
+  }
+  if(!custEntries[cid]) custEntries[cid] = [];
+  if(!custEid[cid]) custEid[cid] = 0;
+
+  data.entries.forEach(function(e){
+    custEid[cid]++;
+    custEntries[cid].push({
+      id: custEid[cid], lek: e.lek, d: e.lek.length,
+      bon: e.bon||null, tod: e.tod||null, lang: e.lang||null, na: e.na||null, kd: e.kd||{}
+    });
+  });
+
+  // บันทึก fingerprint
+  log.push({ fp: fp, time: Date.now(), sender: data.sender, ngod: data.ngod, pg: data.pg });
+  saveScannedLog(log);
+
+  curCustId = cid;
+  save(); renderCustList(); renderHist(); updateSummary();
+  toast('✅ รับ '+data.entries.length+' รายการจาก '+(data.sender||'?')+' แล้ว');
+}
+
 window.addEventListener('DOMContentLoaded', function(){
   loadSettings();
+  setTimeout(handleImportParam, 300);
   load();
   renderCfgRows();
   setupNumpad();
@@ -1975,13 +2069,17 @@ function sumTableHTML(rows){
     +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
-function makePageHTML(pEntries,pgNum,totalPages,inf){
+function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
   var groups={},order2=[];
   pEntries.forEach(function(e){
     if(!groups[e.d]){groups[e.d]=[];order2.push(e.d);}
     groups[e.d].push(e);
   });
   var bodyRows='';
+  // ถ้ามี custLabel (โพยรวม) แสดง divider ชื่อลูกค้า/ชุด
+  if(custLabel){
+    bodyRows+='<tr class="set-divider"><td colspan="5" style="padding:4px 6px;font-size:11px;font-weight:800;color:#888;border-top:2px dashed #bbb;">— '+custLabel+' —</td></tr>';
+  }
   order2.forEach(function(d,di){
     if(di>0)bodyRows+='<tr class="grp-sep"><td colspan="5"></td></tr>';
     var bucket=groups[d];
@@ -1992,9 +2090,13 @@ function makePageHTML(pEntries,pgNum,totalPages,inf){
       if(!ls.length)continue;
       var eTot=ls.reduce(function(s,x){return s+x.total;},0);
       if(ls.length===1){
-        bodyRows+='<tr><td class="td-lek">'+ls[0].lek+'</td><td class="td-eq">=</td>'
-          +'<td class="td-price">'+ls[0].price+'</td><td style="width:12px;"></td>'
-          +'<td class="td-total">'+fmtN(eTot)+'</td></tr>';
+        bodyRows+='<tr>'
+          +'<td class="td-lek">'+ls[0].lek+'</td>'
+          +'<td class="td-eq">=</td>'
+          +'<td class="td-price">'+ls[0].price+'</td>'
+          +'<td class="td-brace-empty"></td>'
+          +'<td class="td-total">'+fmtN(eTot)+'</td>'
+          +'</tr>';
       } else {
         var n2=ls.length,midIdx=Math.floor((n2-1)/2);
         for(var li=0;li<n2;li++){
@@ -2004,9 +2106,12 @@ function makePageHTML(pEntries,pgNum,totalPages,inf){
           else if(isFirst){bs+='border-right:1.5px solid #999;border-top:1.5px solid #999;border-radius:0 4px 0 0;';}
           else if(isLast){bs+='border-right:1.5px solid #999;border-bottom:1.5px solid #999;border-radius:0 0 4px 0;';}
           else{bs+='border-right:1.5px solid #999;';}
-          bodyRows+='<tr><td class="td-lek">'+ls[li].lek+'</td><td class="td-eq">=</td>'
-            +'<td class="td-price">'+ls[li].price+'</td><td style="'+bs+'"></td>'
-            +(isMid2?'<td class="td-total" rowspan="'+n2+'" style="vertical-align:middle;text-align:right;">'+fmtN(eTot)+'</td>':'')
+          bodyRows+='<tr>'
+            +'<td class="td-lek">'+ls[li].lek+'</td>'
+            +'<td class="td-eq">=</td>'
+            +'<td class="td-price">'+ls[li].price+'</td>'
+            +'<td style="'+bs+'"></td>'
+            +(isMid2?'<td class="td-total" rowspan="'+n2+'" style="vertical-align:middle;text-align:right;width:50px;">'+fmtN(eTot)+'</td>':'')
             +'</tr>';
         }
       }
@@ -2016,14 +2121,14 @@ function makePageHTML(pEntries,pgNum,totalPages,inf){
   var ps=pageSumTotals(pEntries);
   var pt=pEntries.reduce(function(s,e){return s+entryTotal(e);},0);
   return '<div class="slip-hd">'
-    +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่น '+pgNum+'/'+totalPages+'</span></div>'
+    +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
     +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span>'
     +'<span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span>'
     +'<span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span>'
     +'<span>วันที่ <strong>'+(inf.date||'—')+'</strong></span></div>'
     +'</div>'
     +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup>'
-    +'<col style="width:48px"><col style="width:10px"><col style="width:100px">'
+    +'<col style="width:52px"><col style="width:10px"><col style="width:110px">'
     +'<col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
     +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
     +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmtN(pt)+'</span></div>'
