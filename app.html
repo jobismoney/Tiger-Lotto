@@ -1528,11 +1528,16 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     },
     delHist:function(i,ngod){
       showConfirm('ลบประวัติงวด <b>'+ngod+'</b>?<br>ไม่สามารถกู้คืนได้',function(){
-        var hist=getHistory();hist.splice(i,1);saveHistory(hist);renderHistory();toast('ลบแล้ว');
+        var hist=getHistory();
+        var idx=hist.findIndex(function(x){return x.id===i;});
+        if(idx>=0)hist.splice(idx,1);
+        saveHistory(hist);renderHistory();toast('ลบแล้ว');
       },true);
     },
     checkHist:function(i){
-      var hist=getHistory();var h=hist[i];if(!h)return;
+      var hist=getHistory();
+      var h=hist.find(function(x){return x.id===i;})||hist[i];
+      if(!h)return;
       var ngod=h.ngod;
       document.getElementById('hist-ov').classList.remove('show');
       // รวมทุกชุดของงวดนี้
@@ -2367,7 +2372,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'<span class="hist-folder-toggle open">▼</span></div>'
         +'</div>'
         +'<div class="hist-folder-body">'+setRows+'</div>'
-        +(basketSets.length>0?'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEscQ+'">📋 ดูทั้งหมด</button><button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEscQ+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHist('+hist.indexOf(basketSets[basketSets.length-1])+')">🔍 ตรวจผล</button></div>':'')
+        +(basketSets.length>0?'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEscQ+'">📋 ดูทั้งหมด</button><button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEscQ+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHist('+(basketSets[basketSets.length-1].id)+')">🔍 ตรวจผล</button></div>':'')
         +'</div>');
     }
 
@@ -2445,7 +2450,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'<button class="hist-btn del" onclick="APP.delNgod(this.dataset.ngod)" data-ngod="'+ngodEsc+'">🗑️ ลบทั้งงวด</button>'
         +'<button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEsc+'">📋 ดูทั้งหมด</button>'
         +'<button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEsc+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button>'
-        +'<button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHist('+sets[0].i+')">🔍 ตรวจผล</button>'
+        +'<button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHist('+(sets[0].h.id)+')">🔍 ตรวจผล</button>'
         +'</div></div>');
     });
 

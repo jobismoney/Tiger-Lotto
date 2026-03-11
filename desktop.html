@@ -527,9 +527,38 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
       </div>
 
       <!-- TAB ตรวจ -->
-      <div id="tab-check" class="rscroll" style="display:none;">
-        <div class="sum-sec">ตรวจผลรางวัล</div>
-        <p style="font-size:11px;color:#334;margin-top:8px;">กำลังพัฒนาครับ</p>
+      <div id="tab-check" class="rscroll" style="display:none;padding:9px;">
+        <div class="sum-sec">🔍 ตรวจผลรางวัล</div>
+
+        <!-- ผลรางวัล -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:8px 0;">
+          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">รางวัลที่ 1</div>
+            <input id="res-1st" type="tel" inputmode="numeric" maxlength="6" placeholder="6 หลัก"
+              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#f5c518;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
+          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">เลขท้าย 3 ตัวบน</div>
+            <input id="res-3bon" type="tel" inputmode="numeric" maxlength="3" placeholder="3 หลัก"
+              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
+          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">เลขท้าย 3 ตัวล่าง</div>
+            <input id="res-3lang" type="tel" inputmode="numeric" maxlength="3" placeholder="3 หลัก"
+              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
+          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">เลขท้าย 2 ตัวบน</div>
+            <input id="res-2bon" type="tel" inputmode="numeric" maxlength="2" placeholder="2 หลัก"
+              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
+          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">เลขท้าย 2 ตัวล่าง</div>
+            <input id="res-2lang" type="tel" inputmode="numeric" maxlength="2" placeholder="2 หลัก"
+              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
+          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">วิ่งบน (หลายตัว)</div>
+            <input id="res-vbon" type="text" inputmode="numeric" placeholder="เช่น 1,5,9"
+              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:14px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
+          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">วิ่งล่าง (หลายตัว)</div>
+            <input id="res-vlang" type="text" inputmode="numeric" placeholder="เช่น 2,7"
+              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:14px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
+          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">หน้า 3 ตัวบน</div>
+            <input id="res-3na" type="tel" inputmode="numeric" maxlength="3" placeholder="3 หลัก"
+              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
+        </div>
+        <button onclick="doCheckResult()" style="width:100%;padding:10px;background:linear-gradient(135deg,#f5c518,#d4a500);border:none;border-radius:10px;font-size:15px;font-weight:900;color:#111;cursor:pointer;margin-bottom:10px;font-family:inherit;">🔍 ตรวจผลเลย</button>
+        <div id="check-result-out" style="font-size:13px;"></div>
       </div>
 
       <!-- TAB ตั้งค่า -->
@@ -1425,6 +1454,7 @@ function renderHist(){
       +'<div class="hd'+(e.lang?'':' e')+'">'+(e.lang||'—')+'</div>'
       +'<div class="hd'+(e.na?'':' e')+'">'+(e.na||'—')+'</div>'
       +'<div class="hd rm" onclick="removeEntry(\''+curCustId+'\','+e.id+')">✕</div>'
+      +'<div class="hd" style="width:24px;cursor:pointer;color:#f5c518;font-size:12px;text-align:center;" onclick="openRatePicker(\''+e.lek+'\')" title="ตั้งค่าเรท">⚙</div>'
       +'</div>';
     (e.paks||[]).forEach(function(p){
       h+='<div class="pak-row">'
@@ -1843,6 +1873,7 @@ function makePageHTML(pEntries,pgNum,totalPages,inf){
     +LEGEND;
 }
 
+function fmtN(n){return parseInt(n||0).toLocaleString();}
 function buildSlipHTML(cid){
   var all=getAllEntries(cid);
   if(!all.length) return null;
@@ -1915,6 +1946,221 @@ function showSlip(){
   document.getElementById('slip-ov').classList.add('show');
   document.getElementById('slip-ov').scrollTop = 0;
 }
+
+// ================================================================
+// RESULT CHECK — ตรวจผลรางวัล
+// ================================================================
+function getResInput(id){ return (document.getElementById(id)||{}).value||''; }
+
+function getTod(lek){
+  if(lek.length!==3) return [];
+  var d=lek.split('');
+  var perms=new Set();
+  [0,1,2].forEach(function(a){[0,1,2].forEach(function(b){[0,1,2].forEach(function(cc){
+    if(a!==b&&b!==cc&&a!==cc) perms.add(d[a]+d[b]+d[cc]);
+  });});});
+  return Array.from(perms);
+}
+
+function doCheckResult(){
+  var first6 = getResInput('res-1st').trim();
+  var r3bon  = getResInput('res-3bon').trim();
+  var r3lang = getResInput('res-3lang').trim();
+  var r2bon  = getResInput('res-2bon').trim();
+  var r2lang = getResInput('res-2lang').trim();
+  var r3na   = getResInput('res-3na').trim();
+  var vbonRaw= getResInput('res-vbon').trim();
+  var vlangRaw=getResInput('res-vlang').trim();
+
+  // ดึง 3ตัวบน, หน้า, ล่าง จาก first6 ถ้าไม่ได้กรอกแยก
+  if(first6.length===6){
+    if(!r3bon)  r3bon  = first6.slice(-3);
+    if(!r3na)   r3na   = first6.slice(0,3);
+    if(!r2bon)  r2bon  = first6.slice(-2);
+  }
+
+  var vbon  = vbonRaw  ? vbonRaw.replace(/\s/g,'').split(',').filter(Boolean)  : [];
+  var vlang = vlangRaw ? vlangRaw.replace(/\s/g,'').split(',').filter(Boolean) : [];
+
+  // tod winners: permutations of r3bon
+  var todWin = r3bon ? getTod(r3bon) : [];
+
+  var out = '';
+  var grandPay = 0;
+
+  customers.forEach(function(cust){
+    var all = getAllEntries(cust.id);
+    if(!all.length) return;
+    var hits = [];
+    var custPay = 0;
+
+    all.forEach(function(e,ei){
+      var lek = e.lek;
+      var d   = e.d;
+      var setId = e._setId||'?';
+
+      // ── 3ตัวบน (bon) ──
+      if(d===3 && r3bon && lek===r3bon){
+        var cfg=getCfg('3bon'); var pr=cfg?cfg.pay:500;
+        if(e.bon){ hits.push({lek:lek,type:'3ตัวบน',bet:e.bon,pay:e.bon*pr}); custPay+=e.bon*pr; }
+        (e.kd.bon||[]).forEach(function(x){ hits.push({lek:x.perm,type:'3ตัวบน(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; });
+      }
+      // ── 3ตัวหน้า (na) ──
+      if(d===3 && r3na && lek===r3na){
+        var cfg=getCfg('3na'); var pr=cfg?cfg.pay:450;
+        if(e.na){ hits.push({lek:lek,type:'3ตัวหน้า',bet:e.na,pay:e.na*pr}); custPay+=e.na*pr; }
+        (e.kd.na||[]).forEach(function(x){ hits.push({lek:x.perm,type:'3ตัวหน้า(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; });
+      }
+      // ── 3ตัวล่าง (lang) ──
+      if(d===3 && r3lang && lek===r3lang){
+        var cfg=getCfg('3lang'); var pr=cfg?cfg.pay:450;
+        if(e.lang){ hits.push({lek:lek,type:'3ตัวล่าง',bet:e.lang,pay:e.lang*pr}); custPay+=e.lang*pr; }
+        (e.kd.lang||[]).forEach(function(x){ hits.push({lek:x.perm,type:'3ตัวล่าง(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; });
+      }
+      // ── โต๊ด ──
+      if(d===3 && todWin.indexOf(lek)>=0){
+        var cfg=getCfg('tod'); var pr=cfg?cfg.pay:120;
+        if(e.tod){ hits.push({lek:lek,type:'โต๊ด',bet:e.tod,pay:e.tod*pr}); custPay+=e.tod*pr; }
+      }
+      // ── 2ตัวบน ──
+      if(d===2 && r2bon && lek===r2bon){
+        var cfg=getCfg('2bon'); var pr=cfg?cfg.pay:70;
+        if(e.bon){ hits.push({lek:lek,type:'2ตัวบน',bet:e.bon,pay:e.bon*pr}); custPay+=e.bon*pr; }
+        (e.kd.bon||[]).forEach(function(x){ hits.push({lek:x.perm,type:'2ตัวบน(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; });
+      }
+      // ── 2ตัวล่าง ──
+      if(d===2 && r2lang && lek===r2lang){
+        var cfg=getCfg('2lang'); var pr=cfg?cfg.pay:70;
+        if(e.lang){ hits.push({lek:lek,type:'2ตัวล่าง',bet:e.lang,pay:e.lang*pr}); custPay+=e.lang*pr; }
+        (e.kd.lang||[]).forEach(function(x){ hits.push({lek:x.perm,type:'2ตัวล่าง(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; });
+      }
+      // ── วิ่งบน ──
+      if(d===1 && vbon.indexOf(lek)>=0){
+        var cfg=getCfg('vbon'); var pr=cfg?cfg.pay:3;
+        if(e.bon){ hits.push({lek:lek,type:'วิ่งบน',bet:e.bon,pay:e.bon*pr}); custPay+=e.bon*pr; }
+      }
+      // ── วิ่งล่าง ──
+      if(d===1 && vlang.indexOf(lek)>=0){
+        var cfg=getCfg('vlang'); var pr=cfg?cfg.pay:4;
+        if(e.lang){ hits.push({lek:lek,type:'วิ่งล่าง',bet:e.lang,pay:e.lang*pr}); custPay+=e.lang*pr; }
+      }
+    });
+
+    if(!hits.length) return;
+    grandPay += custPay;
+
+    out += '<div style="background:#0f172a;border:1px solid #1e3a5f;border-radius:10px;padding:10px 12px;margin-bottom:10px;">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+      + '<div style="font-size:15px;font-weight:900;color:#f5c518;">'+cust.name+'</div>'
+      + '<div style="font-size:15px;font-weight:900;color:#f87171;">จ่าย ฿'+custPay.toLocaleString()+'</div>'
+      + '</div>';
+    hits.forEach(function(h){
+      out += '<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;border-bottom:1px solid #1e293b;">'
+        + '<span style="color:#94a3b8;">'+h.lek+' <span style="color:#60a5fa;">'+h.type+'</span> ×฿'+h.bet+'</span>'
+        + '<span style="color:#6ee7b7;font-weight:700;">฿'+h.pay.toLocaleString()+'</span>'
+        + '</div>';
+    });
+    out += '</div>';
+  });
+
+  if(!out) out = '<div style="color:#6ee7b7;text-align:center;padding:20px;font-size:15px;font-weight:700;">🎉 ไม่มีถูกรางวัลครับ</div>';
+  else out = '<div style="background:#7f1d1d;border-radius:8px;padding:8px 12px;margin-bottom:10px;display:flex;justify-content:space-between;">'
+    + '<span style="color:#fca5a5;font-weight:900;">รวมต้องจ่ายทั้งหมด</span>'
+    + '<span style="color:#fca5a5;font-weight:900;font-size:17px;">฿'+grandPay.toLocaleString()+'</span>'
+    + '</div>' + out;
+
+  document.getElementById('check-result-out').innerHTML = out;
+}
+
+function getCfg(key){
+  var all = settings.normal.concat(settings.special);
+  return all.find(function(x){return x.key===key;})||null;
+}
+
+// ================================================================
+// PER-NUMBER RATE — เจ้ามือตั้งรายเลข (0% / 50% / ปกติ)
+// ================================================================
+// rate-overrides: { ngod: { lek: {mode:'normal'|'half'|'none', fields:{bon,tod,lang,na}} } }
+var rateOverrides = {};
+var RATE_STORE = 't999_rates_v1';
+
+function loadRates(){
+  try{ rateOverrides = JSON.parse(localStorage.getItem(RATE_STORE)||'null')||{}; }catch(e){ rateOverrides={}; }
+}
+function saveRates(){
+  try{ localStorage.setItem(RATE_STORE, JSON.stringify(rateOverrides)); }catch(e){}
+}
+function getRateKey(){ return ngodInfo&&ngodInfo.ngod ? ngodInfo.ngod : '_'; }
+function setLekRate(lek, fieldKey, mode){
+  var nk = getRateKey();
+  if(!rateOverrides[nk]) rateOverrides[nk]={};
+  if(!rateOverrides[nk][lek]) rateOverrides[nk][lek]={};
+  if(mode==='normal'){
+    delete rateOverrides[nk][lek][fieldKey];
+    if(!Object.keys(rateOverrides[nk][lek]).length) delete rateOverrides[nk][lek];
+  } else {
+    rateOverrides[nk][lek][fieldKey] = mode; // 'half' or 'none'
+  }
+  saveRates();
+}
+function getLekRate(lek, fieldKey){
+  var nk = getRateKey();
+  return (rateOverrides[nk]&&rateOverrides[nk][lek]&&rateOverrides[nk][lek][fieldKey])||'normal';
+}
+
+// เรียกเพื่อเปิด rate picker ของเลขใดเลขหนึ่ง
+function openRatePicker(lek){
+  var nk = getRateKey();
+  var fields = ['bon','tod','lang','na'];
+  var fieldLabels = {bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
+  var modes = [{v:'normal',l:'ปกติ 100%',c:'#22c55e'},{v:'half',l:'จ่าย 50%',c:'#f59e0b'},{v:'none',l:'ไม่รับ 0%',c:'#ef4444'}];
+  var rows = fields.map(function(fk){
+    var cur = getLekRate(lek, fk);
+    var btns = modes.map(function(m){
+      var isCur=(cur===m.v);
+      return '<button data-lek="'+lek+'" data-fk="'+fk+'" data-mode="'+m.v+'" onclick="setLekRate(this.dataset.lek,this.dataset.fk,this.dataset.mode);renderRatePicker(this.dataset.lek)" '
+        +'style="flex:1;padding:5px 3px;border-radius:6px;font-size:11px;font-weight:700;border:2px solid '+(isCur?m.c:'#333')+';background:'+(isCur?m.c+'22':'transparent')+';color:'+(isCur?m.c:'#666')+';cursor:pointer;font-family:inherit;">'
+        +m.l+'</button>';
+    }).join('');
+    return '<div style="padding:7px 0;border-bottom:1px solid #1e293b;">'
+      +'<div style="font-size:12px;color:#888;margin-bottom:4px;">'+fieldLabels[fk]+'</div>'
+      +'<div style="display:flex;gap:4px;">'+btns+'</div></div>';
+  }).join('');
+  var html = '<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;" id="rp-overlay" onclick="if(event.target.id==\'rp-overlay\')closeRatePicker()">'
+    +'<div style="background:#1e1e2e;border:1px solid #333;border-radius:14px;padding:16px;width:320px;max-width:94vw;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+    +'<div style="font-size:18px;font-weight:900;color:#f5c518;">⚙️ ตั้งค่าเลข '+lek+'</div>'
+    +'<button onclick="closeRatePicker()" style="background:none;border:1px solid #444;border-radius:6px;color:#aaa;padding:4px 10px;cursor:pointer;font-size:16px;">✕</button>'
+    +'</div>'
+    +rows
+    +'</div></div>';
+  var el=document.createElement('div');el.id='rp-wrap';el.innerHTML=html;
+  document.body.appendChild(el);
+}
+function renderRatePicker(lek){
+  closeRatePicker(); openRatePicker(lek);
+}
+function closeRatePicker(){
+  var el=document.getElementById('rp-wrap');if(el)el.parentNode.removeChild(el);
+}
+
+// คำนวณยอดจริงโดยคำนึง rate override
+function entryTotalWithRate(e){
+  var nk=getRateKey();
+  var ov=(rateOverrides[nk]&&rateOverrides[nk][e.lek])||{};
+  function adj(val,fk){
+    var m=ov[fk]||'normal';
+    if(m==='none') return 0;
+    if(m==='half') return Math.round((val||0)/2);
+    return val||0;
+  }
+  var t=adj(e.bon,'bon')+adj(e.tod,'tod')+adj(e.lang,'lang')+adj(e.na,'na');
+  (e.paks||[]).forEach(function(p){t+=p.price;});
+  var kd=e.kd||{};
+  ['bon','lang','na'].forEach(function(k){(kd[k]||[]).forEach(function(x){t+=x.price;});});
+  return t;
+}
+
 
 </script>
 </body>
