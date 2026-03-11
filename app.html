@@ -1969,7 +1969,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function encodePageData(pEntries, inf, pgNum){
     // compact entries - เก็บเฉพาะ field ที่ไม่เป็น 0
     var compEntries=pEntries.map(function(e){
-      var o={l:e.lek,d:e.d};
+      var o={l:e.lek};
       if(e.bon)o.b=e.bon;
       if(e.tod)o.t=e.tod;
       if(e.lang)o.la=e.lang;
@@ -1982,7 +1982,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(Object.keys(kd).length)o.k=kd;
       return o;
     });
-    var data={g:inf.ngod,s:inf.sender||'',r:inf.receiver||'',dt:inf.date,p:pgNum,e:compEntries};
+    // ตัด receiver, date ออก desktop มีอยู่แล้ว
+    var data={g:inf.ngod,s:inf.sender||'',p:pgNum,e:compEntries};
     var json=JSON.stringify(data);
     var b64=btoa(unescape(encodeURIComponent(json)));
     return 'https://tiger999.online/desktop.html?import='+b64;
@@ -1998,7 +1999,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       return;
     }
     try{
-      new QRCode(el,{text:url,width:80,height:80,correctLevel:QRCode.CorrectLevel.L});
+      new QRCode(el,{text:url,width:120,height:120,correctLevel:QRCode.CorrectLevel.L});
     }catch(e){
       el.innerHTML='<div style="font-size:10px;color:#aaa;text-align:right;">QR error</div>';
     }
