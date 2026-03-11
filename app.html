@@ -550,7 +550,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 <div class="main-wrap" id="main-wrap">
   <div class="hdr">
     <div class="hdr-left">
-      <h1>🐯 TIGER 999</h1>
+      <h1>🐯 TIGER 999 <span id="hd-ngod" style="font-size:13px;font-weight:700;color:var(--lg);"></span></h1>
       <p id="hd-info">กรอกชื่อและงวด</p>
     </div>
     <div class="hdr-btns">
@@ -577,7 +577,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
   </div>
 
-  <button class="view-btn-main" id="view-btn">📋 ดูรายการ</button>
+  <button class="basket-btn" id="basket-btn">📂 เก็บเข้าแฟ้ม</button>
   <div class="ipanel" id="ipanel">
     <div class="psec">
       <div class="plbl">✏️ กรอกเลข (1-5 หลัก)</div>
@@ -601,8 +601,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     <button class="add-btn" id="qa-open-btn" style="margin:0;flex:1;font-size:16px;background:linear-gradient(135deg,#7c3aed,#5b21b6);">⚡ เพิ่มเลขด่วน</button>
     <button class="add-btn" id="add-btn" style="margin:0;flex:1;font-size:20px;">✓ OK</button>
   </div>
-  <button class="basket-btn" id="basket-btn">📂 เก็บเข้าแฟ้ม</button>
-  <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — กด "ดูรายการ" เพื่อพิมพ์รวม</div>
+  <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — ดูโพยได้ในแฟ้ม</div>
 </div>
 
 <!-- SLIP OVERLAY -->
@@ -873,7 +872,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var s=ngodInfo.sender||'ผู้ส่ง...';
     var r=ngodInfo.receiver||'ผู้รับ...';
     var g=ngodInfo.ngod||'...';
-    document.getElementById('hd-info').textContent=s+' → '+r+' | งวด '+g;
+    document.getElementById('hd-info').textContent=s+' → '+r;
+    document.getElementById('hd-ngod').textContent=' | '+g;
   }
 
   function updateLockUI(){
@@ -1506,6 +1506,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var delBtn=document.getElementById('ov-del-set');
       if(delBtn){delBtn.style.display='';delBtn.dataset.idx=i;}
       document.getElementById('slip-ov').classList.add('show');
+      // render QR
+      var _hInf={ngod:h.ngod,sender:h.sender,receiver:h.receiver,date:h.date};
+      var _hPages=[];var _hPen=[];var _hRc=0;var _MAX=20;
+      h.entries.forEach(function(e){var lc=toLines(e).length;if(_hRc>0&&(_hRc+lc>_MAX)){_hPages.push(_hPen);_hPen=[];_hRc=0;}_hPen.push(e);_hRc+=lc;});
+      if(_hPen.length)_hPages.push(_hPen);
+      setTimeout(function(){_hPages.forEach(function(pg,pi){renderPageQR(pg,_hInf,pi+1);});},100);
     },
     printMerged:function(ngod){
       // เตือนถ้ามีเลขค้าง
@@ -2233,7 +2239,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'</div>'
         +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
         +sumTableHTML(buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false))
-        +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmt(pt)+'</span></div>'+LEGEND;
+        +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmt(pt)+'</span></div>'
+        +'<div class="slip-qr-wrap" id="slip-qr-pg-'+(i+1)+'"></div>'
+        +LEGEND;
     });
     var grandS={c3:0,c2:0,c1:0,ct:0,cl:0};
     pages.forEach(function(pg){var s=pageSumTotals(pg);grandS.c3+=s.c3;grandS.c2+=s.c2;grandS.c1+=s.c1;grandS.ct+=s.ct;grandS.cl+=s.cl;});
@@ -3040,7 +3048,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById('add-btn').addEventListener('beforeinput',function(e){
       if(e.inputType==='insertLineBreak'||e.inputType==='insertParagraph'){e.preventDefault();addEntry();}
     });
-    document.getElementById('view-btn').addEventListener('click',showSlip);
     document.getElementById('basket-btn').addEventListener('click',doBasket);
 
     // print-btn removed from header
