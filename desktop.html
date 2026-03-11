@@ -519,8 +519,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <div class="rtabs">
       <div class="rtab on" onclick="switchTab('sum',this)">สรุป</div>
       <div class="rtab" onclick="switchTab('check',this)">ตรวจ</div>
-      <div class="rtab" onclick="switchTab('rate',this)">เรท</div>
-      <div class="rtab" onclick="switchTab('cfg',this)">ตั้งค่า</div>
+      <div class="rtab" onclick="switchTab('rate',this)">ตั้งอั้น</div>
+      <div class="rtab" onclick="switchTab('cfg',this)">เรท</div>
     </div>
     <div class="zbody">
 
@@ -672,7 +672,6 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
       <div class="pop-lbl">ประเภท</div>
       <div class="type-tabs" id="pak-type-tabs">
         <div class="ttab on" data-type="3bon" onclick="selPakType(this)">3ตัวบน</div>
-        <div class="ttab" data-type="2bon" onclick="selPakType(this)">2ตัวบน</div>
         <div class="ttab" data-type="2lang" onclick="selPakType(this)">2ตัวล่าง</div>
       </div>
       <div class="pop-lbl">ตำแหน่ง</div>
@@ -1642,7 +1641,7 @@ function addPak(){
   var pl={'na':'หน้า','mid':'กลาง','lang':'หลัง'};
   if(!custEntries[curCustId]) custEntries[curCustId]=[];
   var paks=selPositions.map(function(pos){
-    return {type:pakType,pos:pos,price:price,typeLabel:tl[pakType],posLabel:pl[pakPos]||pl[pos]};
+    return {type:pakType,pos:pos,price:price,typeLabel:tl[pakType],posLabel:pl[pos]};
   });
   custEntries[curCustId].unshift({
     id:Date.now(),lek:npLek,d:npLek.length,
