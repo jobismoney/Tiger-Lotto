@@ -39,17 +39,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--dark);color:#fff;min-heig
 .msg.show{display:block;}
 .footer-note{text-align:center;margin-top:24px;font-size:12px;color:#333;}
 .footer-note a{color:#555;text-decoration:none;}
-.choice-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:100;align-items:center;justify-content:center;padding:20px;}
-.choice-ov.show{display:flex;}
-.choice-box{background:#141414;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px 22px;width:100%;max-width:360px;animation:fadeUp .3s ease both;}
-.choice-title{font-size:17px;font-weight:900;color:#f5c518;text-align:center;margin-bottom:5px;}
-.choice-sub{font-size:13px;color:#555;text-align:center;margin-bottom:20px;}
-.choice-btn{width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;font-family:'Sarabun',sans-serif;font-size:14px;cursor:pointer;margin-bottom:10px;transition:all .2s;display:flex;align-items:center;gap:12px;text-align:left;}
-.choice-btn:hover{border-color:rgba(245,197,24,.5);background:rgba(245,197,24,.06);}
-.choice-btn:last-child{margin-bottom:0;}
-.cb-icon{font-size:24px;width:36px;text-align:center;flex-shrink:0;}
-.cb-title{font-size:15px;font-weight:900;}
-.cb-desc{font-size:11px;color:#555;margin-top:2px;}
 .spinner{width:18px;height:18px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;display:none;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading .spinner{display:block;}
@@ -92,7 +81,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--dark);color:#fff;min-heig
 // ตำแหน่งนับจาก string เต็ม รวม - ด้วย:
 // T=0, 9=1, 9=2, 9=3, -=4, b1=5,6,7,8, -=9, b2=10,11,12,13, -=14, b3=15,16,17,18
 // M1(0)=5, M2(3)=8, Y1(6)=12, Y2(2)=16
-var POS = { M1:5, LV:6, M2:8, Y1:12, Y2:16 }; // LV=level pos 6
+var POS = { M1:5, M2:8, Y1:12, Y2:16 };
 // ================================================================
 
 // ฟอร์แมต input อัตโนมัติ
@@ -149,16 +138,20 @@ function checkKey() {
     var validCodes = getValidCodes();
 
     if(validCodes.indexOf(code) !== -1) {
+      // บันทึก session
       localStorage.setItem('t999_key', input);
       localStorage.setItem('t999_code', code);
-      var lv = parseInt(input[POS.LV])||1;
-      localStorage.setItem('t999_level', lv);
 
       msg.textContent = '✓ รหัสถูกต้อง กำลังเข้าสู่ระบบ...';
       msg.className = 'msg success show';
 
       setTimeout(function() {
-        redirectByLevel(lv);
+        // ตรวจขนาดจอ → ส่งไปหน้าที่เหมาะสม
+        if(window.innerWidth >= 768) {
+          window.location.href = 'desktop.html';
+        } else {
+          window.location.href = 'app.html';
+        }
       }, 800);
     } else {
       btn.disabled = false;
@@ -179,6 +172,18 @@ function showError(text) {
   document.getElementById('submitBtn').classList.remove('loading');
 }
 
+function redirectByLevel(lv){
+  if(lv===3){
+    if(window.innerWidth>=900){
+      window.location.href='desktop.html';
+    } else {
+      document.getElementById('choiceOv').classList.add('show');
+    }
+  } else {
+    window.location.href='app.html';
+  }
+}
+
 // เช็คว่า login อยู่แล้วไหม
 (function(){
   var key = localStorage.getItem('t999_key');
@@ -186,8 +191,11 @@ function showError(text) {
   if(key && code) {
     var validCodes = getValidCodes();
     if(validCodes.indexOf(code) !== -1) {
-      var lv = parseInt(localStorage.getItem('t999_level')) || parseInt((key||'')[POS.LV]) || 1;
-      redirectByLevel(lv);
+      if(window.innerWidth >= 768) {
+        window.location.href = 'desktop.html';
+      } else {
+        window.location.href = 'app.html';
+      }
     } else {
       // รหัสหมดอายุ ล้างออก
       localStorage.removeItem('t999_key');
@@ -196,26 +204,5 @@ function showError(text) {
   }
 })();
 </script>
-
-<div class="choice-ov" id="choiceOv">
-  <div class="choice-box">
-    <div class="choice-title">🐯 เลือกโหมดการใช้งาน</div>
-    <div class="choice-sub">รหัสเจ้ามือ — ต้องการเปิดหน้าไหน?</div>
-    <button class="choice-btn" onclick="window.location.href='desktop.html'">
-      <div class="cb-icon">🖥️</div>
-      <div>
-        <div class="cb-title">หน้าเจ้ามือ (Desktop)</div>
-        <div class="cb-desc">คีย์รับแทง · จัดการลูกค้า · ดูสรุป</div>
-      </div>
-    </button>
-    <button class="choice-btn" onclick="window.location.href='app.html'">
-      <div class="cb-icon">📱</div>
-      <div>
-        <div class="cb-title">หน้าลูกค้า (App)</div>
-        <div class="cb-desc">ดูโพย · ตรวจผล · แชร์ผ่าน Line</div>
-      </div>
-    </button>
-  </div>
-</div>
 </body>
 </html>
