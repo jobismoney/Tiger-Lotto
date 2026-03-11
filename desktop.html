@@ -802,7 +802,14 @@ function normalizeQRData(data){
               }).filter(function(x){return x.perm && x.price>0;});
             }
             return {bon:mapKd(k.bon),lang:mapKd(k.lang),na:mapKd(k.na)};
-          })(e.k) : {}
+          })(e.k) : {},
+          paks: (e.pk||[]).map(function(p){
+            var typeLabels={bon:'บน',lang:'ล่าง'};
+            var posLabels={na:'หน้า',mid:'กลาง',lang:'หลัง'};
+            return {type:p.tp,pos:p.ps,price:p.pr,
+                    typeLabel:typeLabels[p.tp]||p.tp,
+                    posLabel:posLabels[p.ps]||p.ps};
+          })
         };
       })
     };

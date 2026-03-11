@@ -1974,6 +1974,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(e.tod)o.t=e.tod;
       if(e.lang)o.la=e.lang;
       if(e.na)o.n=e.na;
+      // ปักหลัก
+      if(e.paks&&e.paks.length){
+        o.pk=e.paks.map(function(p){return {tp:p.type,ps:p.pos,pr:p.price};});
+      }
       // kd - ปักหลัก (ราคาพิเศษรายตัว)
       var kd={};
       ['bon','lang','na'].forEach(function(k){
