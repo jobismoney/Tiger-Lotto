@@ -983,17 +983,18 @@ function setupNumpad(){
 
     switch(e.code||e.key){
 
-      // Enter = ถ้าโฟกัสอยู่ที่ปุ่ม ล้าง/ปัก/OK และไม่ได้กำลังพิมพ์เลข → click ปุ่มนั้น
+      // Enter
       case 'NumpadEnter': case 'Enter':
         e.preventDefault();
         var focusedBtn=document.activeElement;
-        // trigger ปุ่มเฉพาะตอนที่ npLek ว่างเปล่า (ยังไม่ได้เริ่มพิมพ์) หรือกำลัง focus ปุ่มอยู่จริงๆ
-        // ถ้ากำลังพิมพ์เลขอยู่ → blur ปุ่มออกก่อนแล้วค่อย process numpad
         if(focusedBtn&&focusedBtn.closest('#kp-action-btns')){
-          focusedBtn.blur();
-          // ถ้าไม่มีเลขในระบบ → แค่ blur แล้วหยุด (ป้องกันล้างค่าซ้ำ)
-          if(!npLek&&npPhase==='lek') break;
-          // ถ้ามีเลขอยู่ → ทำงานปกติ ไม่ click ปุ่ม
+          // โฟกัสอยู่ที่ปุ่ม action → click ปุ่มนั้นแล้วหยุด
+          var bid=focusedBtn.id;
+          if(bid==='btn-clr') resetNp();
+          else if(bid==='btn-pak') openPak();
+          else if(bid==='btn-ok') addEntry();
+          else focusedBtn.click();
+          break;
         }
         if(npPhase==='lek'){
           if(!npLek){toast('กรอกเลขก่อนครับ');return;}
