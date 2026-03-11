@@ -814,6 +814,10 @@ function saveScannedLog(log){
   localStorage.setItem('t999_qr_log', JSON.stringify(log));
 }
 
+function impBannerSelChange(s){
+  var ni=document.getElementById('imp-banner-input');
+  if(ni) ni.style.display=s.value==='__new__'?'block':'none';
+}
 function showImportBanner(data, fp, log){
   var custOpts = '<option value="">— เลือกลูกค้า —</option>';
   customers.forEach(function(cu){
@@ -2719,7 +2723,7 @@ selectCust = function(id){
 <div id="imp-banner">
   <div id="imp-banner-title">📋 รับโพยใหม่</div>
   <div id="imp-banner-info"></div>
-  <select id="imp-banner-sel" onchange="var ni=document.getElementById('imp-banner-input');ni.style.display=this.value==='__new__'?'block':'none'"></select>
+  <select id="imp-banner-sel" onchange="impBannerSelChange(this)"></select>
   <input id="imp-banner-input" type="text" placeholder="ชื่อลูกค้าใหม่">
   <div class="imp-banner-btns">
     <button id="imp-banner-ok">✅ รับเข้าระบบ</button>
