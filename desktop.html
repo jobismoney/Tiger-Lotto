@@ -1821,6 +1821,8 @@ function slipFmt(n){ return parseInt(n||0).toLocaleString(); }
 
 
 
+var LEGEND='<div class="slip-legend">บ=บน  ล=ล่าง  ต=โต๊ด  หน้า=หน้า  ช=ชุด  ก=กลับ</div>';
+
 function permCount(lek){
   var d=lek.length;
   if(d===2){ var a=lek[0],b=lek[1]; return a===b?1:2; }
