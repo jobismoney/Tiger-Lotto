@@ -62,6 +62,18 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .zone.z2{flex:1;min-width:0;}
 .zone.z4{flex:1;min-width:0;}
 .zone:last-child{border-right:none;}
+
+/* ── TABLET / PORTRAIT responsive ── */
+.tab-nav{display:none;}
+@media (max-width:900px) and (orientation:portrait),(max-width:700px){
+  .main{flex-direction:column;height:calc(100vh - 88px);}
+  .zone{flex:none!important;width:100%!important;height:100%;display:none;}
+  .zone.tab-active{display:flex;}
+  .rzh{display:none!important;}
+  .tab-nav{display:flex;height:40px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;}
+  .tab-nav-btn{flex:1;background:none;border:none;border-bottom:2px solid transparent;color:var(--lg);font-size:11px;font-weight:800;cursor:pointer;font-family:'Sarabun',sans-serif;transition:all .15s;}
+  .tab-nav-btn.on{color:var(--gold);border-bottom-color:var(--gold);}
+}
 /* resize handle */
 .rzh{width:5px;background:transparent;cursor:col-resize;flex-shrink:0;border-right:1px solid var(--border);transition:background .15s;position:relative;z-index:10;}
 .rzh:hover,.rzh.dragging{background:rgba(245,197,24,.3);}
@@ -390,10 +402,16 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   </div>
 </div>
 
+<div class="tab-nav" id="tab-nav">
+  <button class="tab-nav-btn on" onclick="switchZone(1,this)">📂 แฟ้ม</button>
+  <button class="tab-nav-btn" onclick="switchZone(2,this)">📋 รายการ</button>
+  <button class="tab-nav-btn" onclick="switchZone(3,this)">⌨️ คีย์</button>
+  <button class="tab-nav-btn" onclick="switchZone(4,this)">📊 สรุป</button>
+</div>
 <div class="main" id="main-grid">
 
   <!-- ZONE 1: แฟ้มลูกค้า -->
-  <div class="zone z1" id="zone1">
+  <div class="zone z1 tab-active" id="zone1">
     <div class="zhdr">
       <span class="ztitle">📂 แฟ้ม</span>
       <span id="cust-count" style="font-size:11px;color:#4a5570;font-weight:700;">0</span>
@@ -501,6 +519,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <div class="rtabs">
       <div class="rtab on" onclick="switchTab('sum',this)">สรุป</div>
       <div class="rtab" onclick="switchTab('check',this)">ตรวจ</div>
+      <div class="rtab" onclick="switchTab('rate',this)">เรท</div>
       <div class="rtab" onclick="switchTab('cfg',this)">ตั้งค่า</div>
     </div>
     <div class="zbody">
@@ -559,6 +578,36 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         </div>
         <button onclick="doCheckResult()" style="width:100%;padding:10px;background:linear-gradient(135deg,#f5c518,#d4a500);border:none;border-radius:10px;font-size:15px;font-weight:900;color:#111;cursor:pointer;margin-bottom:10px;font-family:inherit;">🔍 ตรวจผลเลย</button>
         <div id="check-result-out" style="font-size:13px;"></div>
+      </div>
+
+      <!-- TAB เรท -->
+      <div id="tab-rate" style="display:none;overflow-y:auto;flex:1;padding:9px;">
+        <div class="sum-sec">⚙️ ตั้งค่าอัตราจ่าย</div>
+        <div style="font-size:11px;color:#555;margin:4px 0 10px;">default = 100% ทุกเลข · ตั้งเฉพาะเลขที่ต้องการลด</div>
+
+        <!-- input เพิ่มเลข -->
+        <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center;">
+          <input id="rate-lek-inp" type="tel" inputmode="numeric" maxlength="3" placeholder="เลข"
+            style="width:64px;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#f5c518;font-size:16px;font-weight:900;padding:7px 8px;text-align:center;font-family:'Sarabun',sans-serif;outline:none;box-sizing:border-box;">
+          <select id="rate-field-sel" style="flex:1;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:7px 8px;font-family:'Sarabun',sans-serif;cursor:pointer;">
+            <option value="bon">บน</option>
+            <option value="tod">โต๊ด</option>
+            <option value="lang">ล่าง</option>
+            <option value="na">หน้า</option>
+            <option value="all">ทุก field</option>
+          </select>
+          <select id="rate-pct-sel" style="width:76px;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#f87171;font-size:13px;font-weight:900;padding:7px 6px;font-family:'Sarabun',sans-serif;cursor:pointer;">
+            <option value="75">75%</option>
+            <option value="50">50%</option>
+            <option value="25">25%</option>
+            <option value="10">10%</option>
+            <option value="0">0%</option>
+          </select>
+          <button onclick="addRateOverride()" style="background:#f5c518;border:none;border-radius:8px;color:#111;font-size:13px;font-weight:900;padding:7px 10px;cursor:pointer;font-family:'Sarabun',sans-serif;">+ เพิ่ม</button>
+        </div>
+
+        <!-- รายการที่ตั้งไว้ -->
+        <div id="rate-list"></div>
       </div>
 
       <!-- TAB ตั้งค่า -->
@@ -1454,7 +1503,6 @@ function renderHist(){
       +'<div class="hd'+(e.lang?'':' e')+'">'+(e.lang||'—')+'</div>'
       +'<div class="hd'+(e.na?'':' e')+'">'+(e.na||'—')+'</div>'
       +'<div class="hd rm" onclick="removeEntry(\''+curCustId+'\','+e.id+')">✕</div>'
-      +'<div class="hd" style="width:24px;cursor:pointer;color:#f5c518;font-size:12px;text-align:center;" onclick="openRatePicker(\''+e.lek+'\')" title="ตั้งค่าเรท">⚙</div>'
       +'</div>';
     (e.paks||[]).forEach(function(p){
       h+='<div class="pak-row">'
@@ -1664,7 +1712,9 @@ function switchTab(name,el){
   el.classList.add('on');
   document.getElementById('tab-sum').style.display=name==='sum'?'':'none';
   document.getElementById('tab-check').style.display=name==='check'?'':'none';
+  document.getElementById('tab-rate').style.display=name==='rate'?'':'none';
   document.getElementById('tab-cfg').style.display=name==='cfg'?'':'none';
+  if(name==='rate') renderRateList();
 }
 
 // ================================================================
@@ -2078,81 +2128,105 @@ function getCfg(key){
 }
 
 // ================================================================
-// PER-NUMBER RATE — เจ้ามือตั้งรายเลข (0% / 50% / ปกติ)
+// PER-NUMBER RATE SYSTEM (tab-based)
 // ================================================================
-// rate-overrides: { ngod: { lek: {mode:'normal'|'half'|'none', fields:{bon,tod,lang,na}} } }
+// rateOverrides: { ngodKey: { "lek|field": pct } }  pct = 0-100
 var rateOverrides = {};
 var RATE_STORE = 't999_rates_v1';
 
 function loadRates(){
-  try{ rateOverrides = JSON.parse(localStorage.getItem(RATE_STORE)||'null')||{}; }catch(e){ rateOverrides={}; }
+  try{ rateOverrides=JSON.parse(localStorage.getItem(RATE_STORE)||'null')||{}; }catch(e){ rateOverrides={}; }
 }
 function saveRates(){
-  try{ localStorage.setItem(RATE_STORE, JSON.stringify(rateOverrides)); }catch(e){}
+  try{ localStorage.setItem(RATE_STORE,JSON.stringify(rateOverrides)); }catch(e){}
 }
-function getRateKey(){ return ngodInfo&&ngodInfo.ngod ? ngodInfo.ngod : '_'; }
-function setLekRate(lek, fieldKey, mode){
+function getRateKey(){ return ngodInfo&&ngodInfo.ngod?ngodInfo.ngod:'_'; }
+
+function addRateOverride(){
+  var lek = (document.getElementById('rate-lek-inp').value||'').trim();
+  var field = document.getElementById('rate-field-sel').value;
+  var pct = parseInt(document.getElementById('rate-pct-sel').value);
+  if(!lek){ toast('ใส่เลขก่อนครับ'); return; }
   var nk = getRateKey();
   if(!rateOverrides[nk]) rateOverrides[nk]={};
-  if(!rateOverrides[nk][lek]) rateOverrides[nk][lek]={};
-  if(mode==='normal'){
-    delete rateOverrides[nk][lek][fieldKey];
-    if(!Object.keys(rateOverrides[nk][lek]).length) delete rateOverrides[nk][lek];
-  } else {
-    rateOverrides[nk][lek][fieldKey] = mode; // 'half' or 'none'
-  }
+  var fields = field==='all' ? ['bon','tod','lang','na'] : [field];
+  fields.forEach(function(fk){
+    rateOverrides[nk][lek+'|'+fk] = pct;
+  });
   saveRates();
-}
-function getLekRate(lek, fieldKey){
-  var nk = getRateKey();
-  return (rateOverrides[nk]&&rateOverrides[nk][lek]&&rateOverrides[nk][lek][fieldKey])||'normal';
-}
-
-// เรียกเพื่อเปิด rate picker ของเลขใดเลขหนึ่ง
-function openRatePicker(lek){
-  var nk = getRateKey();
-  var fields = ['bon','tod','lang','na'];
-  var fieldLabels = {bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
-  var modes = [{v:'normal',l:'ปกติ 100%',c:'#22c55e'},{v:'half',l:'จ่าย 50%',c:'#f59e0b'},{v:'none',l:'ไม่รับ 0%',c:'#ef4444'}];
-  var rows = fields.map(function(fk){
-    var cur = getLekRate(lek, fk);
-    var btns = modes.map(function(m){
-      var isCur=(cur===m.v);
-      return '<button data-lek="'+lek+'" data-fk="'+fk+'" data-mode="'+m.v+'" onclick="setLekRate(this.dataset.lek,this.dataset.fk,this.dataset.mode);renderRatePicker(this.dataset.lek)" '
-        +'style="flex:1;padding:5px 3px;border-radius:6px;font-size:11px;font-weight:700;border:2px solid '+(isCur?m.c:'#333')+';background:'+(isCur?m.c+'22':'transparent')+';color:'+(isCur?m.c:'#666')+';cursor:pointer;font-family:inherit;">'
-        +m.l+'</button>';
-    }).join('');
-    return '<div style="padding:7px 0;border-bottom:1px solid #1e293b;">'
-      +'<div style="font-size:12px;color:#888;margin-bottom:4px;">'+fieldLabels[fk]+'</div>'
-      +'<div style="display:flex;gap:4px;">'+btns+'</div></div>';
-  }).join('');
-  var html = '<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;" id="rp-overlay" onclick="if(event.target.id==\'rp-overlay\')closeRatePicker()">'
-    +'<div style="background:#1e1e2e;border:1px solid #333;border-radius:14px;padding:16px;width:320px;max-width:94vw;">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
-    +'<div style="font-size:18px;font-weight:900;color:#f5c518;">⚙️ ตั้งค่าเลข '+lek+'</div>'
-    +'<button onclick="closeRatePicker()" style="background:none;border:1px solid #444;border-radius:6px;color:#aaa;padding:4px 10px;cursor:pointer;font-size:16px;">✕</button>'
-    +'</div>'
-    +rows
-    +'</div></div>';
-  var el=document.createElement('div');el.id='rp-wrap';el.innerHTML=html;
-  document.body.appendChild(el);
-}
-function renderRatePicker(lek){
-  closeRatePicker(); openRatePicker(lek);
-}
-function closeRatePicker(){
-  var el=document.getElementById('rp-wrap');if(el)el.parentNode.removeChild(el);
+  document.getElementById('rate-lek-inp').value='';
+  renderRateList();
+  toast('ตั้งค่าแล้ว ✅');
 }
 
-// คำนวณยอดจริงโดยคำนึง rate override
-function entryTotalWithRate(e){
+function removeRateOverride(lek, fk){
+  var nk = getRateKey();
+  if(rateOverrides[nk]) delete rateOverrides[nk][lek+'|'+fk];
+  saveRates(); renderRateList();
+}
+window.removeRateOverride = removeRateOverride;
+
+var PCT_COLORS = {100:'#22c55e',75:'#86efac',50:'#f59e0b',25:'#fb923c',10:'#f87171',0:'#ef4444'};
+
+function renderRateList(){
+  var el = document.getElementById('rate-list');
+  if(!el) return;
+  var nk = getRateKey();
+  var ov = rateOverrides[nk]||{};
+  var keys = Object.keys(ov);
+  if(!keys.length){
+    el.innerHTML='<div style="color:#444;font-size:12px;text-align:center;padding:16px;">ยังไม่มีการตั้งค่า — ทุกเลขจ่าย 100%</div>';
+    return;
+  }
+  // จัดกลุ่มตามเลข
+  var byLek={};
+  keys.forEach(function(k){
+    var parts=k.split('|'); var lek=parts[0]; var fk=parts[1];
+    if(!byLek[lek]) byLek[lek]=[];
+    byLek[lek].push({fk:fk,pct:ov[k]});
+  });
+  var fieldLabels={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
+  var h='';
+  Object.keys(byLek).sort().forEach(function(lek){
+    h+='<div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:8px 10px;margin-bottom:6px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+      +'<span style="font-size:16px;font-weight:900;color:#f5c518;">'+lek+'</span>'
+      +'<button data-lek="'+lek+'" onclick="removeRateLek(this.dataset.lek)" style="background:none;border:1px solid #333;border-radius:5px;color:#666;font-size:11px;padding:2px 7px;cursor:pointer;font-family:inherit;">ลบทั้งหมด</button>'
+      +'</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:5px;">';
+    byLek[lek].forEach(function(x){
+      var col=PCT_COLORS[x.pct]||'#f87171';
+      h+='<div style="display:flex;align-items:center;gap:4px;background:#1e293b;border-radius:6px;padding:4px 8px;">'
+        +'<span style="font-size:12px;color:#94a3b8;">'+fieldLabels[x.fk]+'</span>'
+        +'<span style="font-size:13px;font-weight:900;color:'+col+';">'+x.pct+'%</span>'
+        +'<button data-lek="'+lek+'" data-fk="'+x.fk+'" onclick="removeRateOverride(this.dataset.lek,this.dataset.fk)" style="background:none;border:none;color:#475569;font-size:13px;cursor:pointer;padding:0 2px;line-height:1;">✕</button>'
+        +'</div>';
+    });
+    h+='</div></div>';
+  });
+  el.innerHTML=h;
+}
+
+function removeRateLek(lek){
   var nk=getRateKey();
-  var ov=(rateOverrides[nk]&&rateOverrides[nk][e.lek])||{};
+  if(!rateOverrides[nk]) return;
+  ['bon','tod','lang','na'].forEach(function(fk){ delete rateOverrides[nk][lek+'|'+fk]; });
+  saveRates(); renderRateList();
+}
+window.removeRateLek = removeRateLek;
+
+function getLekRatePct(lek, fk){
+  var nk=getRateKey();
+  var ov=rateOverrides[nk]||{};
+  var v=ov[lek+'|'+fk];
+  return (v===undefined||v===null)?100:v;
+}
+
+function entryTotalWithRate(e){
   function adj(val,fk){
-    var m=ov[fk]||'normal';
-    if(m==='none') return 0;
-    if(m==='half') return Math.round((val||0)/2);
-    return val||0;
+    var pct=getLekRatePct(e.lek,fk);
+    if(pct===100) return val||0;
+    return Math.round((val||0)*pct/100);
   }
   var t=adj(e.bon,'bon')+adj(e.tod,'tod')+adj(e.lang,'lang')+adj(e.na,'na');
   (e.paks||[]).forEach(function(p){t+=p.price;});
@@ -2161,6 +2235,33 @@ function entryTotalWithRate(e){
   return t;
 }
 
+
+// ── TABLET TAB NAVIGATION ──
+function switchZone(n, btn){
+  var zones=[null,
+    document.getElementById('zone1'),
+    document.getElementById('zone3'),
+    document.getElementById('zone2'),
+    document.getElementById('zone4')
+  ];
+  zones.forEach(function(z){if(z)z.classList.remove('tab-active');});
+  if(zones[n])zones[n].classList.add('tab-active');
+  var btns=document.querySelectorAll('.tab-nav-btn');
+  btns.forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+}
+
+// auto-switch ไปที่ zone คีย์เมื่อเลือกลูกค้าในโหมด tablet
+var _origSelectCust = selectCust;
+selectCust = function(id){
+  _origSelectCust(id);
+  // ถ้า tab-nav มองเห็น (tablet mode) → switch ไป zone คีย์
+  var nav = document.getElementById('tab-nav');
+  if(nav && getComputedStyle(nav).display !== 'none'){
+    var btn = document.querySelectorAll('.tab-nav-btn')[2]; // ⌨️ คีย์
+    switchZone(3, btn);
+  }
+};
 
 </script>
 </body>
