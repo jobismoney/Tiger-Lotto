@@ -1599,8 +1599,10 @@ function renderKpFields(){
     // klb btn
     var kb=document.getElementById('klb-'+k);
     if(kb){
-      var canKlb=isAllowed&&klbKeys[k]&&(d===2||(d===3));
-      if(k==='na') canKlb=isAllowed&&d===3;
+      var activeLek2=npLek||(npLekQueue.length>0?npLekQueue[0]:'');
+      var allSame2=activeLek2.length>0&&activeLek2.split('').every(function(c){return c===activeLek2[0];});
+      var canKlb=isAllowed&&klbKeys[k]&&(d===2||(d===3))&&!allSame2;
+      if(k==='na') canKlb=isAllowed&&d===3&&!allSame2;
       pf.classList.toggle('show-klb',canKlb);
       var klbLbl=d===2?'กลับ':'ชุด';
       kb.textContent=klbLbl;
