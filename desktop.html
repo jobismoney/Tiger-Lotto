@@ -941,10 +941,7 @@ function doImportMulti(dataList, totalEntries, cid){
   });
   curCustId=cid;
   save();
-  // render โดยไม่ trigger zone switch
-  var _sel=selectCust; selectCust=_origSelectCust;
   renderCustList(); renderHist(); updateSummary();
-  selectCust=_sel;
 }
 function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
   // ถ้ากดสแกนจากชื่อลูกค้าโดยตรง → auto import ทันที ไม่ต้องกด
@@ -1076,9 +1073,7 @@ function doImport(data, fp, log, cid){
 
   curCustId = cid;
   save();
-  var _sel2=selectCust; selectCust=_origSelectCust;
   renderCustList(); renderHist(); updateSummary();
-  selectCust=_sel2;
 }
 
 window.addEventListener('DOMContentLoaded', function(){
@@ -2991,9 +2986,10 @@ function switchZone(n, btn){
 var _origSelectCust = selectCust;
 selectCust = function(id){
   _origSelectCust(id);
-  // ถ้า tab-nav มองเห็น (tablet mode) → switch ไป zone คีย์
+  // ถ้า tab-nav มองเห็น (tablet mode) และ zone1 (แฟ้ม) active อยู่ → switch ไป zone คีย์
   var nav = document.getElementById('tab-nav');
-  if(nav && getComputedStyle(nav).display !== 'none'){
+  var zone1 = document.getElementById('zone1');
+  if(nav && getComputedStyle(nav).display !== 'none' && zone1 && zone1.classList.contains('tab-active')){
     var btn = document.querySelectorAll('.tab-nav-btn')[2]; // ⌨️ คีย์
     switchZone(3, btn);
   }
