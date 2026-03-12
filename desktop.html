@@ -779,7 +779,7 @@ var settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 // INIT
 // ================================================================
 function normalizeQRData(data){
-  console.log('raw QR data:', JSON.stringify(data).substring(0,200));
+  console.log('raw QR data:', JSON.stringify(data).substring(0,400));
   if(data.e){
     return {
       ngod: data.g||'',
@@ -802,7 +802,9 @@ function normalizeQRData(data){
                 return Array.isArray(x)?{perm:x[0],price:x[1]}:{perm:x.perm||x.l||'',price:x.p||x.price||0};
               }).filter(function(x){return x.perm && x.price>0;});
             }
-            return {bon:mapKd(k.bon),lang:mapKd(k.lang),na:mapKd(k.na)};
+            var result = {bon:mapKd(k.bon),lang:mapKd(k.lang),na:mapKd(k.na)};
+            console.log('kd decoded:', JSON.stringify(result));
+            return result;
           })(e.k) : {},
           paks: (e.pk||[]).map(function(p){
             var typeLabels={'3bon':'บน','2lang':'ล่าง','bon':'บน','lang':'ล่าง'};
