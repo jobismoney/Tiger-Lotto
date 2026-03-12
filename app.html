@@ -1998,8 +1998,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     el.innerHTML='';
     if(typeof QRCode==='undefined')return;
     var url=encodePageData(pEntries,inf,pgNum);
-    if(!url||url.length>3000){
-      el.innerHTML='<div style="font-size:10px;color:#aaa;text-align:right;">ข้อมูลเกิน QR</div>';
+    if(!url||url.length>4500){
+      el.innerHTML='<div style="font-size:10px;color:#f87171;text-align:right;">ข้อมูลเกิน QR ('+url.length+' chars)</div>';
       return;
     }
     try{

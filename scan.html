@@ -288,10 +288,17 @@ function scanFromImage(img){
 }
 
 function parseQRResult(url){
-  if(url.indexOf('tiger999.online') < 0 && url.indexOf('desktop.html') < 0) return null;
+  var imp = null;
+  // format 1: URL มี import= param
+  if(url.indexOf('import=') >= 0){
+    imp = url.split('import=')[1];
+  }
+  // format 2: base64 ล้วนๆ
+  else if(/^[A-Za-z0-9+/=]+$/.test(url.trim())){
+    imp = url.trim();
+  }
+  if(!imp) return null;
   try{
-    var imp = url.split('import=')[1];
-    if(!imp) return null;
     var data = JSON.parse(decodeURIComponent(escape(atob(imp))));
     var norm = normalizeData(data);
     return {imp: imp, cnt: (norm.entries||[]).length, ngod: norm.ngod||'', sender: norm.sender||'', pg: norm.pg||1};
@@ -338,30 +345,19 @@ function scanLoop(){
 
 // ── RESULT ──
 function handleQRResult(url){
-  if(url.indexOf('tiger999.online') < 0 && url.indexOf('desktop.html') < 0){
+  var result = parseQRResult(url);
+  if(!result){
     setStatus('error','❌ QR นี้ไม่ใช่โพย Tiger 999');
     document.getElementById('reset-btn').style.display='block';
     return;
   }
-  try{
-    var imp = url.split('import=')[1];
-    if(!imp){ setStatus('error','❌ QR ไม่มีข้อมูล'); return; }
-    var data = JSON.parse(decodeURIComponent(escape(atob(imp))));
-    var norm = normalizeData(data);
-    var cnt = (norm.entries||[]).length;
-    document.getElementById('result-info').innerHTML =
-      '<span>งวด</span> '+(norm.ngod||'—')+'<br>'
-      +'<span>ผู้ส่ง</span> '+(norm.sender||'—')+'<br>'
-      +'<span>แผ่น</span> '+(norm.pg||1)+'  <span>จำนวน</span> '+cnt+' รายการ';
-    document.getElementById('result-box').style.display='block';
-    setStatus('success','✅ อ่าน QR สำเร็จ! พบ '+cnt+' รายการ');
-    _qrUrl = url;
-    document.getElementById('go-btn').style.display='block';
-    document.getElementById('reset-btn').style.display='block';
-  } catch(e){
-    setStatus('error','❌ อ่านข้อมูลใน QR ไม่ได้');
-    document.getElementById('reset-btn').style.display='block';
-  }
+  document.getElementById('result-info').innerHTML =
+    '<span>แผ่น</span> '+result.pg+'  <span>จำนวน</span> '+result.cnt+' รายการ';
+  document.getElementById('result-box').style.display='block';
+  setStatus('success','✅ อ่าน QR สำเร็จ! พบ '+result.cnt+' รายการ');
+  _qrUrl = url;
+  document.getElementById('go-btn').style.display='block';
+  document.getElementById('reset-btn').style.display='block';
 }
 
 function normalizeData(data){
