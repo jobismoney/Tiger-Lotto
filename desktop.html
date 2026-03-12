@@ -1956,7 +1956,21 @@ function renderHist(){
               +'<div class="pkd"></div>'
               +'</div>';
           });
-        }
+          // kd (กลับ/ชุด)
+          var skd=e.kd||{};
+          var sPermMap={};
+          ['bon','lang','na'].forEach(function(fk){(skd[fk]||[]).forEach(function(x){if(!sPermMap[x.perm])sPermMap[x.perm]={};sPermMap[x.perm][fk]=x.price;});});
+          Object.keys(sPermMap).sort().forEach(function(p){
+            var pm=sPermMap[p];
+            h+='<div class="hrow" style="background:rgba(167,139,250,.02);">'
+              +'<div class="hd lek" style="color:#8b6fd4;padding-left:14px;">'+p+'</div>'
+              +'<div class="hd'+(pm.bon?'':' e')+'">'+(pm.bon||'—')+'</div>'
+              +'<div class="hd e">—</div>'
+              +'<div class="hd'+(pm.lang?'':' e')+'">'+(pm.lang||'—')+'</div>'
+              +'<div class="hd'+(pm.na?'':' e')+'">'+(pm.na||'—')+'</div>'
+              +'<div class="hd"></div>'
+              +'</div>';
+          });
       });
     }
   });
