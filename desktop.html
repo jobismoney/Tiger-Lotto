@@ -932,7 +932,7 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
     document.getElementById('imp-banner-subtitle').textContent='รับโพยของ '+custName;
     document.getElementById('imp-banner-info').innerHTML=info;
     document.getElementById('imp-banner-input').style.display='none';
-    document.getElementById('imp-banner-overlay').style.display='flex';document.getElementById('imp-banner').style.display='';
+    document.getElementById('imp-banner-overlay').style.display='flex';document.getElementById('imp-banner').style.display='block';
     document.getElementById('imp-banner-ok').onclick=function(){
       document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
       document.getElementById('imp-banner-sel').style.display='';
@@ -958,7 +958,7 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
     (dupMsg||'')+'<b>'+dataList.length+' QR</b> · รวม <b>'+totalEntries+' รายการ</b> · จะสร้าง '+dataList.length+' ชุด';
   document.getElementById('imp-banner-input').value = '';
   document.getElementById('imp-banner-input').style.display = 'none';
-  document.getElementById('imp-banner-overlay').style.display='flex';document.getElementById('imp-banner').style.display='';
+  document.getElementById('imp-banner-overlay').style.display='flex';document.getElementById('imp-banner').style.display='block';
   document.getElementById('imp-banner-ok').onclick = function(){
     var cid = document.getElementById('imp-banner-sel').value;
     var ni = document.getElementById('imp-banner-input');
@@ -987,7 +987,7 @@ function showImportBanner(data, fp, log, dupMsg){
     document.getElementById('imp-banner-subtitle').textContent='รับโพยของ '+custName;
     document.getElementById('imp-banner-info').innerHTML=info;
     document.getElementById('imp-banner-input').style.display='none';
-    document.getElementById('imp-banner-overlay').style.display='flex';document.getElementById('imp-banner').style.display='';
+    document.getElementById('imp-banner-overlay').style.display='flex';document.getElementById('imp-banner').style.display='block';
     document.getElementById('imp-banner-ok').onclick=function(){
       document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
       document.getElementById('imp-banner-sel').style.display='';
@@ -1011,7 +1011,7 @@ function showImportBanner(data, fp, log, dupMsg){
     (dupMsg||'')+'แผ่น <b>'+data.pg+'</b> · <b>'+data.entries.length+' รายการ</b>';
   document.getElementById('imp-banner-input').value = '';
   document.getElementById('imp-banner-input').style.display = 'none';
-  document.getElementById('imp-banner-overlay').style.display='flex';document.getElementById('imp-banner').style.display='';
+  document.getElementById('imp-banner-overlay').style.display='flex';document.getElementById('imp-banner').style.display='block';
   document.getElementById('imp-banner-ok').onclick = function(){
     var cid = document.getElementById('imp-banner-sel').value;
     var ni = document.getElementById('imp-banner-input');
