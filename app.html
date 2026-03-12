@@ -2190,11 +2190,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(pEn.length)pages.push(pEn);
     var totalPages=pages.length;
     var grandTotal=entries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
-    var allSumRows='';var allHTML='';
+    var allHTML='';
     var pageHTMLs=pages.map(function(pg,i){
       var ps=pageSumTotals(pg);
       var pt=pg.reduce(function(s,e){return s+calcEntryTotal(e);},0);
-      allSumRows+=buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false);
       // build page HTML with label in header
       var bodyRows='';
       pg.forEach(function(e){
@@ -2230,19 +2229,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'<div class="slip-qr-wrap" id="slip-qr-pg-'+(i+1)+'"></div>'
         +LEGEND;
     });
-    var grandS={c3:0,c2:0,c1:0,ct:0,cl:0};
-    pages.forEach(function(pg){var s=pageSumTotals(pg);grandS.c3+=s.c3;grandS.c2+=s.c2;grandS.c1+=s.c1;grandS.ct+=s.ct;grandS.cl+=s.cl;});
-    allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
-    var sumHTML='<div class="slip-hd"><div class="slip-hd-row1"><h2>📊 สรุปรวมทุกแผ่น</h2><span class="pg">'+totalPages+' แผ่น</span></div>'
-      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
-      +'</div>'+sumTableHTML(allSumRows)+'<div class="slip-ft"><span class="fl">ยอดรวมทั้งหมด</span><span class="fv">฿'+fmt(grandTotal)+'</span></div>';
     var allHTML='';
     for(var pi=0;pi<pageHTMLs.length;pi++){
       allHTML+='<div class="slip-page-single"><div class="slip-page">'+pageHTMLs[pi]+'</div></div>';
       if((pi+1)%2===0&&pi<pageHTMLs.length-1)allHTML+='<div class="slip-page-pair-break"></div>';
     }
     if(pageHTMLs.length%2===1)allHTML+='<div class="slip-page-pair-break"></div>';
-    allHTML+='<div class="slip-page-sum"><div class="slip-page">'+sumHTML+'</div></div>';
     return allHTML;
   }
 
