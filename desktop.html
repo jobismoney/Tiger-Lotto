@@ -2220,10 +2220,15 @@ function entrySummary(e){
   var kb=(kd['bon']||[]).reduce(function(s,x){ return s+x.price; },0);
   var kl=(kd['lang']||[]).reduce(function(s,x){ return s+x.price; },0);
   var kn=(kd['na']||[]).reduce(function(s,x){ return s+x.price; },0);
-  if(d===3) return {c3:b+kb+n+kn, c2:0, c1:0, ct:t, cl:l+kl};
-  if(d===2) return {c3:0, c2:b+kb, c1:0, ct:t, cl:l+kl};
-  if(d===1) return {c3:0, c2:0, c1:b, ct:0, cl:l};
-  return {c3:0, c2:0, c1:0, ct:t, cl:0};
+  var pk3=0, pk2=0;
+  (e.paks||[]).forEach(function(p){
+    if(p.type==='3bon') pk3+=p.price;
+    else pk2+=p.price;
+  });
+  if(d===3) return {c3:b+kb+n+kn+pk3, c2:pk2, c1:0, ct:t, cl:l+kl};
+  if(d===2) return {c3:pk3, c2:b+kb+pk2, c1:0, ct:t, cl:l+kl};
+  if(d===1) return {c3:pk3, c2:pk2, c1:b, ct:0, cl:l};
+  return {c3:pk3, c2:pk2, c1:0, ct:t, cl:0};
 }
 
 function pageSumTotals(pEntries){
@@ -2247,7 +2252,7 @@ function buildSumRow(s,label,total,isFoot){
 function sumTableHTML(rows){
   return '<div class="sum-tbl-wrap"><table class="sum-tbl"><thead><tr>'
     +'<th class="sh sc-no">แผ่น</th><th class="sh">3ตัว</th><th class="sh">2ตัว</th>'
-    +'<th class="sh">วิ่ง</th><th class="sh">โต๊ด</th><th class="sh">ล่าง</th><th class="sh">รวม</th>'
+    +'<th class="sh">1ตัว</th><th class="sh">โต๊ด</th><th class="sh">3ล่าง</th><th class="sh">รวม</th>'
     +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
