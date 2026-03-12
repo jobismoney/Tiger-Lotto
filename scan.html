@@ -73,9 +73,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 
 <!-- Upload mode -->
 <div class="upload-zone active" id="upload-zone">
-  <input type="file" id="file-inp" accept="image/*">
+  <input type="file" id="file-inp" accept="image/*" multiple>
   <div class="upload-icon">🖼️</div>
-  <div class="upload-txt">แตะเพื่อเลือกรูป</div>
+  <div class="upload-txt">แตะเพื่อเลือกรูป (เลือกได้หลายรูป)</div>
   <div class="upload-sub">JPG, PNG, WebP — screenshot จาก Line ได้เลย</div>
 </div>
 
@@ -112,6 +112,9 @@ var _qrUrl = null;
 var _camStream = null;
 var _camRaf = null;
 var _curMode = 'upload';
+var _pendingFiles = [];   // ไฟล์ที่รอ scan
+var _scannedResults = []; // ผล scan ทั้งหมด
+var _currentFileIdx = 0;
 
 // ── MODE SWITCH ──
 function switchMode(m){
@@ -130,47 +133,108 @@ function switchMode(m){
 
 // ── UPLOAD MODE ──
 document.getElementById('file-inp').addEventListener('change', function(e){
-  var file = e.target.files[0];
-  if(file) handleFile(file);
+  var files = Array.from(e.target.files).filter(function(f){ return f.type.startsWith('image/'); });
+  if(files.length) startBatchScan(files);
 });
 var zone = document.getElementById('upload-zone');
 zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('drag'); });
 zone.addEventListener('dragleave', function(){ zone.classList.remove('drag'); });
 zone.addEventListener('drop', function(e){
   e.preventDefault(); zone.classList.remove('drag');
-  var file = e.dataTransfer.files[0];
-  if(file && file.type.startsWith('image/')) handleFile(file);
+  var files = Array.from(e.dataTransfer.files).filter(function(f){ return f.type.startsWith('image/'); });
+  if(files.length) startBatchScan(files);
 });
 
-function handleFile(file){
+function startBatchScan(files){
+  _pendingFiles = files;
+  _scannedResults = [];
+  _currentFileIdx = 0;
+  resetResult();
+  setStatus('scanning', '🔍 กำลัง scan รูปที่ 1/'+files.length+'...');
+  scanNextFile();
+}
+
+function scanNextFile(){
+  if(_currentFileIdx >= _pendingFiles.length){
+    showBatchResult();
+    return;
+  }
+  var file = _pendingFiles[_currentFileIdx];
   var reader = new FileReader();
   reader.onload = function(ev){
-    var img = document.getElementById('preview-img');
+    var img = new Image();
+    img.onload = function(){
+      // แสดง preview รูปล่าสุด
+      document.getElementById('preview-img').src = ev.target.result;
+      document.getElementById('preview-wrap').style.display = 'block';
+      var result = scanFromImage(img);
+      _scannedResults.push({file: file.name, idx: _currentFileIdx+1, result: result});
+      _currentFileIdx++;
+      if(_currentFileIdx < _pendingFiles.length){
+        setStatus('scanning','🔍 กำลัง scan รูปที่ '+(_currentFileIdx+1)+'/'+_pendingFiles.length+'...');
+      }
+      scanNextFile();
+    };
     img.src = ev.target.result;
-    document.getElementById('preview-wrap').style.display = 'block';
-    resetResult();
-    setStatus('scanning', '🔍 กำลัง scan QR code...');
-    img.onload = function(){ scanFromImage(img); };
   };
   reader.readAsDataURL(file);
+}
+
+function showBatchResult(){
+  var ok = _scannedResults.filter(function(r){ return r.result && r.result.imp; });
+  var fail = _scannedResults.filter(function(r){ return !r.result || !r.result.imp; });
+  var totalEntries = ok.reduce(function(s,r){ return s + (r.result.cnt||0); }, 0);
+
+  if(ok.length === 0){
+    setStatus('error', '❌ ไม่พบ QR ในรูปที่เลือก');
+    document.getElementById('reset-btn').style.display='block';
+    return;
+  }
+
+  var info = '<span>สแกนสำเร็จ</span> '+ok.length+'/'+_scannedResults.length+' รูป<br>'
+    +'<span>รวมทั้งหมด</span> '+totalEntries+' รายการ';
+  if(fail.length){
+    info += '<br><span style="color:#f87171;">อ่านไม่ได้</span> '+fail.map(function(r){return 'รูปที่ '+r.idx;}).join(', ');
+  }
+  ok.forEach(function(r){
+    info += '<br>📄 รูปที่ '+r.idx+' — '+r.result.cnt+' รายการ';
+  });
+
+  document.getElementById('result-info').innerHTML = info;
+  document.getElementById('result-box').style.display='block';
+  setStatus('success','✅ scan เสร็จ! พบ '+totalEntries+' รายการจาก '+ok.length+' รูป');
+  // เก็บ imports ทั้งหมดไว้ใน _qrUrl เป็น array
+  _qrUrl = ok.map(function(r){ return r.result.imp; });
+  document.getElementById('go-btn').style.display='block';
+  document.getElementById('reset-btn').style.display='block';
+}
+
+function handleFile(file){
+  startBatchScan([file]);
 }
 
 function scanFromImage(img){
   var canvas = document.getElementById('qr-canvas');
   var ctx = canvas.getContext('2d');
-  // วาดขนาดเต็ม ไม่ resize เพื่อไม่ให้ pixel เพี้ยน
   var w = img.naturalWidth, h = img.naturalHeight;
   canvas.width = w; canvas.height = h;
   ctx.drawImage(img, 0, 0, w, h);
   var imageData = ctx.getImageData(0, 0, w, h);
   var code = jsQR(imageData.data, w, h, {inversionAttempts:'dontInvert'});
   if(!code) code = jsQR(imageData.data, w, h, {inversionAttempts:'onlyInvert'});
-  if(!code){
-    setStatus('error', '❌ ไม่พบ QR code ในรูปนี้<br><span style="font-size:12px;font-weight:600;">ลอง crop ให้เห็น QR ชัดๆ แล้วอัพใหม่</span>');
-    document.getElementById('reset-btn').style.display='block';
-    return;
-  }
-  handleQRResult(code.data);
+  if(!code) return null;
+  return parseQRResult(code.data);
+}
+
+function parseQRResult(url){
+  if(url.indexOf('tiger999.online') < 0 && url.indexOf('desktop.html') < 0) return null;
+  try{
+    var imp = url.split('import=')[1];
+    if(!imp) return null;
+    var data = JSON.parse(decodeURIComponent(escape(atob(imp))));
+    var norm = normalizeData(data);
+    return {imp: imp, cnt: (norm.entries||[]).length, ngod: norm.ngod||'', sender: norm.sender||'', pg: norm.pg||1};
+  } catch(e){ return null; }
 }
 
 // ── CAMERA MODE ──
@@ -261,14 +325,13 @@ function resetResult(){
 
 document.getElementById('go-btn').addEventListener('click', function(){
   if(!_qrUrl) return;
-  var imp = _qrUrl.split('import=')[1];
-  if(!imp) return;
-  // ถ้าอยู่ใน iframe → ส่ง message กลับ parent
+  var imps = Array.isArray(_qrUrl) ? _qrUrl : [_qrUrl.split('import=')[1]].filter(Boolean);
+  if(!imps.length) return;
   if(window.parent && window.parent !== window){
-    window.parent.postMessage({type:'scanResult', import: imp}, '*');
+    window.parent.postMessage({type:'scanResult', imports: imps}, '*');
   } else {
-    // เปิดแบบ standalone → redirect ตามเดิม
-    window.location.href = 'desktop.html?import=' + imp;
+    // standalone — ส่ง import แรกก่อน (ถ้าหลายรูปต้องใช้ popup)
+    window.location.href = 'desktop.html?import=' + imps[0];
   }
 });
 
