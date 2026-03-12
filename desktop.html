@@ -873,8 +873,8 @@ window.addEventListener('message', function(ev){
         if(!data.entries||!data.entries.length) return;
         var fp = makeQRFingerprint(data);
         var prev = log.find(function(x){ return x.fp === fp; });
-        if(prev){ dupWarnings.push('แผ่น '+data.pg+' สแกนซ้ำ'); return; }
-        log.push({ fp: fp, time: Date.now(), sender: data.sender||'', ngod: data.ngod||'', pg: data.pg });
+        if(prev){ dupWarnings.push('แผ่น '+data.pg+' สแกนซ้ำ'); }
+        else { log.push({ fp: fp, time: Date.now(), sender: data.sender||'', ngod: data.ngod||'', pg: data.pg }); }
         validDataList.push(data);
       } catch(err){ toast('อ่าน QR ไม่ได้: '+err.message); }
     });
