@@ -906,18 +906,21 @@ function doImport(data, fp, log, cid){
   if(!custEntries[cid]) custEntries[cid] = [];
   if(!custEid[cid]) custEid[cid] = 0;
 
-  // import แต่ละครั้ง = ชุดใหม่ใน custSets
+  // ถ้ากำลังคีย์ค้างอยู่ → flush เป็น set ก่อน แล้วเริ่ม set ใหม่
   if(!custSets[cid]) custSets[cid]=[];
-  var importedEntries=[];
+  if(custEntries[cid]&&custEntries[cid].length){
+    custSets[cid].push({entries:custEntries[cid].slice().reverse(), locked:true, time:Date.now()});
+    custEntries[cid]=[];
+  }
+  // entries ที่ import มา = ชุดกำลังคีย์ใหม่ (แก้ได้)
   data.entries.forEach(function(e){
     custEid[cid]++;
     var lek = String(e.lek||'');
-    importedEntries.push({
+    custEntries[cid].push({
       id: custEid[cid], lek: lek, d: lek.length,
       bon: e.bon||null, tod: e.tod||null, lang: e.lang||null, na: e.na||null, kd: e.kd||{}, paks: e.paks||[]
     });
   });
-  custSets[cid].push({entries: importedEntries, locked: true, time: Date.now(), fromScan: true});
 
   log.push({ fp: fp, time: Date.now(), sender: data.sender||'', ngod: data.ngod||'', pg: data.pg });
   saveScannedLog(log);
