@@ -1596,18 +1596,6 @@ function renderKpFields(){
     else if(val!==null){pv.textContent=val;pv.className='field-val';}
     else{pv.textContent='—';pv.className='field-val empty';}
 
-    // klb btn
-    var kb=document.getElementById('klb-'+k);
-    if(kb){
-      var activeLek2=npLek||(npLekQueue.length>0?npLekQueue[0]:'');
-      var allSame2=activeLek2.length>0&&activeLek2.split('').every(function(c){return c===activeLek2[0];});
-      var canKlb=isAllowed&&klbKeys[k]&&(d===2||(d===3))&&!allSame2;
-      if(k==='na') canKlb=isAllowed&&d===3&&!allSame2;
-      pf.classList.toggle('show-klb',canKlb);
-      var klbLbl=d===2?'กลับ':'ชุด';
-      kb.textContent=klbLbl;
-      kb.className='klb-btn'+(npKlbOpen[k]?' on':'');
-    }
 
     // perm rows
     var pr=document.getElementById('pr-'+k);
