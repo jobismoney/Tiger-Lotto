@@ -289,7 +289,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .z4 .zhdr{background:var(--card);border-bottom:1px solid var(--border);}
 
 .rtabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
-.rtab{flex:1;padding:6px 3px;text-align:center;font-size:11px;font-weight:800;color:#334;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+.rtab{flex:1;padding:6px 3px;text-align:center;font-size:13px;font-weight:800;color:#334;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
 .rtab.on{color:var(--gold);border-bottom-color:var(--gold);}
 .rscroll{overflow-y:auto;flex:1;padding:9px;}
 
@@ -298,9 +298,9 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .sum-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);}
 .sum-name{font-size:16px;font-weight:900;color:#f0f2ff;}
 .sum-total-box{background:rgba(245,197,24,.06);border:1px solid rgba(245,197,24,.12);border-radius:7px;padding:8px;text-align:center;margin-bottom:8px;}
-.sum-total-lbl{font-size:11px;color:#7a8aaa;margin-bottom:1px;}
+.sum-total-lbl{font-size:13px;color:#7a8aaa;margin-bottom:1px;}
 .sum-total-num{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--gold);}
-.sum-sec{font-size:11px;font-weight:800;color:#4a5570;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;margin-top:7px;}
+.sum-sec{font-size:13px;font-weight:800;color:#4a5570;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;margin-top:7px;}
 .sum-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #0f1220;}
 .sum-row-lbl{font-size:13px;font-weight:700;color:#8899bb;}
 .sum-row-val{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#f0f2ff;}
@@ -319,7 +319,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .set-tab{flex:1;background:#141b2e;border:1px solid #1a2040;border-radius:5px;padding:4px;text-align:center;font-size:9px;font-weight:800;color:#334;cursor:pointer;}
 .set-tab.on{background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.2);color:var(--gold);}
 .set-row{display:grid;grid-template-columns:1fr 36px 36px;gap:3px;align-items:center;padding:4px 0;border-bottom:1px solid #0f1220;}
-.set-lbl{font-size:11px;font-weight:700;color:#556;}
+.set-lbl{font-size:13px;font-weight:700;color:#556;}
 .set-inp{background:#080b14;border:1px solid #1a2040;border-radius:3px;padding:3px;font-size:12px;font-weight:700;color:#f0f2ff;text-align:center;font-family:'Sarabun',sans-serif;outline:none;width:100%;}
 .set-inp:focus{border-color:rgba(245,197,24,.3);}
 .set-save{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:5px;padding:7px;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:900;color:#111;cursor:pointer;margin-top:8px;}
@@ -335,7 +335,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .pop-body{padding:13px;}
 .pop-lbl{font-size:9px;font-weight:800;color:#334;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
 .type-tabs{display:flex;gap:4px;margin-bottom:11px;}
-.ttab{flex:1;background:#080b12;border:1.5px solid #1a2040;border-radius:7px;padding:6px 3px;text-align:center;font-size:11px;font-weight:800;color:#334;cursor:pointer;transition:all .15s;}
+.ttab{flex:1;background:#080b12;border:1.5px solid #1a2040;border-radius:7px;padding:6px 3px;text-align:center;font-size:13px;font-weight:800;color:#334;cursor:pointer;transition:all .15s;}
 .ttab.on{background:rgba(245,197,24,.08);border-color:var(--gold);color:var(--gold);}
 .pos-grid{display:flex;gap:5px;margin-bottom:11px;}
 .pbtn{flex:1;background:#080b12;border:1.5px solid #1a2040;border-radius:9px;padding:8px 3px;text-align:center;cursor:pointer;transition:all .15s;}
@@ -384,7 +384,6 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <div class="ngod-badge" id="ngod-badge">— เปิดงวดก่อน —</div>
   </div>
   <div class="hdr-btns">
-    <button class="hbtn" onclick="openScanPopup()"><span class="hbtn-icon">📷</span><span class="hbtn-lbl">Scan</span></button>
     <button class="hbtn" onclick="openSettings()"><span class="hbtn-icon">⚙️</span><span class="hbtn-lbl">ตั้งค่า</span></button>
     <button class="hbtn" onclick="showSlip()"><span class="hbtn-icon">📋</span><span class="hbtn-lbl">ดูโพย</span></button>
     <button class="hbtn gold" onclick="openNgodModal()"><span class="hbtn-icon">📅</span><span class="hbtn-lbl">งวดใหม่</span></button>
@@ -396,7 +395,6 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <button class="tab-nav-btn" onclick="switchZone(2,this)">📋 รายการ</button>
   <button class="tab-nav-btn" onclick="switchZone(3,this)">⌨️ คีย์</button>
   <button class="tab-nav-btn" onclick="switchZone(4,this)">📊 สรุป</button>
-  <button class="tab-nav-btn" onclick="openScanPopup()" style="color:#f5c518;">📷 สแกน</button>
 </div>
 <div class="main" id="main-grid">
 
@@ -407,7 +405,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
       <span id="cust-count" style="font-size:11px;color:#4a5570;font-weight:700;">0</span>
     </div>
     <div class="zbody">
-      <div style="display:flex;gap:6px;margin-bottom:4px;"><div class="cadd" style="flex:1;" onclick="openAddCust()">➕ เพิ่มลูกค้า</div><div class="cadd" style="background:rgba(245,197,24,.10);border-color:rgba(245,197,24,.25);flex:0 0 auto;padding:8px 12px;" onclick="openScanPopup()">📷</div></div>
+      <div style="margin-bottom:4px;"><div class="cadd" onclick="openAddCust()">➕ เพิ่มลูกค้า</div></div>
       <div class="clist" id="clist"></div>
     </div>
   </div>
@@ -417,7 +415,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <div class="zone z3" id="zone3">
     <div class="zhdr">
       <span class="ztitle">📋 รายการ — <span id="mid-cust-name" style="color:var(--gold);">—</span></span>
-      <button onclick="lockSet()" style="background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.15);border-radius:4px;padding:3px 7px;font-size:9px;font-weight:800;color:var(--gold);cursor:pointer;font-family:'Sarabun',sans-serif;">🔒 ล็อคชุด</button>
+      <button onclick="lockSet()" style="background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);border-radius:4px;padding:3px 9px;font-size:11px;font-weight:800;color:var(--gold);cursor:pointer;font-family:'Sarabun',sans-serif;">📂 เก็บแฟ้ม</button>
     </div>
     <div class="zbody">
       <!-- current set bar -->
@@ -542,28 +540,28 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
         <!-- ผลรางวัล -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:8px 0;">
-          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">รางวัลที่ 1</div>
+          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">รางวัลที่ 1</div>
             <input id="res-1st" type="tel" inputmode="numeric" maxlength="6" placeholder="6 หลัก"
               style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#f5c518;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">เลขท้าย 3 ตัวบน</div>
+          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">เลขท้าย 3 ตัวบน</div>
             <input id="res-3bon" type="tel" inputmode="numeric" maxlength="3" placeholder="3 หลัก"
               style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">เลขท้าย 3 ตัวล่าง</div>
+          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">เลขท้าย 3 ตัวล่าง</div>
             <input id="res-3lang" type="tel" inputmode="numeric" maxlength="3" placeholder="3 หลัก"
               style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">เลขท้าย 2 ตัวบน</div>
+          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">เลขท้าย 2 ตัวบน</div>
             <input id="res-2bon" type="tel" inputmode="numeric" maxlength="2" placeholder="2 หลัก"
               style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">เลขท้าย 2 ตัวล่าง</div>
+          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">เลขท้าย 2 ตัวล่าง</div>
             <input id="res-2lang" type="tel" inputmode="numeric" maxlength="2" placeholder="2 หลัก"
               style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">วิ่งบน (หลายตัว)</div>
+          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">วิ่งบน (หลายตัว)</div>
             <input id="res-vbon" type="text" inputmode="numeric" placeholder="เช่น 1,5,9"
               style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:14px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">วิ่งล่าง (หลายตัว)</div>
+          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">วิ่งล่าง (หลายตัว)</div>
             <input id="res-vlang" type="text" inputmode="numeric" placeholder="เช่น 2,7"
               style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:14px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:10px;color:#888;margin-bottom:3px;">หน้า 3 ตัวบน</div>
+          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">หน้า 3 ตัวบน</div>
             <input id="res-3na" type="tel" inputmode="numeric" maxlength="3" placeholder="3 หลัก"
               style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
         </div>
@@ -696,13 +694,19 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 <!-- MODAL งวด -->
 <div class="modal-overlay" id="modal-ngod">
   <div class="modal">
-    <div class="modal-title">📅 เปิดงวดใหม่</div>
-    <input class="modal-inp" id="inp-ngod" placeholder="งวด เช่น 16/03/68">
-    <input class="modal-inp" id="inp-sender" placeholder="ชื่อผู้ส่ง (ไม่บังคับ)">
-    <input class="modal-inp" id="inp-receiver" placeholder="ชื่อผู้รับ (ไม่บังคับ)">
+    <div class="modal-title" id="ngod-modal-title">📅 เปิดงวดใหม่</div>
+    <div id="ngod-close-section" style="display:none;margin-bottom:10px;padding:10px;background:rgba(245,197,24,.06);border:1px solid rgba(245,197,24,.2);border-radius:8px;text-align:center;">
+      <div style="font-size:13px;color:#c9a010;font-weight:800;margin-bottom:8px;">งวดปัจจุบัน: <span id="ngod-cur-lbl">—</span></div>
+      <button class="mbtn" style="background:linear-gradient(135deg,#7f1d1d,#991b1b);color:#fca5a5;width:100%;" onclick="closeNgod()">🔒 ปิดงวด</button>
+    </div>
+    <div id="ngod-open-section">
+      <input class="modal-inp" id="inp-ngod" placeholder="งวด เช่น 16/03/68">
+      <input class="modal-inp" id="inp-sender" placeholder="ชื่อผู้ส่ง (ไม่บังคับ)">
+      <input class="modal-inp" id="inp-receiver" placeholder="ชื่อผู้รับ (ไม่บังคับ)">
+    </div>
     <div class="modal-btns">
       <button class="mbtn cancel" onclick="closeNgodModal()">ยกเลิก</button>
-      <button class="mbtn ok" onclick="confirmNgod()">เปิดงวด →</button>
+      <button class="mbtn ok" id="ngod-confirm-btn" onclick="confirmNgod()">เปิดงวด →</button>
     </div>
   </div>
 </div>
@@ -846,6 +850,10 @@ function saveScannedLog(log){
   localStorage.setItem('t999_qr_log', JSON.stringify(log));
 }
 
+function openScanForCust(cid){
+  selectCust(cid);
+  openScanPopup();
+}
 function openScanPopup(){
   var popup = document.getElementById('scan-popup');
   var iframe = document.getElementById('scan-iframe');
@@ -1099,6 +1107,7 @@ function renderCustList(){
       +'<div class="cname"><div class="cdot'+(active?' on':'')+'"></div>'+c.name+'</div>'
       +'<div class="ctotal">฿'+tot.toLocaleString()+'</div>'
       +'<div class="ccount">'+cnt+' รายการ</div>'
+      +'<button class="cslip-btn" onclick="event.stopPropagation();openScanForCust(\''+c.id+'\');" title="สแกน">📷</button>'
       +'<button class="cslip-btn" onclick="event.stopPropagation();showSlipCust(\''+c.id+'\')" title="ดูโพย">📋</button>'
       +'</div>';
   });
@@ -1152,12 +1161,58 @@ function confirmAddCust(){
 // NGOD
 // ================================================================
 function openNgodModal(){
-  document.getElementById('inp-sender').value=ngodInfo.sender||'';
-  document.getElementById('inp-receiver').value=ngodInfo.receiver||'';
+  // ถ้างวดเปิดอยู่ → แสดงส่วนปิดงวด
+  var closeSection=document.getElementById('ngod-close-section');
+  var openSection=document.getElementById('ngod-open-section');
+  var confirmBtn=document.getElementById('ngod-confirm-btn');
+  var titleEl=document.getElementById('ngod-modal-title');
+  if(ngodOpen){
+    closeSection.style.display='';
+    openSection.style.display='none';
+    confirmBtn.style.display='none';
+    titleEl.textContent='📅 จัดการงวด';
+    document.getElementById('ngod-cur-lbl').textContent=ngodInfo.ngod||'—';
+  } else {
+    closeSection.style.display='none';
+    openSection.style.display='';
+    confirmBtn.style.display='';
+    titleEl.textContent='📅 เปิดงวดใหม่';
+    document.getElementById('inp-ngod').value='';
+    document.getElementById('inp-sender').value=ngodInfo.sender||'';
+    document.getElementById('inp-receiver').value=ngodInfo.receiver||'';
+  }
   document.getElementById('modal-ngod').classList.add('show');
-  setTimeout(function(){document.getElementById('inp-ngod').focus();},100);
+  setTimeout(function(){if(!ngodOpen)document.getElementById('inp-ngod').focus();},100);
 }
 function closeNgodModal(){document.getElementById('modal-ngod').classList.remove('show');}
+function closeNgod(){
+  // ตรวจว่ามีรายการค้างอยู่ไหม
+  var hasEntries=customers.some(function(cu){return (custEntries[cu.id]||[]).length>0;});
+  if(hasEntries){
+    closeNgodModal();
+    setTimeout(function(){
+      if(confirm('ยังมีรายการที่ยังไม่ได้เก็บแฟ้ม\nต้องเก็บแฟ้มก่อนจึงจะปิดงวดได้\n\nกดตกลงเพื่อเก็บแฟ้มทุกลูกค้าอัตโนมัติ')){
+        customers.forEach(function(cu){
+          if((custEntries[cu.id]||[]).length>0){
+            var prev=curCustId; curCustId=cu.id;
+            lockSet();
+            curCustId=prev;
+          }
+        });
+        doCloseNgod();
+      }
+    },100);
+    return;
+  }
+  doCloseNgod();
+}
+function doCloseNgod(){
+  ngodOpen=false;
+  document.getElementById('ngod-badge').textContent='ยังไม่เปิดงวด';
+  closeNgodModal();
+  save(); renderCustList(); renderHist(); updateSummary();
+  toast('ปิดงวด '+ngodInfo.ngod+' แล้ว ✅');
+}
 function confirmNgod(){
   var ngod=document.getElementById('inp-ngod').value.trim();
   if(!ngod){toast('กรุณาใส่งวด');return;}
@@ -1165,7 +1220,7 @@ function confirmNgod(){
     receiver:document.getElementById('inp-receiver').value.trim(),date:new Date().toLocaleDateString('th-TH')};
   ngodOpen=true;
   // ล้างข้อมูลทุกลูกค้า แต่เก็บรายชื่อไว้
-  customers.forEach(function(c){custEntries[c.id]=[];custEid[c.id]=0;custSets[c.id]=[];});
+  customers.forEach(function(cu){custEntries[cu.id]=[];custEid[cu.id]=0;custSets[cu.id]=[];});
   // reset การเลือกลูกค้า เพื่อให้ header อัพเดทถูก
   curCustId=customers.length>0?customers[0].id:null;
   closeNgodModal();
