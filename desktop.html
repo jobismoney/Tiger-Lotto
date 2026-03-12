@@ -1548,9 +1548,11 @@ function renderKpFields(){
     if(!pf||!kb) return;
     // bon+lang แสดงสำหรับ 2+3 ตัว, na แสดงเฉพาะ 3 ตัว
     var hasLek=npLek!==''||npLekQueue.length>0;
+    var activeLekForKlb=npLek||(npLekQueue.length>0?npLekQueue[0]:'');
+    var allSame=activeLekForKlb.length>0&&activeLekForKlb.split('').every(function(c){return c===activeLekForKlb[0];});
     var showKlb=false;
-    if(k==='bon'||k==='lang') showKlb=(d===2||d===3)&&hasLek;
-    if(k==='na') showKlb=(d===3)&&hasLek;
+    if(k==='bon'||k==='lang') showKlb=(d===2||d===3)&&hasLek&&!allSame;
+    if(k==='na') showKlb=(d===3)&&hasLek&&!allSame;
     if(showKlb){pf.classList.add('show-klb');kb.textContent=klbLabel;}
     else pf.classList.remove('show-klb');
     // highlight ถ้า open
