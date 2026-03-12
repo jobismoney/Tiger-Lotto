@@ -1547,9 +1547,10 @@ function renderKpFields(){
     var kb=document.getElementById('klb-'+k);
     if(!pf||!kb) return;
     // bon+lang แสดงสำหรับ 2+3 ตัว, na แสดงเฉพาะ 3 ตัว
+    var hasLek=npLek!==''||npLekQueue.length>0;
     var showKlb=false;
-    if(k==='bon'||k==='lang') showKlb=(d===2||d===3)&&npLek!=='';
-    if(k==='na') showKlb=(d===3)&&npLek!=='';
+    if(k==='bon'||k==='lang') showKlb=(d===2||d===3)&&hasLek;
+    if(k==='na') showKlb=(d===3)&&hasLek;
     if(showKlb){pf.classList.add('show-klb');kb.textContent=klbLabel;}
     else pf.classList.remove('show-klb');
     // highlight ถ้า open
@@ -1607,7 +1608,8 @@ function renderKpFields(){
     // perm rows
     var pr=document.getElementById('pr-'+k);
     if(pr&&klbKeys[k]){
-      if(npKlbOpen[k]&&npLek.length>=2){
+      var activeLek = npLek || (npLekQueue.length>0 ? npLekQueue[0] : '');
+      if(npKlbOpen[k]&&activeLek.length>=2){
         // ถ้า focus อยู่ใน perm-rows นี้อยู่แล้ว → อย่า re-render (จะทำให้ focus หาย)
         var focusInPr=pr.contains(document.activeElement);
         if(!focusInPr){
