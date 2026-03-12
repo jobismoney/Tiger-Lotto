@@ -905,20 +905,26 @@ function impBannerSelChange(s){
   var ni=document.getElementById('imp-banner-input');
   if(ni) ni.style.display=s.value==='__new__'?'block':'none';
 }
-function showScanSuccess(custName, totalEntries){
+function showScanSuccess(custName, totalEntries, dupMsg){
   var el = document.getElementById('imp-banner');
   var ov = document.getElementById('imp-banner-overlay');
   document.getElementById('imp-banner-title').textContent = '😊';
   document.getElementById('imp-banner-subtitle').textContent = 'รับโพยของ '+custName;
-  document.getElementById('imp-banner-info').innerHTML = 'รับ <b>'+totalEntries+' รายการ</b> เข้าระบบแล้ว';
+  var info = 'รับ <b>'+totalEntries+' รายการ</b> เข้าระบบแล้ว';
+  if(dupMsg) info += '<br><span style="color:#f87171;font-size:13px;">'+dupMsg.replace(/<br>/g,' ')+'</span>';
+  document.getElementById('imp-banner-info').innerHTML = info;
   document.getElementById('imp-banner-sel').style.display = 'none';
   document.getElementById('imp-banner-input').style.display = 'none';
-  document.querySelector('.imp-banner-btns').style.display = 'none';
+  var btns = document.querySelector('.imp-banner-btns');
+  btns.style.display = '';
+  document.getElementById('imp-banner-cancel').style.display = 'none';
+  document.getElementById('imp-banner-ok').textContent = '✅ รับทราบ';
   ov.style.display = 'flex'; el.style.display = 'block';
-  setTimeout(function(){
+  document.getElementById('imp-banner-ok').onclick = function(){
     ov.style.display = 'none'; el.style.display = 'none';
-    document.querySelector('.imp-banner-btns').style.display = '';
-  }, 1500);
+    document.getElementById('imp-banner-cancel').style.display = '';
+    document.getElementById('imp-banner-ok').textContent = '✅ รับเข้าระบบ';
+  };
 }
 function doImportMulti(dataList, totalEntries, cid){
   if(!custSets[cid]) custSets[cid]=[];
@@ -934,8 +940,11 @@ function doImportMulti(dataList, totalEntries, cid){
     custSets[cid].push({entries:entries, locked:false, time:Date.now()});
   });
   curCustId=cid;
-  save(); renderCustList(); renderHist(); updateSummary();
-  toast('✅ รับ '+totalEntries+' รายการ '+dataList.length+' ชุดแล้วครับ');
+  save();
+  // render โดยไม่ trigger zone switch
+  var _sel=selectCust; selectCust=_origSelectCust;
+  renderCustList(); renderHist(); updateSummary();
+  selectCust=_sel;
 }
 function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
   // ถ้ากดสแกนจากชื่อลูกค้าโดยตรง → auto import ทันที ไม่ต้องกด
@@ -943,8 +952,7 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
     var custName=(customers.find(function(cu){return cu.id===curCustId;})||{}).name||'';
     var _custName=(customers.find(function(cu){return cu.id===curCustId;})||{}).name||'';
     doImportMulti(dataList,totalEntries,curCustId);
-    showScanSuccess(_custName,totalEntries);
-    if(dupMsg) toast(dupMsg.replace(/<[^>]+>/g,''));
+    showScanSuccess(_custName,totalEntries,dupMsg);
     return;
   }
   var custOpts = '<option value="">— เลือกลูกค้า —</option>';
@@ -985,8 +993,7 @@ function showImportBanner(data, fp, log, dupMsg){
   if(curCustId){
     var _custName2=(customers.find(function(cu){return cu.id===curCustId;})||{}).name||'';
     doImport(data,fp,log,curCustId);
-    showScanSuccess(_custName2,data.entries.length);
-    if(dupMsg) toast(dupMsg.replace(/<[^>]+>/g,''));
+    showScanSuccess(_custName2,data.entries.length,dupMsg);
     return;
   }
   var custOpts = '<option value="">— เลือกลูกค้า —</option>';
@@ -1068,8 +1075,10 @@ function doImport(data, fp, log, cid){
   saveScannedLog(log);
 
   curCustId = cid;
-  save(); renderCustList(); renderHist(); updateSummary();
-  toast('✅ รับ '+data.entries.length+' รายการแล้วครับ');
+  save();
+  var _sel2=selectCust; selectCust=_origSelectCust;
+  renderCustList(); renderHist(); updateSummary();
+  selectCust=_sel2;
 }
 
 window.addEventListener('DOMContentLoaded', function(){
