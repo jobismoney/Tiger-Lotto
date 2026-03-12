@@ -552,7 +552,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 <div class="main-wrap" id="main-wrap">
   <div class="hdr">
     <div class="hdr-left">
-      <h1>🐯 TIGER 999 <span id="hd-ngod" style="font-size:13px;font-weight:700;color:var(--lg);"></span></h1>
+      <h1>🐯 TIGER 999</h1>
+      <span id="hd-ngod" style="font-size:13px;font-weight:700;color:var(--lg);display:block;margin-top:-2px;"></span>
       <p id="hd-info">กรอกชื่อและงวด</p>
     </div>
     <div class="hdr-btns">
@@ -875,7 +876,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var r=ngodInfo.receiver||'ผู้รับ...';
     var g=ngodInfo.ngod||'...';
     document.getElementById('hd-info').textContent=s+' → '+r;
-    var gd=g.replace(/ \d{2}:\d{2}$/,''); document.getElementById('hd-ngod').textContent=gd&&gd!=='...'?' | '+gd:'';
+    var gd=g.replace(/ \d{2}:\d{2}$/,''); document.getElementById('hd-ngod').textContent=gd&&gd!=='...'?' '+gd:'';
   }
 
   function updateLockUI(){
@@ -1775,95 +1776,38 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       }
     });
     if(!hasAny){toast('กรุณาใส่ราคาอย่างน้อย 1 ช่อง');return;}
-    // ตรวจเลขซ้ำ — รวม perm rows ด้วย
-    // รวบรวม perm leks ทั้งหมดของ entry ใหม่
-    var newPerms=[];
-    // perm จาก kd (ชุดบน/ล่าง/หน้า)
-    Object.keys(kd).forEach(function(k){
-      kd[k].forEach(function(x){if(newPerms.indexOf(x.perm)<0)newPerms.push(x.perm);});
-    });
-    // โต๊ด — ถ้ามีราคาโต๊ด ให้รวม perm ทั้งหมดของเลขนี้ด้วย
-    if(mp.tod>0){
-      getPerms(curLek).forEach(function(p){if(newPerms.indexOf(p)<0)newPerms.push(p);});
-    }
-    var allNewLeks=[curLek].concat(newPerms);
 
-    // สร้าง existLeks ฟังก์ชันกลาง
-    function getExistLeks(e){
-      // entry ที่เป็นปักหลัก (มี paks) ไม่นับเป็น dup กับ entry ปกติ
-      if(e.paks&&e.paks.length) return [];
-      var leks=[e.lek];
-      if(e.kd){Object.keys(e.kd).forEach(function(k){e.kd[k].forEach(function(x){if(leks.indexOf(x.perm)<0)leks.push(x.perm);});});}
-      // โต๊ดของ entry เก่า
-      if(e.tod>0){getPerms(e.lek).forEach(function(p){if(leks.indexOf(p)<0)leks.push(p);});}
-      return leks;
-    }
-
-    // รวบรวม leks ทั้งหมดของ entries ปัจจุบัน
-    var dupMap={}; // lek → [source]
-    function addDupReg(nl,source){
-      if(!dupMap[nl])dupMap[nl]=[];
-      if(dupMap[nl].indexOf(source)<0)dupMap[nl].push(source);
-    }
-    var filteredNewLeks=allNewLeks.filter(function(nl){return APP.allowedDupKeys.indexOf(nl)<0;});
-    entries.forEach(function(e){
-      var existLeks=getExistLeks(e);
-      filteredNewLeks.forEach(function(nl){
-        if(existLeks.indexOf(nl)>=0)addDupReg(nl,'ชุดปัจจุบัน');
-      });
+    // ตรวจเลขซ้ำ — เฉพาะเลขหลักในชุดปัจจุบัน
+    var isDup = entries.some(function(e){
+      if(e.paks&&e.paks.length) return false; // ปักหลักไม่นับ
+      return e.lek === curLek;
     });
 
-    var dupLekList=Object.keys(dupMap);
-    if(dupLekList.length){
-      // สร้างข้อความแยก source
-      var dupLines2=[];
-      var srcMap={};
-      dupLekList.forEach(function(nl){
-        dupMap[nl].forEach(function(src){
-          if(!srcMap[src])srcMap[src]=[];
-          if(srcMap[src].indexOf(nl)<0)srcMap[src].push(nl);
-        });
-      });
-      var dupLines2arr=[];
-      var dupSeen={};
-      dupLekList.forEach(function(nl){
-        dupMap[nl].forEach(function(src){
-          var key=nl.split('|')[0]+'|'+src;
-          if(!dupSeen[key]){dupSeen[key]=1;dupLines2arr.push('เลข <b>'+(nl.split('|')[0]||nl)+'</b> ('+src+')');}
-        });
-      });
-      var dupExtra=dupLines2arr.length>3?dupLines2arr.length-3:0;
-      var dupMsg2=dupLines2arr.slice(0,3).join('<br>')+(dupExtra>0?'<br><span style="color:#9ca3af;font-size:13px;">และอีก '+dupExtra+' รายการ...</span>':'');
-      if(!dupLines2arr.length){
-        // ซ้ำล้วน confirmedDup → ผ่านทันที ไม่ต้องถาม
-      } else {
-      var _dupMp=mp,_dupKd=kd,_dupLek=curLek,_dupD=d;
+    if(isDup && APP.allowedDupKeys.indexOf(curLek) < 0){
       showConfirm(
-        'พบเลขซ้ำ<br><br>'+dupMsg2+'<br><br>ต้องการเพิ่มซ้ำหรือไม่?',
+        'เลข <b>'+curLek+'</b> มีอยู่แล้วในชุดนี้<br><br>ต้องการเพิ่มซ้ำหรือไม่?',
         function(){
-          allNewLeks.forEach(function(nl){if(APP.allowedDupKeys.indexOf(nl)<0)APP.allowedDupKeys.push(nl);});
-          eid++;
-          entries.unshift({id:eid,lek:_dupLek,d:_dupD,bon:_dupMp.bon||null,tod:_dupMp.tod||null,lang:_dupMp.lang||null,na:_dupMp.na||null,kd:_dupKd});
-          setLek('');var inp2=document.getElementById('lek-inp');inp2.value='';
-          FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
-          var ab3=document.getElementById('add-btn');if(ab3)ab3.classList.remove('ready');
-          document.getElementById('list-scroll').scrollTop=0;
-          inp2.focus();
+          APP.allowedDupKeys.push(curLek);
+          doAddEntry();
         }, false
       );
       return;
-      } // end else
     }
-    eid++;
-    entries.unshift({id:eid,lek:curLek,d:d,bon:mp.bon||null,tod:mp.tod||null,lang:mp.lang||null,na:mp.na||null,kd:kd});
-    setLek('');
-    var inp=document.getElementById('lek-inp');
-    inp.value='';
-    FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
-    var ab2=document.getElementById('add-btn');if(ab2)ab2.classList.remove('ready');
-    document.getElementById('list-scroll').scrollTop=0;
-    // focus กลับไปช่องเลขทันที ไม่ scroll
-    inp.focus();
+    doAddEntry();
+
+    function doAddEntry(){
+      eid++;
+      entries.unshift({id:eid,lek:curLek,d:d,bon:mp.bon||null,tod:mp.tod||null,lang:mp.lang||null,na:mp.na||null,kd:kd});
+      // reset allowedDupKeys เมื่อเพิ่มเลขใหม่สำเร็จ (ถามซ้ำอีกครั้งถ้าคีย์ซ้ำอีก)
+      APP.allowedDupKeys = APP.allowedDupKeys.filter(function(k){ return k !== curLek; });
+      setLek('');
+      var inp=document.getElementById('lek-inp');
+      inp.value='';
+      FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
+      var ab2=document.getElementById('add-btn');if(ab2)ab2.classList.remove('ready');
+      document.getElementById('list-scroll').scrollTop=0;
+      inp.focus();
+    }
   }
 
   function removeEntry(id){
