@@ -261,10 +261,15 @@ function resetResult(){
 
 document.getElementById('go-btn').addEventListener('click', function(){
   if(!_qrUrl) return;
-  // ดึงแค่ import param แล้วเปิด desktop.html แบบ relative
   var imp = _qrUrl.split('import=')[1];
-  if(imp) window.location.href = 'desktop.html?import=' + imp;
-  else window.location.href = _qrUrl;
+  if(!imp) return;
+  // ถ้าอยู่ใน iframe → ส่ง message กลับ parent
+  if(window.parent && window.parent !== window){
+    window.parent.postMessage({type:'scanResult', import: imp}, '*');
+  } else {
+    // เปิดแบบ standalone → redirect ตามเดิม
+    window.location.href = 'desktop.html?import=' + imp;
+  }
 });
 
 document.getElementById('reset-btn').addEventListener('click', function(){

@@ -383,7 +383,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <div class="ngod-badge" id="ngod-badge">— เปิดงวดก่อน —</div>
   </div>
   <div class="hdr-btns">
-    <button class="hbtn" onclick="window.open('scan.html','_blank')"><span class="hbtn-icon">📷</span><span class="hbtn-lbl">Scan</span></button>
+    <button class="hbtn" onclick="openScanPopup()"><span class="hbtn-icon">📷</span><span class="hbtn-lbl">Scan</span></button>
     <button class="hbtn" onclick="openSettings()"><span class="hbtn-icon">⚙️</span><span class="hbtn-lbl">ตั้งค่า</span></button>
     <button class="hbtn" onclick="showSlip()"><span class="hbtn-icon">📋</span><span class="hbtn-lbl">ดูโพย</span></button>
     <button class="hbtn gold" onclick="openNgodModal()"><span class="hbtn-icon">📅</span><span class="hbtn-lbl">งวดใหม่</span></button>
@@ -395,6 +395,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <button class="tab-nav-btn" onclick="switchZone(2,this)">📋 รายการ</button>
   <button class="tab-nav-btn" onclick="switchZone(3,this)">⌨️ คีย์</button>
   <button class="tab-nav-btn" onclick="switchZone(4,this)">📊 สรุป</button>
+  <button class="tab-nav-btn" onclick="openScanPopup()" style="color:#f5c518;">📷 สแกน</button>
 </div>
 <div class="main" id="main-grid">
 
@@ -405,7 +406,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
       <span id="cust-count" style="font-size:11px;color:#4a5570;font-weight:700;">0</span>
     </div>
     <div class="zbody">
-      <div class="cadd" onclick="openAddCust()">➕ เพิ่มลูกค้า</div>
+      <div style="display:flex;gap:6px;margin-bottom:4px;"><div class="cadd" style="flex:1;" onclick="openAddCust()">➕ เพิ่มลูกค้า</div><div class="cadd" style="background:rgba(245,197,24,.10);border-color:rgba(245,197,24,.25);flex:0 0 auto;padding:8px 12px;" onclick="openScanPopup()">📷</div></div>
       <div class="clist" id="clist"></div>
     </div>
   </div>
@@ -841,6 +842,38 @@ function saveScannedLog(log){
   localStorage.setItem('t999_qr_log', JSON.stringify(log));
 }
 
+function openScanPopup(){
+  var popup = document.getElementById('scan-popup');
+  var iframe = document.getElementById('scan-iframe');
+  popup.style.display = 'flex';
+  iframe.src = 'scan.html';
+}
+function closeScanPopup(){
+  var popup = document.getElementById('scan-popup');
+  var iframe = document.getElementById('scan-iframe');
+  popup.style.display = 'none';
+  iframe.src = '';
+}
+// รับข้อมูลจาก scan iframe
+window.addEventListener('message', function(ev){
+  if(ev.data && ev.data.type === 'scanResult'){
+    closeScanPopup();
+    var imp = ev.data.import;
+    if(!imp) return;
+    try{
+      var json = decodeURIComponent(escape(atob(imp)));
+      var data = JSON.parse(json);
+      data = normalizeQRData(data);
+      if(!data.entries||!data.entries.length) return;
+      var fp = makeQRFingerprint(data);
+      var log = getScannedLog();
+      var dupMsg = '';
+      var prev = log.find(function(x){ return x.fp === fp; });
+      if(prev) dupMsg = '⚠️ สแกนซ้ำ! รับไปแล้วเมื่อ '+(prev.time?new Date(prev.time).toLocaleString('th-TH'):'—')+'<br>';
+      showImportBanner(data, fp, log, dupMsg);
+    } catch(err){ toast('อ่าน QR ไม่ได้: '+err.message); }
+  }
+});
 function impBannerSelChange(s){
   var ni=document.getElementById('imp-banner-input');
   if(ni) ni.style.display=s.value==='__new__'?'block':'none';
@@ -906,21 +939,18 @@ function doImport(data, fp, log, cid){
   if(!custEntries[cid]) custEntries[cid] = [];
   if(!custEid[cid]) custEid[cid] = 0;
 
-  // ถ้ากำลังคีย์ค้างอยู่ → flush เป็น set ก่อน แล้วเริ่ม set ใหม่
   if(!custSets[cid]) custSets[cid]=[];
-  if(custEntries[cid]&&custEntries[cid].length){
-    custSets[cid].push({entries:custEntries[cid].slice().reverse(), locked:true, time:Date.now()});
-    custEntries[cid]=[];
-  }
-  // entries ที่ import มา = ชุดกำลังคีย์ใหม่ (แก้ได้)
+  if(!custEid[cid]) custEid[cid]=0;
+  var importedEntries=[];
   data.entries.forEach(function(e){
     custEid[cid]++;
     var lek = String(e.lek||'');
-    custEntries[cid].push({
+    importedEntries.push({
       id: custEid[cid], lek: lek, d: lek.length,
       bon: e.bon||null, tod: e.tod||null, lang: e.lang||null, na: e.na||null, kd: e.kd||{}, paks: e.paks||[]
     });
   });
+  custSets[cid].push({entries: importedEntries, locked: false, time: Date.now()});
 
   log.push({ fp: fp, time: Date.now(), sender: data.sender||'', ngod: data.ngod||'', pg: data.pg });
   saveScannedLog(log);
@@ -1085,6 +1115,12 @@ function confirmNgod(){
 // ================================================================
 // SET SYSTEM
 // ================================================================
+function removeEntryFromSet(cid, setIdx, eid){
+  if(!custSets[cid]||!custSets[cid][setIdx]) return;
+  custSets[cid][setIdx].entries = custSets[cid][setIdx].entries.filter(function(e){return e.id!==eid;});
+  if(!custSets[cid][setIdx].entries.length) custSets[cid].splice(setIdx,1);
+  save(); renderHist(); updateSummary();
+}
 function toggleSetView(cid, idx){
   if(!custSets[cid]||!custSets[cid][idx]) return;
   custSets[cid][idx]._open = !custSets[cid][idx]._open;
@@ -1131,7 +1167,7 @@ function lockSet(){
   var entries=custEntries[curCustId]||[];
   if(!entries.length){toast('ยังไม่มีรายการในชุดนี้ครับ');return;}
   if(!custSets[curCustId]) custSets[curCustId]=[];
-  custSets[curCustId].push({entries:entries.slice().reverse(), locked:true, time:Date.now()});
+  custSets[curCustId].push({entries:entries.slice().reverse(), locked:false, time:Date.now()});
   custEntries[curCustId]=[];
   save(); renderHist(); renderCustList(); updateSummary();
   toast('ล็อคชุดที่ '+(custSets[curCustId].length)+' แล้ว ✅');
@@ -1757,14 +1793,15 @@ function renderHist(){
     });
   });
 
-  // locked sets
+  // sets
   sets.slice().reverse().forEach(function(s,si){
     var realIdx=sets.length-1-si;
     var setNum=sets.length-si;
     var setTotal=s.entries.reduce(function(st,e){return st+entryTotal(e);},0);
     var isOpen=s._open;
+    var isLocked=s.locked;
     h+='<div class="set-div" onclick="toggleSetView(\''+curCustId+'\','+realIdx+')" style="cursor:pointer;">'
-      +'<span>'+(isOpen?'🔓':'🔒')+' ชุดที่ '+setNum+' <small style="color:#556;font-size:10px;">'+(isOpen?'▲':'▼')+'</small></span>'
+      +'<span>'+(isLocked?'🔒':'📋')+' ชุดที่ '+setNum+' <small style="color:#556;font-size:10px;">'+(isOpen?'▲':'▼')+'</small></span>'
       +'<span style="display:flex;align-items:center;gap:6px;">'
       +'<span>฿'+setTotal.toLocaleString()+'</span>'
       +'<button class="set-act-btn" onclick="event.stopPropagation();showSlipSet(\''+curCustId+'\','+realIdx+')">📋</button>'
@@ -1772,14 +1809,26 @@ function renderHist(){
       +'</span></div>';
     if(isOpen){
       s.entries.forEach(function(e){
-        h+='<div class="hrow locked">'
-          +'<div class="hd lek">'+e.lek+'</div>'
-          +'<div class="hd'+(e.bon?'':' e')+'">'+(e.bon||'—')+'</div>'
-          +'<div class="hd'+(e.tod?'':' e')+'">'+(e.tod||'—')+'</div>'
-          +'<div class="hd'+(e.lang?'':' e')+'">'+(e.lang||'—')+'</div>'
-          +'<div class="hd'+(e.na?'':' e')+'">'+(e.na||'—')+'</div>'
-          +'<div class="hd"></div>'
-          +'</div>';
+        if(isLocked){
+          h+='<div class="hrow locked">'
+            +'<div class="hd lek">'+e.lek+'</div>'
+            +'<div class="hd'+(e.bon?'':' e')+'">'+(e.bon||'—')+'</div>'
+            +'<div class="hd'+(e.tod?'':' e')+'">'+(e.tod||'—')+'</div>'
+            +'<div class="hd'+(e.lang?'':' e')+'">'+(e.lang||'—')+'</div>'
+            +'<div class="hd'+(e.na?'':' e')+'">'+(e.na||'—')+'</div>'
+            +'<div class="hd"></div>'
+            +'</div>';
+        } else {
+          var hasRate=hasRateOverride(e.lek, e.id||Date.now());
+          h+='<div class="hrow"'+(hasRate?' style="border-left:2px solid #f59e0b;"':'')+' title="'+(hasRate?'มีการตั้งเรทพิเศษ':'')+'">'
+            +'<div class="hd lek" style="'+(hasRate?'color:#f59e0b;':'')+'">'+e.lek+(hasRate?' ⚡':'')+' </div>'
+            +'<div class="hd'+(e.bon?'':' e')+'">'+(e.bon||'—')+'</div>'
+            +'<div class="hd'+(e.tod?'':' e')+'">'+(e.tod||'—')+'</div>'
+            +'<div class="hd'+(e.lang?'':' e')+'">'+(e.lang||'—')+'</div>'
+            +'<div class="hd'+(e.na?'':' e')+'">'+(e.na||'—')+'</div>'
+            +'<div class="hd rm" onclick="removeEntryFromSet(\''+curCustId+'\','+realIdx+','+e.id+')">✕</div>'
+            +'</div>';
+        }
       });
     }
   });
@@ -2732,6 +2781,17 @@ selectCust = function(id){
   <div class="imp-banner-btns">
     <button id="imp-banner-ok">✅ รับเข้าระบบ</button>
     <button id="imp-banner-cancel">ยกเลิก</button>
+  </div>
+</div>
+
+<!-- SCAN POPUP -->
+<div id="scan-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:8000;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
+  <div style="background:#13161f;border:1px solid #2a2d3e;border-radius:16px;width:100%;max-width:480px;overflow:hidden;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #1e2235;">
+      <span style="font-weight:900;font-size:16px;color:var(--gold);">📷 สแกน QR</span>
+      <button onclick="closeScanPopup()" style="background:none;border:none;color:#7a8aaa;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <iframe id="scan-iframe" src="" style="width:100%;height:500px;border:none;background:#0f1117;"></iframe>
   </div>
 </div>
 </body>
