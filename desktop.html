@@ -805,7 +805,7 @@ function normalizeQRData(data){
             return {bon:mapKd(k.bon),lang:mapKd(k.lang),na:mapKd(k.na)};
           })(e.k) : {},
           paks: (e.pk||[]).map(function(p){
-            var typeLabels={bon:'บน',lang:'ล่าง'};
+            var typeLabels={'3bon':'บน','2lang':'ล่าง','bon':'บน','lang':'ล่าง'};
             var posLabels={na:'หน้า',mid:'กลาง',lang:'หลัง'};
             return {type:p.tp,pos:p.ps,price:p.pr,
                     typeLabel:typeLabels[p.tp]||p.tp,
@@ -1887,6 +1887,13 @@ function renderHist(){
             +'<div class="hd'+(e.na?'':' e')+'">'+(e.na||'—')+'</div>'
             +'<div class="hd rm" onclick="removeEntryFromSet(\''+curCustId+'\','+realIdx+','+e.id+')">✕</div>'
             +'</div>';
+          (e.paks||[]).forEach(function(p){
+            h+='<div class="pak-row">'
+              +'<div class="pkd">'+e.lek+'</div>'
+              +'<div class="pkd">📌'+(p.typeLabel||p.type)+' '+(p.posLabel||p.pos)+' ฿'+p.price+'</div>'
+              +'<div class="pkd"></div>'
+              +'</div>';
+          });
         }
       });
     }

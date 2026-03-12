@@ -2082,10 +2082,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var kb=(e.kd['bon']||[]).reduce(function(s,x){return s+x.price;},0);
     var kl=(e.kd['lang']||[]).reduce(function(s,x){return s+x.price;},0);
     var kn=(e.kd['na']||[]).reduce(function(s,x){return s+x.price;},0);
-    if(d===3)return{c3:b+kb+n+kn,c2:0,c1:0,ct:t,cl:l+kl};
-    if(d===2)return{c3:0,c2:b+kb,c1:0,ct:t,cl:l+kl};
-    if(d===1)return{c3:0,c2:0,c1:b,ct:0,cl:l};
-    return{c3:0,c2:0,c1:0,ct:t,cl:0};
+    var pk3=0, pk2=0;
+    (e.paks||[]).forEach(function(p){
+      if(p.type==='3bon') pk3+=p.price;
+      else pk2+=p.price;
+    });
+    if(d===3)return{c3:b+kb+n+kn+pk3,c2:pk2,c1:0,ct:t,cl:l+kl};
+    if(d===2)return{c3:pk3,c2:b+kb+pk2,c1:0,ct:t,cl:l+kl};
+    if(d===1)return{c3:pk3,c2:pk2,c1:b,ct:0,cl:l};
+    return{c3:pk3,c2:pk2,c1:0,ct:t,cl:0};
   }
 
   // คำนวณส่วนลดจาก entries + discRates (map ตรงกับ entrySummary)
@@ -2557,6 +2562,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function calcEntryTotal(e){
     var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);
     ['bon','lang','na'].forEach(function(k){(e.kd[k]||[]).forEach(function(x){t+=x.price;});});
+    (e.paks||[]).forEach(function(p){t+=p.price;});
     return t;
   }
 
