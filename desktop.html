@@ -319,9 +319,10 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .set-tab{flex:1;background:#141b2e;border:1px solid #1a2040;border-radius:5px;padding:4px;text-align:center;font-size:9px;font-weight:800;color:#334;cursor:pointer;}
 .set-tab.on{background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.2);color:var(--gold);}
 .set-row{display:grid;grid-template-columns:1fr 36px 36px;gap:3px;align-items:center;padding:4px 0;border-bottom:1px solid #0f1220;}
-.set-lbl{font-size:13px;font-weight:700;color:#556;}
-.set-inp{background:#080b14;border:1px solid #1a2040;border-radius:3px;padding:3px;font-size:12px;font-weight:700;color:#f0f2ff;text-align:center;font-family:'Sarabun',sans-serif;outline:none;width:100%;}
+.set-lbl{font-size:15px;font-weight:700;color:#7a8aaa;}
+.set-inp{background:#080b14;border:1px solid #1a2040;border-radius:5px;padding:6px 4px;font-size:16px;font-weight:800;color:#f0f2ff;text-align:center;font-family:'Sarabun',sans-serif;outline:none;width:100%;-moz-appearance:textfield;}
 .set-inp:focus{border-color:rgba(245,197,24,.3);}
+.set-inp::-webkit-outer-spin-button,.set-inp::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
 .set-save{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:5px;padding:7px;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:900;color:#111;cursor:pointer;margin-top:8px;}
 
 /* ══ POPUP ปักหลัก ══ */
@@ -580,7 +581,6 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
             oninput="updateRateCbState()"
             style="width:64px;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#f5c518;font-size:16px;font-weight:900;padding:7px 8px;text-align:center;font-family:'Sarabun',sans-serif;outline:none;box-sizing:border-box;">
           <select id="rate-pct-sel" style="flex:1;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#f87171;font-size:13px;font-weight:900;padding:7px 6px;font-family:'Sarabun',sans-serif;cursor:pointer;">
-            <option value="75">75%</option>
             <option value="50">50%</option>
             <option value="25">25%</option>
             <option value="10">10%</option>
@@ -610,10 +610,10 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
           <div class="set-tab on" id="cfg-tab-n" onclick="switchCfgTab('n')">ปกติ</div>
           <div class="set-tab" id="cfg-tab-s" onclick="switchCfgTab('s')">พิเศษ</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 36px 36px;gap:3px;margin-bottom:4px;">
+        <div style="display:grid;grid-template-columns:1fr 48px 48px;gap:4px;margin-bottom:4px;">
           <div></div>
-          <div style="font-size:8px;color:#334;text-align:center;">ลด%</div>
-          <div style="font-size:8px;color:#334;text-align:center;">จ่าย</div>
+          <div style="font-size:12px;color:#556;text-align:center;font-weight:800;">ลด%</div>
+          <div style="font-size:12px;color:#556;text-align:center;font-weight:800;">จ่าย</div>
         </div>
         <div id="cfg-n-rows"></div>
         <div id="cfg-s-rows" style="display:none;"></div>
@@ -885,8 +885,11 @@ window.addEventListener('message', function(ev){
         if(!data.entries||!data.entries.length) return;
         var fp = makeQRFingerprint(data);
         var prev = log.find(function(x){ return x.fp === fp; });
-        if(prev){ dupWarnings.push('แผ่น '+data.pg+' สแกนซ้ำ'); }
-        else { log.push({ fp: fp, time: Date.now(), sender: data.sender||'', ngod: data.ngod||'', pg: data.pg }); }
+        if(prev){
+          var prevCust=customers.find(function(cu){return cu.id===prev.cid;})||{};
+          var prevName=prevCust.name||prev.sender||'ไม่ทราบ';
+          dupWarnings.push('แผ่น '+data.pg+' ⚠️ สแกนซ้ำ! (ของ '+prevName+')');
+        } else { log.push({ fp: fp, time: Date.now(), sender: data.sender||'', ngod: data.ngod||'', pg: data.pg, cid: curCustId||'' }); }
         validDataList.push(data);
       } catch(err){ toast('อ่าน QR ไม่ได้: '+err.message); }
     });
@@ -902,20 +905,60 @@ function impBannerSelChange(s){
   var ni=document.getElementById('imp-banner-input');
   if(ni) ni.style.display=s.value==='__new__'?'block':'none';
 }
+function doImportMulti(dataList, totalEntries, cid){
+  if(!custSets[cid]) custSets[cid]=[];
+  if(!custEid[cid]) custEid[cid]=0;
+  dataList.forEach(function(data){
+    var entries=[];
+    data.entries.forEach(function(e){
+      custEid[cid]++;
+      var lek=String(e.lek||'');
+      entries.push({id:custEid[cid],lek:lek,d:lek.length,
+        bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,kd:e.kd||{},paks:e.paks||[]});
+    });
+    custSets[cid].push({entries:entries, locked:false, time:Date.now()});
+  });
+  curCustId=cid;
+  save(); renderCustList(); renderHist(); updateSummary();
+  toast('✅ รับ '+totalEntries+' รายการ '+dataList.length+' ชุดแล้วครับ');
+}
 function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
-  // ใช้ banner เดิม แต่ส่ง dataList ทั้งหมด
+  // ถ้ากดสแกนจากชื่อลูกค้าโดยตรง → auto import ไม่ต้องเลือก
+  if(curCustId){
+    var custName=(customers.find(function(cu){return cu.id===curCustId;})||{}).name||'';
+    var info=(dupMsg||'')+'<b>'+dataList.length+' QR</b> · รวม <b>'+totalEntries+' รายการ</b>';
+    document.getElementById('imp-banner-sel').style.display='none';
+    document.getElementById('imp-banner-title').textContent='😊';
+    document.getElementById('imp-banner-subtitle').textContent='รับโพยของ '+custName;
+    document.getElementById('imp-banner-info').innerHTML=info;
+    document.getElementById('imp-banner-input').style.display='none';
+    document.getElementById('imp-banner-overlay').style.display='flex';document.getElementById('imp-banner').style.display='';
+    document.getElementById('imp-banner-ok').onclick=function(){
+      document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
+      document.getElementById('imp-banner-sel').style.display='';
+      doImportMulti(dataList,totalEntries,curCustId);
+    };
+    document.getElementById('imp-banner-cancel').onclick=function(){
+      document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
+      document.getElementById('imp-banner-sel').style.display='';
+    };
+    return;
+  }
   var custOpts = '<option value="">— เลือกลูกค้า —</option>';
   customers.forEach(function(cu){
     custOpts += '<option value="'+cu.id+'">'+cu.name+'</option>';
   });
   custOpts += '<option value="__new__">+ ลูกค้าใหม่</option>';
   var sel = document.getElementById('imp-banner-sel');
+  sel.style.display='';
   sel.innerHTML = custOpts;
+  document.getElementById('imp-banner-title').textContent='📋';
+  document.getElementById('imp-banner-subtitle').textContent='รับโพยใหม่';
   document.getElementById('imp-banner-info').innerHTML =
     (dupMsg||'')+'<b>'+dataList.length+' QR</b> · รวม <b>'+totalEntries+' รายการ</b> · จะสร้าง '+dataList.length+' ชุด';
   document.getElementById('imp-banner-input').value = '';
   document.getElementById('imp-banner-input').style.display = 'none';
-  document.getElementById('imp-banner').style.display = 'block';
+  document.getElementById('imp-banner-overlay').style.display='flex';document.getElementById('imp-banner').style.display='';
   document.getElementById('imp-banner-ok').onclick = function(){
     var cid = document.getElementById('imp-banner-sel').value;
     var ni = document.getElementById('imp-banner-input');
@@ -927,41 +970,48 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
       custEntries[cid]=[]; custEid[cid]=0; custSets[cid]=[];
     }
     if(!cid){ toast('กรุณาเลือกลูกค้าครับ'); return; }
-    document.getElementById('imp-banner').style.display='none';
-    // สร้าง set แยกทีละ QR
-    if(!custSets[cid]) custSets[cid]=[];
-    if(!custEid[cid]) custEid[cid]=0;
-    dataList.forEach(function(data){
-      var entries=[];
-      data.entries.forEach(function(e){
-        custEid[cid]++;
-        var lek=String(e.lek||'');
-        entries.push({id:custEid[cid],lek:lek,d:lek.length,
-          bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,kd:e.kd||{},paks:e.paks||[]});
-      });
-      custSets[cid].push({entries:entries, locked:false, time:Date.now()});
-    });
-    curCustId = cid;
-    save(); renderCustList(); renderHist(); updateSummary();
-    toast('✅ รับ '+totalEntries+' รายการ '+dataList.length+' ชุดแล้วครับ');
+    document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
+    doImportMulti(dataList,totalEntries,cid);
   };
   document.getElementById('imp-banner-cancel').onclick = function(){
-    document.getElementById('imp-banner').style.display='none';
+    document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
   };
 }
 function showImportBanner(data, fp, log, dupMsg){
+  // ถ้ากดสแกนจากชื่อลูกค้าโดยตรง → auto import
+  if(curCustId){
+    var custName=(customers.find(function(cu){return cu.id===curCustId;})||{}).name||'';
+    var info=(dupMsg||'')+'แผ่น <b>'+data.pg+'</b> · <b>'+data.entries.length+' รายการ</b>';
+    document.getElementById('imp-banner-sel').style.display='none';
+    document.getElementById('imp-banner-title').textContent='😊';
+    document.getElementById('imp-banner-subtitle').textContent='รับโพยของ '+custName;
+    document.getElementById('imp-banner-info').innerHTML=info;
+    document.getElementById('imp-banner-input').style.display='none';
+    document.getElementById('imp-banner-overlay').style.display='flex';document.getElementById('imp-banner').style.display='';
+    document.getElementById('imp-banner-ok').onclick=function(){
+      document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
+      document.getElementById('imp-banner-sel').style.display='';
+      doImport(data,fp,log,curCustId);
+    };
+    document.getElementById('imp-banner-cancel').onclick=function(){
+      document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
+      document.getElementById('imp-banner-sel').style.display='';
+    };
+    return;
+  }
   var custOpts = '<option value="">— เลือกลูกค้า —</option>';
   customers.forEach(function(cu){
     custOpts += '<option value="'+cu.id+'">'+cu.name+'</option>';
   });
   custOpts += '<option value="__new__">+ ลูกค้าใหม่</option>';
   var sel = document.getElementById('imp-banner-sel');
+  sel.style.display='';
   sel.innerHTML = custOpts;
   document.getElementById('imp-banner-info').innerHTML =
     (dupMsg||'')+'แผ่น <b>'+data.pg+'</b> · <b>'+data.entries.length+' รายการ</b>';
   document.getElementById('imp-banner-input').value = '';
   document.getElementById('imp-banner-input').style.display = 'none';
-  document.getElementById('imp-banner').style.display = 'block';
+  document.getElementById('imp-banner-overlay').style.display='flex';document.getElementById('imp-banner').style.display='';
   document.getElementById('imp-banner-ok').onclick = function(){
     var cid = document.getElementById('imp-banner-sel').value;
     var ni = document.getElementById('imp-banner-input');
@@ -973,11 +1023,11 @@ function showImportBanner(data, fp, log, dupMsg){
       custEntries[cid]=[]; custEid[cid]=0; custSets[cid]=[];
     }
     if(!cid){ toast('กรุณาเลือกลูกค้าครับ'); return; }
-    document.getElementById('imp-banner').style.display='none';
+    document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
     doImport(data, fp, log, cid);
   };
   document.getElementById('imp-banner-cancel').onclick = function(){
-    document.getElementById('imp-banner').style.display='none';
+    document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
   };
 }
 function handleImportParam(){
@@ -996,7 +1046,8 @@ function handleImportParam(){
     var prev = log.find(function(x){ return x.fp === fp; });
 
     // ใช้ banner เสมอ ทั้ง scan ใหม่และซ้ำ
-    var dupMsg = prev ? ('⚠️ สแกนซ้ำ! รับไปแล้วเมื่อ '+(prev.time?new Date(prev.time).toLocaleString('th-TH'):'—')+'<br>') : '';
+    var prevCust2=prev?(customers.find(function(cu){return cu.id===prev.cid;})||{}):{};
+    var dupMsg = prev ? ('⚠️ สแกนซ้ำ! ของ '+(prevCust2.name||prev.sender||'ไม่ทราบ')+' รับไปแล้วเมื่อ '+(prev.time?new Date(prev.time).toLocaleString('th-TH'):'—')+'<br>') : '';
     showImportBanner(data, fp, log, dupMsg);
 
     window.history.replaceState({}, '', window.location.pathname);
@@ -1023,7 +1074,7 @@ function doImport(data, fp, log, cid){
   });
   custSets[cid].push({entries: importedEntries, locked: false, time: Date.now()});
 
-  log.push({ fp: fp, time: Date.now(), sender: data.sender||'', ngod: data.ngod||'', pg: data.pg });
+  log.push({ fp: fp, time: Date.now(), sender: data.sender||'', ngod: data.ngod||'', pg: data.pg, cid: cid||'' });
   saveScannedLog(log);
 
   curCustId = cid;
@@ -2952,7 +3003,8 @@ selectCust = function(id){
 </script>
 
 <style>
-#imp-banner{position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#1a1d27,#12151f);border-bottom:3px solid var(--gold);padding:16px;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+#imp-banner-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99998;display:none;align-items:center;justify-content:center;}
+#imp-banner{background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid var(--gold);border-radius:16px;padding:20px;width:90%;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.7);display:none;}
 #imp-banner-title{font-size:16px;font-weight:900;color:var(--gold);margin-bottom:8px;}
 #imp-banner-info{font-size:14px;color:var(--white);margin-bottom:10px;line-height:1.6;}
 #imp-banner-sel{width:100%;padding:8px;border-radius:8px;border:1px solid #444;background:#0f1117;color:#f0f2ff;font-size:14px;font-family:'Sarabun',sans-serif;margin-bottom:8px;}
@@ -2961,8 +3013,10 @@ selectCust = function(id){
 #imp-banner-ok{flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#111;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;}
 #imp-banner-cancel{background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;padding:10px 16px;cursor:pointer;}
 </style>
+<div id="imp-banner-overlay">
 <div id="imp-banner">
-  <div id="imp-banner-title">📋 รับโพยใหม่</div>
+  <div id="imp-banner-title" style="font-size:28px;text-align:center;margin-bottom:4px;">🎉</div>
+  <div id="imp-banner-subtitle" style="font-size:16px;font-weight:900;color:var(--gold);text-align:center;margin-bottom:12px;">รับโพยใหม่</div>
   <div id="imp-banner-info"></div>
   <select id="imp-banner-sel" onchange="impBannerSelChange(this)"></select>
   <input id="imp-banner-input" type="text" placeholder="ชื่อลูกค้าใหม่">
@@ -2970,6 +3024,7 @@ selectCust = function(id){
     <button id="imp-banner-ok">✅ รับเข้าระบบ</button>
     <button id="imp-banner-cancel">ยกเลิก</button>
   </div>
+</div>
 </div>
 
 <!-- SCAN POPUP -->
