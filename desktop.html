@@ -734,6 +734,7 @@ var ngodInfo = {ngod:'',sender:'',receiver:'',date:''}, ngodOpen = false;
 // Numpad
 var npLek='', npPhase='lek', npStep=0, npBuffer='';
 var npFields = {bon:null,tod:null,lang:null,na:null};
+var npLekQueue = []; // เก็บ leks ที่คั่นด้วย /
 
 // RULES: ตาม digit จะได้ field ไหนบ้าง
 // 1 ตัว: บน, ล่าง เท่านั้น (ไม่มีโต๊ด, หน้า)
@@ -1104,7 +1105,7 @@ function renderCustList(){
   document.getElementById('cust-count').textContent=customers.length;
 }
 function selectCust(id){
-  curCustId=id; npLek='';npPhase='lek';npStep=0;npBuffer='';
+  curCustId=id; npLek='';npPhase='lek';npStep=0;npBuffer='';npLekQueue=[];
   npFields={bon:null,tod:null,lang:null,na:null};
   save(); renderCustList(); renderHist(); updateSummary(); renderKpFields();
 }
@@ -1238,8 +1239,9 @@ function lockSet(){
 // NUMPAD
 // ================================================================
 function getActiveFields(){
-  if(!npLek) return [];
-  return DIGIT_RULES[npLek.length]||[];
+  if(!npLek&&!npLekQueue.length) return [];
+  var d=npLek.length||npLekQueue[0].length;
+  return DIGIT_RULES[d]||[];
 }
 
 function setupNumpad(){
@@ -1279,7 +1281,12 @@ function setupNumpad(){
           break;
         }
         if(npPhase==='lek'){
-          if(!npLek){toast('กรอกเลขก่อนครับ');return;}
+          // ถ้ามี queue แล้วไม่มี npLek ปัจจุบัน → ถือว่ากด Enter หลัง / → ไปราคาเลย
+          if(npLekQueue.length>0 && !npLek){
+            npPhase='price';
+            npStep=(npLekQueue[0].length>=4)?2:1;
+            npBuffer=''; renderKpFields(); break;
+          }          if(!npLek){toast('กรอกเลขก่อนครับ');return;}
           npPhase='price';
           npStep=(npLek.length>=4)?2:1;
           npBuffer=''; renderKpFields();
@@ -1326,13 +1333,24 @@ function setupNumpad(){
         if(getActiveFields().indexOf('lang')>=0){npStep=3;}
         npBuffer=''; renderKpFields(); break;
 
-      // / = หน้า
+      // / = คั่นเลข (lek phase) หรือ หน้า (price phase)
       case 'NumpadDivide': case '/':
         e.preventDefault();
-        if(npPhase==='lek'){if(!npLek){toast('กรอกเลขก่อนครับ');return;}npPhase='price';}
-        else commitBuffer();
-        if(getActiveFields().indexOf('na')>=0){npStep=4;}
-        npBuffer=''; renderKpFields(); break;
+        if(npPhase==='lek'){
+          if(!npLek){toast('กรอกเลขก่อนครับ');return;}
+          // validate หลักต้องเท่ากับตัวแรกใน queue
+          if(npLekQueue.length>0 && npLek.length!==npLekQueue[0].length){
+            toast('เลขต้องมีจำนวนหลักเท่ากันครับ');npLek='';renderKpFields();return;
+          }
+          npLekQueue.push(npLek);
+          npLek='';
+          renderKpFields();
+        } else {
+          commitBuffer();
+          if(getActiveFields().indexOf('na')>=0){npStep=4;}
+          npBuffer=''; renderKpFields();
+        }
+        break;
 
       // ลูกศร
       case 'ArrowUp': case 'ArrowLeft': case 'ArrowDown': case 'ArrowRight':
@@ -1493,7 +1511,7 @@ var npPermStep=0;
 var npPermField='bon';
 
 function resetNp(){
-  npLek='';npPhase='lek';npStep=0;npBuffer='';
+  npLek='';npPhase='lek';npStep=0;npBuffer='';npLekQueue=[];
   npFields={bon:null,tod:null,lang:null,na:null};
   npPermsData={bon:{},lang:{},na:{}}; npPermsDeleted={bon:{},lang:{},na:{}}; npPermStep=0; npKlbOpen={bon:false,lang:false,na:false}; npPermField='bon'; npKlbJustOpened=null;
   renderKpFields();
@@ -1503,15 +1521,17 @@ function resetNp(){
 
 function renderKpFields(){
   var lekEl=document.getElementById('kp-lek-show');
-  lekEl.innerHTML=(npLek||'—')+(npPhase==='lek'?'<span class="cursor"></span>':'');
+  var queueDisplay=npLekQueue.length>0?npLekQueue.join('/')+'/'+(npLek||''):(npLek||'—');
+  lekEl.innerHTML=queueDisplay+(npPhase==='lek'?'<span class="cursor"></span>':'');
 
   var hintEl=document.getElementById('kp-lek-hint');
-  var d=npLek.length;
-  if(npPhase==='lek') hintEl.textContent=npLek?d+' หลัก — กด + เพื่อใส่ราคา':'กด Numpad เพื่อคีย์เลข';
+  var d=npLekQueue.length>0?(npLekQueue[0].length):(npLek.length);
+  if(npPhase==='lek') hintEl.textContent=(npLek||npLekQueue.length>0)?(d+' หลัก'+(npLekQueue.length>0?' · '+npLekQueue.length+' เลขแล้ว':'')+' — กด Enter ใส่ราคา'):'กด Numpad เพื่อคีย์เลข';
   else{
     var knames={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
     var curKey=['bon','tod','lang','na'][npStep-1];
-    hintEl.textContent=curKey?'กำลังใส่ '+knames[curKey]:'';
+    var qLen=npLekQueue.length+(npLek?1:0);
+    hintEl.textContent=(curKey?'กำลังใส่ '+knames[curKey]:'')+(qLen>1?' · '+qLen+' เลข':'');
   }
 
   // แสดง/ซ่อน ปุ่ม pak เฉพาะ 1 ตัว
@@ -1768,28 +1788,68 @@ function permKey(e,perm){
 function addEntry(){
   if(!ngodOpen){toast('เปิดงวดก่อนครับ');return;}
   if(!curCustId){openAddCust();return;}
-  if(!npLek){toast('กรอกเลขก่อนครับ');return;}
+  // รวม queue + lek ปัจจุบัน
+  var allLeks = npLekQueue.slice();
+  if(npLek) allLeks.push(npLek);
+  if(!allLeks.length){toast('กรอกเลขก่อนครับ');return;}
   var fields=getActiveFields();
   var hasAny=fields.some(function(k){return npFields[k]!==null;});
   if(!hasAny){toast('ใส่ราคาอย่างน้อย 1 ช่อง');return;}
 
   if(!custEntries[curCustId]) custEntries[curCustId]=[];
   if(!custEid[curCustId]) custEid[curCustId]=0;
-  custEid[curCustId]++;
-  // สร้าง kd จาก perms
-  var kd={bon:[],lang:[],na:[]};
-  ['bon','lang','na'].forEach(function(k){
-    Object.keys(npPermsData[k]).forEach(function(p){
-      var price=npPermsData[k][p];
-      if(price) kd[k].push({perm:p,price:price});
+
+  // สร้าง kd จาก perms (ใช้กับ npLek หลักเดิม — ถ้า multi-lek จะไม่มี kd เพราะ kd ต้อง per-lek)
+  var baseKd={bon:[],lang:[],na:[]};
+  if(allLeks.length===1){
+    ['bon','lang','na'].forEach(function(k){
+      Object.keys(npPermsData[k]).forEach(function(p){
+        var price=npPermsData[k][p];
+        if(price) baseKd[k].push({perm:p,price:price});
+      });
     });
+  }
+
+  var addedCount=0;
+  allLeks.forEach(function(lek){
+    // ตรวจซ้ำ
+    var isDup=(custEntries[curCustId]||[]).some(function(e){return e.lek===lek;});
+    if(isDup){
+      // แจ้งเตือนแต่ยังเพิ่มได้ (ถ้าหลายเลขแจ้งรวม)
+      // เก็บไว้แจ้งทีหลัง
+    }
+    custEid[curCustId]++;
+    // kd: ถ้า multi-lek ให้ compute getPerms เอง (กลับ/ชุดตามที่ toggle ไว้)
+    var kd=baseKd;
+    if(allLeks.length>1){
+      kd={bon:[],lang:[],na:[]};
+      ['bon','lang','na'].forEach(function(k){
+        if(!npKlbOpen[k]) return;
+        var perms=getPerms(lek).filter(function(p){return p!==lek;});
+        var basePrice=npFields[k];
+        if(!basePrice) return;
+        perms.forEach(function(p){
+          kd[k].push({perm:p,price:basePrice});
+        });
+      });
+    }
+    custEntries[curCustId].unshift({
+      id:Date.now()+addedCount,lek:lek,d:lek.length,
+      bon:npFields.bon,tod:npFields.tod,lang:npFields.lang,na:npFields.na,
+      paks:[],kd:kd
+    });
+    addedCount++;
   });
-  custEntries[curCustId].unshift({
-    id:Date.now(),lek:npLek,d:npLek.length,
-    bon:npFields.bon,tod:npFields.tod,lang:npFields.lang,na:npFields.na,
-    paks:[],kd:kd
+
+  // แจ้งซ้ำรวม
+  var dupLeks=allLeks.filter(function(lek){
+    var count=(custEntries[curCustId]||[]).filter(function(e){return e.lek===lek;}).length;
+    return count>1;
   });
+  if(dupLeks.length) toast('⚠️ เลขซ้ำ: '+dupLeks.join(', '));
+
   resetNp(); save(); renderHist(); renderCustList(); updateSummary();
+  if(allLeks.length>1) toast('✅ เพิ่ม '+allLeks.length+' เลขแล้วครับ');
 }
 
 function removeEntry(cid,eid){
