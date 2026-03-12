@@ -875,7 +875,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var r=ngodInfo.receiver||'ผู้รับ...';
     var g=ngodInfo.ngod||'...';
     document.getElementById('hd-info').textContent=s+' → '+r;
-    document.getElementById('hd-ngod').textContent=' | '+g.replace(/ \d{2}:\d{2}$/,'');
+    var gd=g.replace(/ \d{2}:\d{2}$/,''); document.getElementById('hd-ngod').textContent=gd&&gd!=='...'?' | '+gd:'';
   }
 
   function updateLockUI(){

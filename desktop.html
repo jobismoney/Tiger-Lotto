@@ -906,14 +906,18 @@ function doImport(data, fp, log, cid){
   if(!custEntries[cid]) custEntries[cid] = [];
   if(!custEid[cid]) custEid[cid] = 0;
 
+  // import แต่ละครั้ง = ชุดใหม่ใน custSets
+  if(!custSets[cid]) custSets[cid]=[];
+  var importedEntries=[];
   data.entries.forEach(function(e){
     custEid[cid]++;
     var lek = String(e.lek||'');
-    custEntries[cid].push({
+    importedEntries.push({
       id: custEid[cid], lek: lek, d: lek.length,
       bon: e.bon||null, tod: e.tod||null, lang: e.lang||null, na: e.na||null, kd: e.kd||{}, paks: e.paks||[]
     });
   });
+  custSets[cid].push({entries: importedEntries, locked: true, time: Date.now(), fromScan: true});
 
   log.push({ fp: fp, time: Date.now(), sender: data.sender||'', ngod: data.ngod||'', pg: data.pg });
   saveScannedLog(log);
@@ -1811,7 +1815,11 @@ function updateSummary(){
     } else if(d>=4){
       g.tod+=(e.tod||0);
     }
-    (e.paks||[]).forEach(function(p){g.t3+=p.price;});
+    (e.paks||[]).forEach(function(p){
+      // ปักหลักบน = บน3, ปักหลักล่าง = 2ตัว
+      if(p.type==='3bon'||p.type==='bon') g.t3+=p.price;
+      else g.t2+=p.price;
+    });
   });
   function sv(id,val){var el=document.getElementById(id);el.textContent='฿'+val.toLocaleString();el.className='sum-row-val'+(val===0?' zero':'');}
   sv('sg-3',g.t3);sv('sg-2',g.t2);sv('sg-vb',g.vb);sv('sg-vl',g.vl);sv('sg-tod',g.tod);sv('sg-3l',g.t3l);
