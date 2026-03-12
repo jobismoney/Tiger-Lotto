@@ -2250,53 +2250,22 @@ function sumTableHTML(rows){
 }
 
 function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
-  var groups={},order2=[];
-  pEntries.forEach(function(e){
-    if(!groups[e.d]){groups[e.d]=[];order2.push(e.d);}
-    groups[e.d].push(e);
-  });
   var bodyRows='';
-  // ถ้ามี custLabel (โพยรวม) แสดง divider ชื่อลูกค้า/ชุด
   if(custLabel){
     bodyRows+='<tr class="set-divider"><td colspan="5" style="padding:4px 6px;font-size:11px;font-weight:800;color:#888;border-top:2px dashed #bbb;">— '+custLabel+' —</td></tr>';
   }
-  order2.forEach(function(d,di){
-    if(di>0)bodyRows+='<tr class="grp-sep"><td colspan="5"></td></tr>';
-    var bucket=groups[d];
-    var blines=[];
-    bucket.forEach(function(e){var ls=toLines(e);blines.push({e:e,lines:ls});});
-    for(var bi=0;bi<blines.length;bi++){
-      var item=blines[bi],ls=item.lines;
-      if(!ls.length)continue;
-      var eTot=ls.reduce(function(s,x){return s+x.total;},0);
-      if(ls.length===1){
-        bodyRows+='<tr>'
-          +'<td class="td-lek">'+ls[0].lek+'</td>'
-          +'<td class="td-eq">=</td>'
-          +'<td class="td-price">'+ls[0].price+'</td>'
-          +'<td class="td-brace-empty"></td>'
-          +'<td class="td-total">'+fmtN(eTot)+'</td>'
-          +'</tr>';
-      } else {
-        var n2=ls.length,midIdx=Math.floor((n2-1)/2);
-        for(var li=0;li<n2;li++){
-          var isFirst=li===0,isLast=li===n2-1,isMid2=li===midIdx;
-          var bs='width:12px;padding:0;';
-          if(isFirst&&isLast){bs+='border-right:1.5px solid #999;border-top:1.5px solid #999;border-bottom:1.5px solid #999;border-radius:0 4px 4px 0;';}
-          else if(isFirst){bs+='border-right:1.5px solid #999;border-top:1.5px solid #999;border-radius:0 4px 0 0;';}
-          else if(isLast){bs+='border-right:1.5px solid #999;border-bottom:1.5px solid #999;border-radius:0 0 4px 0;';}
-          else{bs+='border-right:1.5px solid #999;';}
-          bodyRows+='<tr>'
-            +'<td class="td-lek">'+ls[li].lek+'</td>'
-            +'<td class="td-eq">=</td>'
-            +'<td class="td-price">'+ls[li].price+'</td>'
-            +'<td style="'+bs+'"></td>'
-            +(isMid2?'<td class="td-total" rowspan="'+n2+'" style="vertical-align:middle;text-align:right;width:50px;">'+fmtN(eTot)+'</td>':'')
-            +'</tr>';
-        }
-      }
-      if(bi<blines.length-1)bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
-    }
+  pEntries.forEach(function(e){
+    var ls=toLines(e);if(!ls.length)return;
+    ls.forEach(function(line){
+      bodyRows+='<tr>'
+        +'<td class="td-lek">'+line.lek+'</td>'
+        +'<td class="td-eq">=</td>'
+        +'<td class="td-price">'+line.price+'</td>'
+        +'<td class="td-brace-empty"></td>'
+        +'<td class="td-total">'+fmtN(line.total)+'</td>'
+        +'</tr>';
+    });
+    bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
   });
   var ps=pageSumTotals(pEntries);
   var pt=pEntries.reduce(function(s,e){return s+entryTotal(e);},0);
