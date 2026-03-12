@@ -1509,8 +1509,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var delBtn=document.getElementById('ov-del-set');
       if(delBtn){delBtn.style.display='';delBtn.dataset.idx=i;}
       document.getElementById('slip-ov').classList.add('show');
-      // render QR
-      var _hInf={ngod:h.ngod,sender:h.sender,receiver:h.receiver,date:h.date};
+      document.getElementById('ov-share-line').style.display='';
       var _hPages=[];var _hPen=[];var _hRc=0;var _MAX=20;
       h.entries.forEach(function(e){var lc=toLines(e).length;if(_hRc>0&&(_hRc+lc>_MAX)){_hPages.push(_hPen);_hPen=[];_hRc=0;}_hPen.push(e);_hRc+=lc;});
       if(_hPen.length)_hPages.push(_hPen);
@@ -2516,14 +2515,17 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var ls=toLines(e);
       if(!ls.length)return;
       var entryTotal=ls.reduce(function(s,x){return s+x.total;},0);
-      if(ls.length===1){
-        bodyRows+='<tr>'
-          +'<td class="td-lek">'+ls[0].lek+'</td>'
-          +'<td class="td-eq">=</td>'
-          +'<td class="td-price">'+ls[0].price+'</td>'
-          +'<td class="td-brace-empty"></td>'
-          +'<td class="td-total">'+fmt(entryTotal)+'</td>'
-          +'</tr>';
+      var isPak=e.paks&&e.paks.length;
+      if(isPak||ls.length===1){
+        ls.forEach(function(line){
+          bodyRows+='<tr>'
+            +'<td class="td-lek">'+line.lek+'</td>'
+            +'<td class="td-eq">=</td>'
+            +'<td class="td-price">'+line.price+'</td>'
+            +'<td class="td-brace-empty"></td>'
+            +'<td class="td-total">'+fmt(line.total)+'</td>'
+            +'</tr>';
+        });
       } else {
         var n=ls.length;var midIdx=Math.floor((n-1)/2);
         for(var li=0;li<n;li++){
