@@ -2587,10 +2587,10 @@ function buildSlipHTML(cid){
       var lbl='ชุดที่ '+(i+1);
       if(s.sender) lbl+=' — '+s.sender;
       if(s.pg) lbl+=' (แผ่น '+s.pg+')';
-      allItems.push({label:lbl, entries:s.entries});
+      allItems.push({label:lbl, entries:s.entries, sender:s.sender||''});
     }
   });
-  if(curEntries.length) allItems.push({label:'ชุดที่ '+(sets.length+1)+' — กำลังคีย์',entries:curEntries});
+  if(curEntries.length) allItems.push({label:'ชุดที่ '+(sets.length+1)+' — กำลังคีย์',entries:curEntries,sender:''});
   if(!allItems.length) return null;
 
   var inf=ngodInfo||{ngod:'—',sender:'—',receiver:'—',date:'—'};
@@ -2599,7 +2599,7 @@ function buildSlipHTML(cid){
   // สร้าง flatItems: divider + entries + setsum ต่อท้ายแต่ละชุด
   var flatItems=[];
   allItems.forEach(function(g){
-    flatItems.push({type:'divider',label:g.label});
+    flatItems.push({type:'divider',label:g.label,sender:g.sender||''});
     g.entries.forEach(function(e){ flatItems.push({type:'entry',e:e}); });
     flatItems.push({type:'setsum',entries:g.entries});
   });
@@ -2672,13 +2672,20 @@ function buildSlipHTML(cid){
       }
     });
 
+    // หาชุดแรกในหน้านี้
+    var firstDivider=items.find(function(x){return x.type==='divider';});
+    var pageSender=firstDivider?firstDivider.sender:'';
+    var pageSetLabel=firstDivider?firstDivider.label:'';
+
     allHTML+='<div class="slip-page-single"><div class="slip-page">'
       +'<div class="slip-hd">'
       +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+(pi+1)+'/'+totalPages+'</span></div>'
-      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span>'
-      +'<span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span>'
-      +'<span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span>'
-      +'<span>วันที่ <strong>'+(inf.date||'—')+'</strong></span></div>'
+      +'<div class="slip-hd-row2">'
+      +'<span>งวด <strong>'+inf.ngod+'</strong></span>'
+      +'<span>ลูกค้า <strong>'+cust.name+'</strong></span>'
+      +(pageSender?'<span>ผู้ส่ง <strong>'+pageSender+'</strong></span>':'')
+      +'<span>วันที่ <strong>'+(inf.date||'—')+'</strong></span>'
+      +'</div>'
       +'</div>'
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup>'
       +'<col style="width:52px"><col style="width:10px"><col style="width:110px">'
