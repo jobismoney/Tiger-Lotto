@@ -234,16 +234,15 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 @media print{
   body > *:not(.slip-ov){display:none!important;}
   .slip-ov{
-    position:fixed!important;
+    position:static!important;
     overflow:visible!important;
     background:white!important;
     height:auto!important;
-    min-height:100%!important;
+    display:block!important;
   }
   .slip-ov-scroll{
     overflow:visible!important;
     height:auto!important;
-    flex:none!important;
   }
   .slip-ov-bar{display:none!important;}
   .slip-pages-grid{
