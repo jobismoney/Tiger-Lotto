@@ -2607,33 +2607,36 @@ function buildSlipHTML(cid){
   };
   var totalDisc=discS.c3+discS.c2+discS.c1+discS.ct+discS.cl;
   var netS={
-    c3:grandS.c3-discS.c3,
-    c2:grandS.c2-discS.c2,
-    c1:grandS.c1-discS.c1,
-    ct:grandS.ct-discS.ct,
-    cl:grandS.cl-discS.cl
+    c3:grandS.c3-discS.c3, c2:grandS.c2-discS.c2, c1:grandS.c1-discS.c1,
+    ct:grandS.ct-discS.ct, cl:grandS.cl-discS.cl
   };
   var netTotal=grandTotal-totalDisc;
-
-  // ดึงยอดถูกรางวัลของลูกค้านี้จาก lastCheckResult
   var prizePay=lastCheckResult&&lastCheckResult[cid]?lastCheckResult[cid]:0;
 
   function cv2(v){return v>0?fmtN(v):'-';}
-  function buildExtraRow(label,s,tot,color){
-    return '<tr><td class="sc sc-no" style="color:'+color+';font-size:11px;font-weight:800;">'+label+'</td>'
-      +'<td class="sc" style="color:'+color+';font-size:11px;">'+cv2(s.c3)+'</td>'
-      +'<td class="sc" style="color:'+color+';font-size:11px;">'+cv2(s.c2)+'</td>'
-      +'<td class="sc" style="color:'+color+';font-size:11px;">'+cv2(s.c1)+'</td>'
-      +'<td class="sc" style="color:'+color+';font-size:11px;">'+cv2(s.ct)+'</td>'
-      +'<td class="sc" style="color:'+color+';font-size:11px;">'+cv2(s.cl)+'</td>'
-      +'<td class="sc" style="color:'+color+';font-weight:900;font-size:12px;">'+fmtN(tot)+'</td></tr>';
+  function buildExtraRow(label,s,tot){
+    return '<tr><td class="sc sc-no" style="font-size:11px;font-weight:800;">'+label+'</td>'
+      +'<td class="sc" style="font-size:11px;">'+cv2(s.c3)+'</td>'
+      +'<td class="sc" style="font-size:11px;">'+cv2(s.c2)+'</td>'
+      +'<td class="sc" style="font-size:11px;">'+cv2(s.c1)+'</td>'
+      +'<td class="sc" style="font-size:11px;">'+cv2(s.ct)+'</td>'
+      +'<td class="sc" style="font-size:11px;">'+cv2(s.cl)+'</td>'
+      +'<td class="sc" style="font-weight:900;font-size:12px;">'+fmtN(tot)+'</td></tr>';
   }
 
-  allSumRows=buildSumRow(grandS,'รวม',grandTotal,true);
-  allSumRows+=buildExtraRow('หลังลด',netS,netTotal,'#166534');
-  allSumRows+='<tr><td class="sc sc-no" style="color:#991b1b;font-size:11px;font-weight:800;">ถูกรางวัล</td>'
+  // สร้าง per-set summary rows
+  var setRows='';
+  allItems.forEach(function(g,i){
+    var gs=pageSumTotals(g.entries);
+    var gt=g.entries.reduce(function(s,e){return s+toLines(e).reduce(function(ss,l){return ss+l.total;},0);},0);
+    setRows+=buildSumRow(gs,'ชุด'+(i+1),gt,false);
+  });
+
+  allSumRows = setRows + buildSumRow(grandS,'รวม',grandTotal,true);
+  allSumRows += buildExtraRow('หลังลด',netS,netTotal);
+  allSumRows += '<tr><td class="sc sc-no" style="font-size:11px;font-weight:800;">ถูกรางวัล</td>'
     +'<td class="sc" colspan="5"></td>'
-    +'<td class="sc" style="color:#991b1b;font-weight:900;font-size:12px;">'+(prizePay>0?fmtN(prizePay):'-')+'</td></tr>';
+    +'<td class="sc" style="font-weight:900;font-size:12px;">'+(prizePay>0?fmtN(prizePay):'-')+'</td></tr>';
 
   var sumHTML='<div class="slip-hd">'
     +'<div class="slip-hd-row1"><h2>📊 สรุปรวม — '+cust.name+'</h2><span class="pg">'+totalPages+' แผ่น</span></div>'
@@ -2759,6 +2762,20 @@ function getTod(lek){
     if(a!==b&&b!==cc&&a!==cc) perms.add(d[a]+d[b]+d[cc]);
   });});});
   return Array.from(perms);
+}
+
+function copyLineMsg(encoded){
+  var msg=decodeURIComponent(encoded);
+  navigator.clipboard.writeText(msg).then(function(){
+    toast('✅ Copy แล้ว วางใน Line ได้เลยครับ');
+  }).catch(function(){
+    // fallback
+    var ta=document.createElement('textarea');
+    ta.value=msg; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('✅ Copy แล้ว วางใน Line ได้เลยครับ');
+  });
 }
 
 function fetchLottoResult(){
@@ -2904,6 +2921,17 @@ function doCheckResult(){
     grandPay += custPay;
     lastCheckResult[cust.id] = custPay;
 
+    // สร้างข้อความ Line
+    var ngodDisp=(ngodInfo&&ngodInfo.ngod?ngodInfo.ngod:'').replace(/ \d{2}:\d{2}$/,'');
+    var lineMsg='🐯 Tiger999 งวด '+ngodDisp+'\n';
+    lineMsg+='สวัสดีครับ คุณ '+cust.name+'\n\n';
+    lineMsg+='✅ ถูกรางวัล!\n';
+    hits.forEach(function(h){
+      lineMsg+='• '+h.lek+' '+h.type+' ×฿'+h.bet.toLocaleString()+' = ฿'+h.pay.toLocaleString()+'\n';
+    });
+    lineMsg+='\n💰 รวมได้รับ ฿'+custPay.toLocaleString();
+    var lineMsgEncoded=encodeURIComponent(lineMsg);
+
     out += '<div style="background:#0f172a;border:1px solid #1e3a5f;border-radius:10px;padding:10px 12px;margin-bottom:10px;">'
       + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
       + '<div style="font-size:15px;font-weight:900;color:#f5c518;">'+cust.name+'</div>'
@@ -2915,6 +2943,7 @@ function doCheckResult(){
         + '<span style="color:#6ee7b7;font-weight:700;">฿'+h.pay.toLocaleString()+'</span>'
         + '</div>';
     });
+    out += '<button onclick="copyLineMsg(\''+lineMsgEncoded+'\')" style="margin-top:8px;width:100%;padding:8px;background:#1d9c1d;border:none;border-radius:8px;color:#fff;font-family:\'Sarabun\',sans-serif;font-size:13px;font-weight:900;cursor:pointer;">📋 Copy ข้อความแจ้ง '+cust.name+'</button>';
     out += '</div>';
   });
 
