@@ -906,6 +906,7 @@ function impBannerSelChange(s){
   if(ni) ni.style.display=s.value==='__new__'?'block':'none';
 }
 function showScanSuccess(custName, totalEntries, dupMsg){
+  closeScanPopup();
   var el = document.getElementById('imp-banner');
   var ov = document.getElementById('imp-banner-overlay');
   document.getElementById('imp-banner-title').textContent = '😊';
@@ -1146,7 +1147,7 @@ function renderCustList(){
   var h='';
   customers.forEach(function(c){
     var tot=calcCustTotal(c.id);
-    var cnt=(custEntries[c.id]||[]).length;
+    var cnt=getAllEntries(c.id).length;
     var active=c.id===curCustId;
     h+='<div class="citem'+(active?' active':'')+'" onclick="selectCust(\''+c.id+'\')">'
       +'<div class="cname"><div class="cdot'+(active?' on':'')+'"></div>'+c.name+'</div>'
