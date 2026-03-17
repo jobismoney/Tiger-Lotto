@@ -246,20 +246,34 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     overflow:visible!important;
     height:auto!important;
   }
-  .slip-pages-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:4px!important;}
+  .slip-pages-grid{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:4px!important;
+    align-items:start!important;
+  }
   .slip-page-single{
     box-shadow:none!important;
     border-radius:0!important;
     break-inside:avoid!important;
     page-break-inside:avoid!important;
+    display:inline-block!important;
+    width:100%!important;
   }
   .slip-page-sum{
     grid-column:1/-1!important;
     box-shadow:none!important;
     border-radius:0!important;
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
   }
   .slip-ov-bar{display:none!important;}
   .slip-cust-bar{display:none!important;}
+  /* customer divider bar */
+  .slip-pages-grid > div[style*="grid-column"]{
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+  }
 }
 
 /* FLOATING KEYPAD */
@@ -2746,14 +2760,15 @@ function buildSlipHTML(cid){
   function buildDiscRow(s,tot){
     var r3=getRate('3bon'),r2=getRate('2bon'),r1=getRate('vbon'),rt=getRate('tod'),rl=getRate('3lang');
     function lbl(rate){return rate>0?'(-'+rate+'%)':'';}
+    function cell(val,rate){
+      return '<td class="sc" style="font-size:12px;line-height:1.4;">'
+        +(rate>0?'<div style="font-size:11px;color:#666;font-weight:700;">'+lbl(rate)+'</div>':'')
+        +cv2(val)+'</td>';
+    }
     return '<tr>'
-      +'<td class="sc sc-no" style="font-size:10px;font-weight:800;">หลังลด%</td>'
-      +'<td class="sc" style="font-size:10px;"><div style="font-size:9px;color:#888;">'+lbl(r3)+'</div>'+cv2(s.c3)+'</td>'
-      +'<td class="sc" style="font-size:10px;"><div style="font-size:9px;color:#888;">'+lbl(r2)+'</div>'+cv2(s.c2)+'</td>'
-      +'<td class="sc" style="font-size:10px;"><div style="font-size:9px;color:#888;">'+lbl(r1)+'</div>'+cv2(s.c1)+'</td>'
-      +'<td class="sc" style="font-size:10px;"><div style="font-size:9px;color:#888;">'+lbl(rt)+'</div>'+cv2(s.ct)+'</td>'
-      +'<td class="sc" style="font-size:10px;"><div style="font-size:9px;color:#888;">'+lbl(rl)+'</div>'+cv2(s.cl)+'</td>'
-      +'<td class="sc" style="font-weight:900;font-size:12px;">'+fmtN(tot)+'</td>'
+      +'<td class="sc sc-no" style="font-size:12px;font-weight:800;">หลังลด%</td>'
+      +cell(s.c3,r3)+cell(s.c2,r2)+cell(s.c1,r1)+cell(s.ct,rt)+cell(s.cl,rl)
+      +'<td class="sc" style="font-weight:900;font-size:13px;">'+fmtN(tot)+'</td>'
       +'</tr>';
   }
 
