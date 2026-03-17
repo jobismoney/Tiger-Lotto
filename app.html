@@ -2049,8 +2049,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       else pk2+=p.price;
     });
     if(d===3)return{c3:b+kb+n+kn+pk3,c2:pk2,c1:0,ct:t,cl:l+kl};
-    if(d===2)return{c3:pk3,c2:b+kb+pk2,c1:0,ct:t,cl:l+kl};
-    if(d===1)return{c3:pk3,c2:pk2,c1:b,ct:0,cl:l};
+    if(d===2)return{c3:pk3,c2:b+kb+l+kl+pk2,c1:0,ct:t,cl:0};
+    if(d===1)return{c3:pk3,c2:pk2,c1:b+l,ct:0,cl:0};
     return{c3:pk3,c2:pk2,c1:0,ct:t,cl:0};
   }
 
