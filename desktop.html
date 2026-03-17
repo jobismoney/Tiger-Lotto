@@ -785,7 +785,6 @@ var settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 // INIT
 // ================================================================
 function normalizeQRData(data){
-  console.log('raw QR data:', JSON.stringify(data).substring(0,400));
   if(data.e){
     return {
       ngod: data.g||'',
@@ -809,7 +808,6 @@ function normalizeQRData(data){
               }).filter(function(x){return x.perm && x.price>0;});
             }
             var result = {bon:mapKd(k.bon),lang:mapKd(k.lang),na:mapKd(k.na)};
-            console.log('kd decoded:', JSON.stringify(result));
             return result;
           })(e.k) : {},
           paks: (e.pk||[]).map(function(p){
@@ -1121,9 +1119,11 @@ function autoNgodDate(){
 // SAVE / LOAD
 // ================================================================
 function save(){
-  localStorage.setItem(STORE_KEY, JSON.stringify({
-    customers,curCustId,custEntries,custEid,custSets,ngodInfo,ngodOpen
-  }));
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      customers,curCustId,custEntries,custEid,custSets,ngodInfo,ngodOpen
+    }));
+  }catch(e){ toast('⚠️ บันทึกข้อมูลไม่ได้: '+e.message); }
 }
 function load(){
   try{

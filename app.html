@@ -801,6 +801,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(!raw)return false;
       var d=JSON.parse(raw);
       entries=d.entries||[];
+      // normalize kd field — entry เก่าอาจไม่มี kd
+      entries.forEach(function(e){ if(!e.kd||typeof e.kd!=='object') e.kd={bon:[],lang:[],na:[]}; });
       eid=d.eid||0;
       pageBreakIds=d.pageBreakIds||[];
       isLocked=d.isLocked||false;
