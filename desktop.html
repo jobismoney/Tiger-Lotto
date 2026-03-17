@@ -212,9 +212,10 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .slip-page-sum .slip-ft .fv{font-size:22px;}
 
 /* ══ SLIP OVERLAY ══ */
-.slip-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:500;overflow-y:auto;}
-.slip-ov.show{display:block;}
-.slip-ov-bar{background:#0d0f18;border-bottom:2px solid var(--gold);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.slip-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:500;flex-direction:column;}
+.slip-ov.show{display:flex;}
+.slip-ov-bar{background:#0d0f18;border-bottom:2px solid var(--gold);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.slip-ov-scroll{flex:1;overflow-y:auto;}
 .slip-ov-title{font-size:15px;font-weight:900;color:var(--gold);}
 .slip-ov-btns{display:flex;gap:8px;}
 .slip-ov-btn{background:var(--card2);border:1px solid var(--border);border-radius:7px;color:#ccd;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;padding:7px 14px;cursor:pointer;}
@@ -649,9 +650,11 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
       <button class="slip-ov-btn gold" onclick="closeSlip()">✕ ปิด</button>
     </div>
   </div>
+  <div class="slip-ov-scroll">
   <div class="slip-ov-inner">
     <div class="slip-cust-bar" id="slip-cust-bar"></div>
     <div class="slip-pages-grid" id="slip-pages"></div>
+  </div>
   </div>
 </div>
 
@@ -2728,14 +2731,18 @@ function buildSlipHTML(cid){
   var prizePay=lastCheckResult&&lastCheckResult[cid]?lastCheckResult[cid]:0;
 
   function cv2(v){return v>0?fmtN(v):'-';}
-  function buildExtraRow(label,s,tot){
-    return '<tr><td class="sc sc-no" style="font-size:11px;font-weight:800;">'+label+'</td>'
-      +'<td class="sc" style="font-size:11px;">'+cv2(s.c3)+'</td>'
-      +'<td class="sc" style="font-size:11px;">'+cv2(s.c2)+'</td>'
-      +'<td class="sc" style="font-size:11px;">'+cv2(s.c1)+'</td>'
-      +'<td class="sc" style="font-size:11px;">'+cv2(s.ct)+'</td>'
-      +'<td class="sc" style="font-size:11px;">'+cv2(s.cl)+'</td>'
-      +'<td class="sc" style="font-weight:900;font-size:12px;">'+fmtN(tot)+'</td></tr>';
+  function buildDiscRow(s,tot){
+    var r3=getRate('3bon'),r2=getRate('2bon'),r1=getRate('vbon'),rt=getRate('tod'),rl=getRate('3lang');
+    function lbl(rate){return rate>0?'(-'+rate+'%)':'';}
+    return '<tr>'
+      +'<td class="sc sc-no" style="font-size:10px;font-weight:800;">หลังลด%</td>'
+      +'<td class="sc" style="font-size:10px;"><div style="font-size:9px;color:#888;">'+lbl(r3)+'</div>'+cv2(s.c3)+'</td>'
+      +'<td class="sc" style="font-size:10px;"><div style="font-size:9px;color:#888;">'+lbl(r2)+'</div>'+cv2(s.c2)+'</td>'
+      +'<td class="sc" style="font-size:10px;"><div style="font-size:9px;color:#888;">'+lbl(r1)+'</div>'+cv2(s.c1)+'</td>'
+      +'<td class="sc" style="font-size:10px;"><div style="font-size:9px;color:#888;">'+lbl(rt)+'</div>'+cv2(s.ct)+'</td>'
+      +'<td class="sc" style="font-size:10px;"><div style="font-size:9px;color:#888;">'+lbl(rl)+'</div>'+cv2(s.cl)+'</td>'
+      +'<td class="sc" style="font-weight:900;font-size:12px;">'+fmtN(tot)+'</td>'
+      +'</tr>';
   }
 
   // สร้าง per-set summary rows
@@ -2747,7 +2754,7 @@ function buildSlipHTML(cid){
   });
 
   allSumRows = setRows + buildSumRow(grandS,'รวม',grandTotal,true);
-  allSumRows += buildExtraRow('หลังลด',netS,netTotal);
+  allSumRows += buildDiscRow(netS,netTotal);
   allSumRows += '<tr><td class="sc sc-no" style="font-size:11px;font-weight:800;">ถูกรางวัล</td>'
     +'<td class="sc" colspan="5"></td>'
     +'<td class="sc" style="font-weight:900;font-size:12px;">'+(prizePay>0?fmtN(prizePay):'-')+'</td></tr>';
