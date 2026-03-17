@@ -587,7 +587,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       <div class="lek-display" id="lek-display" onclick="document.getElementById('lek-inp').focus()">
         <div class="tap-ring" id="tap-ring"></div>
         <span id="lek-shown" class="lp">? ? ?</span>
-        <input id="lek-inp" type="tel" inputmode="numeric" maxlength="5" enterkeyhint="go"
+        <input id="lek-inp" type="tel" inputmode="numeric" maxlength="9" enterkeyhint="go"
           style="position:absolute;inset:0;width:100%;height:100%;opacity:1;color:transparent;background:transparent;border:none;outline:none;font-size:48px;text-align:center;letter-spacing:12px;caret-color:var(--gold);z-index:2;">
       </div>
       <div class="lek-hint" id="lek-hint">แตะเพื่อพิมพ์เลข</div>
@@ -1766,12 +1766,31 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function addEntry(){
     if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');return;}
     if(isLocked){toast('โพยถูกล็อคแล้ว — กด "ซื้อเพิ่ม" ในหน้าดูโพย');return;}
-    if(!curLek){toast('กรุณากรอกเลขก่อน');return;}
-    var al=RULES[curLek.length]||[],d=curLek.length,hasAny=false,mp={},kd={};
+    var rawInp=document.getElementById('lek-inp').value||'';
+    var leks=rawInp.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>0;});
+    if(!leks.length||!curLek){toast('กรุณากรอกเลขก่อน');return;}
+
+    // ตรวจว่าเลขต่างประเภทกัน (ต่างจำนวนหลัก)
+    var lens=leks.map(function(l){return l.length;});
+    var uniqueLens=lens.filter(function(v,i,a){return a.indexOf(v)===i;});
+    if(uniqueLens.length>1){
+      var typeNames={1:'1ตัว',2:'2ตัว',3:'3ตัว',4:'4ตัว',5:'5ตัว'};
+      var typeList=uniqueLens.map(function(n){return typeNames[n]||n+'หลัก';}).join(', ');
+      showConfirm(
+        '⚠️ เลขต่างประเภทกัน<br><br>'+leks.map(function(l){return '<b>'+l+'</b> ('+l.length+' หลัก)';}).join('<br>')+'<br><br>ไม่สามารถเพิ่มพร้อมกันได้<br>กรุณาแยกประเภทกรอกครับ',
+        null, false, null, null, null, 'ตกลง', true
+      );
+      return;
+    }
+
+    // เลขทุกตัวเป็นประเภทเดียวกัน → add ทีละตัว
+    var d=leks[0].length;
+    var al=RULES[d]||[];
+    var mp={},kd={},hasAny=false;
     al.forEach(function(k){var v=parseInt(FS[k].price)||0;mp[k]=v>0?v:null;if(v>0)hasAny=true;});
     al.forEach(function(k){
       if(FS[k].klbOpen&&KLB[k]&&KLB[k].indexOf(d)>=0){
-        var it=getPerms(curLek).filter(function(p){return p!==curLek;})
+        var it=getPerms(leks[0]).filter(function(p){return p!==leks[0];})
           .map(function(p){return{perm:p,price:parseInt(FS[k].pp[p])||0};})
           .filter(function(x){return x.price>0;});
         if(it.length){kd[k]=it;hasAny=true;}
@@ -1779,37 +1798,33 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     });
     if(!hasAny){toast('กรุณาใส่ราคาอย่างน้อย 1 ช่อง');return;}
 
-    // ตรวจเลขซ้ำ — เฉพาะเลขหลักในชุดปัจจุบัน
-    var isDup = entries.some(function(e){
-      if(e.paks&&e.paks.length) return false; // ปักหลักไม่นับ
-      return e.lek === curLek;
+    // เพิ่มทุกเลขใน leks
+    leks.forEach(function(lek){
+      var isDup=entries.some(function(e){
+        if(e.paks&&e.paks.length) return false;
+        return e.lek===lek;
+      });
+      if(isDup && APP.allowedDupKeys.indexOf(lek)<0){
+        showConfirm(
+          'เลข <b>'+lek+'</b> มีอยู่แล้วในชุดนี้<br><br>ต้องการเพิ่มซ้ำหรือไม่?',
+          function(){APP.allowedDupKeys.push(lek);doAddOne(lek,d,mp,kd);}, false
+        );
+      } else {
+        doAddOne(lek,d,mp,kd);
+      }
     });
 
-    if(isDup && APP.allowedDupKeys.indexOf(curLek) < 0){
-      showConfirm(
-        'เลข <b>'+curLek+'</b> มีอยู่แล้วในชุดนี้<br><br>ต้องการเพิ่มซ้ำหรือไม่?',
-        function(){
-          APP.allowedDupKeys.push(curLek);
-          doAddEntry();
-        }, false
-      );
-      return;
-    }
-    doAddEntry();
+    setLek('');
+    var inp=document.getElementById('lek-inp');inp.value='';
+    FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
+    var ab2=document.getElementById('add-btn');if(ab2)ab2.classList.remove('ready');
+    document.getElementById('list-scroll').scrollTop=0;
+  }
 
-    function doAddEntry(){
-      eid++;
-      entries.unshift({id:eid,lek:curLek,d:d,bon:mp.bon||null,tod:mp.tod||null,lang:mp.lang||null,na:mp.na||null,kd:kd});
-      // reset allowedDupKeys เมื่อเพิ่มเลขใหม่สำเร็จ (ถามซ้ำอีกครั้งถ้าคีย์ซ้ำอีก)
-      APP.allowedDupKeys = APP.allowedDupKeys.filter(function(k){ return k !== curLek; });
-      setLek('');
-      var inp=document.getElementById('lek-inp');
-      inp.value='';
-      FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
-      var ab2=document.getElementById('add-btn');if(ab2)ab2.classList.remove('ready');
-      document.getElementById('list-scroll').scrollTop=0;
-      inp.focus();
-    }
+  function doAddOne(lek,d,mp,kd){
+    eid++;
+    entries.unshift({id:eid,lek:lek,d:d,bon:mp.bon||null,tod:mp.tod||null,lang:mp.lang||null,na:mp.na||null,kd:kd||{}});
+    APP.allowedDupKeys=APP.allowedDupKeys.filter(function(k){return k!==lek;});
   }
 
   function removeEntry(id){
@@ -3011,7 +3026,23 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       scrollToInput();
     });
     document.getElementById('lek-inp').addEventListener('input',function(){
-      var v=this.value.replace(/\D/g,'').slice(0,5);this.value=v;setLek(v);
+      // อนุญาตเฉพาะตัวเลขและ /
+      var raw=this.value.replace(/[^0-9\/]/g,'');
+      // ไม่ให้ / นำหน้า และไม่ให้ // ซ้อนกัน
+      raw=raw.replace(/^\/+/,'').replace(/\/+/,'/');
+      // จำกัดแต่ละส่วนไม่เกิน 5 หลัก
+      var parts=raw.split('/');
+      parts=parts.map(function(p){return p.slice(0,5);});
+      raw=parts.join('/');
+      this.value=raw;
+      // curLek = ส่วนแรกก่อน / เพื่อ render ปุ่มและราคา
+      var firstLek=parts[0]||'';
+      setLek(firstLek);
+      // แสดงเลขทั้งหมดใน lek-shown
+      if(raw.indexOf('/')>=0){
+        var sh=document.getElementById('lek-shown');
+        if(sh) sh.textContent=raw;
+      }
       clearAddBtnHl();
     });
     document.getElementById('lek-inp').addEventListener('keydown',function(e){

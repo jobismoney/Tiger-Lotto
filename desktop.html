@@ -1456,7 +1456,8 @@ function setupNumpad(){
           if(!npLek){toast('กรอกเลขก่อนครับ');return;}
           // validate หลักต้องเท่ากับตัวแรกใน queue
           if(npLekQueue.length>0 && npLek.length!==npLekQueue[0].length){
-            toast('เลขต้องมีจำนวนหลักเท่ากันครับ');npLek='';renderKpFields();return;
+            showAlert('⚠️ เลขต่างประเภทกัน<br><br><b>'+npLek+'</b> ('+npLek.length+' หลัก) ไม่ตรงกับเลขก่อนหน้า ('+npLekQueue[0].length+' หลัก)<br><br>กรุณาใส่เลขประเภทเดียวกันครับ');
+            npLek='';renderKpFields();return;
           }
           npLekQueue.push(npLek);
           npLek='';
@@ -1902,6 +1903,13 @@ function addEntry(){
   var allLeks = npLekQueue.slice();
   if(npLek) allLeks.push(npLek);
   if(!allLeks.length){toast('กรอกเลขก่อนครับ');return;}
+
+  // เช็คต่างประเภท
+  var uniqueLens=allLeks.map(function(l){return l.length;}).filter(function(v,i,a){return a.indexOf(v)===i;});
+  if(uniqueLens.length>1){
+    showAlert('⚠️ เลขต่างประเภทกัน<br><br>'+allLeks.map(function(l){return '<b>'+l+'</b> ('+l.length+' หลัก)';}).join('<br>')+'<br><br>กรุณาแยกประเภทกรอกครับ');
+    return;
+  }
   var fields=getActiveFields();
   var hasAny=fields.some(function(k){return npFields[k]!==null;});
   if(!hasAny){toast('ใส่ราคาอย่างน้อย 1 ช่อง');return;}
@@ -3047,5 +3055,22 @@ selectCust = function(id){
     <iframe id="scan-iframe" src="" style="width:100%;height:500px;border:none;background:#0f1117;"></iframe>
   </div>
 </div>
+
+<!-- Alert Modal -->
+<div class="modal-overlay" id="modal-alert" onclick="closeAlert()" style="z-index:9999;">
+  <div style="background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid var(--gold);border-radius:16px;padding:24px 20px;width:90%;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.7);" onclick="event.stopPropagation()">
+    <div id="alert-msg" style="font-size:15px;color:#f0f2ff;line-height:1.7;margin-bottom:18px;font-family:'Sarabun',sans-serif;"></div>
+    <button onclick="closeAlert()" style="width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#111;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;">ตกลง</button>
+  </div>
+</div>
+<script>
+function showAlert(msg){
+  document.getElementById('alert-msg').innerHTML=msg;
+  document.getElementById('modal-alert').classList.add('show');
+}
+function closeAlert(){
+  document.getElementById('modal-alert').classList.remove('show');
+}
+</script>
 </body>
 </html>
