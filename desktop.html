@@ -318,9 +318,9 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .set-tab-row{display:flex;gap:3px;margin-bottom:8px;}
 .set-tab{flex:1;background:#141b2e;border:1px solid #1a2040;border-radius:5px;padding:4px;text-align:center;font-size:9px;font-weight:800;color:#334;cursor:pointer;}
 .set-tab.on{background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.2);color:var(--gold);}
-.set-row{display:grid;grid-template-columns:1fr 36px 36px;gap:3px;align-items:center;padding:4px 0;border-bottom:1px solid #0f1220;}
+.set-row{display:grid;grid-template-columns:1fr 56px 56px;gap:5px;align-items:center;padding:6px 0;border-bottom:1px solid #0f1220;}
 .set-lbl{font-size:15px;font-weight:700;color:#7a8aaa;}
-.set-inp{background:#080b14;border:1px solid #1a2040;border-radius:5px;padding:6px 4px;font-size:16px;font-weight:800;color:#f0f2ff;text-align:center;font-family:'Sarabun',sans-serif;outline:none;width:100%;-moz-appearance:textfield;}
+.set-inp{background:#080b14;border:1px solid #1a2040;border-radius:5px;padding:7px 4px;font-size:16px;font-weight:800;color:#f0f2ff;text-align:center;font-family:'Sarabun',sans-serif;outline:none;width:100%;-moz-appearance:textfield;}
 .set-inp:focus{border-color:rgba(245,197,24,.3);}
 .set-inp::-webkit-outer-spin-button,.set-inp::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
 .set-save{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:5px;padding:7px;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:900;color:#111;cursor:pointer;margin-top:8px;}
@@ -368,6 +368,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
 /* TOAST */
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1d27;border:1px solid var(--border);border-radius:10px;padding:12px 22px;font-size:15px;font-weight:700;color:#f0f2ff;z-index:9999;transition:transform .3s ease;pointer-events:none;}
+.check-inp-desk{width:100%;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#fff;font-size:18px;font-weight:800;padding:8px 6px;box-sizing:border-box;text-align:center;font-family:'Sarabun',sans-serif;outline:none;}
+.check-inp-desk:focus{border-color:rgba(245,197,24,.5);}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
 ::-webkit-scrollbar{width:3px;}
@@ -406,7 +408,10 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
       <span id="cust-count" style="font-size:11px;color:#4a5570;font-weight:700;">0</span>
     </div>
     <div class="zbody">
-      <div style="margin-bottom:4px;"><div class="cadd" onclick="openAddCust()">➕ เพิ่มลูกค้า</div></div>
+      <div style="margin-bottom:4px;display:flex;gap:5px;">
+        <div class="cadd" style="flex:1;" onclick="openAddCust()">➕ เพิ่มลูกค้า</div>
+        <button onclick="showSlipAll()" style="background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:800;padding:0 10px;cursor:pointer;font-family:'Sarabun',sans-serif;white-space:nowrap;">📋 โพยรวม</button>
+      </div>
       <div class="clist" id="clist"></div>
     </div>
   </div>
@@ -416,7 +421,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <div class="zone z3" id="zone3">
     <div class="zhdr">
       <span class="ztitle">📋 รายการ — <span id="mid-cust-name" style="color:var(--gold);">—</span></span>
-      <button onclick="lockSet()" style="background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);border-radius:4px;padding:3px 9px;font-size:11px;font-weight:800;color:var(--gold);cursor:pointer;font-family:'Sarabun',sans-serif;">📂 เก็บแฟ้ม</button>
+      <button onclick="lockSet()" style="background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);border-radius:4px;padding:3px 9px;font-size:11px;font-weight:800;color:var(--gold);cursor:pointer;font-family:'Sarabun',sans-serif;">📂 เก็บเข้าแฟ้ม</button>
     </div>
     <div class="zbody">
       <!-- current set bar -->
@@ -529,44 +534,55 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         <div class="sum-row"><span class="sum-row-lbl">3 ล่าง</span><span class="sum-row-val zero" id="sg-3l">฿0</span></div>
         <div class="sum-btns">
           <button class="sbtn basket" onclick="lockSet()">📂 เก็บเข้าแฟ้ม</button>
-          <button class="sbtn print" onclick="showSlip()">📋 โพยลูกค้านี้</button>
-          <button class="sbtn print" style="background:linear-gradient(135deg,#1d4ed8,#1e40af)" onclick="showSlipAll()">📋 โพยรวมทุกคน</button>
-          <button class="sbtn newngod" onclick="openNgodModal()">+ งวดใหม่</button>
         </div>
       </div>
 
       <!-- TAB ตรวจ -->
       <div id="tab-check" class="rscroll" style="display:none;padding:9px;">
         <div class="sum-sec">🔍 ตรวจผลรางวัล</div>
-
-        <!-- ผลรางวัล -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:8px 0;">
-          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">รางวัลที่ 1</div>
-            <input id="res-1st" type="tel" inputmode="numeric" maxlength="6" placeholder="6 หลัก"
-              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#f5c518;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">เลขท้าย 3 ตัวบน</div>
-            <input id="res-3bon" type="tel" inputmode="numeric" maxlength="3" placeholder="3 หลัก"
-              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">เลขท้าย 3 ตัวล่าง</div>
-            <input id="res-3lang" type="tel" inputmode="numeric" maxlength="3" placeholder="3 หลัก"
-              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">เลขท้าย 2 ตัวบน</div>
-            <input id="res-2bon" type="tel" inputmode="numeric" maxlength="2" placeholder="2 หลัก"
-              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">เลขท้าย 2 ตัวล่าง</div>
-            <input id="res-2lang" type="tel" inputmode="numeric" maxlength="2" placeholder="2 หลัก"
-              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">วิ่งบน (หลายตัว)</div>
-            <input id="res-vbon" type="text" inputmode="numeric" placeholder="เช่น 1,5,9"
-              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:14px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">วิ่งล่าง (หลายตัว)</div>
-            <input id="res-vlang" type="text" inputmode="numeric" placeholder="เช่น 2,7"
-              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:14px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
-          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">หน้า 3 ตัวบน</div>
-            <input id="res-3na" type="tel" inputmode="numeric" maxlength="3" placeholder="3 หลัก"
-              style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:7px;color:#fff;font-size:16px;font-weight:700;padding:7px 8px;box-sizing:border-box;text-align:center;font-family:inherit;"></div>
+        <div style="background:#0f1220;border:1px solid #1a2040;border-radius:12px;padding:14px;margin-bottom:10px;">
+          <div style="font-size:13px;color:#888;margin-bottom:10px;text-align:center;">ใส่เลขที่ออกครับ</div>
+          <!-- รางวัลที่ 1 -->
+          <div style="margin-bottom:10px;">
+            <div style="font-size:12px;color:var(--gold);font-weight:800;margin-bottom:5px;text-align:center;">รางวัลที่ 1</div>
+            <input id="res-1st" type="tel" inputmode="numeric" maxlength="6" placeholder="x  x  x  x  x  x"
+              oninput="if(this.value.length===6)document.getElementById('res-3na').focus()"
+              style="width:100%;background:#1a1a2e;border:2px solid var(--gold);border-radius:10px;color:var(--gold);font-size:24px;font-weight:900;padding:10px;box-sizing:border-box;text-align:center;font-family:inherit;letter-spacing:6px;outline:none;">
+          </div>
+          <!-- แถว: หน้า 3 ตัว | ท้าย 3 ตัว | ท้าย 2 ตัว -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">
+            <div>
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">เลขหน้า 3 ตัว</div>
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3na" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3bon').focus()">
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3na2" placeholder="xxx" class="check-inp-desk" style="margin-top:5px;" oninput="if(this.value.length===3)document.getElementById('res-3bon').focus()">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">เลขท้าย 3 ตัว</div>
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3bon" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3lang').focus()">
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3bon2" placeholder="xxx" class="check-inp-desk" style="margin-top:5px;" oninput="if(this.value.length===3)document.getElementById('res-3lang').focus()">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">เลขท้าย 2 ตัว</div>
+              <input type="tel" inputmode="numeric" maxlength="2" id="res-2lang" placeholder="xx" class="check-inp-desk" oninput="if(this.value.length===2)document.getElementById('res-3lang').focus()">
+            </div>
+          </div>
+          <!-- วิ่ง + 3ล่าง -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;">
+            <div>
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">3ตัวล่าง</div>
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang" placeholder="xxx" class="check-inp-desk">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">วิ่งบน</div>
+              <input type="text" id="res-vbon" placeholder="1,5,9" class="check-inp-desk">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">วิ่งล่าง</div>
+              <input type="text" id="res-vlang" placeholder="2,7" class="check-inp-desk">
+            </div>
+          </div>
+          <button onclick="doCheckResult()" style="width:100%;padding:11px;background:linear-gradient(135deg,#f5c518,#d4a500);border:none;border-radius:10px;font-size:16px;font-weight:900;color:#111;cursor:pointer;font-family:inherit;">🔍 ตรวจเลย</button>
         </div>
-        <button onclick="doCheckResult()" style="width:100%;padding:10px;background:linear-gradient(135deg,#f5c518,#d4a500);border:none;border-radius:10px;font-size:15px;font-weight:900;color:#111;cursor:pointer;margin-bottom:10px;font-family:inherit;">🔍 ตรวจผลเลย</button>
         <div id="check-result-out" style="font-size:13px;"></div>
       </div>
 
@@ -606,17 +622,12 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
       <!-- TAB ตั้งค่า -->
       <div id="tab-cfg" style="display:none;overflow-y:auto;flex:1;padding:9px;">
-        <div class="set-tab-row">
-          <div class="set-tab on" id="cfg-tab-n" onclick="switchCfgTab('n')">ปกติ</div>
-          <div class="set-tab" id="cfg-tab-s" onclick="switchCfgTab('s')">พิเศษ</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 48px 48px;gap:4px;margin-bottom:4px;">
-          <div></div>
-          <div style="font-size:12px;color:#556;text-align:center;font-weight:800;">ลด%</div>
-          <div style="font-size:12px;color:#556;text-align:center;font-weight:800;">จ่าย</div>
+        <div style="display:grid;grid-template-columns:1fr 56px 56px;gap:5px;margin-bottom:6px;">
+          <div style="font-size:13px;color:#556;font-weight:800;">ประเภท</div>
+          <div style="font-size:13px;color:#556;text-align:center;font-weight:800;">ลด%</div>
+          <div style="font-size:13px;color:#556;text-align:center;font-weight:800;">จ่าย</div>
         </div>
         <div id="cfg-n-rows"></div>
-        <div id="cfg-s-rows" style="display:none;"></div>
         <button class="set-save" onclick="saveSettings()">💾 บันทึก</button>
       </div>
 
@@ -760,24 +771,18 @@ var pakType='3bon', pakPos='na';
 // settings
 var DEFAULT_SETTINGS = {
   normal:[
-    {key:'3bon',  lbl:'3ตัวบน',  disc:20,pay:500},
-    {key:'3na',   lbl:'3ตัวหน้า',disc:20,pay:450},
-    {key:'3lang', lbl:'3ตัวล่าง',disc:20,pay:450},
-    {key:'2bon',  lbl:'2ตัวบน',  disc:20,pay:70},
-    {key:'2lang', lbl:'2ตัวล่าง',disc:20,pay:70},
-    {key:'vbon',  lbl:'วิ่งบน',  disc:10,pay:3},
-    {key:'vlang', lbl:'วิ่งล่าง',disc:10,pay:4},
-    {key:'tod',   lbl:'โต๊ด',    disc:20,pay:120},
+    {key:'3bon',    lbl:'3ตัวบน',     disc:20, pay:500},
+    {key:'3na',     lbl:'3ตัวหน้า',   disc:20, pay:450},
+    {key:'3lang',   lbl:'3ตัวล่าง',   disc:20, pay:450},
+    {key:'2bon',    lbl:'2ตัวบน',     disc:20, pay:70},
+    {key:'2lang',   lbl:'2ตัวล่าง',   disc:20, pay:70},
+    {key:'vbon',    lbl:'วิ่งบน',     disc:10, pay:3},
+    {key:'vlang',   lbl:'วิ่งล่าง',   disc:10, pay:4},
+    {key:'tod',     lbl:'โต๊ด',       disc:20, pay:120},
+    {key:'pak-3bon',lbl:'ปักหลักบน',  disc:20, pay:350},
+    {key:'pak-2lang',lbl:'ปักหลักล่าง',disc:20, pay:55},
   ],
-  special:[
-    {key:'pak-na-3bon',   lbl:'ปักหน้า 3ตัวบน',  disc:20,pay:350},
-    {key:'pak-mid-3bon',  lbl:'ปักกลาง 3ตัวบน',  disc:20,pay:350},
-    {key:'pak-lang-3bon', lbl:'ปักหลัง 3ตัวบน',  disc:20,pay:350},
-    {key:'pak-na-2bon',   lbl:'ปักหน้า 2ตัวบน',  disc:20,pay:55},
-    {key:'pak-lang-2bon', lbl:'ปักหลัง 2ตัวบน',  disc:20,pay:55},
-    {key:'pak-na-2lang',  lbl:'ปักหน้า 2ตัวล่าง',disc:20,pay:55},
-    {key:'pak-lang-2lang',lbl:'ปักหลัง 2ตัวล่าง',disc:20,pay:55},
-  ]
+  special:[]
 };
 var settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 
@@ -1139,7 +1144,7 @@ function load(){
   }catch(e){}
 }
 function saveSettings(){
-  ['normal','special'].forEach(function(g){
+  ['normal'].forEach(function(g){
     settings[g].forEach(function(item){
       var di=document.getElementById('cfg-disc-'+item.key);
       var pi=document.getElementById('cfg-pay-'+item.key);
@@ -1251,7 +1256,7 @@ function closeNgod(){
   if(hasEntries){
     closeNgodModal();
     setTimeout(function(){
-      if(confirm('ยังมีรายการที่ยังไม่ได้เก็บแฟ้ม\nต้องเก็บแฟ้มก่อนจึงจะปิดงวดได้\n\nกดตกลงเพื่อเก็บแฟ้มทุกลูกค้าอัตโนมัติ')){
+      if(confirm('ยังมีรายการที่ยังไม่ได้เก็บเข้าแฟ้ม\nต้องเก็บเข้าแฟ้มก่อนจึงจะปิดงวดได้\n\nกดตกลงเพื่อเก็บเข้าแฟ้มทุกลูกค้าอัตโนมัติ')){
         customers.forEach(function(cu){
           if((custEntries[cu.id]||[]).length>0){
             var prev=curCustId; curCustId=cu.id;
@@ -2253,17 +2258,14 @@ function setupFloat(){
 // SETTINGS UI
 // ================================================================
 function renderCfgRows(){
-  function build(grp,id){
-    var h='';
-    settings[grp].forEach(function(item){
-      h+='<div class="set-row"><span class="set-lbl">'+item.lbl+'</span>'
-        +'<input class="set-inp" id="cfg-disc-'+item.key+'" value="'+item.disc+'" type="number">'
-        +'<input class="set-inp" id="cfg-pay-'+item.key+'" value="'+item.pay+'" type="number">'
-        +'</div>';
-    });
-    document.getElementById(id).innerHTML=h;
-  }
-  build('normal','cfg-n-rows'); build('special','cfg-s-rows');
+  var h='';
+  settings.normal.forEach(function(item){
+    h+='<div class="set-row"><span class="set-lbl">'+item.lbl+'</span>'
+      +'<input class="set-inp" id="cfg-disc-'+item.key+'" value="'+item.disc+'" type="number">'
+      +'<input class="set-inp" id="cfg-pay-'+item.key+'" value="'+item.pay+'" type="number">'
+      +'</div>';
+  });
+  document.getElementById('cfg-n-rows').innerHTML=h;
 }
 function switchCfgTab(t){
   document.getElementById('cfg-n-rows').style.display=t==='n'?'':'none';
@@ -2503,30 +2505,89 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
 
 function fmtN(n){return parseInt(n||0).toLocaleString();}
 function buildSlipHTML(cid){
-  var all=getAllEntries(cid);
-  if(!all.length) return null;
-  var inf=ngodInfo||{ngod:'—',sender:'—',receiver:'—',date:'—'};
-  var sorted=all.slice().sort(function(a,b){return a.id-b.id;});
-  var pages=[],pEn=[],rc=0;
-  sorted.forEach(function(e){
-    var lc=toLines(e).length||1;
-    if(rc>0&&rc+lc>MAX_ROWS){pages.push(pEn);pEn=[];rc=0;}
-    pEn.push(e);rc+=lc;
+  var sets=custSets[cid]||[];
+  var curEntries=custEntries[cid]||[];
+  // รวม sets + current entries เป็น items พร้อม label ชุด
+  var allItems=[]; // [{label, entries}]
+  sets.forEach(function(s,i){
+    if(s.entries&&s.entries.length) allItems.push({label:'ชุดที่ '+(i+1),entries:s.entries});
   });
-  if(pEn.length)pages.push(pEn);
+  if(curEntries.length) allItems.push({label:'ชุดที่ '+(sets.length+1)+' — กำลังคีย์',entries:curEntries});
+  if(!allItems.length) return null;
+
+  var inf=ngodInfo||{ngod:'—',sender:'—',receiver:'—',date:'—'};
+  var cust=customers.find(function(c){return c.id===cid;})||{name:'—'};
+
+  // สร้าง items list สำหรับ makePageHTML (มี divider + entries)
+  var flatItems=[]; // [{type:'divider',label} | {type:'entry',e}]
+  allItems.forEach(function(g){
+    flatItems.push({type:'divider',label:g.label});
+    g.entries.forEach(function(e){ flatItems.push({type:'entry',e:e}); });
+  });
+
+  // แบ่งหน้าตาม MAX_ROWS
+  var pages=[],curPage=[],rc=0;
+  flatItems.forEach(function(item){
+    if(item.type==='divider'){
+      curPage.push(item);
+    } else {
+      var lc=toLines(item.e).length||1;
+      if(rc>0&&rc+lc>MAX_ROWS){pages.push(curPage);curPage=[];rc=0;}
+      curPage.push(item);rc+=lc;
+    }
+  });
+  if(curPage.length) pages.push(curPage);
+
   var totalPages=pages.length;
   var grandTotal=calcCustTotal(cid);
-  var allSumRows='',allHTML='';
   var grandS={c3:0,c2:0,c1:0,ct:0,cl:0};
-  pages.forEach(function(pg,i){
-    allHTML+='<div class="slip-page-single"><div class="slip-page">'+makePageHTML(pg,i+1,totalPages,inf)+'</div></div>';
-    var ps=pageSumTotals(pg);
-    var pt=pg.reduce(function(s,e){return s+entryTotal(e);},0);
-    allSumRows+=buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false);
+  var allSumRows='',allHTML='';
+
+  pages.forEach(function(items,pi){
+    var bodyRows='';
+    items.forEach(function(item,idx){
+      if(item.type==='divider'){
+        bodyRows+='<tr><td colspan="5" style="padding:5px 6px;font-size:12px;font-weight:900;color:var(--gold);background:#0a0e1a;border-top:2px solid rgba(245,197,24,.3);">— '+item.label+' —</td></tr>';
+      } else {
+        var ls=toLines(item.e);if(!ls.length)return;
+        ls.forEach(function(line){
+          bodyRows+='<tr>'
+            +'<td class="td-lek">'+line.lek+'</td>'
+            +'<td class="td-eq">=</td>'
+            +'<td class="td-price">'+line.price+'</td>'
+            +'<td class="td-brace-empty"></td>'
+            +'<td class="td-total">'+fmtN(line.total)+'</td>'
+            +'</tr>';
+        });
+        var nextItem=items[idx+1];
+        if(nextItem&&nextItem.type!=='divider'){
+          bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
+        }
+      }
+    });
+    var pgEntries=items.filter(function(x){return x.type==='entry';}).map(function(x){return x.e;});
+    var ps=pageSumTotals(pgEntries);
+    var pt=pgEntries.reduce(function(s,e){return s+toLines(e).reduce(function(ss,l){return ss+l.total;},0);},0);
     grandS.c3+=ps.c3;grandS.c2+=ps.c2;grandS.c1+=ps.c1;grandS.ct+=ps.ct;grandS.cl+=ps.cl;
+    allSumRows+=buildSumRow(ps,''+(pi+1)+'/'+totalPages,pt,false);
+    allHTML+='<div class="slip-page-single"><div class="slip-page">'
+      +'<div class="slip-hd">'
+      +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+(pi+1)+'/'+totalPages+'</span></div>'
+      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span>'
+      +'<span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span>'
+      +'<span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span>'
+      +'<span>วันที่ <strong>'+(inf.date||'—')+'</strong></span></div>'
+      +'</div>'
+      +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup>'
+      +'<col style="width:52px"><col style="width:10px"><col style="width:110px">'
+      +'<col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
+      +sumTableHTML(buildSumRow(ps,''+(pi+1)+'/'+totalPages,pt,false))
+      +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmtN(pt)+'</span></div>'
+      +LEGEND
+      +'</div></div>';
   });
+
   allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
-  var cust=customers.find(function(c){return c.id===cid;})||{name:'—'};
   var sumHTML='<div class="slip-hd">'
     +'<div class="slip-hd-row1"><h2>📊 สรุปรวม — '+cust.name+'</h2><span class="pg">'+totalPages+' แผ่น</span></div>'
     +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span>'
@@ -2712,6 +2773,33 @@ function doCheckResult(){
       if(d===1 && vlang.indexOf(lek)>=0){
         var cfg=getCfg('vlang'); var pr=cfg?cfg.pay:4;
         if(e.lang){ hits.push({lek:lek,type:'วิ่งล่าง',bet:e.lang,pay:e.lang*pr}); custPay+=e.lang*pr; }
+      }
+      // ── ปักหลักบน (3ตัวบน) ──
+      if(e.paks&&e.paks.length){
+        var cfg3=getCfg('pak-3bon'); var pr3=cfg3?cfg3.pay:350;
+        var cfg2=getCfg('pak-2lang'); var pr2=cfg2?cfg2.pay:55;
+        e.paks.forEach(function(p){
+          if(p.type==='3bon' && r3bon){
+            // ปักหน้า = หน้า 3 ตัว, ปักกลาง = กลาง 3 ตัว, ปักหลัง = ท้าย 3 ตัว
+            var win3=first6.length===6?first6.slice(-3):r3bon;
+            var win=false;
+            if(p.pos==='na'  && r3na  && lek===r3na[parseInt(r3na.length===3?0:0)])  win=false;
+            if(p.pos==='na'   && r3na   && r3na.indexOf(lek)>=0 && r3na.length>=1)   win=lek===r3na[0]||false;
+            // ปักหน้า = ตัวแรกของ 3ตัวหน้า, ปักกลาง = ตัวกลาง, ปักหลัง = ตัวสุดท้าย
+            var ref=r3bon||'';
+            if(p.pos==='na'   && ref.length===3 && lek===ref[0]){ win=true; }
+            if(p.pos==='mid'  && ref.length===3 && lek===ref[1]){ win=true; }
+            if(p.pos==='lang' && ref.length===3 && lek===ref[2]){ win=true; }
+            if(win){ hits.push({lek:lek,type:'ปักหลักบน('+p.pos+')',bet:p.price,pay:p.price*pr3}); custPay+=p.price*pr3; }
+          }
+          if(p.type==='2lang' && r2lang){
+            var ref2=r2lang||'';
+            var win2=false;
+            if(p.pos==='na'   && ref2.length===2 && lek===ref2[0]){ win2=true; }
+            if(p.pos==='lang' && ref2.length===2 && lek===ref2[1]){ win2=true; }
+            if(win2){ hits.push({lek:lek,type:'ปักหลักล่าง('+p.pos+')',bet:p.price,pay:p.price*pr2}); custPay+=p.price*pr2; }
+          }
+        });
       }
     });
 
