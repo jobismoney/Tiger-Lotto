@@ -2417,7 +2417,9 @@ function toLines(e){
   var tl={'3bon':'3ตัวบน','2bon':'2ตัวบน','2lang':'2ตัวล่าง'};
   var pl={'na':'หน้า','mid':'กลาง','lang':'หลัง'};
   (e.paks||[]).forEach(function(p){
-    lines.push({lek:lek, price:'📌'+pl[p.pos]+' '+(tl[p.type]||p.type)+' B'+p.price, total:0});
+    var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
+    var typeLbl={'3bon':'3ตัวบน','2bon':'2ตัวบน','2lang':'2ตัวล่าง'}[p.type]||p.type;
+    lines.push({lek:lek, price:'ปัก'+posLbl+' '+typeLbl, total:p.price});
   });
   return lines;
 }
@@ -2483,7 +2485,7 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
     bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
   });
   var ps=pageSumTotals(pEntries);
-  var pt=pEntries.reduce(function(s,e){return s+entryTotal(e);},0);
+  var pt=pEntries.reduce(function(s,e){return s+toLines(e).reduce(function(ss,l){return ss+l.total;},0);},0);
   return '<div class="slip-hd">'
     +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
     +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span>'
