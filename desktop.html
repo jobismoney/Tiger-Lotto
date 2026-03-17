@@ -928,7 +928,7 @@ function doImportMulti(dataList, totalEntries, cid){
       entries.push({id:custEid[cid],lek:lek,d:lek.length,
         bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,kd:e.kd||{},paks:e.paks||[]});
     });
-    custSets[cid].push({entries:entries, locked:false, time:Date.now()});
+    custSets[cid].push({entries:entries, locked:false, time:Date.now(), sender:data.sender||'', pg:data.pg||''});
   });
   curCustId=cid;
   save();
@@ -1065,7 +1065,7 @@ function doImport(data, fp, log, cid){
       bon: e.bon||null, tod: e.tod||null, lang: e.lang||null, na: e.na||null, kd: e.kd||{}, paks: e.paks||[]
     });
   });
-  custSets[cid].push({entries: importedEntries, locked: false, time: Date.now()});
+  custSets[cid].push({entries: importedEntries, locked: false, time: Date.now(), sender: data.sender||'', pg: data.pg||''});
 
   log.push({ fp: fp, time: Date.now(), sender: data.sender||'', ngod: data.ngod||'', pg: data.pg, cid: cid||'' });
   saveScannedLog(log);
@@ -2496,7 +2496,12 @@ function buildSlipHTML(cid){
   var curEntries=custEntries[cid]||[];
   var allItems=[];
   sets.forEach(function(s,i){
-    if(s.entries&&s.entries.length) allItems.push({label:'ชุดที่ '+(i+1),entries:s.entries});
+    if(s.entries&&s.entries.length){
+      var lbl='ชุดที่ '+(i+1);
+      if(s.sender) lbl+=' — '+s.sender;
+      if(s.pg) lbl+=' (แผ่น '+s.pg+')';
+      allItems.push({label:lbl, entries:s.entries});
+    }
   });
   if(curEntries.length) allItems.push({label:'ชุดที่ '+(sets.length+1)+' — กำลังคีย์',entries:curEntries});
   if(!allItems.length) return null;
