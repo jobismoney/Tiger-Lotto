@@ -73,9 +73,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 
 <!-- Upload mode -->
 <div class="upload-zone active" id="upload-zone">
-  <input type="file" id="file-inp" accept="image/*">
+  <input type="file" id="file-inp" accept="image/*" multiple>
   <div class="upload-icon">🖼️</div>
-  <div class="upload-txt">แตะเพื่อเลือกรูป</div>
+  <div class="upload-txt">แตะเพื่อเลือกรูป (เลือกได้หลายรูป)</div>
   <div class="upload-sub">JPG, PNG, WebP — screenshot จาก Line ได้เลย</div>
 </div>
 
@@ -89,8 +89,20 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
   <button class="cam-stop-btn" onclick="stopCamera()">⏹ หยุดกล้อง</button>
 </div>
 
-<div class="preview-wrap" id="preview-wrap">
-  <img class="preview-img" id="preview-img" src="" alt="">
+<div class="preview-wrap" id="preview-wrap" style="display:none;">
+  <!-- Carousel -->
+  <div style="position:relative;">
+    <img class="preview-img" id="preview-img" src="" alt="" style="width:100%;border-radius:10px;display:block;">
+    <!-- nav buttons -->
+    <button id="prev-btn" onclick="carouselNav(-1)" style="display:none;position:absolute;left:6px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);border:none;border-radius:50%;width:36px;height:36px;color:#fff;font-size:18px;cursor:pointer;z-index:10;">‹</button>
+    <button id="next-btn" onclick="carouselNav(1)" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);border:none;border-radius:50%;width:36px;height:36px;color:#fff;font-size:18px;cursor:pointer;z-index:10;">›</button>
+    <!-- badge -->
+    <div id="carousel-badge" style="display:none;position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);color:#fff;font-size:12px;font-weight:800;padding:3px 10px;border-radius:20px;font-family:'Sarabun',sans-serif;"></div>
+    <!-- status badge per image -->
+    <div id="carousel-status" style="position:absolute;top:8px;right:8px;font-size:12px;font-weight:800;padding:3px 10px;border-radius:20px;font-family:'Sarabun',sans-serif;"></div>
+  </div>
+  <!-- dots -->
+  <div id="carousel-dots" style="display:flex;justify-content:center;gap:6px;margin-top:8px;"></div>
 </div>
 
 <div class="status" id="status"></div>
@@ -112,6 +124,9 @@ var _qrUrl = null;
 var _camStream = null;
 var _camRaf = null;
 var _curMode = 'upload';
+var _pendingFiles = [];   // ไฟล์ที่รอ scan
+var _scannedResults = []; // ผล scan ทั้งหมด
+var _currentFileIdx = 0;
 
 // ── MODE SWITCH ──
 function switchMode(m){
@@ -130,47 +145,164 @@ function switchMode(m){
 
 // ── UPLOAD MODE ──
 document.getElementById('file-inp').addEventListener('change', function(e){
-  var file = e.target.files[0];
-  if(file) handleFile(file);
+  var files = Array.from(e.target.files).filter(function(f){ return f.type.startsWith('image/'); });
+  if(files.length) startBatchScan(files);
 });
 var zone = document.getElementById('upload-zone');
 zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('drag'); });
 zone.addEventListener('dragleave', function(){ zone.classList.remove('drag'); });
 zone.addEventListener('drop', function(e){
   e.preventDefault(); zone.classList.remove('drag');
-  var file = e.dataTransfer.files[0];
-  if(file && file.type.startsWith('image/')) handleFile(file);
+  var files = Array.from(e.dataTransfer.files).filter(function(f){ return f.type.startsWith('image/'); });
+  if(files.length) startBatchScan(files);
 });
 
-function handleFile(file){
+function startBatchScan(files){
+  _pendingFiles = files;
+  _scannedResults = [];
+  _currentFileIdx = 0;
+  _carouselIdx = 0;
+  _carouselSrcs = [];
+  resetResult();
+  setStatus('scanning', '🔍 กำลัง scan รูปที่ 1/'+files.length+'...');
+  scanNextFile();
+}
+
+var _carouselIdx = 0;
+var _carouselSrcs = []; // {src, status, label}
+
+function scanNextFile(){
+  if(_currentFileIdx >= _pendingFiles.length){
+    showBatchResult();
+    return;
+  }
+  var file = _pendingFiles[_currentFileIdx];
   var reader = new FileReader();
   reader.onload = function(ev){
-    var img = document.getElementById('preview-img');
+    var img = new Image();
+    img.onload = function(){
+      var result = scanFromImage(img);
+      var ok = result && result.imp;
+      _scannedResults.push({file: file.name, idx: _currentFileIdx+1, result: result});
+      _carouselSrcs.push({
+        src: ev.target.result,
+        ok: ok,
+        label: ok ? '✅ '+result.cnt+' รายการ' : '❌ อ่านไม่ได้'
+      });
+      // แสดง carousel
+      document.getElementById('preview-wrap').style.display = 'block';
+      _carouselIdx = _carouselSrcs.length - 1;
+      updateCarousel();
+      _currentFileIdx++;
+      if(_currentFileIdx < _pendingFiles.length){
+        setStatus('scanning','🔍 กำลัง scan รูปที่ '+(_currentFileIdx+1)+'/'+_pendingFiles.length+'...');
+      }
+      scanNextFile();
+    };
     img.src = ev.target.result;
-    document.getElementById('preview-wrap').style.display = 'block';
-    resetResult();
-    setStatus('scanning', '🔍 กำลัง scan QR code...');
-    img.onload = function(){ scanFromImage(img); };
   };
   reader.readAsDataURL(file);
+}
+
+function updateCarousel(){
+  var srcs = _carouselSrcs;
+  if(!srcs.length) return;
+  var i = _carouselIdx;
+  var item = srcs[i];
+  document.getElementById('preview-img').src = item.src;
+
+  var badge = document.getElementById('carousel-badge');
+  badge.style.display = srcs.length > 1 ? 'block' : 'none';
+  badge.textContent = (i+1)+'/'+srcs.length;
+
+  var sBadge = document.getElementById('carousel-status');
+  sBadge.textContent = item.label;
+  sBadge.style.background = item.ok ? 'rgba(34,197,94,.85)' : 'rgba(239,68,68,.85)';
+
+  document.getElementById('prev-btn').style.display = srcs.length > 1 ? 'block' : 'none';
+  document.getElementById('next-btn').style.display = srcs.length > 1 ? 'block' : 'none';
+
+  // dots
+  var dots = document.getElementById('carousel-dots');
+  dots.innerHTML = srcs.map(function(s,idx){
+    return '<div onclick="carouselGo('+idx+')" style="width:8px;height:8px;border-radius:50%;cursor:pointer;background:'
+      +(idx===i?'#f5c518':(s.ok?'#22c55e':'#ef4444'))+'"></div>';
+  }).join('');
+}
+
+function carouselNav(dir){
+  var len = _carouselSrcs.length;
+  _carouselIdx = (_carouselIdx + dir + len) % len;
+  updateCarousel();
+}
+
+function carouselGo(idx){
+  _carouselIdx = idx;
+  updateCarousel();
+}
+
+function showBatchResult(){
+  var ok = _scannedResults.filter(function(r){ return r.result && r.result.imp; });
+  var fail = _scannedResults.filter(function(r){ return !r.result || !r.result.imp; });
+  var totalEntries = ok.reduce(function(s,r){ return s + (r.result.cnt||0); }, 0);
+
+  if(ok.length === 0){
+    setStatus('error', '❌ ไม่พบ QR ในรูปที่เลือก');
+    document.getElementById('reset-btn').style.display='block';
+    return;
+  }
+
+  var info = '<span>สแกนสำเร็จ</span> '+ok.length+'/'+_scannedResults.length+' รูป<br>'
+    +'<span>รวมทั้งหมด</span> '+totalEntries+' รายการ';
+  if(fail.length){
+    info += '<br><span style="color:#f87171;">อ่านไม่ได้</span> '+fail.map(function(r){return 'รูปที่ '+r.idx;}).join(', ');
+  }
+  ok.forEach(function(r){
+    info += '<br>📄 รูปที่ '+r.idx+' — '+r.result.cnt+' รายการ';
+  });
+
+  document.getElementById('result-info').innerHTML = info;
+  document.getElementById('result-box').style.display='block';
+  setStatus('success','✅ scan เสร็จ! พบ '+totalEntries+' รายการจาก '+ok.length+' รูป');
+  // เก็บ imports ทั้งหมดไว้ใน _qrUrl เป็น array
+  _qrUrl = ok.map(function(r){ return r.result.imp; });
+  document.getElementById('go-btn').style.display='block';
+  document.getElementById('reset-btn').style.display='block';
+}
+
+function handleFile(file){
+  startBatchScan([file]);
 }
 
 function scanFromImage(img){
   var canvas = document.getElementById('qr-canvas');
   var ctx = canvas.getContext('2d');
-  // วาดขนาดเต็ม ไม่ resize เพื่อไม่ให้ pixel เพี้ยน
   var w = img.naturalWidth, h = img.naturalHeight;
   canvas.width = w; canvas.height = h;
   ctx.drawImage(img, 0, 0, w, h);
   var imageData = ctx.getImageData(0, 0, w, h);
   var code = jsQR(imageData.data, w, h, {inversionAttempts:'dontInvert'});
   if(!code) code = jsQR(imageData.data, w, h, {inversionAttempts:'onlyInvert'});
-  if(!code){
-    setStatus('error', '❌ ไม่พบ QR code ในรูปนี้<br><span style="font-size:12px;font-weight:600;">ลอง crop ให้เห็น QR ชัดๆ แล้วอัพใหม่</span>');
-    document.getElementById('reset-btn').style.display='block';
-    return;
+  if(!code) return null;
+  return parseQRResult(code.data);
+}
+
+function parseQRResult(url){
+  var imp = null;
+  // format 1: URL มี import= param
+  if(url.indexOf('import=') >= 0){
+    imp = url.split('import=')[1];
   }
-  handleQRResult(code.data);
+  // format 2: base64 ล้วนๆ
+  else if(/^[A-Za-z0-9+/=]+$/.test(url.trim())){
+    imp = url.trim();
+  }
+  if(!imp) return null;
+  try{
+    var data = JSON.parse(decodeURIComponent(escape(atob(imp))));
+    var norm = normalizeData(data);
+    return {imp: imp, cnt: (norm.entries||[]).length, ngod: norm.ngod||'', sender: norm.sender||'', pg: norm.pg||1};
+  } catch(e){ return null; }
 }
 
 // ── CAMERA MODE ──
@@ -213,30 +345,19 @@ function scanLoop(){
 
 // ── RESULT ──
 function handleQRResult(url){
-  if(url.indexOf('tiger999.online') < 0 && url.indexOf('desktop.html') < 0){
+  var result = parseQRResult(url);
+  if(!result){
     setStatus('error','❌ QR นี้ไม่ใช่โพย Tiger 999');
     document.getElementById('reset-btn').style.display='block';
     return;
   }
-  try{
-    var imp = url.split('import=')[1];
-    if(!imp){ setStatus('error','❌ QR ไม่มีข้อมูล'); return; }
-    var data = JSON.parse(decodeURIComponent(escape(atob(imp))));
-    var norm = normalizeData(data);
-    var cnt = (norm.entries||[]).length;
-    document.getElementById('result-info').innerHTML =
-      '<span>งวด</span> '+(norm.ngod||'—')+'<br>'
-      +'<span>ผู้ส่ง</span> '+(norm.sender||'—')+'<br>'
-      +'<span>แผ่น</span> '+(norm.pg||1)+'  <span>จำนวน</span> '+cnt+' รายการ';
-    document.getElementById('result-box').style.display='block';
-    setStatus('success','✅ อ่าน QR สำเร็จ! พบ '+cnt+' รายการ');
-    _qrUrl = url;
-    document.getElementById('go-btn').style.display='block';
-    document.getElementById('reset-btn').style.display='block';
-  } catch(e){
-    setStatus('error','❌ อ่านข้อมูลใน QR ไม่ได้');
-    document.getElementById('reset-btn').style.display='block';
-  }
+  document.getElementById('result-info').innerHTML =
+    '<span>แผ่น</span> '+result.pg+'  <span>จำนวน</span> '+result.cnt+' รายการ';
+  document.getElementById('result-box').style.display='block';
+  setStatus('success','✅ อ่าน QR สำเร็จ! พบ '+result.cnt+' รายการ');
+  _qrUrl = url;
+  document.getElementById('go-btn').style.display='block';
+  document.getElementById('reset-btn').style.display='block';
 }
 
 function normalizeData(data){
@@ -253,18 +374,24 @@ function setStatus(type, msg){
 
 function resetResult(){
   _qrUrl = null;
+  _carouselSrcs = []; _carouselIdx = 0;
   document.getElementById('status').style.display='none';
   document.getElementById('result-box').style.display='none';
   document.getElementById('go-btn').style.display='none';
   document.getElementById('reset-btn').style.display='none';
+  document.getElementById('carousel-dots').innerHTML='';
 }
 
 document.getElementById('go-btn').addEventListener('click', function(){
   if(!_qrUrl) return;
-  // ดึงแค่ import param แล้วเปิด desktop.html แบบ relative
-  var imp = _qrUrl.split('import=')[1];
-  if(imp) window.location.href = 'desktop.html?import=' + imp;
-  else window.location.href = _qrUrl;
+  var imps = Array.isArray(_qrUrl) ? _qrUrl : [_qrUrl.split('import=')[1]].filter(Boolean);
+  if(!imps.length) return;
+  if(window.parent && window.parent !== window){
+    window.parent.postMessage({type:'scanResult', imports: imps}, '*');
+  } else {
+    // standalone — ส่ง import แรกก่อน (ถ้าหลายรูปต้องใช้ popup)
+    window.location.href = 'desktop.html?import=' + imps[0];
+  }
 });
 
 document.getElementById('reset-btn').addEventListener('click', function(){
