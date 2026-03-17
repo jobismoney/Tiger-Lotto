@@ -2657,12 +2657,13 @@ function buildSlipHTML(cid){
   function makeSetBlock(g){
     var ss=pageSumTotals(g.entries);
     var st=g.entries.reduce(function(s,e){return s+toLines(e).reduce(function(ss2,l){return ss2+l.total;},0);},0);
-    var rows='<tr><td colspan="5" style="padding:5px 4px 2px;font-size:12px;font-weight:900;color:#666;border-top:1.5px dashed #bbb;">— '+g.label+' —</td></tr>';
+    var rows='<tr><td colspan="7" style="padding:5px 4px 2px;font-size:12px;font-weight:900;color:#666;border-top:1.5px dashed #bbb;">— '+g.label+' —</td></tr>';
     g.entries.forEach(function(e){
       var ls=toLines(e);if(!ls.length)return;
       ls.forEach(function(line){
         rows+='<tr><td class="td-lek">'+line.lek+'</td><td class="td-eq">=</td>'
-          +'<td class="td-price">'+line.price+'</td><td class="td-brace-empty"></td>'
+          +'<td class="td-price" colspan="3">'+line.price+'</td>'
+          +'<td class="td-brace-empty"></td>'
           +'<td class="td-total">'+fmtN(line.total)+'</td></tr>';
       });
     });
@@ -2682,7 +2683,7 @@ function buildSlipHTML(cid){
     return '<div style="break-inside:avoid;page-break-inside:avoid;">'
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup>'
       +'<col style="width:52px"><col style="width:10px"><col style="width:110px">'
-      +'<col style="width:12px"><col style="width:auto"></colgroup>'
+      +'<col style="width:12px"><col style="width:50px"><col style="width:50px"><col style="width:50px"></colgroup>'
       +'<tbody>'+rows+'</tbody></table></div>';
   }
 
