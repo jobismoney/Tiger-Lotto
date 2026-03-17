@@ -2101,13 +2101,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var isPak=e.paks&&e.paks.length;
       var eTot=ls.reduce(function(s,x){return s+x.total;},0);
       ls.forEach(function(line){
-        bodyRows+='<tr>'\
-          +'<td class="td-lek">'+line.lek+'</td>'\
-          +'<td class="td-eq">=</td>'\
-          +'<td class="td-price">'+line.price+'</td>'\
-          +'<td class="td-brace-empty"></td>'\
-          +'<td class="td-total">'+fmt(line.total)+'</td>'\
-          +'</tr>';\
+        bodyRows+='<tr>'
+          +'<td class="td-lek">'+line.lek+'</td>'
+          +'<td class="td-eq">=</td>'
+          +'<td class="td-price">'+line.price+'</td>'
+          +'<td class="td-brace-empty"></td>'
+          +'<td class="td-total">'+fmt(line.total)+'</td>'
+          +'</tr>';
       });
       bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
     });
