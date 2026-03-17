@@ -213,8 +213,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
 /* ══ SLIP OVERLAY ══ */
 .slip-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:500;overflow-y:auto;}
-.slip-ov.show{display:flex;flex-direction:column;}
-.slip-ov-bar{background:#0d0f18;border-bottom:2px solid var(--gold);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:10;}
+.slip-ov.show{display:block;}
+.slip-ov-bar{background:#0d0f18;border-bottom:2px solid var(--gold);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
 .slip-ov-title{font-size:15px;font-weight:900;color:var(--gold);}
 .slip-ov-btns{display:flex;gap:8px;}
 .slip-ov-btn{background:var(--card2);border:1px solid var(--border);border-radius:7px;color:#ccd;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;padding:7px 14px;cursor:pointer;}
@@ -225,10 +225,11 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .slip-top-btn{background:#1e293b;border:1px solid #334155;border-radius:8px;color:#94a3b8;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;padding:8px 16px;cursor:pointer;}
 .slip-top-btn.blue{background:linear-gradient(135deg,#1d4ed8,#1e40af);color:#fff;border:none;}
 .slip-top-btn.close{background:#1e293b;border-color:#475569;color:#94a3b8;}
-.slip-pages-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.slip-pages-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .slip-page-single{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);}
 .slip-page-sum{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);grid-column:1/-1;}
 .slip-page{background:#fff;overflow:hidden;}
+@page{margin:8mm;size:A4;}
 @media print{
   .slip-pages-grid{display:block!important;}
   .slip-page-single,.slip-page-sum{
@@ -644,7 +645,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <div class="slip-ov-bar">
     <span class="slip-ov-title" id="slip-ov-title">📋 ดูรายการ / พิมพ์โพย</span>
     <div class="slip-ov-btns">
-      <button class="slip-ov-btn" onclick="window.print()">🖨️ พิมพ์ / Save รูป</button>
+      <button class="slip-ov-btn" onclick="doPrintSlip()">🖨️ พิมพ์ / Save รูป</button>
       <button class="slip-ov-btn gold" onclick="closeSlip()">✕ ปิด</button>
     </div>
   </div>
@@ -2775,6 +2776,18 @@ function doPrint(){
 
 function closeSlip(){
   document.getElementById('slip-ov').classList.remove('show');
+}
+
+function doPrintSlip(){
+  // inject style ปิด browser header/footer
+  var styleId='print-no-hf';
+  if(!document.getElementById(styleId)){
+    var s=document.createElement('style');
+    s.id=styleId;
+    s.innerHTML='@page{margin:8mm;size:A4;}@media print{head{display:none!important;}}';
+    document.head.appendChild(s);
+  }
+  window.print();
 }
 
 // ================================================================
