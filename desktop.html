@@ -225,13 +225,27 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .slip-top-btn{background:#1e293b;border:1px solid #334155;border-radius:8px;color:#94a3b8;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;padding:8px 16px;cursor:pointer;}
 .slip-top-btn.blue{background:linear-gradient(135deg,#1d4ed8,#1e40af);color:#fff;border:none;}
 .slip-top-btn.close{background:#1e293b;border-color:#475569;color:#94a3b8;}
-.slip-pages-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.slip-pages-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
 .slip-page-single{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);}
 .slip-page-sum{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);grid-column:1/-1;}
 .slip-page{background:#fff;overflow:hidden;}
-.slip-pages-grid{display:grid!important;grid-template-columns:1fr 1fr!important;}
-  .slip-page-sum{grid-column:1/-1!important;}
-  .slip-page-single,.slip-page-sum{box-shadow:none!important;border-radius:0!important;page-break-after:always;}
+@media print{
+  .slip-pages-grid{display:block!important;}
+  .slip-page-single,.slip-page-sum{
+    box-shadow:none!important;
+    border-radius:0!important;
+    page-break-after:always!important;
+    break-after:always!important;
+    display:block!important;
+    width:100%!important;
+    margin:0!important;
+  }
+  .slip-page-single:last-child,.slip-page-sum:last-child{
+    page-break-after:avoid!important;
+    break-after:avoid!important;
+  }
+  .slip-ov-bar{display:none!important;}
+  .slip-cust-bar{display:none!important;}
 }
 
 /* FLOATING KEYPAD */
@@ -2838,13 +2852,19 @@ function buildAllCustSlip(){
     if(!entries.length) return;
     var tot=calcCustTotal(c.id);
     grandTotal+=tot;
-    // header ชื่อลูกค้า
-    html+='<div style="background:var(--card2);border:1px solid var(--gold);border-radius:10px;padding:8px 14px;margin-bottom:6px;color:var(--gold);font-weight:900;font-size:15px;">👤 '+c.name+' — ฿'+fmtN(tot)+'</div>';
+    // customer divider bar — full width
+    html+='<div style="grid-column:1/-1;background:linear-gradient(135deg,#1a1d27,#0d0f18);border:1.5px solid var(--gold);border-radius:10px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">'
+      +'<span style="color:var(--gold);font-weight:900;font-size:16px;">👤 '+c.name+'</span>'
+      +'<span style="color:var(--gold);font-family:\'Bebas Neue\',sans-serif;font-size:20px;">฿'+fmtN(tot)+'</span>'
+      +'</div>';
     html+=buildSlipHTML(c.id)||'';
-    html+='<div style="height:18px;"></div>';
+    html+='<div style="grid-column:1/-1;height:6px;"></div>';
   });
   // grand total footer
-  html+='<div style="background:linear-gradient(135deg,#1a2040,#0d0f18);border:2px solid var(--gold);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;"><span style="color:#aab;font-size:14px;font-weight:700;">ยอดรวมทุกลูกค้า</span><span style="color:var(--gold);font-size:22px;font-weight:900;">฿'+fmtN(grandTotal)+'</span></div>';
+  html+='<div style="grid-column:1/-1;background:linear-gradient(135deg,#1a2040,#0d0f18);border:2px solid var(--gold);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">'
+    +'<span style="color:#aab;font-size:14px;font-weight:700;">ยอดรวมทุกลูกค้า</span>'
+    +'<span style="color:var(--gold);font-size:22px;font-weight:900;">฿'+fmtN(grandTotal)+'</span>'
+    +'</div>';
   return html;
 }
 
