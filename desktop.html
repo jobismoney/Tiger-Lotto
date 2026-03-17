@@ -2646,6 +2646,34 @@ function buildSlipHTML(cid){
     grandS.c3+=ps.c3;grandS.c2+=ps.c2;grandS.c1+=ps.c1;grandS.ct+=ps.ct;grandS.cl+=ps.cl;
   });
   allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
+
+  // บรรทัดหลังลด%
+  var r=settings.normal;
+  function getDisc(key){var f=r.find(function(x){return x.key===key;});return f?f.disc:0;}
+  var d3=getDisc('3bon'),d2=getDisc('2bon'),d1=getDisc('vbon'),dt=getDisc('tod'),dl=getDisc('3lang');
+  var netC={
+    c3:Math.round(grandS.c3*(1-d3/100)),
+    c2:Math.round(grandS.c2*(1-d2/100)),
+    c1:Math.round(grandS.c1*(1-d1/100)),
+    ct:Math.round(grandS.ct*(1-dt/100)),
+    cl:Math.round(grandS.cl*(1-dl/100))
+  };
+  var netTotal=netC.c3+netC.c2+netC.c1+netC.ct+netC.cl;
+  function discLbl(rate){return rate>0?' (-'+rate+'%)':'';}
+  function scv(v){return v>0?slipFmt(v):'-';}
+  allSumRows+='<tr><td class="sc sc-no">หลังลด%</td>'
+    +'<td class="sc"><small style="color:#888;display:block;">'+discLbl(d3)+'</small>'+scv(netC.c3)+'</td>'
+    +'<td class="sc"><small style="color:#888;display:block;">'+discLbl(d2)+'</small>'+scv(netC.c2)+'</td>'
+    +'<td class="sc"><small style="color:#888;display:block;">'+discLbl(d1)+'</small>'+scv(netC.c1)+'</td>'
+    +'<td class="sc"><small style="color:#888;display:block;">'+discLbl(dt)+'</small>'+scv(netC.ct)+'</td>'
+    +'<td class="sc"><small style="color:#888;display:block;">'+discLbl(dl)+'</small>'+scv(netC.cl)+'</td>'
+    +'<td class="sc" style="font-weight:900;color:#111;">'+slipFmt(netTotal)+'</td></tr>';
+
+  // บรรทัดถูกรางวัล
+  var prizePay=lastCheckResult&&lastCheckResult[cid]?lastCheckResult[cid]:0;
+  allSumRows+='<tr><td class="sc sc-no">ถูกรางวัล</td>'
+    +'<td class="sc" colspan="5"></td>'
+    +'<td class="sc" style="font-weight:900;color:#111;">'+(prizePay>0?slipFmt(prizePay):'-')+'</td></tr>';
   var cust=customers.find(function(c){return c.id===cid;})||{name:'—'};
   var sumHTML='<div class="slip-hd">'
     +'<div class="slip-hd-row1"><h2>📊 สรุปรวม — '+cust.name+'</h2><span class="pg">'+totalPages+' แผ่น</span></div>'
