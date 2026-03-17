@@ -230,49 +230,36 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .slip-page-single{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);}
 .slip-page-sum{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);grid-column:1/-1;}
 .slip-page{background:#fff;overflow:hidden;}
-@page{margin:6mm;size:A4 landscape;}
+@page{margin:5mm;}
 @media print{
-  body * {visibility:hidden;}
-  .slip-ov, .slip-ov *{visibility:visible;}
+  body > *:not(.slip-ov){display:none!important;}
   .slip-ov{
-    position:absolute!important;
-    top:0!important;left:0!important;
-    width:100%!important;
-    height:auto!important;
+    position:static!important;
     overflow:visible!important;
     background:white!important;
+    display:block!important;
   }
   .slip-ov-scroll{
     overflow:visible!important;
     height:auto!important;
   }
+  .slip-ov-bar{display:none!important;}
+  .slip-cust-bar{display:none!important;}
   .slip-pages-grid{
     display:grid!important;
     grid-template-columns:1fr 1fr!important;
     gap:4px!important;
-    align-items:start!important;
   }
   .slip-page-single{
     box-shadow:none!important;
     border-radius:0!important;
     break-inside:avoid!important;
-    page-break-inside:avoid!important;
-    display:inline-block!important;
-    width:100%!important;
   }
   .slip-page-sum{
     grid-column:1/-1!important;
     box-shadow:none!important;
     border-radius:0!important;
     break-inside:avoid!important;
-    page-break-inside:avoid!important;
-  }
-  .slip-ov-bar{display:none!important;}
-  .slip-cust-bar{display:none!important;}
-  /* customer divider bar */
-  .slip-pages-grid > div[style*="grid-column"]{
-    break-inside:avoid!important;
-    page-break-inside:avoid!important;
   }
 }
 
