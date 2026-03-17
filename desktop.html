@@ -234,17 +234,18 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 @media print{
   body > *:not(.slip-ov){display:none!important;}
   .slip-ov{
-    position:static!important;
+    position:fixed!important;
     overflow:visible!important;
     background:white!important;
-    display:block!important;
+    height:auto!important;
+    min-height:100%!important;
   }
   .slip-ov-scroll{
     overflow:visible!important;
     height:auto!important;
+    flex:none!important;
   }
   .slip-ov-bar{display:none!important;}
-  .slip-cust-bar{display:none!important;}
   .slip-pages-grid{
     display:grid!important;
     grid-template-columns:1fr 1fr!important;
