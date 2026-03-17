@@ -1691,6 +1691,15 @@ function renderKpFields(){
     var cls='field-block';
     if(!isAllowed) cls+=' disabled';
     if(npKlbOpen[k]) cls+=' klb-active';
+    // show-klb ต้องคำนวณใหม่ที่นี่ด้วย (ไม่งั้นถูกล้างทิ้ง)
+    var hasLekHere=npLek!==''||npLekQueue.length>0;
+    var activeLekHere=npLek||(npLekQueue.length>0?npLekQueue[0]:'');
+    var allSameHere=activeLekHere.length>0&&activeLekHere.split('').every(function(c){return c===activeLekHere[0];});
+    var dHere=npLekQueue.length>0?npLekQueue[0].length:npLek.length;
+    var showKlbHere=false;
+    if(k==='bon'||k==='lang') showKlbHere=(dHere===2||dHere===3)&&hasLekHere&&!allSameHere;
+    if(k==='na') showKlbHere=(dHere===3)&&hasLekHere&&!allSameHere;
+    if(showKlbHere) cls+=' show-klb';
     pf.className=cls;
 
     // field-main active highlight
