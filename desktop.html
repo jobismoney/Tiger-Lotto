@@ -1340,6 +1340,40 @@ function deleteSet(cid, idx){
   });
 }
 
+var _editSetCid=null, _editSetIdx=-1, _editSetSender='';
+function editSet(cid, idx){
+  var s=custSets[cid]&&custSets[cid][idx];
+  if(!s){toast('ไม่พบชุดนี้');return;}
+  // ถ้ามีรายการค้างอยู่ถามก่อน
+  var pending=(custEntries[cid]||[]).length;
+  if(pending>0){
+    showConfirm2(
+      '⚠️ มีรายการค้างอยู่ <b>'+pending+' รายการ</b><br>ต้องจัดการก่อนแก้ไขชุดครับ',
+      '📂 เก็บแฟ้มก่อน',
+      function(){ lockSet(); _doEditSet(cid,idx); },
+      '🗑️ ลบทิ้ง',
+      function(){ custEntries[cid]=[]; _doEditSet(cid,idx); }
+    );
+    return;
+  }
+  _doEditSet(cid,idx);
+}
+
+function _doEditSet(cid, idx){
+  var s=custSets[cid][idx];
+  // โหลด entries ออกจากแฟ้มเข้า custEntries
+  _editSetCid=cid; _editSetIdx=idx; _editSetSender=s.sender||"";
+  custEntries[cid]=s.entries.slice().reverse(); // reverse กลับเพราะ lockSet reverse ไว้
+  // ลบชุดนั้นออกชั่วคราว (จะ push กลับตอน confirmLockSet)
+  custSets[cid].splice(idx,1);
+  curCustId=cid;
+  save(); renderHist(); renderCustList(); updateSummary();
+  // switch ไปหน้าคีย์
+  var btn=document.querySelectorAll('.tab-nav-btn')[2];
+  if(btn) switchZone(3,btn);
+  toast('✏️ แก้ไขชุดที่ '+(idx+1)+' ได้เลยครับ กดเก็บแฟ้มเมื่อเสร็จ');
+}
+
 var SENDER_HIST_KEY='t999_sender_hist';
 function getSenderHist(){try{return JSON.parse(localStorage.getItem(SENDER_HIST_KEY)||'[]');}catch(e){return[];}}
 function saveSenderHist(list){try{localStorage.setItem(SENDER_HIST_KEY,JSON.stringify(list));}catch(e){}}
@@ -1357,7 +1391,6 @@ function lockSet(){
   var entries=custEntries[curCustId]||[];
   if(!entries.length){toast('ยังไม่มีรายการในชุดนี้ครับ');return;}
   if(!custSets[curCustId]) custSets[curCustId]=[];
-  // แสดง chips ชื่อที่เคยใช้
   var hist=getSenderHist();
   var chipsEl=document.getElementById('lockset-chips');
   if(hist.length){
@@ -1367,7 +1400,12 @@ function lockSet(){
   } else {
     chipsEl.innerHTML='';
   }
-  document.getElementById('inp-lockset-sender').value='';
+  // ถ้ากำลัง edit ใส่ sender เดิมล่วงหน้า
+  var prefill='';
+  if(_editSetCid===curCustId && _editSetIdx>=0 && custSets[curCustId]){
+    // ชุดเดิมถูก splice ออกแล้ว ดึงจาก _editSetSender
+  }
+  document.getElementById('inp-lockset-sender').value=_editSetSender||prefill;
   document.getElementById('modal-lockset').classList.add('show');
   setTimeout(function(){document.getElementById('inp-lockset-sender').focus();},100);
 }
@@ -1376,11 +1414,19 @@ function confirmLockSet(){
   var sender=document.getElementById('inp-lockset-sender').value.trim();
   document.getElementById('modal-lockset').classList.remove('show');
   var entries=custEntries[curCustId]||[];
-  custSets[curCustId].push({entries:entries.slice().reverse(), locked:false, time:Date.now(), sender:sender, pg:''});
+  var newSet={entries:entries.slice().reverse(), locked:false, time:Date.now(), sender:sender, pg:''};
+  // ถ้ากำลัง edit ชุดเดิม → insert กลับที่ตำแหน่งเดิม
+  if(_editSetCid===curCustId && _editSetIdx>=0){
+    custSets[curCustId].splice(_editSetIdx,0,newSet);
+    toast('แก้ไขชุดที่ '+(_editSetIdx+1)+' แล้ว ✅');
+    _editSetCid=null; _editSetIdx=-1;
+  } else {
+    custSets[curCustId].push(newSet);
+    toast('เก็บชุดที่ '+(custSets[curCustId].length)+' แล้ว ✅'+(sender?' ('+sender+')':''));
+  }
   custEntries[curCustId]=[];
   addSenderHist(sender);
   save(); renderHist(); renderCustList(); updateSummary();
-  toast('เก็บชุดที่ '+(custSets[curCustId].length)+' แล้ว ✅'+(sender?' ('+sender+')':''));
 }
 
 // ================================================================
@@ -2085,6 +2131,7 @@ function renderHist(){
       +'<span style="display:flex;align-items:center;gap:6px;">'
       +'<span>฿'+setTotal.toLocaleString()+'</span>'
       +'<button class="set-act-btn" onclick="event.stopPropagation();showSlipSet(\''+curCustId+'\','+realIdx+')">📋</button>'
+      +'<button class="set-act-btn" onclick="event.stopPropagation();editSet(\''+curCustId+'\','+realIdx+')" title="แก้ไขชุด">✏️</button>'
       +'<button class="set-act-btn del" onclick="event.stopPropagation();deleteSet(\''+curCustId+'\','+realIdx+')">🗑️</button>'
       +'</span></div>';
     if(isOpen){
@@ -3445,7 +3492,7 @@ function renderAnalyze(view){
   var SH='font-size:11px;font-weight:800;color:#666;padding:4px 6px;text-align:right;';
 
   function topTable(filtered, title, emoji, netByType){
-    var sorted=filtered.sort(function(a,b){return b.total-a.total;}).slice(0,25);
+    var sorted=filtered.slice(0,25);
     if(!sorted.length) return '<div style="color:#555;font-size:12px;padding:8px;">ไม่มีข้อมูล</div>';
     var h='<div style="font-size:13px;font-weight:900;color:var(--gold);margin:10px 0 4px;">'+emoji+' '+title+'</div>';
     h+='<div style="font-size:11px;color:#555;margin-bottom:6px;">ยอดสุทธิประเภทนี้ <span style="color:var(--gold);font-weight:900;">'+fmtN(netByType)+'</span> · กำไร = ยอดสุทธิ − ถ้าถูกจ่าย</div>';
@@ -3540,12 +3587,24 @@ function renderAnalyze(view){
       {key:'tod',  label:'โต๊ด',    emoji:'🎲', net:netTod,   filter:function(x){return x.tod>0;}},
       {key:'pak',  label:'ปักหลัก', emoji:'📌', net:netPak,   filter:function(x){return x.paks>0;}},
     ];
+    // คำนวณ "รับมา" เฉพาะประเภทนั้น
+    function totalByType(x, key){
+      if(key==='3bon')  return (x.bon||0)+(x.na||0)+(x.kd_bon||0)+(x.kd_na||0);
+      if(key==='3lang') return (x.lang||0)+(x.kd_lang||0);
+      if(key==='2bon')  return (x.bon||0)+(x.kd_bon||0);
+      if(key==='2lang') return (x.lang||0)+(x.kd_lang||0);
+      if(key==='tod')   return (x.tod||0);
+      if(key==='pak')   return (x.paks||0);
+      return 0;
+    }
+
     var folder=folders2.find(function(f){return f.key===view;})||folders2[0];
     var filtered=leks.filter(folder.filter).map(function(x){
-      return {lek:x.lek,d:x.d,total:x.total,exp:expByType(x,folder.key),
-        bon:x.bon,lang:x.lang,na:x.na,tod:x.tod,paks:x.paks,
-        kd_bon:x.kd_bon,kd_lang:x.kd_lang,kd_na:x.kd_na};
-    });
+      var t=totalByType(x,folder.key);
+      var e=expByType(x,folder.key);
+      return {lek:x.lek,d:x.d,total:t,exp:e};
+    }).filter(function(x){return x.total>0;})
+      .sort(function(a,b){return b.total-a.total;});
     var html='<button onclick="renderAnalyze()" style="background:none;border:none;color:var(--gold);font-family:\'Sarabun\',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:0;margin-bottom:10px;">◀ กลับ</button>';
     html+=topTable(filtered, folder.label, folder.emoji, folder.net);
     el.innerHTML=html;
