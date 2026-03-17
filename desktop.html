@@ -2413,6 +2413,12 @@ function toLines(e){
   } else {
     if(t>0) push(lek,'ต'+slipFmt(t),t);
   }
+  // ปักหลัก
+  var tl={'3bon':'3ตัวบน','2bon':'2ตัวบน','2lang':'2ตัวล่าง'};
+  var pl={'na':'หน้า','mid':'กลาง','lang':'หลัง'};
+  (e.paks||[]).forEach(function(p){
+    push(lek, '📌'+pl[p.pos]+' '+(tl[p.type]||p.type)+' '+slipFmt(p.price), p.price);
+  });
   return lines;
 }
 
