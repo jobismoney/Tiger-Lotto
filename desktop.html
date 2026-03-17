@@ -3444,14 +3444,15 @@ function renderAnalyze(view){
   var SS='font-size:12px;padding:4px 6px;';
   var SH='font-size:11px;font-weight:800;color:#666;padding:4px 6px;text-align:right;';
 
-  function topTable(filtered, title, emoji){
+  function topTable(filtered, title, emoji, netByType){
     var sorted=filtered.sort(function(a,b){return b.total-a.total;}).slice(0,10);
     if(!sorted.length) return '<div style="color:#555;font-size:12px;padding:8px;">ไม่มีข้อมูล</div>';
-    var h='<div style="font-size:13px;font-weight:900;color:var(--gold);margin:10px 0 6px;">'+emoji+' '+title+'</div>';
+    var h='<div style="font-size:13px;font-weight:900;color:var(--gold);margin:10px 0 4px;">'+emoji+' '+title+'</div>';
+    h+='<div style="font-size:11px;color:#555;margin-bottom:6px;">ยอดสุทธิประเภทนี้ <span style="color:var(--gold);font-weight:900;">฿'+fmtN(netByType)+'</span> · กำไร = ยอดสุทธิ − ถ้าถูกจ่าย</div>';
     h+='<table style="width:100%;border-collapse:collapse;font-size:12px;">';
-    h+='<tr><td style="'+SH+';text-align:left;">#</td><td style="'+SH+';text-align:left;">เลข</td><td style="'+SH+'">รับมา</td><td style="'+SH+'">ถ้าถูกจ่าย</td><td style="'+SH+'">กำไรสุทธิ</td></tr>';
+    h+='<tr><td style="'+SH+';text-align:left;">#</td><td style="'+SH+';text-align:left;">เลข</td><td style="'+SH+'">รับมา</td><td style="'+SH+'">ถ้าถูกจ่าย</td><td style="'+SH+'">กำไร</td></tr>';
     sorted.forEach(function(x,i){
-      var profit=netIncome-x.exp;
+      var profit=netByType-x.exp;
       var profitColor=profit>=0?'#22c55e':'#f87171';
       var profitSign=profit>=0?'+':'';
       h+='<tr style="border-top:1px solid #1a2040;">'
@@ -3501,19 +3502,52 @@ function renderAnalyze(view){
     el.innerHTML=html;
   } else {
     // หน้า detail
+    // คำนวณยอดสุทธิแยกตามประเภท (หลังหัก%)
+    var net3bon  = Math.round(sumC.c3*(1-getRate('3bon')/100));
+    var net3lang = Math.round(sumC.cl*(1-getRate('3lang')/100));
+    // 2ตัวบนและ2ตัวล่างต้องแยกยอด — sumC.c2 รวมทั้งคู่ จึงต้องนับใหม่
+    var gross2bon=0, gross2lang=0;
+    allE.forEach(function(e){
+      if(e.d!==2) return;
+      gross2bon+=(e.bon||0); var kd=e.kd||{}; (kd.bon||[]).forEach(function(x){gross2bon+=x.price;});
+      gross2lang+=(e.lang||0); (kd.lang||[]).forEach(function(x){gross2lang+=x.price;});
+    });
+    var net2bon  = Math.round(gross2bon*(1-getRate('2bon')/100));
+    var net2lang = Math.round(gross2lang*(1-getRate('2lang')/100));
+    var netTod   = Math.round(sumC.ct*(1-getRate('tod')/100));
+    var netPak   = Math.round(sumC.c1*(1-getRate('pak-3bon')/100));
+
+    // exposure แยกตาม folder key
+    function expByType(x, key){
+      var cfg3=getCfg('3bon'),cfg3na=getCfg('3na'),cfg3l=getCfg('3lang');
+      var cfg2b=getCfg('2bon'),cfg2l=getCfg('2lang'),cfgtod=getCfg('tod');
+      var cfgp3=getCfg('pak-3bon'),cfgp2=getCfg('pak-2lang');
+      var kd=x._kd||{}; // ใช้ raw จาก byLek
+      if(key==='3bon')  return (x.bon||0)*(cfg3?cfg3.pay:500)+(x.na||0)*(cfg3na?cfg3na.pay:450)+(x.kd_bon||0)*(cfg3?cfg3.pay:500)+(x.kd_na||0)*(cfg3na?cfg3na.pay:450);
+      if(key==='3lang') return (x.lang||0)*(cfg3l?cfg3l.pay:450)+(x.kd_lang||0)*(cfg3l?cfg3l.pay:450);
+      if(key==='2bon')  return (x.bon||0)*(cfg2b?cfg2b.pay:70)+(x.kd_bon||0)*(cfg2b?cfg2b.pay:70);
+      if(key==='2lang') return (x.lang||0)*(cfg2l?cfg2l.pay:70)+(x.kd_lang||0)*(cfg2l?cfg2l.pay:70);
+      if(key==='tod')   return (x.tod||0)*(cfgtod?cfgtod.pay:120);
+      if(key==='pak')   return (x.paks||0)*(cfgp3?cfgp3.pay:350);
+      return 0;
+    }
+
     var folders2=[
-      {key:'3bon',label:'3ตัวบน',emoji:'🎯',filter:function(x){return x.d===3&&(x.bon>0||x.kd_bon>0||x.na>0||x.kd_na>0);}},
-      {key:'3lang',label:'3ตัวล่าง',emoji:'🎯',filter:function(x){return x.d===3&&(x.lang>0||x.kd_lang>0);}},
-      {key:'2bon',label:'2ตัวบน',emoji:'🎯',filter:function(x){return x.d===2&&(x.bon>0||x.kd_bon>0);}},
-      {key:'2lang',label:'2ตัวล่าง',emoji:'🎯',filter:function(x){return x.d===2&&(x.lang>0||x.kd_lang>0);}},
-      {key:'tod',label:'โต๊ด',emoji:'🎲',filter:function(x){return x.tod>0;}},
-      {key:'pak',label:'ปักหลัก',emoji:'📌',filter:function(x){return x.paks>0;}},
+      {key:'3bon', label:'3ตัวบน',  emoji:'🎯', net:net3bon,  filter:function(x){return x.d===3&&(x.bon>0||x.kd_bon>0||x.na>0||x.kd_na>0);}},
+      {key:'3lang',label:'3ตัวล่าง',emoji:'🎯', net:net3lang, filter:function(x){return x.d===3&&(x.lang>0||x.kd_lang>0);}},
+      {key:'2bon', label:'2ตัวบน',  emoji:'🎯', net:net2bon,  filter:function(x){return x.d===2&&(x.bon>0||x.kd_bon>0);}},
+      {key:'2lang',label:'2ตัวล่าง',emoji:'🎯', net:net2lang, filter:function(x){return x.d===2&&(x.lang>0||x.kd_lang>0);}},
+      {key:'tod',  label:'โต๊ด',    emoji:'🎲', net:netTod,   filter:function(x){return x.tod>0;}},
+      {key:'pak',  label:'ปักหลัก', emoji:'📌', net:netPak,   filter:function(x){return x.paks>0;}},
     ];
     var folder=folders2.find(function(f){return f.key===view;})||folders2[0];
-    var filtered=leks.filter(folder.filter);
+    var filtered=leks.filter(folder.filter).map(function(x){
+      return {lek:x.lek,d:x.d,total:x.total,exp:expByType(x,folder.key),
+        bon:x.bon,lang:x.lang,na:x.na,tod:x.tod,paks:x.paks,
+        kd_bon:x.kd_bon,kd_lang:x.kd_lang,kd_na:x.kd_na};
+    });
     var html='<button onclick="renderAnalyze()" style="background:none;border:none;color:var(--gold);font-family:\'Sarabun\',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:0;margin-bottom:10px;">◀ กลับ</button>';
-    html+='<div style="font-size:11px;color:#555;margin-bottom:8px;">ยอดสุทธิงวดนี้ <span style="color:var(--gold);font-weight:900;">฿'+fmtN(netIncome)+'</span> · ถ้าเลขนี้ถูก กำไรจะเหลือเท่าไหร่</div>';
-    html+=topTable(filtered, folder.label, folder.emoji);
+    html+=topTable(filtered, folder.label, folder.emoji, folder.net);
     el.innerHTML=html;
   }
 }
