@@ -2639,106 +2639,73 @@ function buildSlipHTML(cid){
 
   var inf=ngodInfo||{ngod:'—',sender:'—',receiver:'—',date:'—'};
   var cust=customers.find(function(c){return c.id===cid;})||{name:'—'};
-
-  // สร้าง flatItems: divider + entries + setsum ต่อท้ายแต่ละชุด
-  var flatItems=[];
-  allItems.forEach(function(g){
-    flatItems.push({type:'divider',label:g.label,sender:g.sender||''});
-    g.entries.forEach(function(e){ flatItems.push({type:'entry',e:e}); });
-    flatItems.push({type:'setsum',entries:g.entries});
-  });
-
-  // แบ่งหน้าตาม MAX_ROWS
-  var pages=[],curPage=[],rc=0;
-  flatItems.forEach(function(item){
-    if(item.type==='divider'||item.type==='setsum'){
-      curPage.push(item);
-    } else {
-      var lc=toLines(item.e).length||1;
-      if(rc>0&&rc+lc>MAX_ROWS){pages.push(curPage);curPage=[];rc=0;}
-      curPage.push(item);rc+=lc;
-    }
-  });
-  if(curPage.length) pages.push(curPage);
-
-  var totalPages=pages.length;
   var grandTotal=calcCustTotal(cid);
   var grandS={c3:0,c2:0,c1:0,ct:0,cl:0};
-  var allSumRows='',allHTML='';
 
-  pages.forEach(function(items,pi){
-    var bodyRows='';
-    items.forEach(function(item,idx){
-      if(item.type==='divider'){
-        // เส้นบางๆ + ข้อความชุด ไม่มีแถบสีดำ
-        bodyRows+='<tr><td colspan="5" style="padding:6px 4px 3px;font-size:12px;font-weight:900;color:#888;border-top:1.5px dashed #bbb;">— '+item.label+' —</td></tr>';
-      } else if(item.type==='setsum'){
-        var ss=pageSumTotals(item.entries);
-        var st=item.entries.reduce(function(s,e){return s+toLines(e).reduce(function(ss2,l){return ss2+l.total;},0);},0);
-        function cv(v){return v>0?fmtN(v):'-';}
-        var cs='font-size:10px;font-weight:800;padding:2px 2px;text-align:center;';
-        // บรรทัด header
-        bodyRows+='<tr style="background:#eee;border-top:1.5px solid #999;">'
-          +'<td style="'+cs+'color:#666;">ยอด</td>'
-          +'<td style="'+cs+'color:#555;">3ตัว</td>'
-          +'<td style="'+cs+'color:#555;">2ตัว</td>'
-          +'<td style="'+cs+'color:#555;">1ตัว</td>'
-          +'<td style="'+cs+'color:#555;">โต๊ด</td>'
-          +'<td style="'+cs+'color:#555;">3ล่าง</td>'
-          +'<td style="'+cs+'color:#111;font-weight:900;">รวม</td>'
+  // header ที่จะ repeat ทุกหน้า (ใช้ CSS print thead)
+  var hdrHTML='<div class="slip-hd">'
+    +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2></div>'
+    +'<div class="slip-hd-row2">'
+    +'<span>งวด <strong>'+inf.ngod+'</strong></span>'
+    +'<span>ลูกค้า <strong>'+cust.name+'</strong></span>'
+    +'<span>วันที่ <strong>'+(inf.date||'—')+'</strong></span>'
+    +'</div>'
+    +'</div>';
+
+  // แต่ละชุดเป็น block แยก break-inside:avoid
+  var setsHTML='';
+  allItems.forEach(function(g,gi){
+    var ss=pageSumTotals(g.entries);
+    var st=g.entries.reduce(function(s,e){return s+toLines(e).reduce(function(ss2,l){return ss2+l.total;},0);},0);
+    grandS.c3+=ss.c3;grandS.c2+=ss.c2;grandS.c1+=ss.c1;grandS.ct+=ss.ct;grandS.cl+=ss.cl;
+
+    var rows='';
+    // divider
+    rows+='<tr><td colspan="5" style="padding:6px 4px 3px;font-size:12px;font-weight:900;color:#888;border-top:1.5px dashed #bbb;">— '+g.label+' —</td></tr>';
+    // entries
+    g.entries.forEach(function(e){
+      var ls=toLines(e);if(!ls.length)return;
+      ls.forEach(function(line){
+        rows+='<tr>'
+          +'<td class="td-lek">'+line.lek+'</td>'
+          +'<td class="td-eq">=</td>'
+          +'<td class="td-price">'+line.price+'</td>'
+          +'<td class="td-brace-empty"></td>'
+          +'<td class="td-total">'+fmtN(line.total)+'</td>'
           +'</tr>';
-        // บรรทัดตัวเลข
-        bodyRows+='<tr style="background:#f9f9f9;border-bottom:2px solid #888;">'
-          +'<td style="'+cs+'color:#888;"></td>'
-          +'<td style="'+cs+'color:#111;">'+cv(ss.c3)+'</td>'
-          +'<td style="'+cs+'color:#111;">'+cv(ss.c2)+'</td>'
-          +'<td style="'+cs+'color:#111;">'+cv(ss.c1)+'</td>'
-          +'<td style="'+cs+'color:#111;">'+cv(ss.ct)+'</td>'
-          +'<td style="'+cs+'color:#111;">'+cv(ss.cl)+'</td>'
-          +'<td style="'+cs+'color:#111;font-weight:900;">'+fmtN(st)+'</td>'
-          +'</tr>';
-        grandS.c3+=ss.c3;grandS.c2+=ss.c2;grandS.c1+=ss.c1;grandS.ct+=ss.ct;grandS.cl+=ss.cl;
-      } else {
-        var ls=toLines(item.e);if(!ls.length)return;
-        ls.forEach(function(line){
-          bodyRows+='<tr>'
-            +'<td class="td-lek">'+line.lek+'</td>'
-            +'<td class="td-eq">=</td>'
-            +'<td class="td-price">'+line.price+'</td>'
-            +'<td class="td-brace-empty"></td>'
-            +'<td class="td-total">'+fmtN(line.total)+'</td>'
-            +'</tr>';
-        });
-        var nextItem=items[idx+1];
-        if(nextItem&&nextItem.type==='entry'){
-          bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
-        }
-      }
+      });
     });
+    // setsum 2 rows
+    function cv(v){return v>0?fmtN(v):'-';}
+    var cs='font-size:10px;font-weight:800;padding:2px 2px;text-align:center;';
+    rows+='<tr style="background:#eee;border-top:1.5px solid #999;">'
+      +'<td style="'+cs+'color:#666;">ยอด</td>'
+      +'<td style="'+cs+'color:#555;">3ตัว</td>'
+      +'<td style="'+cs+'color:#555;">2ตัว</td>'
+      +'<td style="'+cs+'color:#555;">1ตัว</td>'
+      +'<td style="'+cs+'color:#555;">โต๊ด</td>'
+      +'<td style="'+cs+'color:#555;">3ล่าง</td>'
+      +'<td style="'+cs+'color:#111;font-weight:900;">รวม</td>'
+      +'</tr>';
+    rows+='<tr style="background:#f9f9f9;border-bottom:2px solid #888;">'
+      +'<td style="'+cs+'color:#888;"></td>'
+      +'<td style="'+cs+'color:#111;">'+cv(ss.c3)+'</td>'
+      +'<td style="'+cs+'color:#111;">'+cv(ss.c2)+'</td>'
+      +'<td style="'+cs+'color:#111;">'+cv(ss.c1)+'</td>'
+      +'<td style="'+cs+'color:#111;">'+cv(ss.ct)+'</td>'
+      +'<td style="'+cs+'color:#111;">'+cv(ss.cl)+'</td>'
+      +'<td style="'+cs+'color:#111;font-weight:900;">'+fmtN(st)+'</td>'
+      +'</tr>';
 
-    // หาชุดแรกในหน้านี้
-    var firstDivider=items.find(function(x){return x.type==='divider';});
-    var pageSender=firstDivider?firstDivider.sender:'';
-    var pageSetLabel=firstDivider?firstDivider.label:'';
-
-    allHTML+='<div class="slip-page-single"><div class="slip-page">'
-      +'<div class="slip-hd">'
-      +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+(pi+1)+'/'+totalPages+'</span></div>'
-      +'<div class="slip-hd-row2">'
-      +'<span>งวด <strong>'+inf.ngod+'</strong></span>'
-      +'<span>ลูกค้า <strong>'+cust.name+'</strong></span>'
-      +(pageSender?'<span>ผู้ส่ง <strong>'+pageSender+'</strong></span>':'')
-      +'<span>วันที่ <strong>'+(inf.date||'—')+'</strong></span>'
-      +'</div>'
-      +'</div>'
+    setsHTML+='<div style="break-inside:avoid;page-break-inside:avoid;">'
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup>'
       +'<col style="width:52px"><col style="width:10px"><col style="width:110px">'
-      +'<col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
-      +LEGEND
-      +'</div></div>';
+      +'<col style="width:12px"><col style="width:auto"></colgroup>'
+      +'<tbody>'+rows+'</tbody></table>'
+      +'</div>';
   });
 
-  // คำนวณส่วนลดรวม
+  // summary
   var r=settings.normal;
   function getRate(key){var f=r.find(function(x){return x.key===key;});return f?f.disc:0;}
   var discS={
@@ -2749,10 +2716,7 @@ function buildSlipHTML(cid){
     cl:Math.round(grandS.cl*getRate('3lang')/100)
   };
   var totalDisc=discS.c3+discS.c2+discS.c1+discS.ct+discS.cl;
-  var netS={
-    c3:grandS.c3-discS.c3, c2:grandS.c2-discS.c2, c1:grandS.c1-discS.c1,
-    ct:grandS.ct-discS.ct, cl:grandS.cl-discS.cl
-  };
+  var netS={c3:grandS.c3-discS.c3,c2:grandS.c2-discS.c2,c1:grandS.c1-discS.c1,ct:grandS.ct-discS.ct,cl:grandS.cl-discS.cl};
   var netTotal=grandTotal-totalDisc;
   var prizePay=lastCheckResult&&lastCheckResult[cid]?lastCheckResult[cid]:0;
 
@@ -2772,32 +2736,46 @@ function buildSlipHTML(cid){
       +'</tr>';
   }
 
-  // สร้าง per-set summary rows
   var setRows='';
   allItems.forEach(function(g,i){
     var gs=pageSumTotals(g.entries);
     var gt=g.entries.reduce(function(s,e){return s+toLines(e).reduce(function(ss,l){return ss+l.total;},0);},0);
     setRows+=buildSumRow(gs,'ชุด'+(i+1),gt,false);
   });
-
-  allSumRows = setRows + buildSumRow(grandS,'รวม',grandTotal,true);
-  allSumRows += buildDiscRow(netS,netTotal);
-  allSumRows += '<tr><td class="sc sc-no" style="font-size:11px;font-weight:800;">ถูกรางวัล</td>'
+  var allSumRows=setRows+buildSumRow(grandS,'รวม',grandTotal,true);
+  allSumRows+=buildDiscRow(netS,netTotal);
+  allSumRows+='<tr><td class="sc sc-no" style="font-size:11px;font-weight:800;">ถูกรางวัล</td>'
     +'<td class="sc" colspan="5"></td>'
     +'<td class="sc" style="font-weight:900;font-size:12px;">'+(prizePay>0?fmtN(prizePay):'-')+'</td></tr>';
 
   var sumHTML='<div class="slip-hd">'
-    +'<div class="slip-hd-row1"><h2>📊 สรุปรวม — '+cust.name+'</h2><span class="pg">'+totalPages+' แผ่น</span></div>'
+    +'<div class="slip-hd-row1"><h2>📊 สรุปรวม — '+cust.name+'</h2><span class="pg">'+allItems.length+' ชุด</span></div>'
     +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span>'
     +'<span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span>'
     +'<span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
     +'</div>'
     +sumTableHTML(allSumRows)
     +'<div class="slip-ft"><span class="fl">ยอดรวมทั้งหมด</span><span class="fv">฿'+fmtN(grandTotal)+'</span></div>';
-  allHTML+='<div class="slip-page-sum"><div class="slip-page">'+sumHTML+'</div></div>';
-  return allHTML;
-}
 
+  // wrap ทั้งหมดใน slip-page-single เดียว มี thead repeat
+  var fullHTML='<div class="slip-page-single"><div class="slip-page">';
+  // ใช้ table with thead สำหรับ header repeat
+  fullHTML+='<table style="width:100%;border-collapse:collapse;">'
+    +'<thead><tr><td style="padding:0;">'
+    +hdrHTML
+    +'</td></tr></thead>'
+    +'<tbody><tr><td style="padding:0;">'
+    +setsHTML
+    +'</td></tr></tbody>'
+    +'</table>';
+  fullHTML+=LEGEND;
+  fullHTML+='</div></div>';
+
+  // summary แยก block
+  fullHTML+='<div class="slip-page-sum"><div class="slip-page">'+sumHTML+'</div></div>';
+
+  return fullHTML;
+}
 function doPrint(){
   var cid=curCustId;
   if(!cid){toast('เลือกลูกค้าก่อนครับ');return;}
