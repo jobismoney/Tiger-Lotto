@@ -2657,36 +2657,48 @@ function buildSlipHTML(cid){
   function makeSetBlock(g){
     var ss=pageSumTotals(g.entries);
     var st=g.entries.reduce(function(s,e){return s+toLines(e).reduce(function(ss2,l){return ss2+l.total;},0);},0);
-    var rows='<tr><td colspan="7" style="padding:5px 4px 2px;font-size:12px;font-weight:900;color:#666;border-top:1.5px dashed #bbb;">— '+g.label+' —</td></tr>';
+    var rows='<tr><td colspan="4" style="padding:5px 4px 2px;font-size:12px;font-weight:900;color:#666;border-top:1.5px dashed #bbb;">— '+g.label+' —</td></tr>';
     g.entries.forEach(function(e){
       var ls=toLines(e);if(!ls.length)return;
       ls.forEach(function(line){
-        rows+='<tr><td class="td-lek">'+line.lek+'</td><td class="td-eq">=</td>'
-          +'<td class="td-price" colspan="3">'+line.price+'</td>'
-          +'<td class="td-brace-empty"></td>'
-          +'<td class="td-total">'+fmtN(line.total)+'</td></tr>';
+        rows+='<tr>'
+          +'<td class="td-lek">'+line.lek+'</td>'
+          +'<td class="td-eq">=</td>'
+          +'<td class="td-price">'+line.price+'</td>'
+          +'<td class="td-total">'+fmtN(line.total)+'</td>'
+          +'</tr>';
       });
     });
     function cv(v){return v>0?fmtN(v):'-';}
-    var cs='font-size:10px;font-weight:800;padding:2px;text-align:center;';
-    rows+='<tr style="background:#eee;border-top:1.5px solid #999;">'
-      +'<td style="'+cs+'">ยอด</td><td style="'+cs+'">3ตัว</td><td style="'+cs+'">2ตัว</td>'
-      +'<td style="'+cs+'">1ตัว</td><td style="'+cs+'">โต๊ด</td><td style="'+cs+'">3ล่าง</td>'
-      +'<td style="'+cs+'font-weight:900;">รวม</td></tr>';
-    rows+='<tr style="background:#f5f5f5;border-bottom:2px solid #999;">'
-      +'<td style="'+cs+'"></td>'
-      +'<td style="'+cs+'">'+cv(ss.c3)+'</td><td style="'+cs+'">'+cv(ss.c2)+'</td>'
-      +'<td style="'+cs+'">'+cv(ss.c1)+'</td><td style="'+cs+'">'+cv(ss.ct)+'</td>'
+    var cs='font-size:10px;font-weight:800;padding:2px 3px;text-align:center;border:1px solid #ddd;';
+    var sumBlock='<table style="width:100%;border-collapse:collapse;border-top:1.5px solid #999;">'
+      +'<tr style="background:#eee;">'
+      +'<td style="'+cs+'width:16%">ยอด</td>'
+      +'<td style="'+cs+'width:14%">3ตัว</td>'
+      +'<td style="'+cs+'width:14%">2ตัว</td>'
+      +'<td style="'+cs+'width:14%">1ตัว</td>'
+      +'<td style="'+cs+'width:14%">โต๊ด</td>'
+      +'<td style="'+cs+'width:14%">3ล่าง</td>'
+      +'<td style="'+cs+'width:14%;font-weight:900;">รวม</td>'
+      +'</tr>'
+      +'<tr style="background:#f5f5f5;border-bottom:2px solid #999;">'
+      +'<td style="'+cs+'color:#888;"></td>'
+      +'<td style="'+cs+'">'+cv(ss.c3)+'</td>'
+      +'<td style="'+cs+'">'+cv(ss.c2)+'</td>'
+      +'<td style="'+cs+'">'+cv(ss.c1)+'</td>'
+      +'<td style="'+cs+'">'+cv(ss.ct)+'</td>'
       +'<td style="'+cs+'">'+cv(ss.cl)+'</td>'
-      +'<td style="'+cs+'font-weight:900;">'+fmtN(st)+'</td></tr>';
+      +'<td style="'+cs+'font-weight:900;">'+fmtN(st)+'</td>'
+      +'</tr>'
+      +'</table>';
     grandS.c3+=ss.c3;grandS.c2+=ss.c2;grandS.c1+=ss.c1;grandS.ct+=ss.ct;grandS.cl+=ss.cl;
     return '<div style="break-inside:avoid;page-break-inside:avoid;">'
-      +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup>'
-      +'<col style="width:52px"><col style="width:10px"><col style="width:110px">'
-      +'<col style="width:12px"><col style="width:50px"><col style="width:50px"><col style="width:50px"></colgroup>'
-      +'<tbody>'+rows+'</tbody></table></div>';
+      +'<table class="ptbl" style="width:auto;border-collapse:collapse;"><colgroup>'
+      +'<col style="width:50px"><col style="width:10px"><col style="width:auto"><col style="width:60px">'
+      +'</colgroup><tbody>'+rows+'</tbody></table>'
+      +sumBlock
+      +'</div>';
   }
-
   // จัดกลุ่มชุดเป็นหน้าๆ (ประมาณ MAX_ROWS ต่อหน้า) โดยไม่ตัดกลางชุด
   var MAX_PER_PAGE=22;
   var pages=[], curPageItems=[], curCount=0;
