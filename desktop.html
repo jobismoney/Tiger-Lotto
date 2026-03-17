@@ -980,6 +980,7 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
     }
     if(!cid){ toast('กรุณาเลือกลูกค้าครับ'); return; }
     document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
+    closeScanPopup();
     doImportMulti(dataList,totalEntries,cid);
   };
   document.getElementById('imp-banner-cancel').onclick = function(){
@@ -1019,6 +1020,7 @@ function showImportBanner(data, fp, log, dupMsg){
     }
     if(!cid){ toast('กรุณาเลือกลูกค้าครับ'); return; }
     document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
+    closeScanPopup();
     doImport(data, fp, log, cid);
   };
   document.getElementById('imp-banner-cancel').onclick = function(){
