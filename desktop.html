@@ -2623,178 +2623,32 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
 
 function fmtN(n){return parseInt(n||0).toLocaleString();}
 function buildSlipHTML(cid){
-  var sets=custSets[cid]||[];
-  var curEntries=custEntries[cid]||[];
-  var allItems=[];
-  sets.forEach(function(s,i){
-    if(s.entries&&s.entries.length){
-      var lbl='ชุดที่ '+(i+1);
-      if(s.sender) lbl+=' — '+s.sender;
-      if(s.pg) lbl+=' (แผ่น '+s.pg+')';
-      allItems.push({label:lbl,entries:s.entries,sender:s.sender||''});
-    }
-  });
-  if(curEntries.length) allItems.push({label:'ชุดที่ '+(sets.length+1)+' — กำลังคีย์',entries:curEntries,sender:''});
-  if(!allItems.length) return null;
-
+  var all=getAllEntries(cid);
+  if(!all.length) return null;
   var inf=ngodInfo||{ngod:'—',sender:'—',receiver:'—',date:'—'};
-  var cust=customers.find(function(c){return c.id===cid;})||{name:'—'};
-
-  // สร้าง flatItems พร้อม divider + entries + setsum
-  var flatItems=[];
-  allItems.forEach(function(g){
-    flatItems.push({type:'divider',label:g.label,sender:g.sender||''});
-    g.entries.forEach(function(e){ flatItems.push({type:'entry',e:e}); });
-    flatItems.push({type:'setsum',entries:g.entries});
+  var sorted=all.slice().sort(function(a,b){return a.id-b.id;});
+  var pages=[],pEn=[],rc=0;
+  sorted.forEach(function(e){
+    var lc=toLines(e).length||1;
+    if(rc>0&&rc+lc>MAX_ROWS){pages.push(pEn);pEn=[];rc=0;}
+    pEn.push(e);rc+=lc;
   });
-
-  // แบ่งหน้าตาม MAX_ROWS โดยไม่ตัดกลางชุด
-  var pages=[],curPage=[],rc=0;
-  var i=0;
-  while(i<flatItems.length){
-    var item=flatItems[i];
-    if(item.type==='divider'){
-      // นับ rows ของชุดนี้ทั้งหมด
-      var j=i+1, chunkRows=0;
-      while(j<flatItems.length && flatItems[j].type!=='divider'){
-        if(flatItems[j].type==='entry') chunkRows+=toLines(flatItems[j].e).length||1;
-        else chunkRows+=2; // setsum = 2 rows
-        j++;
-      }
-      // ถ้าชุดนี้จะล้นหน้า และหน้าปัจจุบันไม่ว่าง → เริ่มหน้าใหม่
-      if(rc>0 && rc+chunkRows+1>MAX_ROWS){
-        pages.push(curPage); curPage=[]; rc=0;
-      }
-      curPage.push(item); rc+=1;
-    } else if(item.type==='entry'){
-      var lc=toLines(item.e).length||1;
-      curPage.push(item); rc+=lc;
-    } else { // setsum
-      curPage.push(item); rc+=2;
-    }
-    i++;
-  }
-  if(curPage.length) pages.push(curPage);
-
+  if(pEn.length)pages.push(pEn);
   var totalPages=pages.length;
   var grandTotal=calcCustTotal(cid);
-  var grandS={c3:0,c2:0,c1:0,ct:0,cl:0};
   var allSumRows='',allHTML='';
-
-  pages.forEach(function(items,pi){
-    // หา sender จาก divider แรกในหน้านี้
-    var firstDiv=items.find(function(x){return x.type==='divider';});
-    var pageSender=firstDiv?firstDiv.sender:'';
-    // สร้าง body ผ่าน makePageHTML โดย pass entries + dividers
-    var pgEntries=items.filter(function(x){return x.type==='entry';}).map(function(x){return x.e;});
-
-    // สร้าง bodyRows เอง เพื่อรองรับ divider + setsum
-    var bodyRows='';
-    items.forEach(function(item,idx){
-      if(item.type==='divider'){
-        bodyRows+='<tr><td colspan="5" style="padding:6px 4px 3px;font-size:12px;font-weight:900;color:#888;border-top:1.5px dashed #bbb;">— '+item.label+' —</td></tr>';
-      } else if(item.type==='setsum'){
-        var ss=pageSumTotals(item.entries);
-        var st=item.entries.reduce(function(s,e){return s+toLines(e).reduce(function(ss2,l){return ss2+l.total;},0);},0);
-        function cv(v){return v>0?fmtN(v):'-';}
-        var cs='font-size:10px;font-weight:800;padding:2px;text-align:center;';
-        bodyRows+='<tr style="background:#eee;border-top:1.5px solid #999;">'
-          +'<td style="'+cs+'">ยอด</td>'
-          +'<td style="'+cs+'">3ตัว</td>'
-          +'<td style="'+cs+'">2ตัว</td>'
-          +'<td style="'+cs+'">1ตัว</td>'
-          +'<td style="'+cs+'">โต๊ด</td>'
-          +'<td style="'+cs+'">3ล่าง</td>'
-          +'<td style="'+cs+'font-weight:900;">รวม</td>'
-          +'</tr>';
-        bodyRows+='<tr style="background:#f9f9f9;border-bottom:2px solid #888;">'
-          +'<td style="'+cs+'color:#888;"></td>'
-          +'<td style="'+cs+'">'+cv(ss.c3)+'</td>'
-          +'<td style="'+cs+'">'+cv(ss.c2)+'</td>'
-          +'<td style="'+cs+'">'+cv(ss.c1)+'</td>'
-          +'<td style="'+cs+'">'+cv(ss.ct)+'</td>'
-          +'<td style="'+cs+'">'+cv(ss.cl)+'</td>'
-          +'<td style="'+cs+'font-weight:900;">'+fmtN(st)+'</td>'
-          +'</tr>';
-        grandS.c3+=ss.c3;grandS.c2+=ss.c2;grandS.c1+=ss.c1;grandS.ct+=ss.ct;grandS.cl+=ss.cl;
-      } else {
-        var ls=toLines(item.e);if(!ls.length)return;
-        ls.forEach(function(line){
-          bodyRows+='<tr>'
-            +'<td class="td-lek">'+line.lek+'</td>'
-            +'<td class="td-eq">=</td>'
-            +'<td class="td-price">'+line.price+'</td>'
-            +'<td class="td-brace-empty"></td>'
-            +'<td class="td-total">'+fmtN(line.total)+'</td>'
-            +'</tr>';
-        });
-        var nextItem=items[idx+1];
-        if(nextItem&&nextItem.type==='entry'){
-          bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
-        }
-      }
-    });
-
-    // header
-    var hdr='<div class="slip-hd">'
-      +'<div class="slip-hd-row1"><h2>🐯 TIGER 999</h2><span class="pg">แผ่นที่ '+(pi+1)+'/'+totalPages+'</span></div>'
-      +'<div class="slip-hd-row2">'
-      +'<span>งวด <strong>'+inf.ngod+'</strong></span>'
-      +'<span>ลูกค้า <strong>'+cust.name+'</strong></span>'
-      +(pageSender?'<span>ผู้ส่ง <strong>'+pageSender+'</strong></span>':'')
-      +'<span>วันที่ <strong>'+(inf.date||'—')+'</strong></span>'
-      +'</div></div>';
-
-    allHTML+='<div class="slip-page-single"><div class="slip-page">'
-      +hdr
-      +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup>'
-      +'<col style="width:52px"><col style="width:10px"><col style="width:110px">'
-      +'<col style="width:12px"><col style="width:auto"></colgroup>'
-      +'<tbody>'+bodyRows+'</tbody></table>'
-      +LEGEND
-      +'</div></div>';
+  var grandS={c3:0,c2:0,c1:0,ct:0,cl:0};
+  pages.forEach(function(pg,i){
+    allHTML+='<div class="slip-page-single"><div class="slip-page">'+makePageHTML(pg,i+1,totalPages,inf)+'</div></div>';
+    var ps=pageSumTotals(pg);
+    var pt=pg.reduce(function(s,e){return s+entryTotal(e);},0);
+    allSumRows+=buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false);
+    grandS.c3+=ps.c3;grandS.c2+=ps.c2;grandS.c1+=ps.c1;grandS.ct+=ps.ct;grandS.cl+=ps.cl;
   });
-
-  // summary
-  var r=settings.normal;
-  function getRate(key){var f=r.find(function(x){return x.key===key;});return f?f.disc:0;}
-  var discS={
-    c3:Math.round(grandS.c3*getRate('3bon')/100),
-    c2:Math.round(grandS.c2*getRate('2bon')/100),
-    c1:Math.round(grandS.c1*getRate('vbon')/100),
-    ct:Math.round(grandS.ct*getRate('tod')/100),
-    cl:Math.round(grandS.cl*getRate('3lang')/100)
-  };
-  var totalDisc=discS.c3+discS.c2+discS.c1+discS.ct+discS.cl;
-  var netS={c3:grandS.c3-discS.c3,c2:grandS.c2-discS.c2,c1:grandS.c1-discS.c1,ct:grandS.ct-discS.ct,cl:grandS.cl-discS.cl};
-  var netTotal=grandTotal-totalDisc;
-  var prizePay=lastCheckResult&&lastCheckResult[cid]?lastCheckResult[cid]:0;
-  function cv2(v){return v>0?fmtN(v):'-';}
-  function buildDiscRow(s,tot){
-    var r3=getRate('3bon'),r2=getRate('2bon'),r1=getRate('vbon'),rt=getRate('tod'),rl=getRate('3lang');
-    function lbl(rate){return rate>0?'(-'+rate+'%)':'';}
-    function cell(val,rate){
-      return '<td class="sc" style="font-size:12px;line-height:1.4;">'
-        +(rate>0?'<div style="font-size:11px;color:#666;font-weight:700;">'+lbl(rate)+'</div>':'')
-        +cv2(val)+'</td>';
-    }
-    return '<tr><td class="sc sc-no" style="font-size:12px;font-weight:800;">หลังลด%</td>'
-      +cell(s.c3,r3)+cell(s.c2,r2)+cell(s.c1,r1)+cell(s.ct,rt)+cell(s.cl,rl)
-      +'<td class="sc" style="font-weight:900;font-size:13px;">'+fmtN(tot)+'</td></tr>';
-  }
-  var setRows='';
-  allItems.forEach(function(g,i){
-    var gs=pageSumTotals(g.entries);
-    var gt=g.entries.reduce(function(s,e){return s+toLines(e).reduce(function(ss,l){return ss+l.total;},0);},0);
-    setRows+=buildSumRow(gs,'ชุด'+(i+1),gt,false);
-  });
-  allSumRows=setRows+buildSumRow(grandS,'รวม',grandTotal,true);
-  allSumRows+=buildDiscRow(netS,netTotal);
-  allSumRows+='<tr><td class="sc sc-no" style="font-size:11px;font-weight:800;">ถูกรางวัล</td>'
-    +'<td class="sc" colspan="5"></td>'
-    +'<td class="sc" style="font-weight:900;font-size:12px;">'+(prizePay>0?fmtN(prizePay):'-')+'</td></tr>';
+  allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
+  var cust=customers.find(function(c){return c.id===cid;})||{name:'—'};
   var sumHTML='<div class="slip-hd">'
-    +'<div class="slip-hd-row1"><h2>📊 สรุปรวม — '+cust.name+'</h2><span class="pg">'+allItems.length+' ชุด</span></div>'
+    +'<div class="slip-hd-row1"><h2>📊 สรุปรวม — '+cust.name+'</h2><span class="pg">'+totalPages+' แผ่น</span></div>'
     +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span>'
     +'<span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span>'
     +'<span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
@@ -2804,6 +2658,7 @@ function buildSlipHTML(cid){
   allHTML+='<div class="slip-page-sum"><div class="slip-page">'+sumHTML+'</div></div>';
   return allHTML;
 }
+
 function doPrint(){
   var cid=curCustId;
   if(!cid){toast('เลือกลูกค้าก่อนครับ');return;}
