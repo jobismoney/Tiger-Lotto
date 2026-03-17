@@ -70,8 +70,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   .zone{flex:none!important;width:100%!important;height:100%;display:none;}
   .zone.tab-active{display:flex;}
   .rzh{display:none!important;}
-  .tab-nav{display:flex;height:40px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;}
-  .tab-nav-btn{flex:1;background:none;border:none;border-bottom:2px solid transparent;color:var(--lg);font-size:11px;font-weight:800;cursor:pointer;font-family:'Sarabun',sans-serif;transition:all .15s;}
+  .tab-nav{display:flex;height:48px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;}
+  .tab-nav-btn{flex:1;background:none;border:none;border-bottom:3px solid transparent;color:var(--lg);font-size:14px;font-weight:800;cursor:pointer;font-family:'Sarabun',sans-serif;transition:all .15s;}
   .tab-nav-btn.on{color:var(--gold);border-bottom-color:var(--gold);}
 }
 /* resize handle */
@@ -3445,22 +3445,22 @@ function renderAnalyze(view){
   var SH='font-size:11px;font-weight:800;color:#666;padding:4px 6px;text-align:right;';
 
   function topTable(filtered, title, emoji, netByType){
-    var sorted=filtered.sort(function(a,b){return b.total-a.total;}).slice(0,10);
+    var sorted=filtered.sort(function(a,b){return b.total-a.total;}).slice(0,25);
     if(!sorted.length) return '<div style="color:#555;font-size:12px;padding:8px;">ไม่มีข้อมูล</div>';
     var h='<div style="font-size:13px;font-weight:900;color:var(--gold);margin:10px 0 4px;">'+emoji+' '+title+'</div>';
-    h+='<div style="font-size:11px;color:#555;margin-bottom:6px;">ยอดสุทธิประเภทนี้ <span style="color:var(--gold);font-weight:900;">฿'+fmtN(netByType)+'</span> · กำไร = ยอดสุทธิ − ถ้าถูกจ่าย</div>';
+    h+='<div style="font-size:11px;color:#555;margin-bottom:6px;">ยอดสุทธิประเภทนี้ <span style="color:var(--gold);font-weight:900;">'+fmtN(netByType)+'</span> · กำไร = ยอดสุทธิ − ถ้าถูกจ่าย</div>';
     h+='<table style="width:100%;border-collapse:collapse;font-size:12px;">';
     h+='<tr><td style="'+SH+';text-align:left;">#</td><td style="'+SH+';text-align:left;">เลข</td><td style="'+SH+'">รับมา</td><td style="'+SH+'">ถ้าถูกจ่าย</td><td style="'+SH+'">กำไร</td></tr>';
     sorted.forEach(function(x,i){
       var profit=netByType-x.exp;
       var profitColor=profit>=0?'#22c55e':'#f87171';
-      var profitSign=profit>=0?'+':'';
+      var profitStr=(profit>=0?'+':'-')+fmtN(Math.abs(profit));
       h+='<tr style="border-top:1px solid #1a2040;">'
         +'<td style="'+SS+';color:#555;">'+(i+1)+'</td>'
         +'<td style="'+SS+';font-weight:900;color:#f0f2ff;">'+x.lek+'</td>'
-        +'<td style="'+SS+';text-align:right;color:var(--gold);">฿'+fmtN(x.total)+'</td>'
-        +'<td style="'+SS+';text-align:right;color:#f87171;">฿'+fmtN(x.exp)+'</td>'
-        +'<td style="'+SS+';text-align:right;font-weight:900;color:'+profitColor+';">'+profitSign+'฿'+fmtN(Math.abs(profit))+'</td>'
+        +'<td style="'+SS+';text-align:right;color:var(--gold);">'+fmtN(x.total)+'</td>'
+        +'<td style="'+SS+';text-align:right;color:#f87171;">'+fmtN(x.exp)+'</td>'
+        +'<td style="'+SS+';text-align:right;font-weight:900;color:'+profitColor+';">'+profitStr+'</td>'
         +'</tr>';
     });
     h+='</table>';
