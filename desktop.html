@@ -3345,6 +3345,37 @@ function closeAnalyze(){
   document.getElementById('analyze-popup').style.display='none';
 }
 
+function makeDraggable(el, handle){
+  var mx=0,my=0,ox=0,oy=0,dragging=false;
+  handle.addEventListener('mousedown',function(e){
+    dragging=true; mx=e.clientX; my=e.clientY;
+    ox=el.offsetLeft; oy=el.offsetTop;
+    // switch from right-anchored to left-anchored
+    el.style.right='auto';
+    el.style.left=ox+'px'; el.style.top=oy+'px';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove',function(e){
+    if(!dragging) return;
+    el.style.left=(ox+e.clientX-mx)+'px';
+    el.style.top=(oy+e.clientY-my)+'px';
+  });
+  document.addEventListener('mouseup',function(){dragging=false;});
+  // touch support
+  handle.addEventListener('touchstart',function(e){
+    dragging=true; mx=e.touches[0].clientX; my=e.touches[0].clientY;
+    ox=el.offsetLeft; oy=el.offsetTop;
+    el.style.right='auto';
+    el.style.left=ox+'px'; el.style.top=oy+'px';
+  });
+  document.addEventListener('touchmove',function(e){
+    if(!dragging) return;
+    el.style.left=(ox+e.touches[0].clientX-mx)+'px';
+    el.style.top=(oy+e.touches[0].clientY-my)+'px';
+  });
+  document.addEventListener('touchend',function(){dragging=false;});
+}
+
 function renderAnalyze(){
   var allE=[];
   customers.forEach(function(c){
