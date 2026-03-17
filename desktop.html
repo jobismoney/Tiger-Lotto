@@ -2204,7 +2204,7 @@ function addPak(){
     id:Date.now(),lek:npLek,d:npLek.length,
     bon:null,tod:null,lang:null,na:null,kd:{},paks:paks
   });
-  closePak(); save(); renderHist(); renderCustList(); updateSummary();
+  closePak(); resetNp(); save(); renderHist(); renderCustList(); updateSummary();
   toast('เพิ่มปักหลัก '+selPositions.length+' ตำแหน่ง ✅');
 }
 
