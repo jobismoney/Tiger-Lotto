@@ -2417,7 +2417,7 @@ function toLines(e){
   var tl={'3bon':'3ตัวบน','2bon':'2ตัวบน','2lang':'2ตัวล่าง'};
   var pl={'na':'หน้า','mid':'กลาง','lang':'หลัง'};
   (e.paks||[]).forEach(function(p){
-    push(lek, '📌'+pl[p.pos]+' '+(tl[p.type]||p.type)+' '+slipFmt(p.price), p.price);
+    lines.push({lek:lek, price:'📌'+pl[p.pos]+' '+(tl[p.type]||p.type)+' B'+p.price, total:0});
   });
   return lines;
 }
