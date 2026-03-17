@@ -2112,8 +2112,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
     });
     var ps=pageSumTotals(pEntries);
-    var pt=(pEntries.reduce(function(s,e){return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);},0))+
-      ['bon','lang','na'].reduce(function(s,k){return s+pEntries.reduce(function(ss,e){return ss+(e.kd[k]||[]).reduce(function(sss,x){return sss+x.price;},0);},0);},0);
+    var pt=pEntries.reduce(function(s,e){
+      return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0)
+        +['bon','lang','na'].reduce(function(ss,k){return ss+(e.kd[k]||[]).reduce(function(sss,x){return sss+x.price;},0);},0)
+        +(e.paks||[]).reduce(function(ss,p){return ss+p.price;},0);
+    },0);
     return '<div class="slip-hd">'
       +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+(''+inf.ngod).replace(/ \\d{2}:\\d{2}$/,'')+'</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
       +(inf.savedAt?'<div style="font-size:11px;color:#555;margin-top:2px;">บันทึก '+inf.savedAt+'</div>':'')
