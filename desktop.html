@@ -550,35 +550,20 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
               style="width:100%;background:#1a1a2e;border:2px solid var(--gold);border-radius:10px;color:var(--gold);font-size:24px;font-weight:900;padding:10px;box-sizing:border-box;text-align:center;font-family:inherit;letter-spacing:6px;outline:none;">
           </div>
           <!-- แถว: หน้า 3 ตัว | ท้าย 3 ตัว | ท้าย 2 ตัว -->
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;">
             <div>
               <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">เลขหน้า 3 ตัว</div>
-              <input type="tel" inputmode="numeric" maxlength="3" id="res-3na" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3bon').focus()">
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3na" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3na2').focus()">
               <input type="tel" inputmode="numeric" maxlength="3" id="res-3na2" placeholder="xxx" class="check-inp-desk" style="margin-top:5px;" oninput="if(this.value.length===3)document.getElementById('res-3bon').focus()">
             </div>
             <div>
               <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">เลขท้าย 3 ตัว</div>
-              <input type="tel" inputmode="numeric" maxlength="3" id="res-3bon" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3lang').focus()">
-              <input type="tel" inputmode="numeric" maxlength="3" id="res-3bon2" placeholder="xxx" class="check-inp-desk" style="margin-top:5px;" oninput="if(this.value.length===3)document.getElementById('res-3lang').focus()">
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3bon" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3bon2').focus()">
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3bon2" placeholder="xxx" class="check-inp-desk" style="margin-top:5px;" oninput="if(this.value.length===3)document.getElementById('res-2lang').focus()">
             </div>
             <div>
               <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">เลขท้าย 2 ตัว</div>
-              <input type="tel" inputmode="numeric" maxlength="2" id="res-2lang" placeholder="xx" class="check-inp-desk" oninput="if(this.value.length===2)document.getElementById('res-3lang').focus()">
-            </div>
-          </div>
-          <!-- วิ่ง + 3ล่าง -->
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;">
-            <div>
-              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">3ตัวล่าง</div>
-              <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang" placeholder="xxx" class="check-inp-desk">
-            </div>
-            <div>
-              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">วิ่งบน</div>
-              <input type="text" id="res-vbon" placeholder="1,5,9" class="check-inp-desk">
-            </div>
-            <div>
-              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">วิ่งล่าง</div>
-              <input type="text" id="res-vlang" placeholder="2,7" class="check-inp-desk">
+              <input type="tel" inputmode="numeric" maxlength="2" id="res-2lang" placeholder="xx" class="check-inp-desk">
             </div>
           </div>
           <button onclick="fetchLottoResult()" style="width:100%;padding:10px;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:10px;font-size:15px;font-weight:900;color:#fff;cursor:pointer;font-family:inherit;margin-bottom:8px;">📡 ดึงผลรางวัลล่าสุด</button>
@@ -2552,18 +2537,29 @@ function buildSlipHTML(cid){
         // เส้นบางๆ + ข้อความชุด ไม่มีแถบสีดำ
         bodyRows+='<tr><td colspan="5" style="padding:6px 4px 3px;font-size:12px;font-weight:900;color:#888;border-top:1.5px dashed #bbb;">— '+item.label+' —</td></tr>';
       } else if(item.type==='setsum'){
-        // summary row ของชุดนี้
         var ss=pageSumTotals(item.entries);
-        var st=item.entries.reduce(function(s,e){return s+toLines(e).reduce(function(ss,l){return ss+l.total;},0);},0);
-        function cv(v){return v>0?fmtN(v):'<span style="color:#ccc">-</span>';}
-        bodyRows+='<tr style="background:#f5f5f5;border-top:1px solid #bbb;">'
-          +'<td class="sc sc-no" style="font-size:10px;color:#888;padding:3px 2px;">ยอด</td>'
-          +'<td class="sc" style="font-size:11px;font-weight:800;padding:3px 2px;text-align:center;">'+cv(ss.c3)+'</td>'
-          +'<td class="sc" style="font-size:11px;font-weight:800;padding:3px 2px;text-align:center;">'+cv(ss.c2)+'</td>'
-          +'<td class="sc" style="font-size:11px;font-weight:800;padding:3px 2px;text-align:center;">'+cv(ss.c1)+'</td>'
-          +'<td class="sc" style="font-size:11px;font-weight:800;padding:3px 2px;text-align:center;">'+cv(ss.ct)+'</td>'
-          +'<td class="sc" style="font-size:11px;font-weight:800;padding:3px 2px;text-align:center;">'+cv(ss.cl)+'</td>'
-          +'<td class="sc" style="font-size:11px;font-weight:900;color:#111;padding:3px 2px;text-align:center;">'+fmtN(st)+'</td>'
+        var st=item.entries.reduce(function(s,e){return s+toLines(e).reduce(function(ss2,l){return ss2+l.total;},0);},0);
+        function cv(v){return v>0?fmtN(v):'-';}
+        var cs='font-size:10px;font-weight:800;padding:2px 2px;text-align:center;';
+        // บรรทัด header
+        bodyRows+='<tr style="background:#eee;border-top:1.5px solid #999;">'
+          +'<td style="'+cs+'color:#666;">ยอด</td>'
+          +'<td style="'+cs+'color:#555;">3ตัว</td>'
+          +'<td style="'+cs+'color:#555;">2ตัว</td>'
+          +'<td style="'+cs+'color:#555;">1ตัว</td>'
+          +'<td style="'+cs+'color:#555;">โต๊ด</td>'
+          +'<td style="'+cs+'color:#555;">3ล่าง</td>'
+          +'<td style="'+cs+'color:#111;font-weight:900;">รวม</td>'
+          +'</tr>';
+        // บรรทัดตัวเลข
+        bodyRows+='<tr style="background:#f9f9f9;border-bottom:2px solid #888;">'
+          +'<td style="'+cs+'color:#888;"></td>'
+          +'<td style="'+cs+'color:#111;">'+cv(ss.c3)+'</td>'
+          +'<td style="'+cs+'color:#111;">'+cv(ss.c2)+'</td>'
+          +'<td style="'+cs+'color:#111;">'+cv(ss.c1)+'</td>'
+          +'<td style="'+cs+'color:#111;">'+cv(ss.ct)+'</td>'
+          +'<td style="'+cs+'color:#111;">'+cv(ss.cl)+'</td>'
+          +'<td style="'+cs+'color:#111;font-weight:900;">'+fmtN(st)+'</td>'
           +'</tr>';
         grandS.c3+=ss.c3;grandS.c2+=ss.c2;grandS.c1+=ss.c1;grandS.ct+=ss.ct;grandS.cl+=ss.cl;
       } else {
@@ -2681,6 +2677,29 @@ function showSlip(){
 }
 
 function showSlipCust(cid){
+  // เช็คว่ามีรายการค้างอยู่ไหม
+  var pending=(custEntries[cid]||[]).length;
+  if(pending>0){
+    showConfirm2(
+      '⚠️ มีรายการค้างอยู่ <b>'+pending+' รายการ</b><br><br>ต้องการทำอย่างไรก่อนดูโพยครับ?',
+      '📂 เก็บเข้าแฟ้ม',
+      function(){
+        lockSet();
+        _doShowSlipCust(cid);
+      },
+      '🗑️ ลบออก',
+      function(){
+        custEntries[cid]=[];
+        save(); renderHist(); renderCustList(); updateSummary();
+        _doShowSlipCust(cid);
+      }
+    );
+    return;
+  }
+  _doShowSlipCust(cid);
+}
+
+function _doShowSlipCust(cid){
   try{
     var html=buildSlipHTML(cid);
     if(!html){toast('ยังไม่มีรายการ');return;}
@@ -2692,7 +2711,6 @@ function showSlipCust(cid){
     document.getElementById('slip-ov').scrollTop=0;
   }catch(err){
     toast('Error: '+err.message);
-    console.error('showSlipCust error:',err);
   }
 }
 
@@ -2758,10 +2776,9 @@ function fetchLottoResult(){
       function setVal(id,val){var el=document.getElementById(id);if(el)el.value=val;}
       setVal('res-1st', first6[0]||'');
       setVal('res-3bon', first6[0]?first6[0].slice(-3):'');
-      setVal('res-3bon2','');
+      setVal('res-3bon2', back3[1]||'');
       setVal('res-3na',  front3[0]||'');
       setVal('res-3na2', front3[1]||'');
-      setVal('res-3lang',back3[0]||'');
       setVal('res-2lang',back2[0]||'');
       toast('✅ ดึงผลรางวัลสำเร็จ งวด '+res.date);
     })
@@ -2773,22 +2790,23 @@ function fetchLottoResult(){
 function doCheckResult(){
   var first6 = getResInput('res-1st').trim();
   var r3bon  = getResInput('res-3bon').trim();
-  var r3lang = getResInput('res-3lang').trim();
-  var r2bon  = getResInput('res-2bon').trim();
+  var r3bon2 = getResInput('res-3bon2').trim();
   var r2lang = getResInput('res-2lang').trim();
   var r3na   = getResInput('res-3na').trim();
-  var vbonRaw= getResInput('res-vbon').trim();
-  var vlangRaw=getResInput('res-vlang').trim();
+  var r3na2  = getResInput('res-3na2').trim();
 
-  // ดึง 3ตัวบน, หน้า, ล่าง จาก first6 ถ้าไม่ได้กรอกแยก
+  // ดึงจาก first6 ถ้าไม่ได้กรอกแยก
   if(first6.length===6){
     if(!r3bon)  r3bon  = first6.slice(-3);
     if(!r3na)   r3na   = first6.slice(0,3);
-    if(!r2bon)  r2bon  = first6.slice(-2);
   }
 
-  var vbon  = vbonRaw  ? vbonRaw.replace(/\s/g,'').split(',').filter(Boolean)  : [];
-  var vlang = vlangRaw ? vlangRaw.replace(/\s/g,'').split(',').filter(Boolean) : [];
+  var r3lang = r3bon2; // 3ตัวล่าง = ท้าย 3 ตัวที่ 2
+  var r2bon  = first6.length===6 ? first6.slice(-2) : r2lang;
+  var win3fronts = [r3na, r3na2].filter(function(x){return x.length===3;});
+  var win3backs  = [r3bon, r3bon2].filter(function(x){return x.length===3;});
+  var vbon  = [];
+  var vlang = [];
 
   // tod winners: permutations of r3bon
   var todWin = r3bon ? getTod(r3bon) : [];
@@ -3227,6 +3245,17 @@ selectCust = function(id){
     <button onclick="closeAlert()" style="width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#111;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;">ตกลง</button>
   </div>
 </div>
+
+<!-- Confirm2 Modal -->
+<div class="modal-overlay" id="modal-confirm2" style="z-index:9999;">
+  <div style="background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid var(--gold);border-radius:16px;padding:24px 20px;width:90%;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.7);" onclick="event.stopPropagation()">
+    <div id="confirm2-msg" style="font-size:15px;color:#f0f2ff;line-height:1.7;margin-bottom:18px;font-family:'Sarabun',sans-serif;"></div>
+    <div style="display:flex;gap:8px;">
+      <button id="confirm2-btn1" onclick="confirm2Action1()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#111;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;padding:10px;cursor:pointer;"></button>
+      <button id="confirm2-btn2" onclick="confirm2Action2()" style="flex:1;background:#1e293b;border:1px solid #334;border-radius:10px;color:#f87171;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;padding:10px;cursor:pointer;"></button>
+    </div>
+  </div>
+</div>
 <script>
 function showAlert(msg){
   document.getElementById('alert-msg').innerHTML=msg;
@@ -3235,6 +3264,18 @@ function showAlert(msg){
 function closeAlert(){
   document.getElementById('modal-alert').classList.remove('show');
 }
+
+var _confirm2Cb1=null, _confirm2Cb2=null;
+function showConfirm2(msg, btn1Label, cb1, btn2Label, cb2){
+  document.getElementById('confirm2-msg').innerHTML=msg;
+  document.getElementById('confirm2-btn1').textContent=btn1Label;
+  document.getElementById('confirm2-btn2').textContent=btn2Label;
+  _confirm2Cb1=cb1; _confirm2Cb2=cb2;
+  document.getElementById('modal-confirm2').classList.add('show');
+}
+function closeConfirm2(){ document.getElementById('modal-confirm2').classList.remove('show'); }
+function confirm2Action1(){ closeConfirm2(); if(_confirm2Cb1) _confirm2Cb1(); }
+function confirm2Action2(){ closeConfirm2(); if(_confirm2Cb2) _confirm2Cb2(); }
 </script>
 </body>
 </html>
