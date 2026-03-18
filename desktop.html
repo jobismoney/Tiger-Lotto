@@ -2840,6 +2840,53 @@ function buildAllCustSlip(){
   var inf=ngodInfo||{ngod:'—'};
   var html='';
   var grandTotal=0;
+  var grandNet=0;
+
+  // ── ตารางสรุปรายคน ──
+  var r=settings.normal;
+  function getD(key){var f=r.find(function(x){return x.key===key;});return f?f.disc:0;}
+  var summaryRows='';
+  var sumGross=0, sumNet=0, sumPrize=0;
+  customers.forEach(function(c){
+    var entries=getAllEntries(c.id);
+    if(!entries.length) return;
+    var tot=calcCustTotal(c.id);
+    var g={c3:0,c2:0,c1:0,ct:0,cl:0};
+    entries.forEach(function(e){var es=entrySummary(e);g.c3+=es.c3;g.c2+=es.c2;g.c1+=es.c1;g.ct+=es.ct;g.cl+=es.cl;});
+    var d3=getCustDisc(c.id,'3bon'),d2=getCustDisc(c.id,'2bon'),d1=getCustDisc(c.id,'vbon'),dt=getCustDisc(c.id,'tod'),dl=getCustDisc(c.id,'3lang');
+    var net=Math.round(g.c3*(1-d3/100))+Math.round(g.c2*(1-d2/100))+Math.round(g.c1*(1-d1/100))+Math.round(g.ct*(1-dt/100))+Math.round(g.cl*(1-dl/100));
+    var prize=(lastCheckResult&&lastCheckResult[c.id])||0;
+    sumGross+=tot; sumNet+=net; sumPrize+=prize;
+    summaryRows+='<tr style="border-bottom:1px solid #eee;">'
+      +'<td style="padding:6px 8px;font-size:13px;font-weight:800;color:#111;">'+c.name+'</td>'
+      +'<td style="padding:6px 8px;font-size:13px;font-weight:700;color:#111;text-align:right;">'+fmtN(tot)+'</td>'
+      +'<td style="padding:6px 8px;font-size:13px;font-weight:700;color:#111;text-align:right;">'+fmtN(net)+'</td>'
+      +'<td style="padding:6px 8px;font-size:13px;font-weight:700;color:'+(prize>0?'#16a34a':'#aaa')+';text-align:right;">'+(prize>0?fmtN(prize):'-')+'</td>'
+      +'</tr>';
+  });
+  var summaryTable='<div style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);margin-bottom:12px;">'
+    +'<div style="background:#1a1d27;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">'
+    +'<span style="color:var(--gold);font-weight:900;font-size:15px;">📊 สรุปยอดรายคน</span>'
+    +'<span style="color:#aab;font-size:12px;">งวด '+inf.ngod+'</span>'
+    +'</div>'
+    +'<table style="width:100%;border-collapse:collapse;">'
+    +'<thead><tr style="background:#f5f5f5;">'
+    +'<th style="padding:7px 8px;font-size:12px;font-weight:800;color:#555;text-align:left;">ชื่อ</th>'
+    +'<th style="padding:7px 8px;font-size:12px;font-weight:800;color:#555;text-align:right;">รับมา</th>'
+    +'<th style="padding:7px 8px;font-size:12px;font-weight:800;color:#555;text-align:right;">หลังลด%</th>'
+    +'<th style="padding:7px 8px;font-size:12px;font-weight:800;color:#555;text-align:right;">ถูกรางวัล</th>'
+    +'</tr></thead>'
+    +'<tbody>'+summaryRows+'</tbody>'
+    +'<tfoot><tr style="background:#eee;border-top:2px solid #bbb;">'
+    +'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:#111;">รวม</td>'
+    +'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:#111;text-align:right;">'+fmtN(sumGross)+'</td>'
+    +'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:#111;text-align:right;">'+fmtN(sumNet)+'</td>'
+    +'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:'+(sumPrize>0?'#16a34a':'#aaa')+';text-align:right;">'+(sumPrize>0?fmtN(sumPrize):'-')+'</td>'
+    +'</tr></tfoot>'
+    +'</table>'
+    +'</div>';
+  html+=summaryTable;
+
   customers.forEach(function(c){
     var entries=getAllEntries(c.id);
     if(!entries.length) return;
