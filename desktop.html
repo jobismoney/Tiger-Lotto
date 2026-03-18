@@ -239,7 +239,9 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   .slip-ov{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;overflow:visible!important;background:white!important;height:auto!important;display:block!important;}
   .slip-ov-bar{display:none!important;}
   .slip-ov-inner{padding:0!important;}
-  .slip-pages-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:4px!important;}
+  .slip-pages-grid{display:block!important;}
+  .slip-page-row{display:grid!important;grid-template-columns:1fr 1fr!important;gap:4px!important;page-break-after:always!important;break-after:always!important;}
+  .slip-page-row:last-child{page-break-after:avoid!important;break-after:avoid!important;}
   .slip-page-single{box-shadow:none!important;border-radius:0!important;break-inside:avoid!important;page-break-inside:avoid!important;}
   .slip-page-sum{grid-column:1/-1!important;box-shadow:none!important;border-radius:0!important;break-inside:avoid!important;}
 }
@@ -2604,13 +2606,23 @@ function buildSlipHTML(cid){
   var grandTotal=calcCustTotal(cid);
   var allSumRows='',allHTML='';
   var grandS={c3:0,c2:0,c1:0,ct:0,cl:0};
+
+  // สร้าง slip-page-single ทั้งหมดก่อน แล้ว wrap ทุก 2 ใน slip-page-row
+  var pageItems=[];
   pages.forEach(function(pg,i){
-    allHTML+='<div class="slip-page-single"><div class="slip-page">'+makePageHTML(pg,i+1,totalPages,inf)+'</div></div>';
+    pageItems.push('<div class="slip-page-single"><div class="slip-page">'+makePageHTML(pg,i+1,totalPages,inf)+'</div></div>');
     var ps=pageSumTotals(pg);
     var pt=pg.reduce(function(s,e){return s+entryTotal(e);},0);
     allSumRows+=buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false);
     grandS.c3+=ps.c3;grandS.c2+=ps.c2;grandS.c1+=ps.c1;grandS.ct+=ps.ct;grandS.cl+=ps.cl;
   });
+  // wrap ทุก 2 โพยในแถวเดียว
+  for(var i=0;i<pageItems.length;i+=2){
+    allHTML+='<div class="slip-page-row">';
+    allHTML+=pageItems[i];
+    if(pageItems[i+1]) allHTML+=pageItems[i+1];
+    allHTML+='</div>';
+  }
   allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
 
   // บรรทัดหลังลด%
@@ -2746,22 +2758,19 @@ function buildAllCustSlip(){
     if(!entries.length) return;
     var tot=calcCustTotal(c.id);
     grandTotal+=tot;
-    // customer divider bar — full width
-    html+='<div style="grid-column:1/-1;background:linear-gradient(135deg,#1a1d27,#0d0f18);border:1.5px solid var(--gold);border-radius:10px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">'
+    html+='<div style="background:linear-gradient(135deg,#1a1d27,#0d0f18);border:1.5px solid var(--gold);border-radius:10px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">'
       +'<span style="color:var(--gold);font-weight:900;font-size:16px;">👤 '+c.name+'</span>'
-      +'<span style="color:var(--gold);font-family:\'Bebas Neue\',sans-serif;font-size:20px;">฿'+fmtN(tot)+'</span>'
+      +'<span style="color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:20px;">฿'+fmtN(tot)+'</span>'
       +'</div>';
     html+=buildSlipHTML(c.id)||'';
-    html+='<div style="grid-column:1/-1;height:6px;"></div>';
+    html+='<div style="height:6px;"></div>';
   });
-  // grand total footer
-  html+='<div style="grid-column:1/-1;background:linear-gradient(135deg,#1a2040,#0d0f18);border:2px solid var(--gold);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">'
+  html+='<div style="background:linear-gradient(135deg,#1a2040,#0d0f18);border:2px solid var(--gold);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">'
     +'<span style="color:#aab;font-size:14px;font-weight:700;">ยอดรวมทุกลูกค้า</span>'
     +'<span style="color:var(--gold);font-size:22px;font-weight:900;">฿'+fmtN(grandTotal)+'</span>'
     +'</div>';
   return html;
 }
-
 // ================================================================
 // RESULT CHECK — ตรวจผลรางวัล
 // ================================================================
