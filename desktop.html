@@ -428,6 +428,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <div class="zbody">
       <div style="margin-bottom:4px;display:flex;gap:5px;">
         <div class="cadd" style="flex:1;" onclick="openAddCust()">➕ เพิ่มลูกค้า</div>
+        <button onclick="openScanPopup()" style="background:linear-gradient(135deg,#0f766e,#0d9488);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:800;padding:0 10px;cursor:pointer;font-family:'Sarabun',sans-serif;white-space:nowrap;">📷 สแกน</button>
         <button onclick="showSlipAll()" style="background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:800;padding:0 10px;cursor:pointer;font-family:'Sarabun',sans-serif;white-space:nowrap;">📋 โพยรวม</button>
       </div>
       <div class="clist" id="clist"></div>
@@ -862,9 +863,11 @@ function saveScannedLog(log){
 
 function openScanForCust(cid){
   _origSelectCust(cid);
-  openScanPopup();
+  openScanPopup(cid);
 }
-function openScanPopup(){
+function openScanPopup(cid){
+  if(cid) curCustId = cid;
+  else curCustId = null; // auto-match จาก receiver
   var popup = document.getElementById('scan-popup');
   var iframe = document.getElementById('scan-iframe');
   popup.style.display = 'flex';
