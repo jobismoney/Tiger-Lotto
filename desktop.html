@@ -2928,11 +2928,13 @@ function buildAllCustSlip(){
     var net=Math.round(g.c3*(1-d3/100))+Math.round(g.c2*(1-d2/100))+Math.round(g.c1*(1-d1/100))+Math.round(g.ct*(1-dt/100))+Math.round(g.cl*(1-dl/100));
     var prize=(lastCheckResult&&lastCheckResult[c.id])||0;
     sumGross+=tot; sumNet+=net; sumPrize+=prize;
+    var rowNet2=net-prize; var rowCol=rowNet2>=0?'#16a34a':'#e74c3c'; var rowSign=rowNet2>=0?'+':'';
     summaryRows+='<tr style="border-bottom:1px solid #eee;">'
       +'<td style="padding:6px 8px;font-size:13px;font-weight:800;color:#111;">'+c.name+'</td>'
       +'<td style="padding:6px 8px;font-size:13px;font-weight:700;color:#111;text-align:right;">'+fmtN(tot)+'</td>'
       +'<td style="padding:6px 8px;font-size:13px;font-weight:700;color:#111;text-align:right;">'+fmtN(net)+'</td>'
       +'<td style="padding:6px 8px;font-size:13px;font-weight:700;color:'+(prize>0?'#16a34a':'#aaa')+';text-align:right;">'+(prize>0?fmtN(prize):'-')+'</td>'
+      +'<td style="padding:6px 8px;font-size:13px;font-weight:900;color:'+rowCol+';text-align:right;">'+rowSign+fmtN(rowNet2)+'</td>'
       +'</tr>';
   });
   var summaryTable='<div style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);margin-bottom:12px;">'
@@ -2946,16 +2948,17 @@ function buildAllCustSlip(){
     +'<th style="padding:7px 8px;font-size:12px;font-weight:800;color:#555;text-align:right;">รับมา</th>'
     +'<th style="padding:7px 8px;font-size:12px;font-weight:800;color:#555;text-align:right;">หลังลด%</th>'
     +'<th style="padding:7px 8px;font-size:12px;font-weight:800;color:#555;text-align:right;">ถูกรางวัล</th>'
+    +'<th style="padding:7px 8px;font-size:12px;font-weight:800;color:#e74c3c;text-align:right;">รวมสุทธิ</th>'
     +'</tr></thead>'
     +'<tbody>'+summaryRows+'</tbody>'
     +'<tfoot>'
-    +'<tr style="background:#eee;border-top:2px solid #bbb;">'
+    +(function(){var net2=sumNet-sumPrize;var col=net2>=0?'#16a34a':'#e74c3c';var sign=net2>=0?'+':'';return '<tr style="background:#eee;border-top:2px solid #bbb;">'
     +'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:#111;">รวม</td>'
     +'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:#111;text-align:right;">'+fmtN(sumGross)+'</td>'
     +'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:#111;text-align:right;">'+fmtN(sumNet)+'</td>'
     +'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:'+(sumPrize>0?'#16a34a':'#aaa')+';text-align:right;">'+(sumPrize>0?fmtN(sumPrize):'-')+'</td>'
-    +'</tr>'
-    +(function(){var net2=sumNet-sumPrize;var col=net2>=0?'#111':'#e74c3c';var sign=net2>=0?'':'';return '<tr style="background:#ddd;border-top:1.5px solid #bbb;">'+'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:#111;">รวมสุทธิ</td>'+'<td style="padding:7px 8px;font-size:11px;color:#888;text-align:right;" colspan="2">หลังลด% − ถูกรางวัล</td>'+'<td style="padding:7px 8px;font-size:14px;font-weight:900;color:'+col+';text-align:right;">'+sign+fmtN(net2)+'</td>'+'</tr>';})()
+    +'<td style="padding:7px 8px;font-size:14px;font-weight:900;color:'+col+';text-align:right;">'+sign+fmtN(net2)+'</td>'
+    +'</tr>';})()
     +'</tfoot>'
     +'</table>'
     +'</div>';
