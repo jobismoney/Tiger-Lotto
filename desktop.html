@@ -676,8 +676,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <div class="pop-body">
       <div class="pop-lbl">ประเภท</div>
       <div class="type-tabs" id="pak-type-tabs">
-        <div class="ttab on" data-type="3bon" onclick="selPakType(this)">3ตัวบน</div>
-        <div class="ttab" data-type="2lang" onclick="selPakType(this)">2ตัวล่าง</div>
+        <div class="ttab on" data-type="3bon" onclick="selPakType(this)">บน</div>
+        <div class="ttab" data-type="2lang" onclick="selPakType(this)">ล่าง</div>
       </div>
       <div class="pop-lbl">ตำแหน่ง</div>
       <div class="pos-grid" id="pak-pos-grid">
@@ -963,11 +963,20 @@ function doImportMulti(dataList, totalEntries, cid){
 function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
   // ถ้ากดสแกนจากชื่อลูกค้าโดยตรง → auto import ทันที ไม่ต้องกด
   if(curCustId){
-    var custName=(customers.find(function(cu){return cu.id===curCustId;})||{}).name||'';
     var _custName=(customers.find(function(cu){return cu.id===curCustId;})||{}).name||'';
     doImportMulti(dataList,totalEntries,curCustId);
     showScanSuccess(_custName,totalEntries,dupMsg);
     return;
+  }
+  // auto-match จาก receiver ใน QR
+  var firstReceiver = dataList[0]&&dataList[0].receiver ? dataList[0].receiver.trim() : '';
+  if(firstReceiver){
+    var matched = customers.find(function(cu){ return cu.name===firstReceiver; });
+    if(matched){
+      doImportMulti(dataList,totalEntries,matched.id);
+      showScanSuccess(matched.name,totalEntries,dupMsg);
+      return;
+    }
   }
   var custOpts = '<option value="">— เลือกลูกค้า —</option>';
   customers.forEach(function(cu){
@@ -1010,6 +1019,16 @@ function showImportBanner(data, fp, log, dupMsg){
     doImport(data,fp,log,curCustId);
     showScanSuccess(_custName2,data.entries.length,dupMsg);
     return;
+  }
+  // auto-match จาก receiver ใน QR
+  var recv = data.receiver ? data.receiver.trim() : '';
+  if(recv){
+    var matched2 = customers.find(function(cu){ return cu.name===recv; });
+    if(matched2){
+      doImport(data,fp,log,matched2.id);
+      showScanSuccess(matched2.name,data.entries.length,dupMsg);
+      return;
+    }
   }
   var custOpts = '<option value="">— เลือกลูกค้า —</option>';
   customers.forEach(function(cu){
@@ -1185,7 +1204,7 @@ function calcCustBreakdown(cid){
     } else if(d===1){ g.vb+=(e.bon||0); g.vl+=(e.lang||0);
     } else if(d>=4){ g.tod+=(e.tod||0); }
     (e.paks||[]).forEach(function(p){
-      if(p.type==='3bon'||p.type==='bon') g.t3+=p.price; else g.t2+=p.price;
+      if(p.type==='3bon'||p.type==='bon') g.vb+=p.price; else g.vl+=p.price;
     });
   });
   return g;
@@ -2334,7 +2353,7 @@ function updateSummary(){
       } else if(d===1){ g.vb+=(e.bon||0); g.vl+=(e.lang||0);
       } else if(d>=4){ g.tod+=(e.tod||0); }
       (e.paks||[]).forEach(function(p){
-        if(p.type==='3bon'||p.type==='bon') g.t3+=p.price; else g.t2+=p.price;
+        if(p.type==='3bon'||p.type==='bon') g.vb+=p.price; else g.vl+=p.price;
       });
     });
   });
@@ -2365,16 +2384,17 @@ function updatePakUI(){
   var lek=npLek;
   var mid=document.getElementById('pak-mid-btn');
   if(pakType==='3bon'){
+    // บน: 8XX / X8X / XX8
     mid.style.display='';
-    document.getElementById('pak-ex-na').textContent=(lek[0]||'X')+'XX';
-    document.getElementById('pak-ex-mid').textContent='X'+(lek[1]||'X')+'X';
-    document.getElementById('pak-ex-lang').textContent='XX'+(lek[2]||'X');
+    document.getElementById('pak-ex-na').textContent=(lek[0]||'8')+'XX';
+    document.getElementById('pak-ex-mid').textContent='X'+(lek[0]||'8')+'X';
+    document.getElementById('pak-ex-lang').textContent='XX'+(lek[0]||'8');
   } else {
+    // ล่าง: 8X / X8
     mid.style.display='none';
-    // ถ้า mid ถูกเลือกอยู่ → unselect เมื่อเปลี่ยนเป็น 2ตัว
     document.getElementById('pak-mid-btn').classList.remove('on');
-    document.getElementById('pak-ex-na').textContent=(lek[0]||'X')+'X';
-    document.getElementById('pak-ex-lang').textContent='X'+(lek[1]||'X');
+    document.getElementById('pak-ex-na').textContent=(lek[0]||'8')+'X';
+    document.getElementById('pak-ex-lang').textContent='X'+(lek[0]||'8');
   }
 }
 function setPakPreset(n){document.getElementById('pak-price').value=n;}
@@ -2605,11 +2625,11 @@ function toLines(e){
     if(t>0) push(lek,'ต'+slipFmt(t),t);
   }
   // ปักหลัก
-  var tl={'3bon':'3ตัวบน','2bon':'2ตัวบน','2lang':'2ตัวล่าง'};
+  var tl={'3bon':'บน','2bon':'บน','2lang':'ล่าง'};
   var pl={'na':'หน้า','mid':'กลาง','lang':'หลัง'};
   (e.paks||[]).forEach(function(p){
     var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
-    var typeLbl={'3bon':'3ตัวบน','2bon':'2ตัวบน','2lang':'2ตัวล่าง'}[p.type]||p.type;
+    var typeLbl={'3bon':'บน','2bon':'บน','2lang':'ล่าง'}[p.type]||p.type;
     lines.push({lek:lek, price:'ปัก'+posLbl+' '+typeLbl, total:p.price});
   });
   return lines;
@@ -2622,12 +2642,15 @@ function entrySummary(e){
   var kl=(kd['lang']||[]).reduce(function(s,x){ return s+x.price; },0);
   var kn=(kd['na']||[]).reduce(function(s,x){ return s+x.price; },0);
   // ปักหลักทุกตัวทุก position → c1
-  var pak1=0;
-  (e.paks||[]).forEach(function(p){ pak1+=p.price; });
-  if(d===3) return {c3:b+kb+n+kn, c2:0,       c1:pak1, ct:t, cl:l+kl};
-  if(d===2) return {c3:0,          c2:b+kb+l+kl, c1:pak1, ct:t, cl:0};
-  if(d===1) return {c3:0,          c2:0,       c1:b+l+pak1, ct:0, cl:0};
-  return         {c3:0,          c2:0,       c1:pak1, ct:t, cl:0};
+  var pak_bon=0, pak_lang=0;
+  (e.paks||[]).forEach(function(p){
+    if(p.type==='3bon') pak_bon+=p.price;
+    else pak_lang+=p.price;
+  });
+  if(d===3) return {c3:b+kb+n+kn, c2:0,         c1:pak_bon, ct:t, cl:l+kl, vl:pak_lang};
+  if(d===2) return {c3:0,          c2:b+kb+l+kl, c1:pak_bon, ct:t, cl:0,    vl:pak_lang};
+  if(d===1) return {c3:0,          c2:0,         c1:b+l+pak_bon, ct:0, cl:0, vl:pak_lang};
+  return           {c3:0,          c2:0,         c1:pak_bon, ct:t, cl:0,    vl:pak_lang};
 }
 
 function pageSumTotals(pEntries){

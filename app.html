@@ -626,7 +626,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     <div class="modal-field"><label>ผู้ส่ง (ชื่อของคุณ)</label><input type="text" id="m-sender" placeholder="ชื่อผู้ส่ง"></div>
     <div class="modal-field"><label>ผู้รับ</label><input type="text" id="m-receiver" placeholder="ชื่อผู้รับ"></div>
     <div class="modal-field"><label>งวดที่</label><input type="text" id="m-ngod" placeholder="1/3/2569"></div>
-    <div class="modal-field"><label>ชุดที่ <span style="color:#888;font-size:12px;">(ไม่บังคับ เช่น 1, 2, 3)</span></label><input type="tel" inputmode="numeric" id="m-setnum" placeholder="เลขชุด" style="text-align:center;font-size:20px;font-weight:900;letter-spacing:4px;"></div>
     <div class="modal-btns">
       <button class="modal-cancel" id="modal-cancel">ยกเลิก</button>
       <button class="modal-ok" id="modal-ok">✅ เปิดงวด</button>
@@ -1074,6 +1073,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             closedAt:ngodInfo.date,
             isBasket:true,
             basketName:displayName,
+            setNum:(function(){var h2=getHistory();return h2.filter(function(x){return x.isBasket&&x.ngodId===(ngodInfo.ngodId||0);}).length+1;})(),
             discRates:dr,
             checkResult:null,
             checkNumbers:null
@@ -1120,8 +1120,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var hh=String(now.getHours()).padStart(2,'0');
     var mm=String(now.getMinutes()).padStart(2,'0');
     var ngodWithTime=ngod+' '+hh+':'+mm;
-    var mSetNum=(document.getElementById('m-setnum')?document.getElementById('m-setnum').value.trim():'');
-    ngodInfo={sender:sender,receiver:receiver,ngod:ngodWithTime,date:getToday(),basketName:'',ngodId:Date.now(),setNum:mSetNum};
+    ngodInfo={sender:sender,receiver:receiver,ngod:ngodWithTime,date:getToday(),basketName:'',ngodId:Date.now()};
     ngodOpen=true;
     entries=[];eid=0;pageBreakIds=[];isLocked=false;
     save();
@@ -1512,7 +1511,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(delBtn){delBtn.style.display='';delBtn.dataset.idx=i;}
       document.getElementById('slip-ov').classList.add('show');
       document.getElementById('ov-share-line').style.display='';
-      var _hInf={ngod:h.ngod,sender:h.sender,receiver:h.receiver,date:h.date,setNum:h.setNum||''};
+      var _hInf={ngod:h.ngod,sender:h.sender,receiver:h.receiver,date:h.date,setNum:h.num||(si+1)};
       var _hPages=[];var _hPen=[];var _hRc=0;var _MAX=20;
       h.entries.forEach(function(e){var lc=toLines(e).length;if(_hRc>0&&(_hRc+lc>_MAX)){_hPages.push(_hPen);_hPen=[];_hRc=0;}_hPen.push(e);_hRc+=lc;});
       if(_hPen.length)_hPages.push(_hPen);
