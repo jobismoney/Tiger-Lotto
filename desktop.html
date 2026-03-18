@@ -902,12 +902,11 @@ window.addEventListener('message', function(ev){
           var prevCust=customers.find(function(cu){return cu.id===prev.cid;})||{};
           var prevName=prevCust.name||prev.sender||'ไม่ทราบ';
           dupWarnings.push('แผ่น '+data.pg+' ⚠️ สแกนซ้ำ! (ของ '+prevName+')');
-        } else { log.push({ fp: fp, time: Date.now(), sender: data.sender||'', ngod: data.ngod||'', pg: data.pg, cid: curCustId||'' }); }
+        } // log จะถูก save ตอน import จริงเท่านั้น
         validDataList.push(data);
       } catch(err){ toast('อ่าน QR ไม่ได้: '+err.message); }
     });
     if(!validDataList.length){ if(dupWarnings.length) toast('⚠️ '+dupWarnings.join(', ')); return; }
-    saveScannedLog(log);
     var totalEntries = validDataList.reduce(function(s,d){ return s+d.entries.length; }, 0);
     var dupMsg = dupWarnings.length ? '⚠️ '+dupWarnings.join(', ')+'<br>' : '';
     // แสดง banner ครั้งเดียว เลือกลูกค้า แล้ว import เป็น set แยกตามจำนวน QR
@@ -943,6 +942,7 @@ function showScanSuccess(custName, totalEntries, dupMsg){
 function doImportMulti(dataList, totalEntries, cid){
   if(!custSets[cid]) custSets[cid]=[];
   if(!custEid[cid]) custEid[cid]=0;
+  var log=getScannedLog();
   dataList.forEach(function(data){
     var entries=[];
     data.entries.forEach(function(e){
@@ -952,7 +952,11 @@ function doImportMulti(dataList, totalEntries, cid){
         bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,kd:e.kd||{},paks:e.paks||[]});
     });
     custSets[cid].push({entries:entries, locked:false, time:Date.now(), sender:data.sender||'', pg:data.pg||'', setNum:data.setNum||''});
+    // บันทึก log เฉพาะตอน import จริง
+    var fp=makeQRFingerprint(data);
+    log.push({fp:fp, time:Date.now(), sender:data.sender||'', ngod:data.ngod||'', pg:data.pg, cid:cid});
   });
+  saveScannedLog(log);
   curCustId=cid;
   save();
   renderCustList(); renderHist(); updateSummary();
