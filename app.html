@@ -624,7 +624,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   <div class="modal-box">
     <div class="modal-title">🎯 เปิดชุดใหม่</div>
     <div class="modal-field"><label>ผู้ส่ง (ชื่อของคุณ)</label><input type="text" id="m-sender" placeholder="ชื่อผู้ส่ง"></div>
-    <div class="modal-field"><label>ผู้รับ</label><input type="text" id="m-receiver" placeholder="ชื่อผู้รับ"></div>
     <div class="modal-field"><label>งวดที่</label><input type="text" id="m-ngod" placeholder="1/3/2569"></div>
     <div class="modal-btns">
       <button class="modal-cancel" id="modal-cancel">ยกเลิก</button>
@@ -989,7 +988,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function openNgodModal(hasOld){
     var m=document.getElementById('modal-ngod');
     document.getElementById('m-sender').value=ngodInfo.sender||'';
-    document.getElementById('m-receiver').value=ngodInfo.receiver||'';
     document.getElementById('m-ngod').value=getNextNgod();
     // ถ้ามีงวดเก่าค้างอยู่
     if(hasOld&&entries.length){
@@ -1113,14 +1111,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function doOpenNgod(){
     var sender=document.getElementById('m-sender').value.trim();
-    var receiver=document.getElementById('m-receiver').value.trim();
+    var receiver=sender;
     var ngod=document.getElementById('m-ngod').value.trim();
     if(!ngod){toast('กรุณาใส่งวดครับ');return;}
     var now=new Date();
     var hh=String(now.getHours()).padStart(2,'0');
     var mm=String(now.getMinutes()).padStart(2,'0');
     var ngodWithTime=ngod+' '+hh+':'+mm;
-    ngodInfo={sender:sender,receiver:receiver,ngod:ngodWithTime,date:getToday(),basketName:'',ngodId:Date.now()};
+    ngodInfo={sender:sender,receiver:sender,ngod:ngodWithTime,date:getToday(),basketName:'',ngodId:Date.now()};
     ngodOpen=true;
     entries=[];eid=0;pageBreakIds=[];isLocked=false;
     save();

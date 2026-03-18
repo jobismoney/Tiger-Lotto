@@ -975,10 +975,18 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
     showScanSuccess(_custName,totalEntries,dupMsg);
     return;
   }
-  // auto-match จาก sender ใน QR (sender = ชื่อเอเย่นต์ = ชื่อลูกค้าในระบบเจ้ามือ)
-  var firstSender = dataList[0]&&dataList[0].sender ? dataList[0].sender.trim() : '';
-  if(firstSender){
-    var matched = customers.find(function(cu){ return cu.name===firstSender; });
+  // auto-match จาก receiver ใน QR (receiver = ชื่อเอเย่นต์)
+  var firstReceiver = dataList[0]&&dataList[0].receiver ? dataList[0].receiver.trim() : '';
+  if(firstReceiver){
+    var matched = customers.find(function(cu){ return cu.name===firstReceiver; });
+    if(!matched && firstReceiver){
+      // สร้างลูกค้าใหม่อัตโนมัติ
+      var newId = 'c'+Date.now();
+      customers.push({id:newId, name:firstReceiver});
+      custEntries[newId]=[]; custEid[newId]=0; custSets[newId]=[];
+      matched = customers.find(function(cu){ return cu.id===newId; });
+      save(); renderCustList();
+    }
     if(matched){
       doImportMulti(dataList,totalEntries,matched.id);
       showScanSuccess(matched.name,totalEntries,dupMsg);
