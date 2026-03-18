@@ -157,7 +157,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <div class="modal-box">
     <div class="modal-title">📂 เก็บเข้าแฟ้ม</div>
     <div style="font-size:13px;color:#888;margin-bottom:6px;">ชื่อผู้ส่ง (ไม่บังคับ)</div>
-    <div id="sender-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;"></div>
+    <div id="sender-chips" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;"></div>
     <input class="modal-inp" id="inp-sender" type="text" placeholder="พิมพ์ชื่อ..." onkeydown="if(event.key==='Enter')confirmSaveSet()">
     <div class="modal-btns">
       <button class="modal-ok" onclick="confirmSaveSet()">✅ บันทึก</button>
@@ -252,7 +252,6 @@ function load(){
       curEid = data.curEid || {};
     }
   }catch(e){}
-  // sync ชื่อลูกค้าจาก desktop
   syncCustFromDesktop();
 }
 
@@ -281,17 +280,19 @@ function syncCustFromDesktop(){
 // CUSTOMERS
 // ================================================================
 function renderCustList(){
-  var h = '';
+  var el = document.getElementById('cust-list');
+  el.innerHTML = '';
   customers.forEach(function(c){
     var cnt = (custEntries[c.id]||[]).length;
     var sets = (custSets[c.id]||[]).length;
     var active = c.id === curCustId;
-    h += '<div class="cust-item'+(active?' active':'')+'" onclick="selectCust(\''+c.id+'\')">'\
-      +'<div class="cust-name">'+c.name+'</div>'\
-      +'<div class="cust-count">'+cnt+' รายการ'+(sets>0?' · '+sets+' ชุด':'')+'</div>'\
-      +'</div>';
+    var div = document.createElement('div');
+    div.className = 'cust-item' + (active ? ' active' : '');
+    div.innerHTML = '<div class="cust-name">'+c.name+'</div>'
+      +'<div class="cust-count">'+cnt+' รายการ'+(sets>0?' · '+sets+' ชุด':'')+'</div>';
+    div.addEventListener('click', (function(id){ return function(){ selectCust(id); }; })(c.id));
+    el.appendChild(div);
   });
-  document.getElementById('cust-list').innerHTML = h;
 }
 
 function selectCust(id){
@@ -313,16 +314,14 @@ function openAddCust(){
 function confirmAddCust(){
   var name = document.getElementById('inp-cust-name').value.trim();
   if(!name){ toast('ใส่ชื่อก่อนครับ'); return; }
-  // เช็คชื่อซ้ำ
   var dup = customers.find(function(c){ return c.name===name; });
-  if(dup){ toast('⚠️ มีชื่อ "'+name+'" อยู่แล้วครับ'); return; }
+  if(dup){ toast('มีชื่อ "'+name+'" อยู่แล้วครับ'); return; }
   var id = 'c' + Date.now();
   customers.push({id:id, name:name});
   custEntries[id] = [];
   custSets[id] = [];
   curEid[id] = 0;
   save();
-  // sync ชื่อใหม่ลง desktop ด้วย
   try{
     var raw = localStorage.getItem('t999_desktop_v1');
     if(raw){
@@ -334,16 +333,14 @@ function confirmAddCust(){
         if(!data.custEntries) data.custEntries={};
         if(!data.custSets) data.custSets={};
         if(!data.custEid) data.custEid={};
-        data.custEntries[id]=[];
-        data.custSets[id]=[];
-        data.custEid[id]=0;
+        data.custEntries[id]=[]; data.custSets[id]=[]; data.custEid[id]=0;
         localStorage.setItem('t999_desktop_v1', JSON.stringify(data));
       }
     }
   }catch(e){}
   closeModal('modal-add-cust');
   selectCust(id);
-  toast('เพิ่ม '+name+' แล้ว ✅');
+  toast('เพิ่ม '+name+' แล้ว');
 }
 
 // ================================================================
@@ -370,23 +367,23 @@ function renderEntries(){
     return;
   }
 
-  var h = '<div class="tbl-hdr">'\
-    +'<div class="th">เลข</div>'\
-    +'<div class="th">บน</div>'\
-    +'<div class="th">โต๊ด</div>'\
-    +'<div class="th">ล่าง</div>'\
-    +'<div class="th">หน้า</div>'\
-    +'<div class="th"></div>'\
+  var h = '<div class="tbl-hdr">'
+    +'<div class="th">เลข</div>'
+    +'<div class="th">บน</div>'
+    +'<div class="th">โต๊ด</div>'
+    +'<div class="th">ล่าง</div>'
+    +'<div class="th">หน้า</div>'
+    +'<div class="th"></div>'
     +'</div>';
 
   entries.forEach(function(e){
-    h += '<div class="entry-row">'\
-      +'<div class="e-lek">'+e.lek+'</div>'\
-      +'<div class="e-val'+(e.bon?' has':'')+'">'+( e.bon||'—')+'</div>'\
-      +'<div class="e-val'+(e.tod?' has':'')+'">'+( e.tod||'—')+'</div>'\
-      +'<div class="e-val'+(e.lang?' has':'')+'">'+( e.lang||'—')+'</div>'\
-      +'<div class="e-val'+(e.na?' has':'')+'">'+( e.na||'—')+'</div>'\
-      +'<button class="e-del" onclick="removeEntry(\''+e.id+'\')">✕</button>'\
+    h += '<div class="entry-row">'
+      +'<div class="e-lek">'+e.lek+'</div>'
+      +'<div class="e-val'+(e.bon?' has':'')+'">'+( e.bon||'—')+'</div>'
+      +'<div class="e-val'+(e.tod?' has':'')+'">'+( e.tod||'—')+'</div>'
+      +'<div class="e-val'+(e.lang?' has':'')+'">'+( e.lang||'—')+'</div>'
+      +'<div class="e-val'+(e.na?' has':'')+'">'+( e.na||'—')+'</div>'
+      +'<button class="e-del" onclick="removeEntry(\''+e.id+'\')">✕</button>'
       +'</div>';
   });
 
@@ -416,11 +413,11 @@ function renderKeyArea(){
   var h = '';
   fields.forEach(function(f){
     var isActive = getCurField() === f;
-    h += '<div class="kf">'\
-      +'<div class="kf-lbl">'+FIELD_LABELS[f]+'</div>'\
-      +'<div class="kf-inp'+(isActive?' active':'')+'" id="kf-'+f+'" onclick="setField(\''+f+'\')">'\
-      +(curFields[f]||'—')\
-      +'</div>'\
+    h += '<div class="kf">'
+      +'<div class="kf-lbl">'+FIELD_LABELS[f]+'</div>'
+      +'<div class="kf-inp'+(isActive?' active':'')+'" id="kf-'+f+'" onclick="setField(\''+f+'\')">'
+      +(curFields[f]||'—')
+      +'</div>'
       +'</div>';
   });
   document.getElementById('key-fields').innerHTML = h;
@@ -541,14 +538,13 @@ function saveSet(){
   var entries = custEntries[curCustId] || [];
   if(!entries.length){ toast('ยังไม่มีรายการครับ'); return; }
   document.getElementById('inp-sender').value = '';
-  // chips = ชื่อลูกค้าในระบบ
   var chips = document.getElementById('sender-chips');
   if(chips){
     chips.innerHTML='';
     customers.forEach(function(c){
       var btn=document.createElement('button');
       btn.textContent=c.name;
-      btn.style.cssText='background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);border-radius:20px;color:var(--gold);font-family:Sarabun,sans-serif;font-size:12px;font-weight:800;padding:3px 10px;cursor:pointer;';
+      btn.style.cssText='background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);border-radius:20px;color:#f5c518;font-size:12px;font-weight:800;padding:3px 10px;cursor:pointer;margin-right:4px;';
       btn.addEventListener('click',function(){document.getElementById('inp-sender').value=c.name;});
       chips.appendChild(btn);
     });
