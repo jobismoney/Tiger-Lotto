@@ -540,6 +540,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
           <div class="sum-total-lbl">ยอดรวม</div>
           <div class="sum-total-num" id="sum-total">฿0</div>
         </div>
+        <button onclick="showSlipAll()" style="width:100%;margin-bottom:10px;padding:10px;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;cursor:pointer;">📋 สรุปยอด</button>
         <div class="sum-sec">แยกประเภท</div>
         <div class="sum-row"><span class="sum-row-lbl">3 ตัว</span><span class="sum-row-val zero" id="sg-3">฿0</span></div>
         <div class="sum-row"><span class="sum-row-lbl">2 ตัว</span><span class="sum-row-val zero" id="sg-2">฿0</span></div>
@@ -1254,7 +1255,7 @@ function renderCustList(){
       +'<button class="cslip-btn cr-btn" data-cid="'+c.id+'" style="display:flex;align-items:center;gap:3px;padding:5px 8px;font-size:12px;font-weight:800;white-space:nowrap;">⚙️ เรท</button>'
       +'<button class="cslip-btn sc-btn" data-cid="'+c.id+'" style="display:flex;align-items:center;gap:3px;padding:5px 8px;font-size:12px;font-weight:800;white-space:nowrap;'+(hasPending?'background:rgba(245,197,24,.25);border-color:rgba(245,197,24,.6);color:var(--gold);':'')+'" title="'+(hasPending?'มีรายการค้าง':'สแกน')+'">📷 สแกน</button>'
       +'<button class="cslip-btn sl-btn" data-cid="'+c.id+'" style="display:flex;align-items:center;gap:3px;padding:5px 8px;font-size:12px;font-weight:800;white-space:nowrap;'+(hasPending?'background:rgba(245,197,24,.25);border-color:rgba(245,197,24,.6);color:var(--gold);':'')+'" title="'+(hasPending?'มีรายการค้าง':'ดูโพย')+'">📋 โพย</button>'
-      +'<button class="cslip-btn dl-btn" data-cid="'+c.id+'" style="display:flex;align-items:center;gap:3px;padding:5px 8px;font-size:12px;font-weight:800;white-space:nowrap;background:rgba(231,76,60,.1);border-color:rgba(231,76,60,.3);color:#e74c3c;">🗑️ ลบ</button>'
+
       +'</div>'
 
       +'</div>'
