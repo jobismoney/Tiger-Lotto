@@ -2657,7 +2657,7 @@ function buildSlipHTML(cid){
     +'<span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
     +'</div>'
     +sumTableHTML(allSumRows)
-    +'<div class="slip-ft"><span class="fl">ยอดรวมทั้งหมด</span><span class="fv">฿'+fmtN(grandTotal)+'</span></div>';
+    +'<div class="slip-ft"><span class="fl">ยอดรวมทั้งหมด (หลังลด%)</span><span class="fv">฿'+fmtN(netTotal)+'</span></div>';
   allHTML+='<div class="slip-page-sum"><div class="slip-page">'+sumHTML+'</div></div>';
   return allHTML;
 }
