@@ -1171,17 +1171,31 @@ function renderCustList(){
     var hasPrize=lastCheckResult&&lastCheckResult[c.id]>0;
     var dotClass='cdot'+(active?' active-live':(hasPending?' on':''));
     var prizeTag=hasPrize?'<span class="cprize">🎉</span>':'';
-    var borderStyle=hasPrize?' style="border-color:rgba(34,197,94,.4);"':'';
-    h+='<div class="citem'+(active?' active':'')+'"'+borderStyle+' onclick="selectCust(\''+c.id+'\')">'
-      +'<div class="cname"><div class="'+dotClass+'"></div>'+c.name+prizeTag+'</div>'
+    var rateTag=c.rates?'<span style="color:var(--gold);font-size:10px;margin-left:3px;">★</span>':'';
+    var bStyle=hasPrize?' style="border-color:rgba(34,197,94,.4);"':'';
+    h+='<div class="citem'+(active?' active':'')+'" data-cid="'+c.id+'"'+bStyle+'>'
+      +'<div class="cname"><div class="'+dotClass+'"></div>'+c.name+prizeTag+rateTag+'</div>'
       +'<div class="ctotal">฿'+tot.toLocaleString()+'</div>'
       +'<div class="ccount">'+cnt+' รายการ</div>'
-      +'<button class="cslip-btn" onclick="event.stopPropagation();openScanForCust(\''+c.id+'\');" title="สแกน">📷</button>'
-      +'<button class="cslip-btn" onclick="event.stopPropagation();showSlipCust(\''+c.id+'\')" title="ดูโพย">📋</button>'
+      +'<button class="cslip-btn cr-btn" data-cid="'+c.id+'" title="ตั้งเรท">⚙️</button>'
+      +'<button class="cslip-btn sc-btn" data-cid="'+c.id+'" title="สแกน">📷</button>'
+      +'<button class="cslip-btn sl-btn" data-cid="'+c.id+'" title="ดูโพย">📋</button>'
       +'</div>';
   });
   document.getElementById('clist').innerHTML=h;
   document.getElementById('cust-count').textContent=customers.length;
+  document.querySelectorAll('#clist .citem').forEach(function(el){
+    el.addEventListener('click',function(){ selectCust(this.dataset.cid); });
+  });
+  document.querySelectorAll('#clist .cr-btn').forEach(function(el){
+    el.addEventListener('click',function(e){ e.stopPropagation(); openCustRate(this.dataset.cid); });
+  });
+  document.querySelectorAll('#clist .sc-btn').forEach(function(el){
+    el.addEventListener('click',function(e){ e.stopPropagation(); openScanForCust(this.dataset.cid); });
+  });
+  document.querySelectorAll('#clist .sl-btn').forEach(function(el){
+    el.addEventListener('click',function(e){ e.stopPropagation(); showSlipCust(this.dataset.cid); });
+  });
 }
 function selectCust(id){
   curCustId=id; npLek='';npPhase='lek';npStep=0;npBuffer='';npLekQueue=[];
@@ -2624,7 +2638,7 @@ function buildSlipHTML(cid){
 
   // บรรทัดหลังลด%
   var r=settings.normal;
-  function getDisc(key){var f=r.find(function(x){return x.key===key;});return f?f.disc:0;}
+  function getDisc(key){return getCustDisc(cid,key);}
   var d3=getDisc('3bon'),d2=getDisc('2bon'),d1=getDisc('vbon'),dt=getDisc('tod'),dl=getDisc('3lang');
   var netC={
     c3:Math.round(grandS.c3*(1-d3/100)),
@@ -2975,6 +2989,47 @@ function doCheckResult(){
   document.getElementById('check-result-out').innerHTML = out;
 }
 
+// ================================================================
+// CUST RATE
+// ================================================================
+var _crCustId = null;
+function getCustDisc(cid, key){
+  var cust=customers.find(function(c){return c.id===cid;});
+  if(cust&&cust.rates){var v=cust.rates[key];if(v!==undefined&&v!==null&&v!=='')return parseFloat(v);}
+  var f=settings.normal.find(function(x){return x.key===key;});
+  return f?f.disc:0;
+}
+function openCustRate(cid){
+  _crCustId=cid;
+  var cust=customers.find(function(c){return c.id===cid;});
+  if(!cust) return;
+  document.getElementById('cr-cust-name').textContent=cust.name;
+  var r=cust.rates||{};
+  ['3bon','2bon','vbon','tod','3lang'].forEach(function(k){
+    var el=document.getElementById('cr-'+k);
+    if(el) el.value=(r[k]!==undefined&&r[k]!==null&&r[k]!=='')?r[k]:'';
+  });
+  document.getElementById('modal-cust-rate').classList.add('show');
+}
+function saveCustRate(){
+  var cust=customers.find(function(c){return c.id===_crCustId;});
+  if(!cust) return;
+  function gv(k){var el=document.getElementById('cr-'+k);return(el&&el.value.trim()!=='')?parseFloat(el.value):null;}
+  var r={'3bon':gv('3bon'),'2bon':gv('2bon'),'vbon':gv('vbon'),'tod':gv('tod'),'3lang':gv('3lang')};
+  cust.rates=Object.values(r).some(function(v){return v!==null;})?r:null;
+  save();renderCustList();
+  document.getElementById('modal-cust-rate').classList.remove('show');
+  toast('บันทึกเรทของ '+cust.name+' แล้ว ✅');
+}
+function clearCustRate(){
+  var cust=customers.find(function(c){return c.id===_crCustId;});
+  if(!cust) return;
+  cust.rates=null;
+  save();renderCustList();
+  document.getElementById('modal-cust-rate').classList.remove('show');
+  toast('ล้างเรทพิเศษของ '+cust.name+' แล้ว');
+}
+
 function getCfg(key){
   var all = settings.normal.concat(settings.special);
   return all.find(function(x){return x.key===key;})||null;
@@ -3283,6 +3338,26 @@ selectCust = function(id){
       <button onclick="closeScanPopup()" style="background:none;border:none;color:#7a8aaa;font-size:20px;cursor:pointer;">✕</button>
     </div>
     <iframe id="scan-iframe" src="" style="width:100%;height:500px;border:none;background:#0f1117;"></iframe>
+  </div>
+</div>
+
+<!-- Cust Rate Modal -->
+<div class="modal-overlay" id="modal-cust-rate" style="z-index:9999;">
+  <div style="background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid var(--gold);border-radius:16px;padding:24px 20px;width:90%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.7);" onclick="event.stopPropagation()">
+    <div style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:4px;font-family:'Sarabun',sans-serif;">⚙️ เรทพิเศษ — <span id="cr-cust-name"></span></div>
+    <div style="font-size:11px;color:#556;margin-bottom:14px;font-family:'Sarabun',sans-serif;">ปล่อยว่างไว้ = ใช้เรท global</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">3ตัว ลด%</div><input id="cr-3bon" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
+      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">2ตัว ลด%</div><input id="cr-2bon" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
+      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">วิ่ง ลด%</div><input id="cr-vbon" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
+      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">โต๊ด ลด%</div><input id="cr-tod" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
+      <div style="grid-column:1/-1;"><div style="font-size:12px;color:#888;margin-bottom:4px;">3ล่าง ลด%</div><input id="cr-3lang" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="saveCustRate()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#111;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;">💾 บันทึก</button>
+      <button onclick="clearCustRate()" style="background:#1e293b;border:1px solid #334;border-radius:10px;color:#f87171;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;padding:10px 12px;cursor:pointer;">ล้าง</button>
+      <button onclick="document.getElementById('modal-cust-rate').classList.remove('show')" style="background:#1e293b;border:1px solid #334;border-radius:10px;color:#94a3b8;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;padding:10px 12px;cursor:pointer;">ยกเลิก</button>
+    </div>
   </div>
 </div>
 
