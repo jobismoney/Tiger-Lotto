@@ -157,7 +157,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <div class="modal-box">
     <div class="modal-title">📂 เก็บเข้าแฟ้ม</div>
     <div style="font-size:13px;color:#888;margin-bottom:6px;">ชื่อผู้ส่ง (ไม่บังคับ)</div>
-    <input class="modal-inp" id="inp-sender" type="text" placeholder="ชื่อคุณ" onkeydown="if(event.key==='Enter')confirmSaveSet()">
+    <div id="sender-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;"></div>
+    <input class="modal-inp" id="inp-sender" type="text" placeholder="พิมพ์ชื่อ..." onkeydown="if(event.key==='Enter')confirmSaveSet()">
     <div class="modal-btns">
       <button class="modal-ok" onclick="confirmSaveSet()">✅ บันทึก</button>
       <button class="modal-cancel" onclick="closeModal('modal-save-set')">ยกเลิก</button>
@@ -251,6 +252,29 @@ function load(){
       curEid = data.curEid || {};
     }
   }catch(e){}
+  // sync ชื่อลูกค้าจาก desktop
+  syncCustFromDesktop();
+}
+
+function syncCustFromDesktop(){
+  try{
+    var raw = localStorage.getItem('t999_desktop_v1');
+    if(!raw) return;
+    var data = JSON.parse(raw);
+    var deskCusts = data.customers || [];
+    var changed = false;
+    deskCusts.forEach(function(dc){
+      var exists = customers.find(function(c){ return c.id===dc.id || c.name===dc.name; });
+      if(!exists){
+        customers.push({id:dc.id, name:dc.name});
+        if(!custEntries[dc.id]) custEntries[dc.id]=[];
+        if(!custSets[dc.id]) custSets[dc.id]=[];
+        if(!curEid[dc.id]) curEid[dc.id]=0;
+        changed = true;
+      }
+    });
+    if(changed) save();
+  }catch(e){}
 }
 
 // ================================================================
@@ -289,14 +313,37 @@ function openAddCust(){
 function confirmAddCust(){
   var name = document.getElementById('inp-cust-name').value.trim();
   if(!name){ toast('ใส่ชื่อก่อนครับ'); return; }
+  // เช็คชื่อซ้ำ
+  var dup = customers.find(function(c){ return c.name===name; });
+  if(dup){ toast('⚠️ มีชื่อ "'+name+'" อยู่แล้วครับ'); return; }
   var id = 'c' + Date.now();
   customers.push({id:id, name:name});
   custEntries[id] = [];
   custSets[id] = [];
   curEid[id] = 0;
   save();
+  // sync ชื่อใหม่ลง desktop ด้วย
+  try{
+    var raw = localStorage.getItem('t999_desktop_v1');
+    if(raw){
+      var data = JSON.parse(raw);
+      if(!data.customers) data.customers=[];
+      var exists = data.customers.find(function(c){ return c.id===id||c.name===name; });
+      if(!exists){
+        data.customers.push({id:id,name:name});
+        if(!data.custEntries) data.custEntries={};
+        if(!data.custSets) data.custSets={};
+        if(!data.custEid) data.custEid={};
+        data.custEntries[id]=[];
+        data.custSets[id]=[];
+        data.custEid[id]=0;
+        localStorage.setItem('t999_desktop_v1', JSON.stringify(data));
+      }
+    }
+  }catch(e){}
   closeModal('modal-add-cust');
   selectCust(id);
+  toast('เพิ่ม '+name+' แล้ว ✅');
 }
 
 // ================================================================
@@ -494,6 +541,13 @@ function saveSet(){
   var entries = custEntries[curCustId] || [];
   if(!entries.length){ toast('ยังไม่มีรายการครับ'); return; }
   document.getElementById('inp-sender').value = '';
+  // chips = ชื่อลูกค้าในระบบ
+  var chips = document.getElementById('sender-chips');
+  if(chips){
+    chips.innerHTML = customers.map(function(c){
+      return '<button onclick="document.getElementById(\'inp-sender\').value=\''+c.name+'\'" style="background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);border-radius:20px;color:var(--gold);font-family:\'Sarabun\',sans-serif;font-size:12px;font-weight:800;padding:3px 10px;cursor:pointer;">'+c.name+'</button>';
+    }).join('');
+  }
   document.getElementById('modal-save-set').classList.add('show');
   setTimeout(function(){ document.getElementById('inp-sender').focus(); }, 100);
 }
