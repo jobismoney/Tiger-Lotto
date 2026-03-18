@@ -3220,15 +3220,48 @@ function switchCrTab(tab, btn){
   if(tab==='arn') renderCustArnList();
 }
 
+function updateCrArnCbState(){
+  var lek=(document.getElementById('cr-arn-lek').value||'').trim();
+  var n=lek.length;
+  var allowed={bon:false,tod:false,lang:false,na:false,klb:false};
+  if(n===1){allowed.bon=true;allowed.lang=true;}
+  else if(n===2){allowed.bon=true;allowed.lang=true;allowed.na=true;allowed.tod=true;allowed.klb=true;}
+  else if(n===3){allowed.bon=true;allowed.tod=true;allowed.lang=true;allowed.na=true;allowed.klb=true;}
+  else if(n===4||n===5){allowed.tod=true;}
+  ['bon','tod','lang','na','klb'].forEach(function(fk){
+    var cb=document.getElementById('cr-arn-'+fk);
+    if(!cb) return;
+    cb.disabled=!allowed[fk];
+    cb.parentElement.style.opacity=allowed[fk]?'1':'0.3';
+    cb.parentElement.style.cursor=allowed[fk]?'pointer':'not-allowed';
+    if(!allowed[fk]) cb.checked=false;
+  });
+}
+
 function addCustArn(){
   var lek = (document.getElementById('cr-arn-lek').value||'').trim();
   var pct = parseInt(document.getElementById('cr-arn-pct').value);
   if(!lek){ toast('ใส่เลขก่อนครับ'); return; }
+  var fields = ['bon','tod','lang','na'].filter(function(fk){
+    var cb=document.getElementById('cr-arn-'+fk);
+    return cb&&cb.checked&&!cb.disabled;
+  });
+  var inclKlb = (function(){var cb=document.getElementById('cr-arn-klb');return cb&&cb.checked&&!cb.disabled;})();
+  if(!fields.length&&!inclKlb){ toast('เลือก field อย่างน้อย 1 ช่อง'); return; }
   var cust = customers.find(function(c){return c.id===_crCustId;});
   if(!cust) return;
   if(!cust.arn) cust.arn = {};
-  cust.arn[lek] = pct;
-  document.getElementById('cr-arn-lek').value = '';
+  var at = Date.now();
+  fields.forEach(function(fk){ cust.arn[lek+'|'+fk]={pct:pct,at:at}; });
+  if(inclKlb){
+    var perms = getPerms(lek).filter(function(p){return p!==lek;});
+    perms.forEach(function(p){
+      ['bon','lang','na'].forEach(function(fk){
+        cust.arn[p+'|'+fk+'|klb']={pct:pct,at:at};
+      });
+    });
+  }
+  document.getElementById('cr-arn-lek').value='';
   save(); renderCustArnList();
   toast('ตั้งอั้น '+lek+' แล้ว ✅');
 }
@@ -3247,19 +3280,40 @@ function renderCustArnList(){
   var cust = customers.find(function(c){return c.id===_crCustId;});
   var arn = (cust&&cust.arn)||{};
   var keys = Object.keys(arn);
-  if(!keys.length){ el.innerHTML='<div style="color:#444;font-size:12px;text-align:center;padding:10px;">ยังไม่มีการตั้งอั้น</div>'; return; }
-  var h = '';
-  keys.forEach(function(lek){
-    var pct = arn[lek];
-    var col = pct===0?'#ef4444':pct<=25?'#f87171':'#f59e0b';
-    h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 8px;background:#0f172a;border-radius:6px;margin-bottom:4px;">'
+  if(!keys.length){ el.innerHTML='<div style="color:#444;font-size:12px;text-align:center;padding:10px;">ยังไม่มีการตั้งอั้น — ทุกเลขจ่าย 100%</div>'; return; }
+  var fieldLabels={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
+  var normalByLek={};
+  keys.forEach(function(k){
+    var parts=k.split('|'); var lek=parts[0]; var fk=parts[1]; var isKlb=parts[2]==='klb';
+    if(!isKlb){ if(!normalByLek[lek]) normalByLek[lek]=[]; normalByLek[lek].push({fk:fk,pct:arn[k]}); }
+  });
+  var PCT_COLORS={100:'#22c55e',50:'#f59e0b',25:'#fb923c',10:'#f87171',0:'#ef4444'};
+  var h='';
+  Object.keys(normalByLek).forEach(function(lek){
+    h+='<div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:7px 10px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;">'
       +'<span style="font-size:15px;font-weight:900;color:#f5c518;">'+lek+'</span>'
-      +'<span style="font-size:13px;font-weight:900;color:'+col+';">'+pct+'%</span>'
-      +'<button data-lek="'+lek+'" onclick="removeCustArn(this.dataset.lek)" style="background:none;border:none;color:#475569;font-size:13px;cursor:pointer;">✕</button>'
+      +'<div style="display:flex;gap:4px;flex-wrap:wrap;">';
+    normalByLek[lek].forEach(function(x){
+      if(!fieldLabels[x.fk]) return;
+      var pctVal=(typeof x.pct==='object'&&x.pct)?x.pct.pct:x.pct;
+      var col=PCT_COLORS[pctVal]||'#f87171';
+      h+='<span style="font-size:11px;color:#94a3b8;">'+fieldLabels[x.fk]+'</span>'
+        +'<span style="font-size:12px;font-weight:900;color:'+col+';margin-right:4px;">'+pctVal+'%</span>';
+    });
+    h+='</div>'
+      +'<button data-lek="'+lek+'" onclick="removeCustArnLek(this.dataset.lek)" style="background:none;border:none;color:#475569;font-size:13px;cursor:pointer;">✕</button>'
       +'</div>';
   });
-  el.innerHTML = h;
+  el.innerHTML=h;
 }
+
+function removeCustArnLek(lek){
+  var cust=customers.find(function(c){return c.id===_crCustId;});
+  if(!cust||!cust.arn) return;
+  Object.keys(cust.arn).forEach(function(k){ if(k.split('|')[0]===lek) delete cust.arn[k]; });
+  save(); renderCustArnList();
+}
+window.removeCustArnLek=removeCustArnLek;
 
 function getCustArn(cid, lek){
   var cust = customers.find(function(c){return c.id===cid;});
@@ -3597,16 +3651,26 @@ selectCust = function(id){
     </div>
     </div><!-- end cr-panel-rate -->
     <div id="cr-panel-arn" style="display:none;">
-      <div style="font-size:11px;color:#556;margin-bottom:8px;font-family:'Sarabun',sans-serif;">เพิ่มเลขที่ต้องการอั้นสำหรับลูกค้าคนนี้</div>
-      <div style="display:flex;gap:6px;margin-bottom:8px;">
-        <input id="cr-arn-lek" type="tel" inputmode="numeric" maxlength="5" placeholder="เลข" style="width:64px;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f5c518;font-size:16px;font-weight:900;padding:7px 8px;text-align:center;font-family:'Sarabun',sans-serif;outline:none;">
-        <select id="cr-arn-pct" style="flex:1;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f87171;font-size:13px;font-weight:900;padding:7px;font-family:'Sarabun',sans-serif;">
+      <div style="font-size:11px;color:#556;margin-bottom:8px;font-family:'Sarabun',sans-serif;">default = 100% ทุกเลข · ตั้งเฉพาะเลขที่ต้องการลด</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center;">
+        <input id="cr-arn-lek" type="tel" inputmode="numeric" maxlength="5" placeholder="เลข" oninput="updateCrArnCbState()" style="width:64px;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#f5c518;font-size:16px;font-weight:900;padding:7px 8px;text-align:center;font-family:'Sarabun',sans-serif;outline:none;box-sizing:border-box;">
+        <select id="cr-arn-pct" style="flex:1;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#f87171;font-size:13px;font-weight:900;padding:7px 6px;font-family:'Sarabun',sans-serif;cursor:pointer;">
           <option value="50">50%</option>
           <option value="25">25%</option>
           <option value="10">10%</option>
           <option value="0">0% (ไม่รับ)</option>
         </select>
-        <button onclick="addCustArn()" style="background:var(--gold);border:none;border-radius:8px;color:#111;font-size:13px;font-weight:900;padding:7px 10px;cursor:pointer;font-family:'Sarabun',sans-serif;">+ เพิ่ม</button>
+        <button onclick="addCustArn()" style="background:#f5c518;border:none;border-radius:8px;color:#111;font-size:13px;font-weight:900;padding:7px 10px;cursor:pointer;font-family:'Sarabun',sans-serif;">+ เพิ่ม</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;color:#94a3b8;background:#1a1a2e;border:1px solid #333;border-radius:7px;padding:5px 10px;"><input type="checkbox" id="cr-arn-bon" checked style="accent-color:#f5c518;width:14px;height:14px;cursor:pointer;"> บน</label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;color:#94a3b8;background:#1a1a2e;border:1px solid #333;border-radius:7px;padding:5px 10px;"><input type="checkbox" id="cr-arn-tod" style="accent-color:#f5c518;width:14px;height:14px;cursor:pointer;"> โต๊ด</label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;color:#94a3b8;background:#1a1a2e;border:1px solid #333;border-radius:7px;padding:5px 10px;"><input type="checkbox" id="cr-arn-lang" style="accent-color:#f5c518;width:14px;height:14px;cursor:pointer;"> ล่าง</label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;color:#94a3b8;background:#1a1a2e;border:1px solid #333;border-radius:7px;padding:5px 10px;"><input type="checkbox" id="cr-arn-na" style="accent-color:#f5c518;width:14px;height:14px;cursor:pointer;"> หน้า</label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;color:#a78bfa;background:#1a1a2e;border:1px solid #4c3d7a;border-radius:7px;padding:5px 10px;"><input type="checkbox" id="cr-arn-klb" style="accent-color:#a78bfa;width:14px;height:14px;cursor:pointer;"> กลับ/ชุด</label>
+      </div>
+      <div style="font-size:11px;color:#f59e0b;margin-bottom:8px;padding:6px 8px;background:rgba(245,158,11,.07);border-radius:6px;border-left:2px solid #f59e0b;">
+        ⚠️ เรทที่ตั้งไว้จะมีผลกับเลขที่คีย์เข้ามา<strong>หลังจากกด + เพิ่ม</strong> เท่านั้น
       </div>
       <div id="cr-arn-list" style="max-height:120px;overflow-y:auto;"></div>
     </div>
