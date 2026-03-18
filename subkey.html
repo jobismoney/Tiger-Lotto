@@ -1095,13 +1095,10 @@ function doImport(data, fp, log, cid){
 
 window.addEventListener('DOMContentLoaded', function(){
   loadSettings();
-  setTimeout(handleImportParam, 800);
-  load();
-  renderCfgRows();
+  loadSubkey();
   setupNumpad();
   setupFloat();
   setupResize();
-  // auto ngod suggestion
   autoNgodDate();
 });
 
@@ -2295,8 +2292,8 @@ function renderHist(){
 function updateSummary(){
   var totalAll=0;
   customers.forEach(function(c){ totalAll+=calcCustTotal(c.id); });
-  document.getElementById('sum-cust-name').textContent='รวมทุกลูกค้า ('+customers.length+' คน)';
-  document.getElementById('sum-total').textContent='฿'+totalAll.toLocaleString();
+  if(document.getElementById('sum-cust-name')) document.getElementById('sum-cust-name').textContent='รวมทุกลูกค้า ('+customers.length+' คน)';
+  if(document.getElementById('sum-total')) document.getElementById('sum-total').textContent='฿'+totalAll.toLocaleString();
   var g={t3:0,t2:0,vb:0,vl:0,tod:0,t3l:0};
   customers.forEach(function(cu){
     getAllEntries(cu.id).forEach(function(e){
@@ -2426,6 +2423,8 @@ function setupFloat(){
 // SETTINGS UI
 // ================================================================
 function renderCfgRows(){
+  var el=document.getElementById('cfg-n-rows');
+  if(!el) return;
   var h='';
   settings.normal.forEach(function(item){
     h+='<div class="set-row"><span class="set-lbl">'+item.lbl+'</span>'
@@ -2433,7 +2432,7 @@ function renderCfgRows(){
       +'<input class="set-inp" id="cfg-pay-'+item.key+'" value="'+item.pay+'" type="number">'
       +'</div>';
   });
-  document.getElementById('cfg-n-rows').innerHTML=h;
+  el.innerHTML=h;
 }
 function switchCfgTab(t){
   document.getElementById('cfg-n-rows').style.display=t==='n'?'':'none';
