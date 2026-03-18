@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>T999 — คีย์เลข</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c14;--card:#111422;--card2:#161929;--border:#1a2040;
+  --gold:#f5c518;--gold2:#d4a500;--white:#f0f2ff;--lg:#4a5570;
+  --red:#f87171;--green:#22c55e;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);}
+
+/* HEADER */
+.hdr{height:52px;background:linear-gradient(135deg,#1a1d27,#12151f);border-bottom:2px solid var(--gold);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:2px;}
+.hdr-right{display:flex;align-items:center;gap:8px;}
+.ngod-badge{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--gold);}
+.logout-btn{background:none;border:1px solid #334;border-radius:6px;color:#556;font-size:12px;font-weight:700;padding:4px 10px;cursor:pointer;font-family:'Sarabun',sans-serif;}
+
+/* MAIN LAYOUT */
+.main{display:flex;height:calc(100vh - 52px);overflow:hidden;}
+
+/* LEFT: ลูกค้า */
+.left{width:200px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+.left-hdr{padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px;font-weight:800;color:var(--lg);letter-spacing:1px;}
+.cust-list{flex:1;overflow-y:auto;padding:8px;}
+.cust-item{padding:10px 10px;border-radius:8px;cursor:pointer;border:1px solid transparent;margin-bottom:4px;transition:all .15s;}
+.cust-item:hover{background:rgba(245,197,24,.05);border-color:rgba(245,197,24,.1);}
+.cust-item.active{background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.25);}
+.cust-name{font-size:14px;font-weight:800;color:var(--white);}
+.cust-count{font-size:11px;color:var(--lg);margin-top:2px;}
+.add-cust-btn{margin:8px;padding:10px;background:rgba(245,197,24,.07);border:1px dashed rgba(245,197,24,.25);border-radius:8px;color:var(--gold);font-family:'Sarabun',sans-serif;font-size:13px;font-weight:800;cursor:pointer;width:calc(100% - 16px);}
+
+/* CENTER: รายการ + คีย์ */
+.center{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* รายการ */
+.entries-area{flex:1;overflow-y:auto;padding:8px 12px;}
+.no-cust{display:flex;align-items:center;justify-content:center;height:100%;color:var(--lg);font-size:14px;font-weight:700;}
+.entry-row{display:grid;grid-template-columns:52px 1fr 1fr 1fr 1fr 36px;border-bottom:1px solid var(--border);padding:5px 4px;align-items:center;}
+.entry-row:hover{background:rgba(245,197,24,.02);}
+.e-lek{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#d8daf0;letter-spacing:1px;}
+.e-val{text-align:center;font-size:13px;font-weight:700;color:#99aacc;}
+.e-val.has{color:var(--white);}
+.e-del{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.2);border-radius:4px;color:var(--red);font-size:13px;cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;}
+.tbl-hdr{display:grid;grid-template-columns:52px 1fr 1fr 1fr 1fr 36px;border-bottom:1px solid var(--border);background:var(--card2);padding:5px 4px;position:sticky;top:0;z-index:2;}
+.th{text-align:center;font-size:11px;font-weight:800;color:var(--lg);}
+.th:first-child{text-align:left;}
+
+/* คีย์เลข */
+.key-area{background:var(--card2);border-top:2px solid var(--border);padding:10px 12px;flex-shrink:0;}
+.cur-lek-display{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold);letter-spacing:4px;text-align:center;min-height:40px;margin-bottom:8px;}
+.key-fields{display:flex;gap:6px;margin-bottom:8px;}
+.kf{flex:1;display:flex;flex-direction:column;gap:3px;}
+.kf-lbl{font-size:10px;font-weight:800;color:var(--lg);text-align:center;}
+.kf-inp{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--white);font-family:'Sarabun',sans-serif;font-size:15px;font-weight:800;padding:7px 4px;text-align:center;width:100%;outline:none;}
+.kf-inp:focus{border-color:rgba(245,197,24,.4);}
+.kf-inp.active{border-color:var(--gold);background:rgba(245,197,24,.04);}
+.key-btns{display:flex;gap:6px;}
+.btn-add{flex:1;background:linear-gradient(135deg,var(--green),#16a34a);border:none;border-radius:8px;color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;}
+.btn-clear{background:#1e293b;border:1px solid #334;border-radius:8px;color:#94a3b8;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:800;padding:10px 16px;cursor:pointer;}
+.btn-save{background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:8px;color:#111;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;padding:10px 16px;cursor:pointer;}
+
+/* NUMPAD */
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px;}
+.np-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:'Bebas Neue',sans-serif;font-size:22px;padding:12px;cursor:pointer;text-align:center;user-select:none;transition:all .1s;}
+.np-btn:active{background:rgba(245,197,24,.1);border-color:var(--gold);}
+.np-btn.action{font-family:'Sarabun',sans-serif;font-size:14px;font-weight:800;}
+.np-btn.red{color:var(--red);}
+.np-btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:none;}
+
+/* MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;}
+.modal-ov.show{display:flex;}
+.modal-box{background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid var(--gold);border-radius:16px;padding:24px 20px;width:90%;max-width:300px;}
+.modal-title{font-size:16px;font-weight:900;color:var(--gold);margin-bottom:14px;}
+.modal-inp{width:100%;background:#080b14;border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;padding:10px;outline:none;margin-bottom:12px;}
+.modal-btns{display:flex;gap:8px;}
+.modal-ok{flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#111;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;}
+.modal-cancel{background:#1e293b;border:1px solid #334;border-radius:10px;color:#94a3b8;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;padding:10px 14px;cursor:pointer;}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1d27;border:1px solid var(--border);border-radius:10px;padding:12px 22px;font-size:15px;font-weight:700;color:var(--white);z-index:9999;transition:transform .3s ease;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* SUMMARY BAR */
+.sum-bar{background:var(--card);border-top:1px solid var(--border);padding:8px 12px;display:flex;gap:16px;align-items:center;flex-shrink:0;font-size:13px;font-weight:700;color:var(--lg);}
+.sum-total{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);margin-left:auto;}
+
+/* MOBILE responsive */
+@media(max-width:600px){
+  .left{width:140px;}
+  .e-lek{font-size:17px;}
+  .e-val{font-size:12px;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo">🐯 T999 <span style="font-size:13px;color:#556;font-weight:700;font-family:'Sarabun',sans-serif;">คนช่วยคีย์</span></div>
+  <div class="hdr-right">
+    <div class="ngod-badge" id="ngod-badge">— ไม่พบงวด —</div>
+    <button class="logout-btn" onclick="logout()">ออก</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- LEFT: ลูกค้า -->
+  <div class="left">
+    <div class="left-hdr">👤 ลูกค้า</div>
+    <div class="cust-list" id="cust-list"></div>
+    <button class="add-cust-btn" onclick="openAddCust()">+ เพิ่มลูกค้า</button>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+    <div class="entries-area" id="entries-area">
+      <div class="no-cust" id="no-cust-msg">เลือกลูกค้าก่อนครับ</div>
+    </div>
+    <div class="sum-bar" id="sum-bar" style="display:none;">
+      <span id="sum-count">0 รายการ</span>
+      <span class="sum-total" id="sum-total">฿0</span>
+      <button onclick="saveSet()" style="background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:8px;color:#111;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:900;padding:7px 14px;cursor:pointer;">📂 เก็บแฟ้ม</button>
+    </div>
+    <div class="key-area">
+      <div class="cur-lek-display" id="cur-lek">—</div>
+      <div class="key-fields" id="key-fields"></div>
+      <div class="key-btns">
+        <button class="btn-clear" onclick="clearLek()">✕ ล้าง</button>
+        <button class="btn-add" onclick="addEntry()">+ เพิ่ม</button>
+        <button class="btn-save" onclick="saveSet()">📂 เก็บ</button>
+      </div>
+      <div class="numpad" id="numpad"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL เพิ่มลูกค้า -->
+<div class="modal-ov" id="modal-add-cust">
+  <div class="modal-box">
+    <div class="modal-title">👤 เพิ่มลูกค้า</div>
+    <input class="modal-inp" id="inp-cust-name" type="text" placeholder="ชื่อลูกค้า" onkeydown="if(event.key==='Enter')confirmAddCust()">
+    <div class="modal-btns">
+      <button class="modal-ok" onclick="confirmAddCust()">✅ เพิ่ม</button>
+      <button class="modal-cancel" onclick="closeModal('modal-add-cust')">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL บันทึกชุด -->
+<div class="modal-ov" id="modal-save-set">
+  <div class="modal-box">
+    <div class="modal-title">📂 เก็บเข้าแฟ้ม</div>
+    <div style="font-size:13px;color:#888;margin-bottom:6px;">ชื่อผู้ส่ง (ไม่บังคับ)</div>
+    <input class="modal-inp" id="inp-sender" type="text" placeholder="ชื่อคุณ" onkeydown="if(event.key==='Enter')confirmSaveSet()">
+    <div class="modal-btns">
+      <button class="modal-ok" onclick="confirmSaveSet()">✅ บันทึก</button>
+      <button class="modal-cancel" onclick="closeModal('modal-save-set')">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ================================================================
+// CONFIG
+// ================================================================
+var STORE_KEY = 't999_subkey_v1';
+var SETTINGS_KEY = 't999_settings_v1';
+
+// ================================================================
+// STATE
+// ================================================================
+var customers = [];
+var custEntries = {}; // {cid: [{id,lek,d,bon,tod,lang,na}]}
+var custSets = {};    // {cid: [{entries,sender,time}]}
+var curCustId = null;
+var curLek = '';
+var curPhase = 'lek'; // 'lek' | 'fields'
+var curFields = {};
+var curEid = {};
+var ngodInfo = {ngod:'—'};
+var settings = {normal:[]};
+
+// ================================================================
+// RULES
+// ================================================================
+var DIGIT_RULES = {
+  1: ['bon','lang'],
+  2: ['bon','lang','tod'],
+  3: ['bon','lang','na','tod'],
+  4: ['tod'],
+  5: ['tod']
+};
+var FIELD_LABELS = {bon:'บน',lang:'ล่าง',na:'หน้า',tod:'โต๊ด'};
+
+// ================================================================
+// INIT
+// ================================================================
+window.addEventListener('DOMContentLoaded', function(){
+  // อ่านงวดจาก desktop localStorage
+  try{
+    var raw = localStorage.getItem('t999_desktop_v1');
+    if(raw){
+      var data = JSON.parse(raw);
+      if(data.ngodInfo) ngodInfo = data.ngodInfo;
+    }
+  }catch(e){}
+
+  // อ่าน settings
+  try{
+    var s = localStorage.getItem(SETTINGS_KEY);
+    if(s) settings = JSON.parse(s);
+  }catch(e){}
+
+  load();
+  renderCustList();
+  buildNumpad();
+
+  document.getElementById('ngod-badge').textContent = ngodInfo.ngod || '— ไม่พบงวด —';
+});
+
+// ================================================================
+// PERSIST
+// ================================================================
+function save(){
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      customers: customers,
+      custEntries: custEntries,
+      custSets: custSets,
+      curEid: curEid
+    }));
+  }catch(e){}
+}
+
+function load(){
+  try{
+    var raw = localStorage.getItem(STORE_KEY);
+    if(raw){
+      var data = JSON.parse(raw);
+      customers = data.customers || [];
+      custEntries = data.custEntries || {};
+      custSets = data.custSets || {};
+      curEid = data.curEid || {};
+    }
+  }catch(e){}
+}
+
+// ================================================================
+// CUSTOMERS
+// ================================================================
+function renderCustList(){
+  var h = '';
+  customers.forEach(function(c){
+    var cnt = (custEntries[c.id]||[]).length;
+    var sets = (custSets[c.id]||[]).length;
+    var active = c.id === curCustId;
+    h += '<div class="cust-item'+(active?' active':'')+'" onclick="selectCust(\''+c.id+'\')">'\
+      +'<div class="cust-name">'+c.name+'</div>'\
+      +'<div class="cust-count">'+cnt+' รายการ'+(sets>0?' · '+sets+' ชุด':'')+'</div>'\
+      +'</div>';
+  });
+  document.getElementById('cust-list').innerHTML = h;
+}
+
+function selectCust(id){
+  curCustId = id;
+  curLek = '';
+  curPhase = 'lek';
+  curFields = {};
+  renderCustList();
+  renderEntries();
+  renderKeyArea();
+}
+
+function openAddCust(){
+  document.getElementById('inp-cust-name').value = '';
+  document.getElementById('modal-add-cust').classList.add('show');
+  setTimeout(function(){ document.getElementById('inp-cust-name').focus(); }, 100);
+}
+
+function confirmAddCust(){
+  var name = document.getElementById('inp-cust-name').value.trim();
+  if(!name){ toast('ใส่ชื่อก่อนครับ'); return; }
+  var id = 'c' + Date.now();
+  customers.push({id:id, name:name});
+  custEntries[id] = [];
+  custSets[id] = [];
+  curEid[id] = 0;
+  save();
+  closeModal('modal-add-cust');
+  selectCust(id);
+}
+
+// ================================================================
+// ENTRIES
+// ================================================================
+function renderEntries(){
+  if(!curCustId){
+    document.getElementById('no-cust-msg').style.display = '';
+    document.getElementById('sum-bar').style.display = 'none';
+    document.getElementById('entries-area').innerHTML = '<div class="no-cust" id="no-cust-msg">เลือกลูกค้าก่อนครับ</div>';
+    return;
+  }
+  var entries = custEntries[curCustId] || [];
+  var total = entries.reduce(function(s,e){
+    return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);
+  }, 0);
+
+  document.getElementById('sum-bar').style.display = entries.length ? '' : 'none';
+  document.getElementById('sum-count').textContent = entries.length + ' รายการ';
+  document.getElementById('sum-total').textContent = '฿' + total.toLocaleString();
+
+  if(!entries.length){
+    document.getElementById('entries-area').innerHTML = '<div class="no-cust">ยังไม่มีรายการครับ</div>';
+    return;
+  }
+
+  var h = '<div class="tbl-hdr">'\
+    +'<div class="th">เลข</div>'\
+    +'<div class="th">บน</div>'\
+    +'<div class="th">โต๊ด</div>'\
+    +'<div class="th">ล่าง</div>'\
+    +'<div class="th">หน้า</div>'\
+    +'<div class="th"></div>'\
+    +'</div>';
+
+  entries.forEach(function(e){
+    h += '<div class="entry-row">'\
+      +'<div class="e-lek">'+e.lek+'</div>'\
+      +'<div class="e-val'+(e.bon?' has':'')+'">'+( e.bon||'—')+'</div>'\
+      +'<div class="e-val'+(e.tod?' has':'')+'">'+( e.tod||'—')+'</div>'\
+      +'<div class="e-val'+(e.lang?' has':'')+'">'+( e.lang||'—')+'</div>'\
+      +'<div class="e-val'+(e.na?' has':'')+'">'+( e.na||'—')+'</div>'\
+      +'<button class="e-del" onclick="removeEntry(\''+e.id+'\')">✕</button>'\
+      +'</div>';
+  });
+
+  document.getElementById('entries-area').innerHTML = h;
+}
+
+function removeEntry(eid){
+  if(!curCustId) return;
+  custEntries[curCustId] = (custEntries[curCustId]||[]).filter(function(e){ return e.id !== eid; });
+  save();
+  renderEntries();
+}
+
+// ================================================================
+// KEY AREA
+// ================================================================
+function renderKeyArea(){
+  document.getElementById('cur-lek').textContent = curLek || '—';
+
+  if(!curCustId || curPhase === 'lek'){
+    document.getElementById('key-fields').innerHTML = '<div style="font-size:12px;color:var(--lg);text-align:center;padding:4px;">กรอกเลข แล้วกด OK</div>';
+    return;
+  }
+
+  var d = curLek.length;
+  var fields = DIGIT_RULES[d] || [];
+  var h = '';
+  fields.forEach(function(f){
+    var isActive = getCurField() === f;
+    h += '<div class="kf">'\
+      +'<div class="kf-lbl">'+FIELD_LABELS[f]+'</div>'\
+      +'<div class="kf-inp'+(isActive?' active':'')+'" id="kf-'+f+'" onclick="setField(\''+f+'\')">'\
+      +(curFields[f]||'—')\
+      +'</div>'\
+      +'</div>';
+  });
+  document.getElementById('key-fields').innerHTML = h;
+}
+
+var fieldOrder = ['bon','lang','na','tod'];
+function getCurField(){
+  var d = curLek.length;
+  var fields = DIGIT_RULES[d] || [];
+  for(var i=0;i<fields.length;i++){
+    if(!curFields[fields[i]]) return fields[i];
+  }
+  return fields[fields.length-1] || null;
+}
+
+function setField(f){ /* click field to focus */ renderKeyArea(); }
+
+function buildNumpad(){
+  var keys = ['1','2','3','4','5','6','7','8','9','←','0','OK'];
+  var h = '';
+  keys.forEach(function(k){
+    if(k === '←') h += '<button class="np-btn action red" onclick="npBack()">←</button>';
+    else if(k === 'OK') h += '<button class="np-btn action gold" onclick="npOK()">OK</button>';
+    else h += '<button class="np-btn" onclick="npNum(\''+k+'\')">'+k+'</button>';
+  });
+  document.getElementById('numpad').innerHTML = h;
+}
+
+function npNum(n){
+  if(curPhase === 'lek'){
+    if(curLek.length < 5) curLek += n;
+    document.getElementById('cur-lek').textContent = curLek || '—';
+  } else {
+    var f = getCurField();
+    if(!f) return;
+    var cur = String(curFields[f]||'');
+    if(cur.length < 6) curFields[f] = parseInt(cur + n);
+    renderKeyArea();
+  }
+}
+
+function npBack(){
+  if(curPhase === 'lek'){
+    curLek = curLek.slice(0,-1);
+    document.getElementById('cur-lek').textContent = curLek || '—';
+  } else {
+    var f = getCurField();
+    if(!f) return;
+    var cur = String(curFields[f]||'');
+    curFields[f] = cur.length > 1 ? parseInt(cur.slice(0,-1)) : null;
+    renderKeyArea();
+  }
+}
+
+function npOK(){
+  if(curPhase === 'lek'){
+    if(!curLek || curLek.length < 1){ toast('ใส่เลขก่อนครับ'); return; }
+    if(!DIGIT_RULES[curLek.length]){ toast('เลข '+curLek.length+' หลักไม่รองรับ'); return; }
+    curPhase = 'fields';
+    curFields = {};
+    renderKeyArea();
+  } else {
+    addEntry();
+  }
+}
+
+function clearLek(){
+  curLek = '';
+  curPhase = 'lek';
+  curFields = {};
+  document.getElementById('cur-lek').textContent = '—';
+  renderKeyArea();
+}
+
+function addEntry(){
+  if(!curCustId){ toast('เลือกลูกค้าก่อนครับ'); return; }
+  if(!curLek){ toast('ใส่เลขก่อนครับ'); return; }
+  if(curPhase === 'lek'){ toast('กด OK ก่อนใส่ราคาครับ'); return; }
+
+  var d = curLek.length;
+  var fields = DIGIT_RULES[d] || [];
+  var hasVal = fields.some(function(f){ return curFields[f] > 0; });
+  if(!hasVal){ toast('ใส่ราคาอย่างน้อย 1 ช่องครับ'); return; }
+
+  if(!curEid[curCustId]) curEid[curCustId] = 0;
+  curEid[curCustId]++;
+
+  var entry = {
+    id: 'e'+curCustId+'_'+curEid[curCustId],
+    lek: curLek,
+    d: d,
+    bon: curFields.bon||null,
+    tod: curFields.tod||null,
+    lang: curFields.lang||null,
+    na: curFields.na||null
+  };
+
+  if(!custEntries[curCustId]) custEntries[curCustId] = [];
+  custEntries[curCustId].push(entry);
+  save();
+  renderEntries();
+  renderCustList();
+
+  // reset
+  curLek = '';
+  curPhase = 'lek';
+  curFields = {};
+  document.getElementById('cur-lek').textContent = '—';
+  renderKeyArea();
+  toast('เพิ่ม '+entry.lek+' แล้ว ✅');
+}
+
+// ================================================================
+// SAVE SET
+// ================================================================
+function saveSet(){
+  if(!curCustId){ toast('เลือกลูกค้าก่อนครับ'); return; }
+  var entries = custEntries[curCustId] || [];
+  if(!entries.length){ toast('ยังไม่มีรายการครับ'); return; }
+  document.getElementById('inp-sender').value = '';
+  document.getElementById('modal-save-set').classList.add('show');
+  setTimeout(function(){ document.getElementById('inp-sender').focus(); }, 100);
+}
+
+function confirmSaveSet(){
+  var sender = document.getElementById('inp-sender').value.trim();
+  closeModal('modal-save-set');
+  if(!custSets[curCustId]) custSets[curCustId] = [];
+  var entries = custEntries[curCustId] || [];
+  custSets[curCustId].push({
+    entries: entries.slice(),
+    sender: sender,
+    time: Date.now()
+  });
+  custEntries[curCustId] = [];
+  save();
+  renderEntries();
+  renderCustList();
+  toast('เก็บแฟ้มแล้ว ✅ '+(sender?'('+sender+')':''));
+}
+
+// ================================================================
+// UTILS
+// ================================================================
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+function logout(){ window.location.href = 'index.html'; }
+
+function toast(msg){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 2200);
+}
+</script>
+</body>
+</html>
