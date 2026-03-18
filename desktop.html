@@ -1500,10 +1500,11 @@ function lockSet(){
   var entries=custEntries[curCustId]||[];
   if(!entries.length){toast('ยังไม่มีรายการในชุดนี้ครับ');return;}
   if(!custSets[curCustId]) custSets[curCustId]=[];
+  var hist=getSenderHist();
   var chipsEl=document.getElementById('lockset-chips');
-  if(customers.length){
-    chipsEl.innerHTML=customers.map(function(c){
-      return '<button onclick="document.getElementById(\'inp-lockset-sender\').value=\''+c.name+'\'" style="background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);border-radius:20px;color:var(--gold);font-family:\'Sarabun\',sans-serif;font-size:13px;font-weight:800;padding:4px 12px;cursor:pointer;">'+c.name+'</button>';
+  if(hist.length){
+    chipsEl.innerHTML=hist.map(function(n){
+      return '<button onclick="document.getElementById(\'inp-lockset-sender\').value=\''+n+'\'" style="background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);border-radius:20px;color:var(--gold);font-family:\'Sarabun\',sans-serif;font-size:13px;font-weight:800;padding:4px 12px;cursor:pointer;">'+n+'</button>';
     }).join('');
   } else {
     chipsEl.innerHTML='';
