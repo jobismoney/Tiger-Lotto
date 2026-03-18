@@ -1930,7 +1930,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       return o;
     });
     // ไม่เก็บ ngod/sender/receiver/date — desktop ใส่เองตอน import
-    var data={p:pgNum,g:inf.ngod||'',s:inf.sender||'',r:inf.receiver||'',dt:inf.date||'',sn:inf.setNum||'',e:compEntries};
+    var data={p:pgNum,g:inf.ngod||'',s:inf.sender||'',r:inf.receiver||'',dt:inf.date||'',sn:inf.setNum||'',cu:inf.sender||'',e:compEntries};
     var json=JSON.stringify(data);
     var b64=btoa(unescape(encodeURIComponent(json)));
     return 'https://tiger999.online/desktop.html?import='+b64;

@@ -547,6 +547,45 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
           <div class="sum-total-lbl">ยอดรวม</div>
           <div class="sum-total-num" id="sum-total">฿0</div>
         </div>
+
+        <!-- Mini stats -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px;">
+          <div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:8px;padding:6px 8px;text-align:center;">
+            <div style="font-size:10px;color:#4a5570;font-weight:700;margin-bottom:2px;">ลูกค้า</div>
+            <div id="sc-custs" style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:#f5c518;">0</div>
+          </div>
+          <div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:8px;padding:6px 8px;text-align:center;">
+            <div style="font-size:10px;color:#4a5570;font-weight:700;margin-bottom:2px;">รายการ</div>
+            <div id="sc-entries" style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:#60a5fa;">0</div>
+          </div>
+          <div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:8px;padding:6px 8px;text-align:center;">
+            <div style="font-size:10px;color:#4a5570;font-weight:700;margin-bottom:2px;">เสี่ยง</div>
+            <div id="sc-risk" style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:#f87171;">0</div>
+          </div>
+        </div>
+
+        <!-- Donut chart สัดส่วนประเภทเลข -->
+        <div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+          <div style="font-size:11px;font-weight:800;color:#4a5570;letter-spacing:1px;margin-bottom:8px;">สัดส่วนประเภทเลข</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <canvas id="sum-donut" width="80" height="80" style="flex-shrink:0;"></canvas>
+            <div id="sum-donut-legend" style="flex:1;"></div>
+          </div>
+        </div>
+
+        <!-- Line chart เอเย่นต์ -->
+        <div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+          <div style="font-size:11px;font-weight:800;color:#4a5570;letter-spacing:1px;margin-bottom:6px;">จำนวนลูกค้าต่อเอเย่นต์</div>
+          <canvas id="sum-line" height="70" style="width:100%;display:block;"></canvas>
+          <div id="sum-line-labels" style="display:flex;justify-content:space-between;margin-top:2px;"></div>
+        </div>
+
+        <!-- Horizontal bar ลูกค้า -->
+        <div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+          <div style="font-size:11px;font-weight:800;color:#4a5570;letter-spacing:1px;margin-bottom:8px;">ยอดรายลูกค้า</div>
+          <div id="sum-cust-bars"></div>
+        </div>
+
         <button onclick="showSlipAll()" style="width:100%;margin-bottom:10px;padding:10px;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;cursor:pointer;">📋 สรุปยอด</button>
         <div class="sum-sec">แยกประเภท</div>
         <div class="sum-row"><span class="sum-row-lbl">3 ตัว</span><span class="sum-row-val zero" id="sg-3">฿0</span></div>
@@ -805,6 +844,7 @@ function normalizeQRData(data){
       date: data.dt||'',
       pg: data.p||1,
       setNum: data.sn||'',
+      customer: data.cu||data.s||'',
       entries: (data.e||[]).map(function(e){
         var lekVal = e.l||e.lek||e.T||e.d||''; // รองรับทุก format รวม format เก่า T
         return {
@@ -951,7 +991,7 @@ function doImportMulti(dataList, totalEntries, cid){
       entries.push({id:custEid[cid],lek:lek,d:lek.length,
         bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,kd:e.kd||{},paks:e.paks||[]});
     });
-    custSets[cid].push({entries:entries, locked:false, time:Date.now(), sender:data.sender||'', pg:data.pg||'', setNum:data.setNum||''});
+    custSets[cid].push({entries:entries, locked:false, time:Date.now(), sender:data.sender||'', pg:data.pg||'', setNum:data.setNum||'', customer:data.customer||data.sender||''});
     // บันทึก log เฉพาะตอน import จริง
     var fp=makeQRFingerprint(data);
     log.push({fp:fp, time:Date.now(), sender:data.sender||'', ngod:data.ngod||'', pg:data.pg, cid:cid});
@@ -2347,6 +2387,167 @@ function renderHist(){
 // ================================================================
 // SUMMARY
 // ================================================================
+function renderSummaryCharts(g, totalAll){
+  var DPR = window.devicePixelRatio||1;
+  var COLORS = ['#60a5fa','#34d399','#a78bfa','#86efac','#fb923c','#f87171','#f5c518'];
+
+  // ── Mini stats ──
+  var totalEntries = 0;
+  customers.forEach(function(c){ totalEntries += getAllEntries(c.id).length; });
+  var el_c = document.getElementById('sc-custs');
+  var el_e = document.getElementById('sc-entries');
+  if(el_c) el_c.textContent = customers.length;
+  if(el_e) el_e.textContent = totalEntries;
+
+  // risk count
+  var NET = totalAll;
+  var riskCount = 0;
+  var allE = [];
+  customers.forEach(function(c){ getAllEntries(c.id).forEach(function(e){ allE.push(e); }); });
+  var byLek = {};
+  allE.forEach(function(e){
+    if(!byLek[e.lek]) byLek[e.lek] = {exp:0};
+    var cfg3=getCfg('3bon'),cfg3na=getCfg('3na'),cfg3l=getCfg('3lang'),cfg2b=getCfg('2bon'),cfg2l=getCfg('2lang'),cfgtod=getCfg('tod'),cfgp=getCfg('pak-3bon');
+    var exp=0;
+    if(e.d===3){ exp+=(e.bon||0)*(cfg3?cfg3.pay:500)+(e.na||0)*(cfg3na?cfg3na.pay:450)+(e.lang||0)*(cfg3l?cfg3l.pay:450)+(e.tod||0)*(getCfg('tod')?getCfg('tod').pay:120); }
+    else if(e.d===2){ exp+=(e.bon||0)*(cfg2b?cfg2b.pay:70)+(e.lang||0)*(cfg2l?cfg2l.pay:70)+(e.tod||0)*(cfgtod?cfgtod.pay:120); }
+    else if(e.d===1){ exp+=(e.bon||0)*3+(e.lang||0)*4; }
+    (e.paks||[]).forEach(function(p){ exp+=p.price*(cfgp?cfgp.pay:350); });
+    byLek[e.lek].exp += exp;
+  });
+  Object.values(byLek).forEach(function(x){ if(x.exp > NET) riskCount++; });
+  var el_r = document.getElementById('sc-risk');
+  if(el_r){ el_r.textContent = riskCount; el_r.style.color = riskCount>0?'#f87171':'#22c55e'; }
+
+  // ── Donut chart ──
+  var dc = document.getElementById('sum-donut');
+  if(dc){
+    dc.width = 80; dc.height = 80;
+    var dctx = dc.getContext('2d');
+    var slices = [
+      {v:g.t3, color:'#60a5fa', lbl:'3ตัว'},
+      {v:g.t2, color:'#34d399', lbl:'2ตัว'},
+      {v:g.tod, color:'#a78bfa', lbl:'โต๊ด'},
+      {v:g.t3l, color:'#86efac', lbl:'3ล่าง'},
+      {v:g.vb+g.vl, color:'#fb923c', lbl:'วิ่ง'},
+    ].filter(function(s){ return s.v > 0; });
+    var total = slices.reduce(function(s,x){ return s+x.v; }, 0);
+    if(total > 0){
+      var start = -Math.PI/2;
+      slices.forEach(function(s){
+        var angle = (s.v/total)*Math.PI*2;
+        dctx.beginPath(); dctx.moveTo(40,40);
+        dctx.arc(40,40,36,start,start+angle);
+        dctx.closePath(); dctx.fillStyle=s.color; dctx.fill();
+        start += angle;
+      });
+      dctx.beginPath(); dctx.arc(40,40,20,0,Math.PI*2);
+      dctx.fillStyle='#0a0e1a'; dctx.fill();
+    }
+    var legend = document.getElementById('sum-donut-legend');
+    if(legend){
+      legend.innerHTML = slices.map(function(s){
+        return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'
+          +'<div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899bb;">'
+          +'<div style="width:7px;height:7px;border-radius:50%;background:'+s.color+';flex-shrink:0;"></div>'+s.lbl+'</div>'
+          +'<div style="font-family:Bebas Neue,sans-serif;font-size:13px;color:'+s.color+';">฿'+s.v.toLocaleString()+'</div>'
+          +'</div>';
+      }).join('');
+    }
+  }
+
+  // ── Line chart จำนวนลูกค้าต่อเอเย่นต์ ──
+  var lc = document.getElementById('sum-line');
+  if(lc){
+    // นับจำนวนลูกค้าของแต่ละเอเย่นต์ (receiver = ชื่อ agent)
+    var agentMap = {};
+    customers.forEach(function(c){
+      (custSets[c.id]||[]).forEach(function(s){
+        var agent = s.sender || 'ไม่ระบุ';
+        if(!agentMap[agent]) agentMap[agent] = {customers:new Set(), sets:0};
+        agentMap[agent].customers.add(s.customer||s.sender||'?');
+        agentMap[agent].sets++;
+      });
+    });
+    var agents = Object.keys(agentMap);
+    if(agents.length > 0){
+      lc.width = lc.offsetWidth * DPR;
+      lc.height = 70 * DPR;
+      var lctx = lc.getContext('2d');
+      lctx.scale(DPR, DPR);
+      var lW = lc.offsetWidth, lH = 70;
+      var data = agents.map(function(a){ return agentMap[a].customers.size; });
+      var maxD = Math.max.apply(null, data) || 1;
+      var pad = {t:8,r:6,b:18,l:6};
+      var gW = lW-pad.l-pad.r, gHH = lH-pad.t-pad.b;
+
+      var grad = lctx.createLinearGradient(0,pad.t,0,pad.t+gHH);
+      grad.addColorStop(0,'rgba(96,165,250,0.3)');
+      grad.addColorStop(1,'rgba(96,165,250,0)');
+
+      lctx.beginPath();
+      data.forEach(function(v,i){
+        var x=pad.l+(agents.length===1?gW/2:(i/(data.length-1))*gW);
+        var y=pad.t+gHH-((v/maxD)*gHH);
+        i===0?lctx.moveTo(x,y):lctx.lineTo(x,y);
+      });
+      lctx.lineTo(pad.l+gW,pad.t+gHH);
+      lctx.lineTo(pad.l,pad.t+gHH);
+      lctx.closePath();
+      lctx.fillStyle=grad; lctx.fill();
+
+      lctx.beginPath();
+      data.forEach(function(v,i){
+        var x=pad.l+(agents.length===1?gW/2:(i/(data.length-1))*gW);
+        var y=pad.t+gHH-((v/maxD)*gHH);
+        i===0?lctx.moveTo(x,y):lctx.lineTo(x,y);
+      });
+      lctx.strokeStyle='#60a5fa'; lctx.lineWidth=2; lctx.lineJoin='round'; lctx.stroke();
+
+      data.forEach(function(v,i){
+        var x=pad.l+(agents.length===1?gW/2:(i/(data.length-1))*gW);
+        var y=pad.t+gHH-((v/maxD)*gHH);
+        lctx.beginPath(); lctx.arc(x,y,3,0,Math.PI*2);
+        lctx.fillStyle='#60a5fa'; lctx.fill();
+        // value on top
+        lctx.font='800 9px Sarabun'; lctx.fillStyle='#f0f2ff'; lctx.textAlign='center';
+        lctx.fillText(v+' คน',x,y-5);
+      });
+
+      // labels
+      var lblEl = document.getElementById('sum-line-labels');
+      if(lblEl){
+        lblEl.innerHTML = agents.map(function(a){
+          return '<span style="font-size:10px;color:#4a5570;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+a+'</span>';
+        }).join('');
+      }
+    } else {
+      var lblEl = document.getElementById('sum-line-labels');
+      if(lblEl) lblEl.innerHTML = '<span style="font-size:11px;color:#2a3050;padding:8px;">ยังไม่มีข้อมูลสแกน QR</span>';
+    }
+  }
+
+  // ── Horizontal bars ยอดรายลูกค้า ──
+  var barsEl = document.getElementById('sum-cust-bars');
+  if(barsEl && customers.length){
+    var custData = customers.map(function(c){
+      return {name:c.name, val:calcCustTotal(c.id)};
+    }).filter(function(x){ return x.val>0; })
+      .sort(function(a,b){ return b.val-a.val; });
+    var maxV = custData.length ? custData[0].val : 1;
+    barsEl.innerHTML = custData.map(function(c,i){
+      var pct = Math.round(c.val/maxV*100);
+      var col = COLORS[i%COLORS.length];
+      return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">'
+        +'<div style="font-size:11px;color:#8899bb;width:40px;flex-shrink:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+c.name+'</div>'
+        +'<div style="flex:1;background:#1a2040;border-radius:3px;height:16px;overflow:hidden;">'
+        +'<div style="width:'+pct+'%;height:16px;border-radius:3px;background:'+col+'22;border-left:2px solid '+col+';display:flex;align-items:center;padding-left:5px;">'
+        +'<span style="font-size:10px;font-weight:900;color:'+col+';">฿'+c.val.toLocaleString()+'</span>'
+        +'</div></div></div>';
+    }).join('');
+  }
+}
+
 function updateSummary(){
   var totalAll=0;
   customers.forEach(function(c){ totalAll+=calcCustTotal(c.id); });
@@ -2372,8 +2573,9 @@ function updateSummary(){
       });
     });
   });
-  function sv(id,val){var el=document.getElementById(id);el.textContent='฿'+val.toLocaleString();el.className='sum-row-val'+(val===0?' zero':'');}
+  function sv(id,val){var el=document.getElementById(id);if(el){el.textContent='฿'+val.toLocaleString();el.className='sum-row-val'+(val===0?' zero':'');}}
   sv('sg-3',g.t3);sv('sg-2',g.t2);sv('sg-vb',g.vb);sv('sg-vl',g.vl);sv('sg-tod',g.tod);sv('sg-3l',g.t3l);
+  setTimeout(function(){ renderSummaryCharts(g, totalAll); }, 50);
 }
 // ================================================================
 // PAK POPUP
@@ -3920,17 +4122,16 @@ function renderAnalyze(view){
 
     // ── Risk Analysis ──
     var NET = netIncome;
-    var dangerList=[], warnList=[], safeList=[];
+    var dangerList=[], warnList=[];
     leks.forEach(function(x){
       var exp=x.exp, tot=x.total;
       var profit=NET-exp;
       if(exp>NET) dangerList.push({x:x,exp:exp,profit:profit});
       else if(profit<NET*0.3) warnList.push({x:x,exp:exp,profit:profit});
-      else safeList.push({x:x,exp:exp,profit:profit});
+
     });
     dangerList.sort(function(a,b){return a.profit-b.profit;});
     warnList.sort(function(a,b){return a.profit-b.profit;});
-    safeList.sort(function(a,b){return b.profit-a.profit;});
 
     function riskRow(item, color, sub){
       var sign=item.profit>=0?'+':'';
@@ -3950,7 +4151,7 @@ function renderAnalyze(view){
         +'</div>';
     }
 
-    html+='<div style="font-size:13px;font-weight:900;color:#888;margin:14px 0 8px;">🎯 วิเคราะห์ความเสี่ยง</div>';
+    html+='<div style="font-size:13px;font-weight:900;color:#888;margin:14px 0 8px;">⚠️ เลขควรตีออก (ถ้าถูกขาดทุน)</div>';
 
     // summary bar
     html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'
@@ -3960,38 +4161,31 @@ function renderAnalyze(view){
       +'<div style="font-size:11px;color:#556;">ถ้าไม่มีถูกเลย</div>'
       +'</div>'
       +'<div style="background:#0a0e1a;border-radius:8px;padding:10px 12px;">'
-      +'<div style="font-size:11px;color:#556;margin-bottom:2px;">เลขเสี่ยง</div>'
-      +'<div style="font-family:Bebas Neue,sans-serif;font-size:22px;color:'+(dangerList.length>0?'#f87171':'#22c55e')+';">'+dangerList.length+' เลข</div>'
+      +'<div style="font-size:11px;color:#556;margin-bottom:2px;">เลขควรตีออก</div>'
+      +'<div style="font-family:Bebas Neue,sans-serif;font-size:22px;color:'+(totalDanger>0?'#f87171':'#22c55e')+';">'+totalDanger+' เลข</div>'
       +'<div style="font-size:11px;color:#556;">ถ้าถูกขาดทุน</div>'
       +'</div>'
       +'</div>';
 
-    if(dangerList.length){
-      html+='<div style="background:#0a0e1a;border-radius:10px;padding:10px 12px;margin-bottom:8px;">'
-        +'<div style="font-size:13px;font-weight:900;color:#f87171;margin-bottom:8px;">⚠️ ควรตีออก — ถ้าถูกขาดทุน</div>';
-      dangerList.slice(0,5).forEach(function(item){
-        html+=riskRow(item,{bg:'#1a0a0a',border:'rgba(231,76,60,.3)',lek:'#f87171',badgeBg:'rgba(231,76,60,.15)'},'ขาดทุน');
+    function dangerSection(arr, label){
+      if(!arr.length) return '';
+      var h='<div style="background:#0a0e1a;border-radius:10px;padding:10px 12px;margin-bottom:8px;">'
+        +'<div style="font-size:13px;font-weight:900;color:#f87171;margin-bottom:8px;">'+label+'</div>';
+      arr.slice(0,10).forEach(function(item){
+        h+=riskRow(item,{bg:'#1a0a0a',border:'rgba(231,76,60,.3)',lek:'#f87171',badgeBg:'rgba(231,76,60,.15)'},'ขาดทุน');
       });
-      html+='</div>';
+      return h+'</div>';
     }
 
-    if(warnList.length){
-      html+='<div style="background:#0a0e1a;border-radius:10px;padding:10px 12px;margin-bottom:8px;">'
-        +'<div style="font-size:13px;font-weight:900;color:#f5c518;margin-bottom:8px;">🟡 ระวัง — กำไรน้อยถ้าถูก</div>';
-      warnList.slice(0,5).forEach(function(item){
-        html+=riskRow(item,{bg:'#1a1500',border:'rgba(245,197,24,.2)',lek:'#f5c518',badgeBg:'rgba(245,197,24,.1)'},'กำไรน้อย');
-      });
-      html+='</div>';
+    if(totalDanger===0){
+      html+='<div style="color:#22c55e;text-align:center;padding:16px;font-size:14px;font-weight:700;">✅ ไม่มีเลขที่ต้องตีออกครับ</div>';
+    } else {
+      html+=dangerSection(danger3,'3ตัว');
+      html+=dangerSection(danger2,'2ตัว');
+      html+=dangerSection(dangerV,'วิ่ง');
+      html+=dangerSection(dangerT,'โต๊ด');
     }
 
-    if(safeList.length){
-      html+='<div style="background:#0a0e1a;border-radius:10px;padding:10px 12px;margin-bottom:8px;">'
-        +'<div style="font-size:13px;font-weight:900;color:#22c55e;margin-bottom:8px;">✅ ปลอดภัย — top รับเงินดี</div>';
-      safeList.slice(0,3).forEach(function(item){
-        html+=riskRow(item,{bg:'#0a1a0a',border:'rgba(34,197,94,.15)',lek:'#22c55e',badgeBg:'rgba(34,197,94,.1)'},'กำไรดี');
-      });
-      html+='</div>';
-    }
 
     el.innerHTML=html;
   } else {
