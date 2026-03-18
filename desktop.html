@@ -975,10 +975,10 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
     showScanSuccess(_custName,totalEntries,dupMsg);
     return;
   }
-  // auto-match จาก receiver ใน QR
-  var firstReceiver = dataList[0]&&dataList[0].receiver ? dataList[0].receiver.trim() : '';
-  if(firstReceiver){
-    var matched = customers.find(function(cu){ return cu.name===firstReceiver; });
+  // auto-match จาก sender ใน QR (sender = ชื่อเอเย่นต์ = ชื่อลูกค้าในระบบเจ้ามือ)
+  var firstSender = dataList[0]&&dataList[0].sender ? dataList[0].sender.trim() : '';
+  if(firstSender){
+    var matched = customers.find(function(cu){ return cu.name===firstSender; });
     if(matched){
       doImportMulti(dataList,totalEntries,matched.id);
       showScanSuccess(matched.name,totalEntries,dupMsg);
