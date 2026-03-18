@@ -1161,8 +1161,40 @@ function loadSettings(){
 // ================================================================
 // CUSTOMERS
 // ================================================================
+function calcCustBreakdown(cid){
+  var g={t3:0,t2:0,vb:0,vl:0,tod:0,t3l:0};
+  getAllEntries(cid).forEach(function(e){
+    var d=e.d; var kd=e.kd||{};
+    if(d===3){
+      g.t3+=(e.bon||0)+(e.na||0);
+      g.tod+=(e.tod||0); g.t3l+=(e.lang||0);
+      (kd.bon||[]).forEach(function(x){g.t3+=x.price;});
+      (kd.na||[]).forEach(function(x){g.t3+=x.price;});
+      (kd.lang||[]).forEach(function(x){g.t3l+=x.price;});
+    } else if(d===2){
+      g.t2+=(e.bon||0)+(e.lang||0);
+      g.tod+=(e.tod||0);
+      (kd.bon||[]).forEach(function(x){g.t2+=x.price;});
+      (kd.lang||[]).forEach(function(x){g.t2+=x.price;});
+    } else if(d===1){
+      g.vb+=(e.bon||0); g.vl+=(e.lang||0);
+    } else if(d>=4){ g.tod+=(e.tod||0); }
+    (e.paks||[]).forEach(function(p){
+      if(p.type==='3bon'||p.type==='bon') g.t3+=p.price; else g.t2+=p.price;
+    });
+  });
+  return g;
+}
 function renderCustList(){
-  var h='';
+  // legend
+  var legend='<div style="padding:4px 8px 6px;display:flex;flex-wrap:wrap;gap:6px 12px;font-size:11px;color:#556;font-weight:700;border-bottom:1px solid var(--border);margin-bottom:4px;">'
+    +'<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:3px;"></span>กำลังคีย์อยู่</span>'
+    +'<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);margin-right:3px;"></span>มีรายการในชุด</span>'
+    +'<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#1e2540;margin-right:3px;border:1px solid #334;"></span>ว่างเปล่า</span>'
+    +'<span style="color:var(--gold);">★</span><span> = เรทพิเศษ</span>'
+    +'<span>🎉 = ถูกรางวัล</span>'
+    +'</div>';
+  var h=legend;
   customers.forEach(function(c){
     var tot=calcCustTotal(c.id);
     var cnt=getAllEntries(c.id).length;
@@ -1171,15 +1203,30 @@ function renderCustList(){
     var hasPrize=lastCheckResult&&lastCheckResult[c.id]>0;
     var dotClass='cdot'+(active?' active-live':(hasPending?' on':''));
     var prizeTag=hasPrize?'<span class="cprize">🎉</span>':'';
-    var rateTag=c.rates?'<span style="color:var(--gold);font-size:10px;margin-left:3px;">★</span>':'';
+    var rateTag=c.rates?'<span style="color:var(--gold);font-size:11px;margin-left:3px;">★</span>':'';
     var bStyle=hasPrize?' style="border-color:rgba(34,197,94,.4);"':'';
+    // breakdown
+    var g=calcCustBreakdown(c.id);
+    var bdRows='';
+    if(g.t3>0)  bdRows+='<span style="color:#60a5fa;">3ตัว ฿'+g.t3.toLocaleString()+'</span>';
+    if(g.t2>0)  bdRows+=(bdRows?' · ':'')+'<span style="color:#34d399;">2ตัว ฿'+g.t2.toLocaleString()+'</span>';
+    if(g.tod>0) bdRows+=(bdRows?' · ':'')+'<span style="color:#a78bfa;">โต๊ด ฿'+g.tod.toLocaleString()+'</span>';
+    if(g.t3l>0) bdRows+=(bdRows?' · ':'')+'<span style="color:#34d399;">3ล่าง ฿'+g.t3l.toLocaleString()+'</span>';
+    if(g.vb>0)  bdRows+=(bdRows?' · ':'')+'<span style="color:#fb923c;">วิ่งบน ฿'+g.vb.toLocaleString()+'</span>';
+    if(g.vl>0)  bdRows+=(bdRows?' · ':'')+'<span style="color:#fb923c;">วิ่งล่าง ฿'+g.vl.toLocaleString()+'</span>';
     h+='<div class="citem'+(active?' active':'')+'" data-cid="'+c.id+'"'+bStyle+'>'
-      +'<div class="cname"><div class="'+dotClass+'"></div>'+c.name+prizeTag+rateTag+'</div>'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;">'
+      +'<div><div class="cname"><div class="'+dotClass+'"></div>'+c.name+prizeTag+rateTag+'</div>'
       +'<div class="ctotal">฿'+tot.toLocaleString()+'</div>'
-      +'<div class="ccount">'+cnt+' รายการ</div>'
-      +'<button class="cslip-btn cr-btn" data-cid="'+c.id+'" title="ตั้งเรท">⚙️</button>'
-      +'<button class="cslip-btn sc-btn" data-cid="'+c.id+'" title="สแกน">📷</button>'
-      +'<button class="cslip-btn sl-btn" data-cid="'+c.id+'" title="ดูโพย">📋</button>'
+      +(bdRows?'<div style="font-size:11px;margin-top:2px;line-height:1.5;">'+bdRows+'</div>':'')
+      +'<div class="ccount">'+cnt+' รายการ</div></div>'
+      // ปุ่มรวมขวา
+      +'<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">'
+      +'<button class="cslip-btn cr-btn" data-cid="'+c.id+'" style="display:flex;align-items:center;gap:4px;padding:5px 10px;font-size:12px;font-weight:800;" title="ตั้งเรท"><span>⚙️</span><span>เรท</span></button>'
+      +'<button class="cslip-btn sc-btn" data-cid="'+c.id+'" style="display:flex;align-items:center;gap:4px;padding:5px 10px;font-size:12px;font-weight:800;" title="สแกน"><span>📷</span><span>สแกน</span></button>'
+      +'<button class="cslip-btn sl-btn" data-cid="'+c.id+'" style="display:flex;align-items:center;gap:4px;padding:5px 10px;font-size:12px;font-weight:800;" title="ดูโพย"><span>📋</span><span>โพย</span></button>'
+      +'</div>'
+      +'</div>'
       +'</div>';
   });
   document.getElementById('clist').innerHTML=h;
@@ -2213,42 +2260,36 @@ function renderHist(){
 // SUMMARY
 // ================================================================
 function updateSummary(){
+  // รวมทุกลูกค้า
+  var totalAll=0;
+  customers.forEach(function(c){ totalAll+=calcCustTotal(c.id); });
+  // ชื่อที่แสดง
   var cust=customers.find(function(c){return c.id===curCustId;});
-  document.getElementById('sum-cust-name').textContent=cust?cust.name:'—';
-  var total=curCustId?calcCustTotal(curCustId):0;
-  document.getElementById('sum-total').textContent='฿'+total.toLocaleString();
+  document.getElementById('sum-cust-name').textContent='รวมทุกลูกค้า ('+customers.length+' คน)';
+  document.getElementById('sum-total').textContent='฿'+totalAll.toLocaleString();
   var g={t3:0,t2:0,vb:0,vl:0,tod:0,t3l:0};
-  getAllEntries(curCustId||'').forEach(function(e){
-    var d=e.d;
-    var kd=e.kd||{};
-    if(d===3){
-      g.t3+=(e.bon||0)+(e.na||0);
-      g.tod+=(e.tod||0);
-      g.t3l+=(e.lang||0);
-      (kd.bon||[]).forEach(function(x){g.t3+=x.price;});
-      (kd.na||[]).forEach(function(x){g.t3+=x.price;});
-      (kd.lang||[]).forEach(function(x){g.t3l+=x.price;});
-    } else if(d===2){
-      g.t2+=(e.bon||0)+(e.lang||0);
-      g.tod+=(e.tod||0);
-      (kd.bon||[]).forEach(function(x){g.t2+=x.price;});
-      (kd.lang||[]).forEach(function(x){g.t2+=x.price;});
-    } else if(d===1){
-      g.vb+=(e.bon||0);
-      g.vl+=(e.lang||0);
-    } else if(d>=4){
-      g.tod+=(e.tod||0);
-    }
-    (e.paks||[]).forEach(function(p){
-      // ปักหลักบน = บน3, ปักหลักล่าง = 2ตัว
-      if(p.type==='3bon'||p.type==='bon') g.t3+=p.price;
-      else g.t2+=p.price;
+  customers.forEach(function(cu){
+    getAllEntries(cu.id).forEach(function(e){
+      var d=e.d; var kd=e.kd||{};
+      if(d===3){
+        g.t3+=(e.bon||0)+(e.na||0); g.tod+=(e.tod||0); g.t3l+=(e.lang||0);
+        (kd.bon||[]).forEach(function(x){g.t3+=x.price;});
+        (kd.na||[]).forEach(function(x){g.t3+=x.price;});
+        (kd.lang||[]).forEach(function(x){g.t3l+=x.price;});
+      } else if(d===2){
+        g.t2+=(e.bon||0)+(e.lang||0); g.tod+=(e.tod||0);
+        (kd.bon||[]).forEach(function(x){g.t2+=x.price;});
+        (kd.lang||[]).forEach(function(x){g.t2+=x.price;});
+      } else if(d===1){ g.vb+=(e.bon||0); g.vl+=(e.lang||0);
+      } else if(d>=4){ g.tod+=(e.tod||0); }
+      (e.paks||[]).forEach(function(p){
+        if(p.type==='3bon'||p.type==='bon') g.t3+=p.price; else g.t2+=p.price;
+      });
     });
   });
   function sv(id,val){var el=document.getElementById(id);el.textContent='฿'+val.toLocaleString();el.className='sum-row-val'+(val===0?' zero':'');}
   sv('sg-3',g.t3);sv('sg-2',g.t2);sv('sg-vb',g.vb);sv('sg-vl',g.vl);sv('sg-tod',g.tod);sv('sg-3l',g.t3l);
 }
-
 // ================================================================
 // PAK POPUP
 // ================================================================
