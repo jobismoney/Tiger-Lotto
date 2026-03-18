@@ -1417,9 +1417,10 @@ function toggleSetView(cid, idx){
 function showSlipSet(cid, idx){
   var s=(custSets[cid]||[])[idx];
   if(!s||!s.entries.length){toast('ไม่มีรายการในชุดนี้');return;}
-  var inf=ngodInfo||{ngod:'—'};
   var cust=customers.find(function(c){return c.id===cid;})||{name:'?'};
   var setNum=idx+1;
+  var setTime=s.time?new Date(s.time).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}):'';
+  var inf=Object.assign({},ngodInfo||{ngod:'—'},{sender:s.sender||'—',receiver:cust.name,setNum:setNum,setTime:setTime});
   // build slip จาก entries ของชุดนี้อย่างเดียว
   var sorted=s.entries.slice().sort(function(a,b){return a.id-b.id;});
   var pages=[],pEn=[],rc=0;
@@ -2667,6 +2668,8 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
     +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span>'
     +'<span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span>'
     +'<span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span>'
+    +(inf.setNum?'<span>ชุดที่ <strong>'+inf.setNum+'</strong></span>':'')
+    +(inf.setTime?'<span>เวลา <strong>'+inf.setTime+'</strong></span>':'')
     +'<span>วันที่ <strong>'+(inf.date||'—')+'</strong></span></div>'
     +'</div>'
     +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup>'
@@ -2681,7 +2684,22 @@ function fmtN(n){return parseInt(n||0).toLocaleString();}
 function buildSlipHTML(cid){
   var all=getAllEntries(cid);
   if(!all.length) return null;
+  var cust=customers.find(function(c){return c.id===cid;})||{name:'—'};
   var inf=ngodInfo||{ngod:'—',sender:'—',receiver:'—',date:'—'};
+  // receiver = ชื่อลูกค้า เสมอ
+  inf=Object.assign({},inf,{receiver:cust.name});
+  // หา sender จาก set ที่มีข้อมูล (set แรก)
+  var firstSet=(custSets[cid]||[])[0];
+  if(firstSet&&firstSet.sender) inf=Object.assign({},inf,{sender:firstSet.sender});
+  // ถ้ามีหลาย set ใช้ set ล่าสุด
+  var lastSet=(custSets[cid]||[]).slice(-1)[0];
+  if(lastSet){
+    inf=Object.assign({},inf,{
+      sender:lastSet.sender||inf.sender||'—',
+      setNum:(custSets[cid]||[]).length,
+      setTime:lastSet.time?new Date(lastSet.time).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}):''
+    });
+  }
   var sorted=all.slice().sort(function(a,b){return a.id-b.id;});
   var pages=[],pEn=[],rc=0;
   sorted.forEach(function(e){
