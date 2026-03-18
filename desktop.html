@@ -3145,6 +3145,14 @@ selectCust = function(id){
     <iframe id="scan-iframe" src="" style="width:100%;height:500px;border:none;background:#0f1117;"></iframe>
   </div>
 </div>
+<!-- Alert Modal -->
+<div class="modal-overlay" id="modal-alert" onclick="closeAlert()" style="z-index:9999;">
+  <div style="background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid var(--gold);border-radius:16px;padding:24px 20px;width:90%;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.7);" onclick="event.stopPropagation()">
+    <div id="alert-msg" style="font-size:15px;color:#f0f2ff;line-height:1.7;margin-bottom:18px;font-family:'Sarabun',sans-serif;"></div>
+    <button onclick="closeAlert()" style="width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#111;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;">ตกลง</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-lockset" style="z-index:9999;">
   <div style="background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid var(--gold);border-radius:16px;padding:24px 20px;width:90%;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.7);" onclick="event.stopPropagation()">
     <div style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:14px;font-family:'Sarabun',sans-serif;">📂 เก็บเข้าแฟ้ม</div>
@@ -3182,6 +3190,30 @@ function confirm2Action1(){closeConfirm2();if(_confirm2Cb1)_confirm2Cb1();}
 function confirm2Action2(){closeConfirm2();if(_confirm2Cb2)_confirm2Cb2();}
 function showConfirm(msg,cb){
   showConfirm2(msg,'✅ ยืนยัน',cb,'ยกเลิก',function(){});
+}
+function confirmLockSet(){
+  var sender=document.getElementById('inp-lockset-sender').value.trim();
+  document.getElementById('modal-lockset').classList.remove('show');
+  var entries=custEntries[curCustId]||[];
+  var newSet={entries:entries.slice().reverse(),locked:false,time:Date.now(),sender:sender,pg:''};
+  if(_editSetCid===curCustId&&_editSetIdx>=0){
+    custSets[curCustId].splice(_editSetIdx,0,newSet);
+    toast('แก้ไขชุดที่ '+(_editSetIdx+1)+' แล้ว ✅');
+    _editSetCid=null;_editSetIdx=-1;
+  } else {
+    custSets[curCustId].push(newSet);
+    toast('เก็บชุดที่ '+(custSets[curCustId].length)+' แล้ว ✅'+(sender?' ('+sender+')':''));
+  }
+  custEntries[curCustId]=[];
+  addSenderHist(sender);
+  save();renderHist();renderCustList();updateSummary();
+}
+function showAlert(msg){
+  document.getElementById('alert-msg').innerHTML=msg;
+  document.getElementById('modal-alert').classList.add('show');
+}
+function closeAlert(){
+  document.getElementById('modal-alert').classList.remove('show');
 }
 </script>
 </body>
