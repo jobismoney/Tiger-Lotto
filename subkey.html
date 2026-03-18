@@ -544,9 +544,14 @@ function saveSet(){
   // chips = ชื่อลูกค้าในระบบ
   var chips = document.getElementById('sender-chips');
   if(chips){
-    chips.innerHTML = customers.map(function(c){
-      return '<button onclick="document.getElementById(\'inp-sender\').value=\''+c.name+'\'" style="background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);border-radius:20px;color:var(--gold);font-family:\'Sarabun\',sans-serif;font-size:12px;font-weight:800;padding:3px 10px;cursor:pointer;">'+c.name+'</button>';
-    }).join('');
+    chips.innerHTML='';
+    customers.forEach(function(c){
+      var btn=document.createElement('button');
+      btn.textContent=c.name;
+      btn.style.cssText='background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);border-radius:20px;color:var(--gold);font-family:Sarabun,sans-serif;font-size:12px;font-weight:800;padding:3px 10px;cursor:pointer;';
+      btn.addEventListener('click',function(){document.getElementById('inp-sender').value=c.name;});
+      chips.appendChild(btn);
+    });
   }
   document.getElementById('modal-save-set').classList.add('show');
   setTimeout(function(){ document.getElementById('inp-sender').focus(); }, 100);
