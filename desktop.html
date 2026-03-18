@@ -77,8 +77,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 /* resize handle */
 .rzh{width:5px;background:transparent;cursor:col-resize;flex-shrink:0;border-right:1px solid var(--border);transition:background .15s;position:relative;z-index:10;}
 .rzh:hover,.rzh.dragging{background:rgba(245,197,24,.3);}
-.zhdr{padding:7px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.ztitle{font-size:13px;font-weight:800;color:#8899bb;letter-spacing:1px;text-transform:uppercase;}
+.zhdr{padding:10px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;min-height:44px;}
+.ztitle{font-size:15px;font-weight:900;color:#8899bb;letter-spacing:1px;text-transform:uppercase;}
 .zbody{flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
 
 /* ZONE 1: แฟ้ม */
@@ -110,6 +110,9 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .lek-big{font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--gold);letter-spacing:8px;min-height:44px;display:flex;align-items:center;justify-content:center;}
 .lek-hint{font-size:12px;color:#334;margin-top:2px;}
 .cursor{display:inline-block;width:2px;height:28px;background:var(--gold);margin-left:2px;vertical-align:middle;animation:blink .9s step-end infinite;}
+.marquee-wrap{overflow:hidden;background:rgba(245,197,24,.04);border-radius:6px;padding:4px 8px;margin-bottom:6px;}
+.marquee-inner{display:inline-block;white-space:nowrap;animation:marquee-scroll 12s linear infinite;font-size:13px;font-weight:800;color:var(--gold);}
+@keyframes marquee-scroll{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
 
 /* price fields */
@@ -435,7 +438,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <!-- ZONE 2: รายการ (ย้ายมาอยู่ที่ 2) -->
   <div class="zone z3" id="zone3">
     <div class="zhdr">
-      <span class="ztitle">📋 รายการ — <span id="mid-cust-name" style="color:var(--gold);">—</span></span>
+      <span class="ztitle">📋 รายการ — <span id="mid-cust-name" style="color:var(--gold);font-size:17px;font-weight:900;">—</span></span>
       <button onclick="lockSet()" style="background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);border-radius:4px;padding:3px 9px;font-size:11px;font-weight:800;color:var(--gold);cursor:pointer;font-family:'Sarabun',sans-serif;">📂 เก็บเข้าแฟ้ม</button>
     </div>
     <div class="zbody">
@@ -465,13 +468,16 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <!-- ZONE 3: คีย์เลข (ย้ายมาอยู่ที่ 3) -->
   <div class="zone z2" id="zone2">
     <div class="zhdr">
-      <span class="ztitle">⌨️ คีย์เลข — <span id="kp-cust-name" style="color:var(--gold);">—</span></span>
+      <span class="ztitle">⌨️ คีย์เลข — <span id="kp-cust-name" style="color:var(--gold);font-size:17px;font-weight:900;">—</span></span>
       <button class="float-toggle" onclick="toggleFloat()" title="ลอย/ฝัง">⤢</button>
     </div>
     <div class="zbody" id="kp-zone-body">
       <div class="kp-body" id="kp-inner">
 
         <!-- เลขที่กำลังคีย์ -->
+        <div class="marquee-wrap" id="marquee-wrap">
+          <span class="marquee-inner" id="marquee-text">⌨️ เลือกลูกค้าก่อนครับ</span>
+        </div>
         <div class="lek-display">
           <div class="lek-big" id="kp-lek-show">—<span class="cursor"></span></div>
           <div class="lek-hint" id="kp-lek-hint">กด Numpad เพื่อคีย์เลข</div>
@@ -2294,6 +2300,7 @@ function renderHist(){
 
   if(!h) h='<div style="padding:20px;text-align:center;font-size:12px;color:#2a3050;">ยังไม่มีรายการ</div>';
   document.getElementById('hist-scroll').innerHTML=h;
+  updateMarquee();
 }
 
 // ================================================================
@@ -3190,6 +3197,76 @@ function deleteCust(cid){
   },'ยกเลิก',function(){});
 }
 
+function updateMarquee(){
+  var el = document.getElementById('marquee-text');
+  if(!el) return;
+  var cust = customers.find(function(c){return c.id===curCustId;});
+  if(!cust){ el.textContent='⌨️ เลือกลูกค้าก่อนครับ'; return; }
+  var sets = (custSets[curCustId]||[]).length;
+  var setNum = sets + 1;
+  var ngod = ngodInfo&&ngodInfo.ngod ? ' · งวด '+ngodInfo.ngod : '';
+  el.textContent = '⌨️ กำลังคีย์เลขของ '+cust.name+' · ชุดที่ '+setNum+ngod;
+}
+
+function switchCrTab(tab, btn){
+  document.getElementById('cr-panel-rate').style.display = tab==='rate' ? '' : 'none';
+  document.getElementById('cr-panel-arn').style.display = tab==='arn' ? '' : 'none';
+  document.getElementById('cr-tab-rate').style.background = tab==='rate' ? 'rgba(245,197,24,.1)' : 'none';
+  document.getElementById('cr-tab-rate').style.color = tab==='rate' ? 'var(--gold)' : '#556';
+  document.getElementById('cr-tab-rate').style.borderColor = tab==='rate' ? 'rgba(245,197,24,.3)' : '#334';
+  document.getElementById('cr-tab-arn').style.background = tab==='arn' ? 'rgba(245,197,24,.1)' : 'none';
+  document.getElementById('cr-tab-arn').style.color = tab==='arn' ? 'var(--gold)' : '#556';
+  document.getElementById('cr-tab-arn').style.borderColor = tab==='arn' ? 'rgba(245,197,24,.3)' : '#334';
+  if(tab==='arn') renderCustArnList();
+}
+
+function addCustArn(){
+  var lek = (document.getElementById('cr-arn-lek').value||'').trim();
+  var pct = parseInt(document.getElementById('cr-arn-pct').value);
+  if(!lek){ toast('ใส่เลขก่อนครับ'); return; }
+  var cust = customers.find(function(c){return c.id===_crCustId;});
+  if(!cust) return;
+  if(!cust.arn) cust.arn = {};
+  cust.arn[lek] = pct;
+  document.getElementById('cr-arn-lek').value = '';
+  save(); renderCustArnList();
+  toast('ตั้งอั้น '+lek+' แล้ว ✅');
+}
+
+function removeCustArn(lek){
+  var cust = customers.find(function(c){return c.id===_crCustId;});
+  if(!cust||!cust.arn) return;
+  delete cust.arn[lek];
+  save(); renderCustArnList();
+}
+window.removeCustArn = removeCustArn;
+
+function renderCustArnList(){
+  var el = document.getElementById('cr-arn-list');
+  if(!el) return;
+  var cust = customers.find(function(c){return c.id===_crCustId;});
+  var arn = (cust&&cust.arn)||{};
+  var keys = Object.keys(arn);
+  if(!keys.length){ el.innerHTML='<div style="color:#444;font-size:12px;text-align:center;padding:10px;">ยังไม่มีการตั้งอั้น</div>'; return; }
+  var h = '';
+  keys.forEach(function(lek){
+    var pct = arn[lek];
+    var col = pct===0?'#ef4444':pct<=25?'#f87171':'#f59e0b';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 8px;background:#0f172a;border-radius:6px;margin-bottom:4px;">'
+      +'<span style="font-size:15px;font-weight:900;color:#f5c518;">'+lek+'</span>'
+      +'<span style="font-size:13px;font-weight:900;color:'+col+';">'+pct+'%</span>'
+      +'<button data-lek="'+lek+'" onclick="removeCustArn(this.dataset.lek)" style="background:none;border:none;color:#475569;font-size:13px;cursor:pointer;">✕</button>'
+      +'</div>';
+  });
+  el.innerHTML = h;
+}
+
+function getCustArn(cid, lek){
+  var cust = customers.find(function(c){return c.id===cid;});
+  if(!cust||!cust.arn) return null;
+  return (cust.arn[lek]!==undefined) ? cust.arn[lek] : null;
+}
+
 function getCfg(key){
   var all = settings.normal.concat(settings.special);
   return all.find(function(x){return x.key===key;})||null;
@@ -3504,8 +3581,13 @@ selectCust = function(id){
 <!-- Cust Rate Modal -->
 <div class="modal-overlay" id="modal-cust-rate" style="z-index:9999;">
   <div style="background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid var(--gold);border-radius:16px;padding:24px 20px;width:90%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.7);" onclick="event.stopPropagation()">
-    <div style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:4px;font-family:'Sarabun',sans-serif;">⚙️ เรทพิเศษ — <span id="cr-cust-name"></span></div>
-    <div style="font-size:11px;color:#556;margin-bottom:14px;font-family:'Sarabun',sans-serif;">ปล่อยว่างไว้ = ใช้เรท global</div>
+    <div style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:4px;font-family:'Sarabun',sans-serif;">⚙️ เรท & อั้น — <span id="cr-cust-name"></span></div>
+    <div style="display:flex;gap:6px;margin-bottom:10px;">
+      <button onclick="switchCrTab('rate',this)" id="cr-tab-rate" style="flex:1;padding:6px;background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.3);border-radius:6px;color:var(--gold);font-family:'Sarabun',sans-serif;font-size:13px;font-weight:800;cursor:pointer;">ลด%</button>
+      <button onclick="switchCrTab('arn',this)" id="cr-tab-arn" style="flex:1;padding:6px;background:none;border:1px solid #334;border-radius:6px;color:#556;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:800;cursor:pointer;">ตั้งอั้น</button>
+    </div>
+    <div id="cr-panel-rate">
+    <div style="font-size:11px;color:#556;margin-bottom:10px;font-family:'Sarabun',sans-serif;">ปล่อยว่างไว้ = ใช้เรท global</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
       <div><div style="font-size:12px;color:#888;margin-bottom:4px;">3ตัว ลด%</div><input id="cr-3bon" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
       <div><div style="font-size:12px;color:#888;margin-bottom:4px;">2ตัว ลด%</div><input id="cr-2bon" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
@@ -3513,7 +3595,22 @@ selectCust = function(id){
       <div><div style="font-size:12px;color:#888;margin-bottom:4px;">โต๊ด ลด%</div><input id="cr-tod" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
       <div style="grid-column:1/-1;"><div style="font-size:12px;color:#888;margin-bottom:4px;">3ล่าง ลด%</div><input id="cr-3lang" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
     </div>
-    <div style="display:flex;gap:8px;">
+    </div><!-- end cr-panel-rate -->
+    <div id="cr-panel-arn" style="display:none;">
+      <div style="font-size:11px;color:#556;margin-bottom:8px;font-family:'Sarabun',sans-serif;">เพิ่มเลขที่ต้องการอั้นสำหรับลูกค้าคนนี้</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;">
+        <input id="cr-arn-lek" type="tel" inputmode="numeric" maxlength="5" placeholder="เลข" style="width:64px;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f5c518;font-size:16px;font-weight:900;padding:7px 8px;text-align:center;font-family:'Sarabun',sans-serif;outline:none;">
+        <select id="cr-arn-pct" style="flex:1;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f87171;font-size:13px;font-weight:900;padding:7px;font-family:'Sarabun',sans-serif;">
+          <option value="50">50%</option>
+          <option value="25">25%</option>
+          <option value="10">10%</option>
+          <option value="0">0% (ไม่รับ)</option>
+        </select>
+        <button onclick="addCustArn()" style="background:var(--gold);border:none;border-radius:8px;color:#111;font-size:13px;font-weight:900;padding:7px 10px;cursor:pointer;font-family:'Sarabun',sans-serif;">+ เพิ่ม</button>
+      </div>
+      <div id="cr-arn-list" style="max-height:120px;overflow-y:auto;"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
       <button onclick="saveCustRate()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#111;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;">💾 บันทึก</button>
       <button onclick="clearCustRate()" style="background:#1e293b;border:1px solid #334;border-radius:10px;color:#f87171;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;padding:10px 12px;cursor:pointer;">ล้าง</button>
       <button onclick="document.getElementById('modal-cust-rate').classList.remove('show')" style="background:#1e293b;border:1px solid #334;border-radius:10px;color:#94a3b8;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;padding:10px 12px;cursor:pointer;">ยกเลิก</button>
