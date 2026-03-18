@@ -3917,6 +3917,82 @@ function renderAnalyze(view){
         +'<span style="font-size:12px;color:#555;">'+cnt+' เลข ›</span>'
         +'</div>';
     });
+
+    // ── Risk Analysis ──
+    var NET = netIncome;
+    var dangerList=[], warnList=[], safeList=[];
+    leks.forEach(function(x){
+      var exp=x.exp, tot=x.total;
+      var profit=NET-exp;
+      if(exp>NET) dangerList.push({x:x,exp:exp,profit:profit});
+      else if(profit<NET*0.3) warnList.push({x:x,exp:exp,profit:profit});
+      else safeList.push({x:x,exp:exp,profit:profit});
+    });
+    dangerList.sort(function(a,b){return a.profit-b.profit;});
+    warnList.sort(function(a,b){return a.profit-b.profit;});
+    safeList.sort(function(a,b){return b.profit-a.profit;});
+
+    function riskRow(item, color, sub){
+      var sign=item.profit>=0?'+':'';
+      var typeLabel=item.x.d===3?'3ตัว':item.x.d===2?'2ตัว':item.x.d===1?'วิ่ง':'โต๊ด';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;margin-bottom:6px;background:'+color.bg+';border:1px solid '+color.border+';">'
+        +'<div>'
+        +'<div style="display:flex;align-items:center;gap:6px;">'
+        +'<span style="font-family:Bebas Neue,sans-serif;font-size:22px;letter-spacing:2px;color:'+color.lek+';">'+item.x.lek+'</span>'
+        +'<span style="background:'+color.badgeBg+';color:'+color.lek+';border:1px solid '+color.border+';border-radius:20px;font-size:11px;font-weight:800;padding:2px 8px;">'+typeLabel+'</span>'
+        +'</div>'
+        +'<div style="font-size:11px;color:#666;margin-top:2px;">รับมา ฿'+fmtN(item.x.total)+' · ถ้าถูกจ่าย ฿'+fmtN(item.x.exp)+'</div>'
+        +'</div>'
+        +'<div style="text-align:right;">'
+        +'<div style="font-family:Bebas Neue,sans-serif;font-size:18px;color:'+color.lek+';">'+sign+fmtN(item.profit)+'</div>'
+        +'<div style="font-size:11px;color:#556;">'+sub+'</div>'
+        +'</div>'
+        +'</div>';
+    }
+
+    html+='<div style="font-size:13px;font-weight:900;color:#888;margin:14px 0 8px;">🎯 วิเคราะห์ความเสี่ยง</div>';
+
+    // summary bar
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'
+      +'<div style="background:#0a0e1a;border-radius:8px;padding:10px 12px;">'
+      +'<div style="font-size:11px;color:#556;margin-bottom:2px;">ยอดสุทธิรวม</div>'
+      +'<div style="font-family:Bebas Neue,sans-serif;font-size:22px;color:#f5c518;">฿'+fmtN(NET)+'</div>'
+      +'<div style="font-size:11px;color:#556;">ถ้าไม่มีถูกเลย</div>'
+      +'</div>'
+      +'<div style="background:#0a0e1a;border-radius:8px;padding:10px 12px;">'
+      +'<div style="font-size:11px;color:#556;margin-bottom:2px;">เลขเสี่ยง</div>'
+      +'<div style="font-family:Bebas Neue,sans-serif;font-size:22px;color:'+(dangerList.length>0?'#f87171':'#22c55e')+';">'+dangerList.length+' เลข</div>'
+      +'<div style="font-size:11px;color:#556;">ถ้าถูกขาดทุน</div>'
+      +'</div>'
+      +'</div>';
+
+    if(dangerList.length){
+      html+='<div style="background:#0a0e1a;border-radius:10px;padding:10px 12px;margin-bottom:8px;">'
+        +'<div style="font-size:13px;font-weight:900;color:#f87171;margin-bottom:8px;">⚠️ ควรตีออก — ถ้าถูกขาดทุน</div>';
+      dangerList.slice(0,5).forEach(function(item){
+        html+=riskRow(item,{bg:'#1a0a0a',border:'rgba(231,76,60,.3)',lek:'#f87171',badgeBg:'rgba(231,76,60,.15)'},'ขาดทุน');
+      });
+      html+='</div>';
+    }
+
+    if(warnList.length){
+      html+='<div style="background:#0a0e1a;border-radius:10px;padding:10px 12px;margin-bottom:8px;">'
+        +'<div style="font-size:13px;font-weight:900;color:#f5c518;margin-bottom:8px;">🟡 ระวัง — กำไรน้อยถ้าถูก</div>';
+      warnList.slice(0,5).forEach(function(item){
+        html+=riskRow(item,{bg:'#1a1500',border:'rgba(245,197,24,.2)',lek:'#f5c518',badgeBg:'rgba(245,197,24,.1)'},'กำไรน้อย');
+      });
+      html+='</div>';
+    }
+
+    if(safeList.length){
+      html+='<div style="background:#0a0e1a;border-radius:10px;padding:10px 12px;margin-bottom:8px;">'
+        +'<div style="font-size:13px;font-weight:900;color:#22c55e;margin-bottom:8px;">✅ ปลอดภัย — top รับเงินดี</div>';
+      safeList.slice(0,3).forEach(function(item){
+        html+=riskRow(item,{bg:'#0a1a0a',border:'rgba(34,197,94,.15)',lek:'#22c55e',badgeBg:'rgba(34,197,94,.1)'},'กำไรดี');
+      });
+      html+='</div>';
+    }
+
     el.innerHTML=html;
   } else {
     // หน้า detail
