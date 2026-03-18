@@ -1187,10 +1187,18 @@ function renderCustList(){
     +'<span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:3px;vertical-align:middle;"></span>กำลังคีย์</span>'
     +'<span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-right:3px;vertical-align:middle;"></span>มีในชุด</span>'
     +'<span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#1e2540;border:1px solid #334;margin-right:3px;vertical-align:middle;"></span>ว่าง</span>'
-    +'<span style="color:var(--gold);">★</span><span>=เรทพิเศษ</span>'
+    +'<span style="color:var(--gold);">★=เรทพิเศษ</span>'
     +'<span>🎉=ถูกรางวัล</span>'
     +'</div>';
   var h=legend;
+
+  // ตรวจหาชื่อซ้ำ
+  var nameCounts={};
+  customers.forEach(function(c){
+    nameCounts[c.name]=(nameCounts[c.name]||0)+1;
+  });
+  var nameIdx={};
+
   customers.forEach(function(c){
     var tot=calcCustTotal(c.id);
     var cnt=getAllEntries(c.id).length;
@@ -1201,9 +1209,16 @@ function renderCustList(){
     var prizeTag=hasPrize?'<span class="cprize">🎉</span>':'';
     var rateTag=c.rates?'<span style="color:var(--gold);font-size:11px;margin-left:2px;">★</span>':'';
     var bStyle=hasPrize?' style="border-color:rgba(34,197,94,.4);"':'';
+
+    // ถ้าชื่อซ้ำ ให้ต่อท้ายด้วย (2), (3)...
+    var displayName=c.name;
+    if(nameCounts[c.name]>1){
+      nameIdx[c.name]=(nameIdx[c.name]||0)+1;
+      if(nameIdx[c.name]>1) displayName=c.name+' ('+nameIdx[c.name]+')';
+    }
+
     var g=calcCustBreakdown(c.id);
-    // breakdown grid 2 col
-    var rows=[
+    var bdRows=[
       {lbl:'3ตัว', val:g.t3, color:'#60a5fa'},
       {lbl:'2ตัว', val:g.t2, color:'#34d399'},
       {lbl:'โต๊ด', val:g.tod, color:'#a78bfa'},
@@ -1211,32 +1226,40 @@ function renderCustList(){
       {lbl:'วิ่งบน', val:g.vb, color:'#fb923c'},
       {lbl:'วิ่งล่าง', val:g.vl, color:'#fb923c'},
     ];
-    var bdHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px 6px;margin-top:4px;">';
-    rows.forEach(function(r){
-      bdHTML+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:1px 0;">'
-        +'<span style="color:#556;font-weight:700;">'+r.lbl+'</span>'
-        +'<span style="color:'+(r.val>0?r.color:'#2a3258')+';font-weight:800;">฿'+r.val.toLocaleString()+'</span>'
+    var bdHTML='';
+    bdRows.forEach(function(row){
+      bdHTML+='<div style="display:flex;justify-content:space-between;gap:4px;font-size:11px;padding:1px 0;">'
+        +'<span style="color:#556;font-weight:700;">'+row.lbl+'</span>'
+        +'<span style="color:'+(row.val>0?row.color:'#2a3258')+';font-weight:800;font-size:13px;">฿'+row.val.toLocaleString()+'</span>'
         +'</div>';
     });
-    bdHTML+='</div>';
-    h+='<div class="citem'+(active?' active':'')+'" data-cid="'+c.id+'"'+bStyle+'>'
-      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;">'
-      // ซ้าย: ชื่อ+ยอด+breakdown
-      +'<div style="flex:1;min-width:0;">'
-      +'<div class="cname"><div class="'+dotClass+'"></div>'+c.name+prizeTag+rateTag+'</div>'
+
+    h+='<div class="citem'+(active?' active':'')+'" data-cid="'+c.id+'"'+bStyle+' style="padding:8px 6px;">'
+      +'<div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;">'
+
+      // คอลัมน์ซ้าย: จุด+ชื่อ+ยอด+รายการ
+      +'<div style="min-width:0;">'
+      +'<div class="cname" style="flex-wrap:nowrap;"><div class="'+dotClass+'" style="flex-shrink:0;"></div>'
+      +'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70px;">'+displayName+'</span>'
+      +prizeTag+rateTag+'</div>'
       +'<div class="ctotal">฿'+tot.toLocaleString()+'</div>'
-      +bdHTML
-      +'<div class="ccount" style="margin-top:3px;">'+cnt+' รายการ</div>'
+      +'<div class="ccount">'+cnt+' รายการ</div>'
       +'</div>'
-      // ขวา: ปุ่ม
-      +'<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">'
-      +'<button class="cslip-btn cr-btn" data-cid="'+c.id+'" style="display:flex;align-items:center;gap:4px;padding:5px 10px;font-size:12px;font-weight:800;white-space:nowrap;">⚙️ เรท</button>'
-      +'<button class="cslip-btn sc-btn" data-cid="'+c.id+'" style="display:flex;align-items:center;gap:4px;padding:5px 10px;font-size:12px;font-weight:800;white-space:nowrap;">📷 สแกน</button>'
-      +'<button class="cslip-btn sl-btn" data-cid="'+c.id+'" style="display:flex;align-items:center;gap:4px;padding:5px 10px;font-size:12px;font-weight:800;white-space:nowrap;">📋 โพย</button>'
+
+      // คอลัมน์กลาง: แยกประเภท
+      +'<div style="border-left:1px solid var(--border);border-right:1px solid var(--border);padding:0 8px;">'+bdHTML+'</div>'
+
+      // คอลัมน์ขวา: ปุ่ม
+      +'<div style="display:flex;flex-direction:column;gap:4px;">'
+      +'<button class="cslip-btn cr-btn" data-cid="'+c.id+'" style="display:flex;align-items:center;gap:3px;padding:5px 8px;font-size:12px;font-weight:800;white-space:nowrap;">⚙️ เรท</button>'
+      +'<button class="cslip-btn sc-btn" data-cid="'+c.id+'" style="display:flex;align-items:center;gap:3px;padding:5px 8px;font-size:12px;font-weight:800;white-space:nowrap;">📷 สแกน</button>'
+      +'<button class="cslip-btn sl-btn" data-cid="'+c.id+'" style="display:flex;align-items:center;gap:3px;padding:5px 8px;font-size:12px;font-weight:800;white-space:nowrap;">📋 โพย</button>'
       +'</div>'
+
       +'</div>'
       +'</div>';
   });
+
   document.getElementById('clist').innerHTML=h;
   document.getElementById('cust-count').textContent=customers.length;
   document.querySelectorAll('#clist .citem').forEach(function(el){
@@ -1287,6 +1310,8 @@ function closeCustModal(){document.getElementById('modal-cust').classList.remove
 function confirmAddCust(){
   var name=document.getElementById('inp-cust-name').value.trim();
   if(!name){toast('กรุณาใส่ชื่อ');return;}
+  var dup=customers.find(function(c){return c.name===name;});
+  if(dup){showAlert('⚠️ ชื่อ <b>"'+name+'"</b> มีอยู่ในระบบแล้วครับ<br><br>ถ้าต้องการเพิ่มลูกค้าใหม่ กรุณาใช้ชื่ออื่นที่ไม่ซ้ำกันครับ');return;}
   var id='c'+Date.now();
   customers.push({id:id,name:name});
   custEntries[id]=[]; custEid[id]=0; custSets[id]=[];
