@@ -2877,12 +2877,15 @@ function buildAllCustSlip(){
     +'<th style="padding:7px 8px;font-size:12px;font-weight:800;color:#555;text-align:right;">ถูกรางวัล</th>'
     +'</tr></thead>'
     +'<tbody>'+summaryRows+'</tbody>'
-    +'<tfoot><tr style="background:#eee;border-top:2px solid #bbb;">'
+    +'<tfoot>'
+    +'<tr style="background:#eee;border-top:2px solid #bbb;">'
     +'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:#111;">รวม</td>'
     +'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:#111;text-align:right;">'+fmtN(sumGross)+'</td>'
     +'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:#111;text-align:right;">'+fmtN(sumNet)+'</td>'
     +'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:'+(sumPrize>0?'#16a34a':'#aaa')+';text-align:right;">'+(sumPrize>0?fmtN(sumPrize):'-')+'</td>'
-    +'</tr></tfoot>'
+    +'</tr>'
+    +(function(){var net2=sumNet-sumPrize;var col=net2>=0?'#111':'#e74c3c';var sign=net2>=0?'':'';return '<tr style="background:#ddd;border-top:1.5px solid #bbb;">'+'<td style="padding:7px 8px;font-size:13px;font-weight:900;color:#111;">รวมสุทธิ</td>'+'<td style="padding:7px 8px;font-size:11px;color:#888;text-align:right;" colspan="2">หลังลด% − ถูกรางวัล</td>'+'<td style="padding:7px 8px;font-size:14px;font-weight:900;color:'+col+';text-align:right;">'+sign+fmtN(net2)+'</td>'+'</tr>';})()
+    +'</tfoot>'
     +'</table>'
     +'</div>';
   html+=summaryTable;
