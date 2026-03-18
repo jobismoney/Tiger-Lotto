@@ -3145,5 +3145,44 @@ selectCust = function(id){
     <iframe id="scan-iframe" src="" style="width:100%;height:500px;border:none;background:#0f1117;"></iframe>
   </div>
 </div>
+<div class="modal-overlay" id="modal-lockset" style="z-index:9999;">
+  <div style="background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid var(--gold);border-radius:16px;padding:24px 20px;width:90%;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.7);" onclick="event.stopPropagation()">
+    <div style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:14px;font-family:'Sarabun',sans-serif;">📂 เก็บเข้าแฟ้ม</div>
+    <div style="font-size:13px;color:#888;margin-bottom:6px;font-family:'Sarabun',sans-serif;">ชื่อผู้ส่ง (ไม่บังคับ)</div>
+    <div id="lockset-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;"></div>
+    <input id="inp-lockset-sender" type="text" placeholder="พิมพ์ชื่อใหม่..."
+      onkeydown="if(event.key==='Enter')confirmLockSet()"
+      style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;padding:10px;box-sizing:border-box;outline:none;margin-bottom:14px;">
+    <div style="display:flex;gap:8px;">
+      <button onclick="confirmLockSet()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#111;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;">✅ เก็บแฟ้ม</button>
+      <button onclick="document.getElementById('modal-lockset').classList.remove('show')" style="background:#1e293b;border:1px solid #334;border-radius:10px;color:#94a3b8;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;padding:10px 16px;cursor:pointer;">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-confirm2" style="z-index:9999;">
+  <div style="background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid var(--gold);border-radius:16px;padding:24px 20px;width:90%;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.7);" onclick="event.stopPropagation()">
+    <div id="confirm2-msg" style="font-size:15px;color:#f0f2ff;line-height:1.7;margin-bottom:18px;font-family:'Sarabun',sans-serif;"></div>
+    <div style="display:flex;gap:8px;">
+      <button id="confirm2-btn1" onclick="confirm2Action1()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#111;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;padding:10px;cursor:pointer;"></button>
+      <button id="confirm2-btn2" onclick="confirm2Action2()" style="flex:1;background:#1e293b;border:1px solid #334;border-radius:10px;color:#f87171;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;padding:10px;cursor:pointer;"></button>
+    </div>
+  </div>
+</div>
+<script>
+var _confirm2Cb1=null,_confirm2Cb2=null;
+function showConfirm2(msg,btn1Label,cb1,btn2Label,cb2){
+  document.getElementById('confirm2-msg').innerHTML=msg;
+  document.getElementById('confirm2-btn1').textContent=btn1Label;
+  document.getElementById('confirm2-btn2').textContent=btn2Label;
+  _confirm2Cb1=cb1;_confirm2Cb2=cb2;
+  document.getElementById('modal-confirm2').classList.add('show');
+}
+function closeConfirm2(){document.getElementById('modal-confirm2').classList.remove('show');}
+function confirm2Action1(){closeConfirm2();if(_confirm2Cb1)_confirm2Cb1();}
+function confirm2Action2(){closeConfirm2();if(_confirm2Cb2)_confirm2Cb2();}
+function showConfirm(msg,cb){
+  showConfirm2(msg,'✅ ยืนยัน',cb,'ยกเลิก',function(){});
+}
+</script>
 </body>
 </html>
