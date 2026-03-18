@@ -803,6 +803,7 @@ function normalizeQRData(data){
       receiver: data.r||'',
       date: data.dt||'',
       pg: data.p||1,
+      setNum: data.sn||'',
       entries: (data.e||[]).map(function(e){
         var lekVal = e.l||e.lek||e.T||e.d||''; // รองรับทุก format รวม format เก่า T
         return {
@@ -947,7 +948,7 @@ function doImportMulti(dataList, totalEntries, cid){
       entries.push({id:custEid[cid],lek:lek,d:lek.length,
         bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,kd:e.kd||{},paks:e.paks||[]});
     });
-    custSets[cid].push({entries:entries, locked:false, time:Date.now(), sender:data.sender||'', pg:data.pg||''});
+    custSets[cid].push({entries:entries, locked:false, time:Date.now(), sender:data.sender||'', pg:data.pg||'', setNum:data.setNum||''});
   });
   curCustId=cid;
   save();
@@ -1084,7 +1085,7 @@ function doImport(data, fp, log, cid){
       bon: e.bon||null, tod: e.tod||null, lang: e.lang||null, na: e.na||null, kd: e.kd||{}, paks: e.paks||[]
     });
   });
-  custSets[cid].push({entries: importedEntries, locked: false, time: Date.now(), sender: data.sender||'', pg: data.pg||''});
+  custSets[cid].push({entries: importedEntries, locked: false, time: Date.now(), sender: data.sender||'', pg: data.pg||'', setNum: data.setNum||''});
 
   log.push({ fp: fp, time: Date.now(), sender: data.sender||'', ngod: data.ngod||'', pg: data.pg, cid: cid||'' });
   saveScannedLog(log);
