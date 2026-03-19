@@ -1670,7 +1670,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       pages.forEach(function(pg){var pgE=pg.filter(function(x){return x.type==='entry';}).map(function(x){return x.e;});var s=pageSumTotals(pgE);grandS.c3+=s.c3;grandS.c2+=s.c2;grandS.c1+=s.c1;grandS.ct+=s.ct;grandS.cl+=s.cl;});
       allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
       var sumHTML='<div class="slip-hd"><div class="slip-hd-row1"><h2>📊 สรุป · '+name+'</h2><span class="pg">'+totalPages+' แผ่น · '+custSets.length+' ชุด</span></div>'
-        +'<div class="slip-hd-row2"><span>งวด <strong>'+infO.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(infO.sender||'—')+'/'+name+'</strong></span><span>ผู้รับ <strong>'+(infO.receiver||'—')+'</strong></span></div>'
+        +'<div class="slip-hd-row2"><span>งวด <strong>'+infO.ngod+'</strong></span><span>ผู้ส่ง <strong>'+name+'</strong></span><span>ผู้รับ <strong>'+(infO.sender||'—')+'</strong></span></div>'
         +'</div>'+sumTableHTML(allSumRows)+'<div class="slip-ft"><span class="fl">ยอดรวม '+name+'</span><span class="fv">฿'+fmt(grandTotal)+'</span></div>';
       var allHTML='';
       for(var pi=0;pi<pageHTMLs.length;pi++){
@@ -2120,7 +2120,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     return '<div class="slip-hd">'
       +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+(''+inf.ngod).replace(/ \\d{2}:\\d{2}$/,'')+'</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
       +(inf.savedAt?'<div style="font-size:11px;color:#555;margin-top:2px;">บันทึก '+inf.savedAt+'</div>':'')
-      +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+(ngodInfo.basketName?'/'+ngodInfo.basketName:'')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
+      +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
       +'</div>'
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
       +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
