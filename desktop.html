@@ -542,61 +542,27 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
       <!-- TAB สรุป -->
       <div id="tab-sum" class="rscroll">
-        <div class="sum-who"><div class="sum-dot"></div><div class="sum-name" id="sum-cust-name">—</div></div>
+        <!-- ยอดรวม -->
         <div class="sum-total-box">
-          <div class="sum-total-lbl">ยอดรวม</div>
+          <div class="sum-total-lbl">ยอดรวมทุกลูกค้า</div>
           <div class="sum-total-num" id="sum-total">฿0</div>
+          <div id="sum-sub" style="font-size:11px;color:#4a5570;margin-top:2px;">0 คน · 0 รายการ</div>
         </div>
 
-        <!-- Mini stats -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px;">
-          <div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:8px;padding:6px 8px;text-align:center;">
-            <div style="font-size:10px;color:#4a5570;font-weight:700;margin-bottom:2px;">ลูกค้า</div>
-            <div id="sc-custs" style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:#f5c518;">0</div>
-          </div>
-          <div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:8px;padding:6px 8px;text-align:center;">
-            <div style="font-size:10px;color:#4a5570;font-weight:700;margin-bottom:2px;">รายการ</div>
-            <div id="sc-entries" style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:#60a5fa;">0</div>
-          </div>
-          <div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:8px;padding:6px 8px;text-align:center;">
-            <div style="font-size:10px;color:#4a5570;font-weight:700;margin-bottom:2px;">เสี่ยง</div>
-            <div id="sc-risk" style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:#f87171;">0</div>
-          </div>
-        </div>
-
-        <!-- Donut chart สัดส่วนประเภทเลข -->
-        <div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
-          <div style="font-size:11px;font-weight:800;color:#4a5570;letter-spacing:1px;margin-bottom:8px;">สัดส่วนประเภทเลข</div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <canvas id="sum-donut" width="80" height="80" style="flex-shrink:0;"></canvas>
-            <div id="sum-donut-legend" style="flex:1;"></div>
-          </div>
-        </div>
-
-        <!-- Line chart เอเย่นต์ -->
-        <div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
-          <div style="font-size:11px;font-weight:800;color:#4a5570;letter-spacing:1px;margin-bottom:6px;">จำนวนลูกค้าต่อเอเย่นต์</div>
-          <canvas id="sum-line" height="70" style="width:100%;display:block;"></canvas>
-          <div id="sum-line-labels" style="display:flex;justify-content:space-between;margin-top:2px;"></div>
-        </div>
-
-        <!-- Horizontal bar ลูกค้า -->
-        <div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
-          <div style="font-size:11px;font-weight:800;color:#4a5570;letter-spacing:1px;margin-bottom:8px;">ยอดรายลูกค้า</div>
-          <div id="sum-cust-bars"></div>
-        </div>
-
-        <button onclick="showSlipAll()" style="width:100%;margin-bottom:10px;padding:10px;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;cursor:pointer;">📋 สรุปยอด</button>
+        <!-- แท่งแยกประเภท -->
         <div class="sum-sec">แยกประเภท</div>
-        <div class="sum-row"><span class="sum-row-lbl">3 ตัว</span><span class="sum-row-val zero" id="sg-3">฿0</span></div>
-        <div class="sum-row"><span class="sum-row-lbl">2 ตัว</span><span class="sum-row-val zero" id="sg-2">฿0</span></div>
-        <div class="sum-row"><span class="sum-row-lbl">วิ่งบน</span><span class="sum-row-val zero" id="sg-vb">฿0</span></div>
-        <div class="sum-row"><span class="sum-row-lbl">วิ่งล่าง</span><span class="sum-row-val zero" id="sg-vl">฿0</span></div>
-        <div class="sum-row"><span class="sum-row-lbl">โต๊ด</span><span class="sum-row-val zero" id="sg-tod">฿0</span></div>
-        <div class="sum-row"><span class="sum-row-lbl">3 ล่าง</span><span class="sum-row-val zero" id="sg-3l">฿0</span></div>
+        <div id="sum-bars" style="margin-bottom:10px;"></div>
+
+        <!-- ปุ่มสรุปยอด -->
+        <button onclick="showSlipAll()" style="width:100%;margin-bottom:10px;padding:10px;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;cursor:pointer;">📋 สรุปยอด</button>
+
+        <!-- เมนูวิเคราะห์ -->
+        <div class="sum-sec">วิเคราะห์</div>
+        <div style="display:flex;flex-direction:column;gap:6px;" id="az-menu"></div>
+
       </div>
 
-      <!-- TAB ตรวจ -->
+            <!-- TAB ตรวจ -->
       <div id="tab-check" class="rscroll" style="display:none;padding:9px;">
         <div class="sum-sec">🔍 ตรวจผลรางวัล</div>
         <div style="background:#0f1220;border:1px solid #1a2040;border-radius:12px;padding:14px;margin-bottom:10px;">
@@ -2573,9 +2539,78 @@ function updateSummary(){
       });
     });
   });
-  function sv(id,val){var el=document.getElementById(id);if(el){el.textContent='฿'+val.toLocaleString();el.className='sum-row-val'+(val===0?' zero':'');}}
-  sv('sg-3',g.t3);sv('sg-2',g.t2);sv('sg-vb',g.vb);sv('sg-vl',g.vl);sv('sg-tod',g.tod);sv('sg-3l',g.t3l);
-  setTimeout(function(){ renderSummaryCharts(g, totalAll); }, 50);
+  // แท่งแยกประเภท
+  var barsEl = document.getElementById('sum-bars');
+  if(barsEl){
+    var types=[
+      {lbl:'3ตัว',val:g.t3,color:'#60a5fa'},
+      {lbl:'2ตัว',val:g.t2,color:'#34d399'},
+      {lbl:'โต๊ด',val:g.tod,color:'#a78bfa'},
+      {lbl:'3ล่าง',val:g.t3l,color:'#86efac'},
+      {lbl:'วิ่งบน',val:g.vb,color:'#fb923c'},
+      {lbl:'วิ่งล่าง',val:g.vl,color:'#fbbf24'},
+    ].filter(function(x){return x.val>0;});
+    var maxV=Math.max.apply(null,types.map(function(x){return x.val;}))||1;
+    barsEl.innerHTML=types.map(function(t){
+      var pct=Math.round(t.val/maxV*100);
+      return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">'
+        +'<div style="font-size:12px;color:#8899bb;width:44px;flex-shrink:0;text-align:right;">'+t.lbl+'</div>'
+        +'<div style="flex:1;background:#1a2040;border-radius:4px;height:18px;overflow:hidden;">'
+        +'<div style="width:'+pct+'%;height:18px;border-radius:4px;background:'+t.color+'22;border-left:3px solid '+t.color+';display:flex;align-items:center;padding-left:7px;min-width:20px;">'
+        +'<span style="font-size:11px;font-weight:900;color:'+t.color+';">฿'+t.val.toLocaleString()+'</span>'
+        +'</div></div></div>';
+    }).join('');
+  }
+
+  // sub label
+  var subEl=document.getElementById('sum-sub');
+  if(subEl){
+    var totalEntries=0; customers.forEach(function(c){totalEntries+=getAllEntries(c.id).length;});
+    subEl.textContent=customers.length+' คน · '+totalEntries+' รายการ';
+  }
+
+  // เมนูวิเคราะห์
+  var azEl=document.getElementById('az-menu');
+  if(azEl){
+    // นับเลขเสี่ยง
+    var riskCount=0;
+    var allE2=[]; customers.forEach(function(c){getAllEntries(c.id).forEach(function(e){allE2.push(e);});});
+    var byLek2={};
+    allE2.forEach(function(e){
+      if(!byLek2[e.lek]) byLek2[e.lek]={exp:0};
+      var cfg3=getCfg('3bon'),cfg3na=getCfg('3na'),cfg3l=getCfg('3lang'),cfg2b=getCfg('2bon'),cfg2l=getCfg('2lang'),cfgtod=getCfg('tod'),cfgp=getCfg('pak-3bon');
+      var exp=0;
+      if(e.d===3) exp+=(e.bon||0)*(cfg3?cfg3.pay:500)+(e.na||0)*(cfg3na?cfg3na.pay:450)+(e.lang||0)*(cfg3l?cfg3l.pay:450)+(e.tod||0)*(cfgtod?cfgtod.pay:120);
+      else if(e.d===2) exp+=(e.bon||0)*(cfg2b?cfg2b.pay:70)+(e.lang||0)*(cfg2l?cfg2l.pay:70)+(e.tod||0)*(cfgtod?cfgtod.pay:120);
+      else if(e.d===1) exp+=(e.bon||0)*3+(e.lang||0)*4;
+      (e.paks||[]).forEach(function(p){exp+=p.price*(cfgp?cfgp.pay:350);});
+      byLek2[e.lek].exp+=exp;
+    });
+    Object.values(byLek2).forEach(function(x){if(x.exp>totalAll)riskCount++;});
+
+    // นับเอเย่นต์
+    var agentSet=new Set();
+    customers.forEach(function(c){(custSets[c.id]||[]).forEach(function(s){if(s.sender)agentSet.add(s.sender);});});
+
+    function azBtn(icon,label,sub,badge,badgeColor,view){
+      return '<div data-view="'+view+'" onclick="openAnalyze(this.dataset.view)" style="display:flex;align-items:center;justify-content:space-between;background:#0f1220;border:1px solid #1a2040;border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;">'
+        +'<div style="display:flex;align-items:center;gap:8px;">'
+        +'<div style="font-size:20px;">'+icon+'</div>'
+        +'<div><div style="font-size:14px;font-weight:800;color:#f0f2ff;">'+label+'</div>'
+        +'<div style="font-size:11px;color:#4a5570;margin-top:1px;">'+sub+'</div></div>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:6px;">'
+        +'<span style="font-family:Bebas Neue,sans-serif;font-size:14px;padding:2px 8px;border-radius:20px;background:'+badgeColor+'22;color:'+badgeColor+';">'+badge+'</span>'
+        +'<span style="font-size:16px;color:#334;">›</span>'
+        +'</div></div>';
+    }
+
+    azEl.innerHTML=
+      azBtn('🎯','แยกประเภทเลข','3ตัว / 2ตัว / วิ่ง / โต๊ด','6 ประเภท','#60a5fa','')+
+      azBtn('⚠️','เลขควรตีออก','ถ้าถูกจะขาดทุน',riskCount+' เลข','#f87171','risk')+
+      azBtn('📊','ยอดรายลูกค้า','เปรียบเทียบแต่ละคน',customers.length+' คน','#f5c518','cust')+
+      azBtn('👥','เอเย่นต์','ลูกค้าและยอดต่อเอเย่นต์',agentSet.size+' คน','#34d399','agent');
+  }
 }
 // ================================================================
 // PAK POPUP
@@ -3952,10 +3987,10 @@ selectCust = function(id){
 </div>
 
 <script>
-function openAnalyze(){
+function openAnalyze(view){
   var el=document.getElementById('analyze-popup');
   el.style.display='flex';
-  renderAnalyze();
+  renderAnalyze(view||'');
   makeDraggable(el, document.getElementById('analyze-hdr'));
 }
 function closeAnalyze(){
