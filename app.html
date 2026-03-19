@@ -2179,7 +2179,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   // buildAllSlipsWithLabel: เหมือน buildAllSlips แต่ใส่ชื่อลูกค้าในหัว
   function buildAllSlipsWithLabel(label){
-    var inf={sender:ngodInfo.sender,receiver:ngodInfo.receiver,ngod:ngodInfo.ngod,date:ngodInfo.date,savedAt:ngodInfo.savedAt||'',label:label};
+    var inf={sender:label||ngodInfo.basketName||'—',receiver:ngodInfo.sender||'—',ngod:ngodInfo.ngod,date:ngodInfo.date,savedAt:ngodInfo.savedAt||'',label:label};
     var MAX_ROWS_V=20;
     if(!entries.length)return '';
     // paginate entries
