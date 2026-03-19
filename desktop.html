@@ -566,6 +566,18 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
       <div id="tab-check" class="rscroll" style="display:none;padding:9px;">
         <div class="sum-sec">🔍 ตรวจผลรางวัล</div>
         <div style="background:#0f1220;border:1px solid #1a2040;border-radius:12px;padding:14px;margin-bottom:10px;">
+          <!-- งวดที่กำลังตรวจ -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:13px;font-weight:800;color:#f5c518;">งวด <span id="check-ngod-lbl">—</span></div>
+            <button onclick="toggleHistoryPicker()" style="background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.2);border-radius:6px;color:#f5c518;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:700;padding:4px 10px;cursor:pointer;">📅 ย้อนหลัง</button>
+          </div>
+          <!-- dropdown ย้อนหลัง -->
+          <div id="history-picker" style="display:none;margin-bottom:10px;">
+            <select id="history-ngod-sel" onchange="loadHistoryResult(this.value)" style="width:100%;background:#1a1a2e;border:1px solid #333;border-radius:8px;color:#f0f2ff;font-size:14px;font-weight:700;padding:8px;font-family:'Sarabun',sans-serif;cursor:pointer;">
+              <option value="">— เลือกงวด —</option>
+            </select>
+            <div id="history-loading" style="display:none;text-align:center;font-size:12px;color:#556;padding:6px;">⏳ กำลังโหลด...</div>
+          </div>
           <div style="font-size:13px;color:#888;margin-bottom:10px;text-align:center;">ใส่เลขที่ออกครับ</div>
           <!-- รางวัลที่ 1 -->
           <div style="margin-bottom:10px;">
@@ -589,16 +601,17 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
               <input type="tel" inputmode="numeric" maxlength="2" id="res-2bon" placeholder="xx" class="check-inp-desk" oninput="if(this.value.length===2)document.getElementById('res-2lang').focus()">
             </div>
           </div>
-          <!-- 3ตัวล่าง 4 รางวัล | 2ตัวล่าง -->
-          <div style="display:grid;grid-template-columns:2fr 1fr;gap:6px;margin-bottom:12px;">
+          <!-- 3ตัวล่าง (หน้า 2 ช่อง | ท้าย 2 ช่อง) | 2ตัวล่าง -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;">
             <div>
-              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">3ตัวล่าง (หน้า 2 + ท้าย 2)</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
-                <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang1" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3lang2').focus()">
-                <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang2" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3lang3').focus()">
-                <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang3" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3lang4').focus()">
-                <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang4" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-2lang').focus()">
-              </div>
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">หน้า 3 ตัว</div>
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang1" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3lang2').focus()">
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang2" placeholder="xxx" class="check-inp-desk" style="margin-top:4px;" oninput="if(this.value.length===3)document.getElementById('res-3lang3').focus()">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">ท้าย 3 ตัว</div>
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang3" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3lang4').focus()">
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang4" placeholder="xxx" class="check-inp-desk" style="margin-top:4px;" oninput="if(this.value.length===3)document.getElementById('res-2lang').focus()">
             </div>
             <div>
               <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">2ตัวล่าง</div>
@@ -2785,6 +2798,7 @@ function switchTab(name,el){
   document.getElementById('tab-rate').style.display=name==='rate'?'':'none';
   document.getElementById('tab-cfg').style.display=name==='cfg'?'':'none';
   if(name==='rate') renderRateList();
+  if(name==='check') updateCheckNgodLabel();
 }
 
 // ================================================================
@@ -3284,6 +3298,85 @@ function copyLineMsg(encoded){
     document.body.removeChild(ta);
     toast('✅ Copy แล้ว วางใน Line ได้เลยครับ');
   });
+}
+
+function updateCheckNgodLabel(){
+  var el = document.getElementById('check-ngod-lbl');
+  if(el) el.textContent = ngodInfo.ngod||'—';
+}
+
+var _historyList = [];
+function toggleHistoryPicker(){
+  var el = document.getElementById('history-picker');
+  if(!el) return;
+  if(el.style.display==='none'){
+    el.style.display='';
+    if(_historyList.length===0) loadHistoryList();
+  } else {
+    el.style.display='none';
+  }
+}
+
+function loadHistoryList(){
+  var loading = document.getElementById('history-loading');
+  var sel = document.getElementById('history-ngod-sel');
+  if(loading) loading.style.display='';
+  fetch('https://lotto.api.rayriffy.com/list')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!data.response) throw new Error('ไม่พบข้อมูล');
+      _historyList = data.response;
+      var opts = '<option value="">— เลือกงวด —</option>';
+      _historyList.forEach(function(item){
+        opts += '<option value="'+item.id+'">'+item.date+'</option>';
+      });
+      if(sel) sel.innerHTML = opts;
+      if(loading) loading.style.display='none';
+    })
+    .catch(function(err){
+      if(loading) loading.style.display='none';
+      toast('⚠️ โหลดรายการไม่ได้: '+err.message);
+    });
+}
+
+function loadHistoryResult(id){
+  if(!id) return;
+  var loading = document.getElementById('history-loading');
+  if(loading) loading.style.display='';
+  fetch('https://lotto.api.rayriffy.com/'+id)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!data.response) throw new Error('ไม่พบข้อมูล');
+      if(loading) loading.style.display='none';
+      // ปิด dropdown
+      var picker = document.getElementById('history-picker');
+      if(picker) picker.style.display='none';
+      // set ค่าเหมือน fetchLottoResult
+      var res=data.response;
+      var first6=(res.prizes.find(function(p){return p.id==='prizeFirst';})||{}).number||[];
+      var rn=res.runningNumbers||[];
+      var front3=(rn.find(function(x){return x.id==='runningNumberFrontThree';})||{}).number||[];
+      var back3=(rn.find(function(x){return x.id==='runningNumberBackThree';})||{}).number||[];
+      var back2=(rn.find(function(x){return x.id==='runningNumberBackTwo';})||{}).number||[];
+      function setVal(id,val){var el=document.getElementById(id);if(el)el.value=val;}
+      setVal('res-1st',  first6[0]||'');
+      setVal('res-3na',  first6[0]?first6[0].slice(0,3):'');
+      setVal('res-3bon', first6[0]?first6[0].slice(-3):'');
+      setVal('res-2bon', first6[0]?first6[0].slice(-2):'');
+      setVal('res-3lang1', front3[0]||'');
+      setVal('res-3lang2', front3[1]||'');
+      setVal('res-3lang3', back3[0]||'');
+      setVal('res-3lang4', back3[1]||'');
+      setVal('res-2lang', back2[0]||'');
+      // อัพเดท label
+      var lbl = document.getElementById('check-ngod-lbl');
+      if(lbl) lbl.textContent = res.date||id;
+      toast('✅ โหลดผลงวด '+res.date+' แล้วครับ');
+    })
+    .catch(function(err){
+      if(loading) loading.style.display='none';
+      toast('⚠️ โหลดไม่ได้: '+err.message);
+    });
 }
 
 function fetchLottoResult(){
