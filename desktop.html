@@ -574,20 +574,34 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
               oninput="if(this.value.length===6)document.getElementById('res-3na').focus()"
               style="width:100%;background:#1a1a2e;border:2px solid var(--gold);border-radius:10px;color:var(--gold);font-size:24px;font-weight:900;padding:10px;box-sizing:border-box;text-align:center;font-family:inherit;letter-spacing:6px;outline:none;">
           </div>
-          <!-- แถว: หน้า 3 ตัว | ท้าย 3 ตัว | ท้าย 2 ตัว -->
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;">
+          <!-- 3ตัวหน้า | 3ตัวบน | 2ตัวบน/ล่าง -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;">
             <div>
-              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">เลขหน้า 3 ตัว</div>
-              <input type="tel" inputmode="numeric" maxlength="3" id="res-3na" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3na2').focus()">
-              <input type="tel" inputmode="numeric" maxlength="3" id="res-3na2" placeholder="xxx" class="check-inp-desk" style="margin-top:5px;" oninput="if(this.value.length===3)document.getElementById('res-3bon').focus()">
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">3ตัวหน้า</div>
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3na" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3bon').focus()">
             </div>
             <div>
-              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">เลขท้าย 3 ตัว</div>
-              <input type="tel" inputmode="numeric" maxlength="3" id="res-3bon" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3bon2').focus()">
-              <input type="tel" inputmode="numeric" maxlength="3" id="res-3bon2" placeholder="xxx" class="check-inp-desk" style="margin-top:5px;" oninput="if(this.value.length===3)document.getElementById('res-2lang').focus()">
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">3ตัวบน</div>
+              <input type="tel" inputmode="numeric" maxlength="3" id="res-3bon" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-2bon').focus()">
             </div>
             <div>
-              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">เลขท้าย 2 ตัว</div>
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">2ตัวบน</div>
+              <input type="tel" inputmode="numeric" maxlength="2" id="res-2bon" placeholder="xx" class="check-inp-desk" oninput="if(this.value.length===2)document.getElementById('res-2lang').focus()">
+            </div>
+          </div>
+          <!-- 3ตัวล่าง 4 รางวัล | 2ตัวล่าง -->
+          <div style="display:grid;grid-template-columns:2fr 1fr;gap:6px;margin-bottom:12px;">
+            <div>
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">3ตัวล่าง (4 รางวัล)</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+                <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang1" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3lang2').focus()">
+                <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang2" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3lang3').focus()">
+                <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang3" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3lang4').focus()">
+                <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang4" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-2lang').focus()">
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">2ตัวล่าง</div>
               <input type="tel" inputmode="numeric" maxlength="2" id="res-2lang" placeholder="xx" class="check-inp-desk">
             </div>
           </div>
@@ -3285,12 +3299,15 @@ function fetchLottoResult(){
       var back3=(rn.find(function(x){return x.id==='runningNumberBackThree';})||{}).number||[];
       var back2=(rn.find(function(x){return x.id==='runningNumberBackTwo';})||{}).number||[];
       function setVal(id,val){var el=document.getElementById(id);if(el)el.value=val;}
-      setVal('res-1st', first6[0]||'');
+      setVal('res-1st',  first6[0]||'');
+      setVal('res-3na',  first6[0]?first6[0].slice(0,3):'');
       setVal('res-3bon', first6[0]?first6[0].slice(-3):'');
-      setVal('res-3bon2', back3[1]||'');
-      setVal('res-3na',  front3[0]||'');
-      setVal('res-3na2', front3[1]||'');
-      setVal('res-2lang',back2[0]||'');
+      setVal('res-2bon', first6[0]?first6[0].slice(-2):'');
+      setVal('res-3lang1', back3[0]||'');
+      setVal('res-3lang2', back3[1]||'');
+      setVal('res-3lang3', back3[2]||'');
+      setVal('res-3lang4', back3[3]||'');
+      setVal('res-2lang', back2[0]||'');
       toast('✅ ดึงผลรางวัลสำเร็จ งวด '+res.date);
     })
     .catch(function(err){
@@ -3299,27 +3316,32 @@ function fetchLottoResult(){
 }
 
 function doCheckResult(){
-  var first6 = getResInput('res-1st').trim();
-  var r3bon  = getResInput('res-3bon').trim();
-  var r3bon2 = getResInput('res-3bon2').trim();
-  var r2lang = getResInput('res-2lang').trim();
-  var r3na   = getResInput('res-3na').trim();
-  var r3na2  = getResInput('res-3na2').trim();
+  var first6  = getResInput('res-1st').trim();
+  var r3na    = getResInput('res-3na').trim();
+  var r3bon   = getResInput('res-3bon').trim();
+  var r2bon   = getResInput('res-2bon').trim();
+  var r2lang  = getResInput('res-2lang').trim();
+  var r3lang1 = getResInput('res-3lang1').trim();
+  var r3lang2 = getResInput('res-3lang2').trim();
+  var r3lang3 = getResInput('res-3lang3').trim();
+  var r3lang4 = getResInput('res-3lang4').trim();
 
   // ดึงจาก first6 ถ้าไม่ได้กรอกแยก
   if(first6.length===6){
-    if(!r3bon)  r3bon  = first6.slice(-3);
-    if(!r3na)   r3na   = first6.slice(0,3);
+    if(!r3na)  r3na  = first6.slice(0,3);
+    if(!r3bon) r3bon = first6.slice(-3);
+    if(!r2bon) r2bon = first6.slice(-2);
   }
 
-  var r3lang = r3bon2; // 3ตัวล่าง = ท้าย 3 ตัวที่ 2
-  var r2bon  = first6.length===6 ? first6.slice(-2) : r2lang;
-  var win3fronts = [r3na, r3na2].filter(function(x){return x.length===3;});
-  var win3backs  = [r3bon, r3bon2].filter(function(x){return x.length===3;});
-  var vbon  = [];
-  var vlang = [];
+  // 3ตัวล่าง = array 4 รางวัล
+  var r3langList = [r3lang1,r3lang2,r3lang3,r3lang4].filter(function(x){return x.length===3;});
 
-  // tod winners: permutations of r3bon
+  // วิ่งบน = ตัวเลขใน 3ตัวบน
+  var vbon = r3bon.length===3 ? r3bon.split('') : [];
+  // วิ่งล่าง = ตัวเลขใน 2ตัวล่าง
+  var vlang = r2lang.length===2 ? r2lang.split('') : [];
+
+  // โต๊ด = permutations ของ 3ตัวบน
   var todWin = r3bon ? getTod(r3bon) : [];
 
   var out = '';
@@ -3349,11 +3371,11 @@ function doCheckResult(){
         if(e.na){ hits.push({lek:lek,type:'3ตัวหน้า',bet:e.na,pay:e.na*pr}); custPay+=e.na*pr; }
         (e.kd.na||[]).forEach(function(x){ hits.push({lek:x.perm,type:'3ตัวหน้า(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; });
       }
-      // ── 3ตัวล่าง (lang) ──
-      if(d===3 && r3lang && lek===r3lang){
+      // ── 3ตัวล่าง (lang) ── ตรวจทั้ง 4 รางวัล
+      if(d===3 && r3langList.indexOf(lek)>=0){
         var cfg=getCfg('3lang'); var pr=cfg?cfg.pay:450;
         if(e.lang){ hits.push({lek:lek,type:'3ตัวล่าง',bet:e.lang,pay:e.lang*pr}); custPay+=e.lang*pr; }
-        (e.kd.lang||[]).forEach(function(x){ hits.push({lek:x.perm,type:'3ตัวล่าง(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; });
+        (e.kd.lang||[]).forEach(function(x){ if(r3langList.indexOf(x.perm)>=0){ hits.push({lek:x.perm,type:'3ตัวล่าง(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; } });
       }
       // ── โต๊ด ──
       if(d===3 && todWin.indexOf(lek)>=0){
