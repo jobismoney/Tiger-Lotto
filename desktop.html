@@ -2657,7 +2657,6 @@ function updateSummary(){
     }
 
     azEl.innerHTML=
-      azBtn('🎯','แยกประเภทเลข','3ตัว / 2ตัว / วิ่ง / โต๊ด',(function(){var t=0;if(g.t3>0)t++;if(g.t2>0)t++;if(g.tod>0)t++;if(g.t3l>0)t++;if(g.vb>0)t++;if(g.vl>0)t++;return t+' ประเภท';})(),'#60a5fa','')+
       azBtn('⚠️','เลขควรตีออก','ถ้าถูกจะขาดทุน',riskCount+' เลข','#f87171','risk')+
       azBtn('📊','ยอดรายลูกค้า','เปรียบเทียบแต่ละคน',customers.length+' คน','#f5c518','cust')+
       azBtn('👥','เอเย่นต์','ลูกค้าและยอดต่อเอเย่นต์',agentSet.size+' คน','#34d399','agent');
