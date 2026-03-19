@@ -2131,7 +2131,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function buildAllSlips(){
     if(!entries.length){toast('ยังไม่มีรายการ');return null;}
-    var inf=ngodInfo;
+    var inf=Object.assign({},ngodInfo,{sender:ngodInfo.basketName||'—',receiver:ngodInfo.sender||'—'});
     var sorted=entries.slice().sort(function(a,b){return a.id-b.id;});
     var pages=[],pEn=[],rc=0;
     sorted.forEach(function(e){
