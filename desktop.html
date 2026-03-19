@@ -974,15 +974,25 @@ function doImportMulti(dataList, totalEntries, cid){
   }
 }
 function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
-  var firstReceiver = dataList[0]&&dataList[0].receiver ? dataList[0].receiver.trim() : '';
 
-  // ── กรณี 1: ซ้ำ → บล็อกทันที ──
+  // ── ตรวจว่าทุกใบเป็นเอเย่นต์คนเดียวกันไหม ──
+  var receivers = dataList.map(function(d){ return (d.receiver||'').trim(); }).filter(Boolean);
+  var uniqueReceivers = receivers.filter(function(v,i,a){ return a.indexOf(v)===i; });
+
+  if(uniqueReceivers.length > 1){
+    showAlert('⚠️ QR มาจากหลายเอเย่นต์<br><br>'+uniqueReceivers.join(', ')+'<br><br>กรุณาแยกสแกนทีละเอเย่นต์ครับ');
+    return;
+  }
+
+  var firstReceiver = uniqueReceivers[0]||'';
+
+  // ── บล็อก ถ้าซ้ำ ──
   if(dupMsg && dupMsg.length){
     showAlert('⚠️ QR นี้สแกนไปแล้ว!<br><br>'+dupMsg.replace(/<br>/g,' ')+'<br><br>กดตกลงแล้วสแกนใหม่ครับ');
     return;
   }
 
-  // ── กรณี 2: กดสแกนจากการ์ดลูกค้า → ตรวจ receiver ตรงไหม ──
+  // ── กรณีสแกนจากการ์ดลูกค้าโดยตรง ──
   if(curCustId){
     var curName=(customers.find(function(cu){return cu.id===curCustId;})||{}).name||'';
     if(firstReceiver && firstReceiver !== curName){
@@ -994,22 +1004,20 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
     return;
   }
 
-  // ── กรณี 3: สแกนจากปุ่มกลาง → auto-match receiver ──
+  // ── สแกนจากปุ่มกลาง → auto-match receiver ──
   if(firstReceiver){
     var matched = customers.find(function(cu){ return cu.name===firstReceiver; });
     if(!matched){
       var newId = 'c'+Date.now();
       customers.push({id:newId, name:firstReceiver});
       custEntries[newId]=[]; custEid[newId]=0; custSets[newId]=[];
-      matched = customers.find(function(cu){ return cu.id===newId; });
+      matched = customers[customers.length-1];
       save(); renderCustList();
       toast('✅ สร้างลูกค้าใหม่ "'+firstReceiver+'" แล้วครับ');
     }
-    if(matched){
-      doImportMulti(dataList,totalEntries,matched.id);
-      showScanSuccess(matched.name,totalEntries,'');
-      return;
-    }
+    doImportMulti(dataList,totalEntries,matched.id);
+    showScanSuccess(matched.name,totalEntries,'');
+    return;
   }
 
   // ── ไม่มี receiver → ให้เลือกลูกค้าเอง ──
@@ -1047,6 +1055,7 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
     document.getElementById('imp-banner').style.display='none';
   };
 }
+
 
 function showImportBanner(data, fp, log, dupMsg){
   // ถ้ากดสแกนจากชื่อลูกค้าโดยตรง → auto import ทันที ไม่ต้องกด
