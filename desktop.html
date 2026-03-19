@@ -2517,8 +2517,8 @@ function renderSummaryCharts(g, totalAll){
 function updateSummary(){
   var totalAll=0;
   customers.forEach(function(c){ totalAll+=calcCustTotal(c.id); });
-  document.getElementById('sum-cust-name').textContent='รวมทุกลูกค้า ('+customers.length+' คน)';
-  document.getElementById('sum-total').textContent='฿'+totalAll.toLocaleString();
+  if(document.getElementById('sum-cust-name')) document.getElementById('sum-cust-name').textContent='รวมทุกลูกค้า ('+customers.length+' คน)';
+  if(document.getElementById('sum-total')) document.getElementById('sum-total').textContent='฿'+totalAll.toLocaleString();
   var g={t3:0,t2:0,vb:0,vl:0,tod:0,t3l:0};
   customers.forEach(function(cu){
     getAllEntries(cu.id).forEach(function(e){
@@ -4223,8 +4223,93 @@ function renderAnalyze(view){
 
 
     el.innerHTML=html;
+  } else if(view==='risk'){
+    // ── เลขควรตีออก ──
+    var NET2 = netIncome;
+    var danger3=[],danger2=[],dangerV=[],dangerT=[];
+    leks.forEach(function(x){
+      var profit=NET2-x.exp;
+      if(x.exp<=NET2) return;
+      var item={x:x,exp:x.exp,profit:profit};
+      if(x.d===3) danger3.push(item);
+      else if(x.d===2) danger2.push(item);
+      else if(x.d===1) dangerV.push(item);
+      else dangerT.push(item);
+    });
+    [danger3,danger2,dangerV,dangerT].forEach(function(a){a.sort(function(a,b){return a.profit-b.profit;});});
+    var totalD=danger3.length+danger2.length+dangerV.length+dangerT.length;
+    function rRow(item){
+      var sign=item.profit>=0?'+':'';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;margin-bottom:5px;background:#1a0a0a;border:1px solid rgba(231,76,60,.3);">'
+        +'<div><div style="font-family:Bebas Neue,sans-serif;font-size:20px;color:#f87171;">'+item.x.lek+'</div>'
+        +'<div style="font-size:11px;color:#556;">รับมา ฿'+fmtN(item.x.total)+' · ถ้าถูกจ่าย ฿'+fmtN(item.x.exp)+'</div></div>'
+        +'<div style="text-align:right;">'
+        +'<div style="font-family:Bebas Neue,sans-serif;font-size:16px;color:#f87171;">'+sign+fmtN(item.profit)+'</div>'
+        +'<div style="font-size:11px;color:#556;">ขาดทุน</div></div></div>';
+    }
+    function rSec(arr,lbl){
+      if(!arr.length) return '';
+      return '<div style="font-size:12px;font-weight:800;color:#f87171;margin:8px 0 5px;">'+lbl+'</div>'+arr.slice(0,10).map(rRow).join('');
+    }
+    var html2='<button onclick="renderAnalyze()" style="background:none;border:none;color:#f5c518;font-family:Sarabun,sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:0;margin-bottom:10px;">◀ กลับ</button>';
+    html2+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'
+      +'<div style="background:#0a0e1a;border-radius:8px;padding:8px 10px;"><div style="font-size:10px;color:#556;">ยอดสุทธิรวม</div>'
+      +'<div style="font-family:Bebas Neue,sans-serif;font-size:20px;color:#f5c518;">฿'+fmtN(NET2)+'</div></div>'
+      +'<div style="background:#0a0e1a;border-radius:8px;padding:8px 10px;"><div style="font-size:10px;color:#556;">ควรตีออก</div>'
+      +'<div style="font-family:Bebas Neue,sans-serif;font-size:20px;color:'+(totalD>0?'#f87171':'#22c55e')+';">'+totalD+' เลข</div></div>'
+      +'</div>';
+    if(totalD===0) html2+='<div style="color:#22c55e;text-align:center;padding:16px;font-weight:700;">✅ ไม่มีเลขที่ต้องตีออกครับ</div>';
+    else{ html2+=rSec(danger3,'3ตัว'); html2+=rSec(danger2,'2ตัว'); html2+=rSec(dangerV,'วิ่ง'); html2+=rSec(dangerT,'โต๊ด'); }
+    el.innerHTML=html2;
+
+  } else if(view==='cust'){
+    // ── ยอดรายลูกค้า ──
+    var custData=customers.map(function(c){return {name:c.name,val:calcCustTotal(c.id)};})
+      .filter(function(x){return x.val>0;}).sort(function(a,b){return b.val-a.val;});
+    var maxCV=custData.length?custData[0].val:1;
+    var COLS=['#f5c518','#60a5fa','#34d399','#a78bfa','#fb923c','#f87171'];
+    var html3='<button onclick="renderAnalyze()" style="background:none;border:none;color:#f5c518;font-family:Sarabun,sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:0;margin-bottom:10px;">◀ กลับ</button>';
+    html3+=custData.map(function(c,i){
+      var pct=Math.round(c.val/maxCV*100), col=COLS[i%COLS.length];
+      return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">'
+        +'<div style="font-size:12px;color:#8899bb;width:44px;flex-shrink:0;text-align:right;">'+c.name+'</div>'
+        +'<div style="flex:1;background:#1a2040;border-radius:4px;height:22px;overflow:hidden;">'
+        +'<div style="width:'+pct+'%;height:22px;border-radius:4px;background:'+col+'22;border-left:3px solid '+col+';display:flex;align-items:center;padding-left:7px;">'
+        +'<span style="font-size:11px;font-weight:900;color:'+col+';">฿'+c.val.toLocaleString()+'</span>'
+        +'</div></div></div>';
+    }).join('');
+    el.innerHTML=html3;
+
+  } else if(view==='agent'){
+    // ── เอเย่นต์ ──
+    var agentMap2={};
+    customers.forEach(function(c){
+      (custSets[c.id]||[]).forEach(function(s){
+        var ag=s.sender||'ไม่ระบุ';
+        if(!agentMap2[ag]) agentMap2[ag]={customers:new Set(),total:0};
+        agentMap2[ag].customers.add(s.customer||s.sender||'?');
+        agentMap2[ag].total+=s.entries.reduce(function(sum,e){return sum+entryTotal(e);},0);
+      });
+    });
+    var agents2=Object.keys(agentMap2).sort(function(a,b){return agentMap2[b].total-agentMap2[a].total;});
+    var html4='<button onclick="renderAnalyze()" style="background:none;border:none;color:#f5c518;font-family:Sarabun,sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:0;margin-bottom:10px;">◀ กลับ</button>';
+    if(!agents2.length){ html4+='<div style="color:#556;text-align:center;padding:16px;">ยังไม่มีข้อมูล QR scan ครับ</div>'; }
+    else {
+      html4+=agents2.map(function(ag){
+        var d=agentMap2[ag];
+        return '<div style="background:#0f1220;border:1px solid #1a2040;border-radius:10px;padding:10px 12px;margin-bottom:6px;">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+          +'<div style="font-size:15px;font-weight:900;color:#f0f2ff;">'+ag+'</div>'
+          +'<div style="font-family:Bebas Neue,sans-serif;font-size:16px;color:#f5c518;">฿'+fmtN(d.total)+'</div>'
+          +'</div>'
+          +'<div style="font-size:11px;color:#556;margin-top:3px;">ลูกค้า '+d.customers.size+' คน</div>'
+          +'</div>';
+      }).join('');
+    }
+    el.innerHTML=html4;
+
   } else {
-    // หน้า detail
+    // หน้า detail (folder view เดิม)
     // คำนวณยอดสุทธิแยกตามประเภท (หลังหัก%)
     var net3bon  = Math.round(sumC.c3*(1-getRate('3bon')/100));
     var net3lang = Math.round(sumC.cl*(1-getRate('3lang')/100));
