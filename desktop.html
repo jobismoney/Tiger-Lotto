@@ -4136,7 +4136,8 @@ function calcHedge(){
   // หา 5 ตัวเลขที่ exposure รวมสูงสุด
   var digitExp={};
   for(var d=0;d<=9;d++) digitExp[d]=0;
-  Object.values(byLek||{}).forEach(function(x){
+  var byLek=window._byLek||{};
+  Object.values(byLek).forEach(function(x){
     x.lek.split('').forEach(function(ch){ digitExp[parseInt(ch)]+=x.exp; });
   });
   var sorted=Object.keys(digitExp).sort(function(a,b){return digitExp[b]-digitExp[a];});
@@ -4378,7 +4379,7 @@ function renderAnalyze(view){
   }
 
   // สร้าง byLek แยกตาม field
-  var byLek={};
+  window._byLek={}; var byLek=window._byLek;
   allE.forEach(function(e){
     var lek=e.lek;
     if(!byLek[lek]) byLek[lek]={lek:lek,d:e.d,total:0,exp:0,
@@ -4464,71 +4465,6 @@ function renderAnalyze(view){
         +'</div>';
     });
 
-    // ── Risk Analysis ──
-    var NET = netIncome;
-    var dangerList=[], warnList=[];
-    leks.forEach(function(x){
-      var exp=x.exp, tot=x.total;
-      var profit=NET-exp;
-      if(exp>NET) dangerList.push({x:x,exp:exp,profit:profit});
-      else if(profit<NET*0.3) warnList.push({x:x,exp:exp,profit:profit});
-
-    });
-    dangerList.sort(function(a,b){return a.profit-b.profit;});
-    warnList.sort(function(a,b){return a.profit-b.profit;});
-
-    function riskRow(item, color, sub){
-      var sign=item.profit>=0?'+':'';
-      var typeLabel=item.x.d===3?'3ตัว':item.x.d===2?'2ตัว':item.x.d===1?'วิ่ง':'โต๊ด';
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;margin-bottom:6px;background:'+color.bg+';border:1px solid '+color.border+';">'
-        +'<div>'
-        +'<div style="display:flex;align-items:center;gap:6px;">'
-        +'<span style="font-family:Bebas Neue,sans-serif;font-size:22px;letter-spacing:2px;color:'+color.lek+';">'+item.x.lek+'</span>'
-        +'<span style="background:'+color.badgeBg+';color:'+color.lek+';border:1px solid '+color.border+';border-radius:20px;font-size:11px;font-weight:800;padding:2px 8px;">'+typeLabel+'</span>'
-        +'</div>'
-        +'<div style="font-size:11px;color:#666;margin-top:2px;">รับมา ฿'+fmtN(item.x.total)+' · ถ้าถูกจ่าย ฿'+fmtN(item.x.exp)+'</div>'
-        +'</div>'
-        +'<div style="text-align:right;">'
-        +'<div style="font-family:Bebas Neue,sans-serif;font-size:18px;color:'+color.lek+';">'+sign+fmtN(item.profit)+'</div>'
-        +'<div style="font-size:11px;color:#556;">'+sub+'</div>'
-        +'</div>'
-        +'</div>';
-    }
-
-    html+='<div style="font-size:13px;font-weight:900;color:#888;margin:14px 0 8px;">⚠️ เลขควรตีออก (ถ้าถูกขาดทุน)</div>';
-
-    // summary bar
-    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'
-      +'<div style="background:#0a0e1a;border-radius:8px;padding:10px 12px;">'
-      +'<div style="font-size:11px;color:#556;margin-bottom:2px;">ยอดสุทธิรวม</div>'
-      +'<div style="font-family:Bebas Neue,sans-serif;font-size:22px;color:#f5c518;">฿'+fmtN(NET)+'</div>'
-      +'<div style="font-size:11px;color:#556;">ถ้าไม่มีถูกเลย</div>'
-      +'</div>'
-      +'<div style="background:#0a0e1a;border-radius:8px;padding:10px 12px;">'
-      +'<div style="font-size:11px;color:#556;margin-bottom:2px;">เลขควรตีออก</div>'
-      +'<div style="font-family:Bebas Neue,sans-serif;font-size:22px;color:'+(totalDanger>0?'#f87171':'#22c55e')+';">'+totalDanger+' เลข</div>'
-      +'<div style="font-size:11px;color:#556;">ถ้าถูกขาดทุน</div>'
-      +'</div>'
-      +'</div>';
-
-    function dangerSection(arr, label){
-      if(!arr.length) return '';
-      var h='<div style="background:#0a0e1a;border-radius:10px;padding:10px 12px;margin-bottom:8px;">'
-        +'<div style="font-size:13px;font-weight:900;color:#f87171;margin-bottom:8px;">'+label+'</div>';
-      arr.slice(0,10).forEach(function(item){
-        h+=riskRow(item,{bg:'#1a0a0a',border:'rgba(231,76,60,.3)',lek:'#f87171',badgeBg:'rgba(231,76,60,.15)'},'ขาดทุน');
-      });
-      return h+'</div>';
-    }
-
-    if(totalDanger===0){
-      html+='<div style="color:#22c55e;text-align:center;padding:16px;font-size:14px;font-weight:700;">✅ ไม่มีเลขที่ต้องตีออกครับ</div>';
-    } else {
-      html+=dangerSection(danger3,'3ตัว');
-      html+=dangerSection(danger2,'2ตัว');
-      html+=dangerSection(dangerV,'วิ่ง');
-      html+=dangerSection(dangerT,'โต๊ด');
-    }
 
 
     el.innerHTML=html;
