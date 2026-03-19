@@ -974,46 +974,59 @@ function doImportMulti(dataList, totalEntries, cid){
   }
 }
 function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
-  // ถ้ากดสแกนจากชื่อลูกค้าโดยตรง → auto import ทันที ไม่ต้องกด
-  if(curCustId){
-    var _custName=(customers.find(function(cu){return cu.id===curCustId;})||{}).name||'';
-    doImportMulti(dataList,totalEntries,curCustId);
-    showScanSuccess(_custName,totalEntries,dupMsg);
+  var firstReceiver = dataList[0]&&dataList[0].receiver ? dataList[0].receiver.trim() : '';
+
+  // ── กรณี 1: ซ้ำ → บล็อกทันที ──
+  if(dupMsg && dupMsg.length){
+    showAlert('⚠️ QR นี้สแกนไปแล้ว!<br><br>'+dupMsg.replace(/<br>/g,' ')+'<br><br>กดตกลงแล้วสแกนใหม่ครับ');
     return;
   }
-  // auto-match จาก receiver ใน QR (receiver = ชื่อเอเย่นต์)
-  var firstReceiver = dataList[0]&&dataList[0].receiver ? dataList[0].receiver.trim() : '';
+
+  // ── กรณี 2: กดสแกนจากการ์ดลูกค้า → ตรวจ receiver ตรงไหม ──
+  if(curCustId){
+    var curName=(customers.find(function(cu){return cu.id===curCustId;})||{}).name||'';
+    if(firstReceiver && firstReceiver !== curName){
+      showAlert('⚠️ QR นี้เป็นของ "'+firstReceiver+'"<br>ไม่สามารถเข้าให้ "'+curName+'" ได้<br><br>กดตกลงแล้วสแกนใหม่ครับ');
+      return;
+    }
+    doImportMulti(dataList,totalEntries,curCustId);
+    showScanSuccess(curName,totalEntries,'');
+    return;
+  }
+
+  // ── กรณี 3: สแกนจากปุ่มกลาง → auto-match receiver ──
   if(firstReceiver){
     var matched = customers.find(function(cu){ return cu.name===firstReceiver; });
-    if(!matched && firstReceiver){
-      // สร้างลูกค้าใหม่อัตโนมัติ
+    if(!matched){
       var newId = 'c'+Date.now();
       customers.push({id:newId, name:firstReceiver});
       custEntries[newId]=[]; custEid[newId]=0; custSets[newId]=[];
       matched = customers.find(function(cu){ return cu.id===newId; });
       save(); renderCustList();
+      toast('✅ สร้างลูกค้าใหม่ "'+firstReceiver+'" แล้วครับ');
     }
     if(matched){
       doImportMulti(dataList,totalEntries,matched.id);
-      showScanSuccess(matched.name,totalEntries,dupMsg);
+      showScanSuccess(matched.name,totalEntries,'');
       return;
     }
   }
+
+  // ── ไม่มี receiver → ให้เลือกลูกค้าเอง ──
   var custOpts = '<option value="">— เลือกลูกค้า —</option>';
   customers.forEach(function(cu){
     custOpts += '<option value="'+cu.id+'">'+cu.name+'</option>';
   });
   custOpts += '<option value="__new__">+ ลูกค้าใหม่</option>';
   var sel = document.getElementById('imp-banner-sel');
-  sel.style.display='';
-  sel.innerHTML = custOpts;
+  sel.style.display=''; sel.innerHTML = custOpts;
   document.getElementById('imp-banner-title').textContent='📋';
   document.getElementById('imp-banner-subtitle').textContent='รับโพยใหม่';
-  document.getElementById('imp-banner-info').innerHTML =
-    (dupMsg||'')+'<b>'+dataList.length+' QR</b> · รวม <b>'+totalEntries+' รายการ</b> · จะสร้าง '+dataList.length+' ชุด';
-  document.getElementById('imp-banner-input').value = '';
-  document.getElementById('imp-banner-input').style.display = 'none';
-  document.getElementById('imp-banner-overlay').style.display='flex';document.getElementById('imp-banner').style.display='block';
+  document.getElementById('imp-banner-info').innerHTML = '<b>'+dataList.length+' QR</b> · รวม <b>'+totalEntries+' รายการ</b>';
+  document.getElementById('imp-banner-input').value='';
+  document.getElementById('imp-banner-input').style.display='none';
+  document.getElementById('imp-banner-overlay').style.display='flex';
+  document.getElementById('imp-banner').style.display='block';
   document.getElementById('imp-banner-ok').onclick = function(){
     var cid = document.getElementById('imp-banner-sel').value;
     var ni = document.getElementById('imp-banner-input');
@@ -1025,14 +1038,16 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
       custEntries[cid]=[]; custEid[cid]=0; custSets[cid]=[];
     }
     if(!cid){ toast('กรุณาเลือกลูกค้าครับ'); return; }
-    document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
-    closeScanPopup();
+    document.getElementById('imp-banner-overlay').style.display='none';
+    document.getElementById('imp-banner').style.display='none';
     doImportMulti(dataList,totalEntries,cid);
   };
   document.getElementById('imp-banner-cancel').onclick = function(){
-    document.getElementById('imp-banner-overlay').style.display='none';document.getElementById('imp-banner').style.display='none';
+    document.getElementById('imp-banner-overlay').style.display='none';
+    document.getElementById('imp-banner').style.display='none';
   };
 }
+
 function showImportBanner(data, fp, log, dupMsg){
   // ถ้ากดสแกนจากชื่อลูกค้าโดยตรง → auto import ทันที ไม่ต้องกด
   if(curCustId){
