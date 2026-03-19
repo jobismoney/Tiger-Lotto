@@ -1661,7 +1661,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(pItems.length)pages.push(pItems);
       var totalPages=pages.length;
       var grandTotal=custSets.reduce(function(s,h){return s+h.total;},0);
-      var infO={ngod:inf.ngod,date:inf.date,sender:inf.sender,receiver:inf.receiver};
+      var infO={ngod:inf.ngod,date:inf.date,sender:name,receiver:inf.sender||'—'};
       var pageHTMLs=[];var allSumRows='';
       pages.forEach(function(pg,i){
         pageHTMLs.push(makeMergedPageHTML(pg,i+1,totalPages,infO));
