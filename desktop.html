@@ -4184,8 +4184,49 @@ function renderAnalyze(view){
   var gross=sumC.c3+sumC.c2+sumC.c1+sumC.ct+sumC.cl;
   var disc=Math.round(sumC.c3*getRate('3bon')/100)+Math.round(sumC.c2*getRate('2bon')/100)+Math.round(sumC.c1*getRate('vbon')/100)+Math.round(sumC.ct*getRate('tod')/100)+Math.round(sumC.cl*getRate('3lang')/100);
   var netIncome=gross-disc;
+  // ยอดสุทธิแยกรายประเภท (สำหรับเทียบ exposure)
+  var net3bon  = Math.round(sumC.c3*(1-getRate('3bon')/100));
+  var net3na   = Math.round(sumC.c3*(1-getRate('3bon')/100)); // 3ตัวหน้าใช้ฐานเดียวกัน
+  var net3lang = Math.round(sumC.cl*(1-getRate('3lang')/100));
+  var net2bon  = Math.round(sumC.c2*(1-getRate('2bon')/100));
+  var net2lang = Math.round(sumC.c2*(1-getRate('2lang')/100));
+  var netVbon  = Math.round(sumC.c1*(1-getRate('vbon')/100));
+  var netVlang = Math.round(sumC.c1*(1-getRate('vlang')/100));
+  var netTod   = Math.round(sumC.ct*(1-getRate('tod')/100));
 
   // exposure calculator
+  function calcExposureByType(e){
+    var detail={bon:0,lang:0,na:0,tod:0,pak:0};
+    var cfg3=getCfg('3bon'),cfg3na=getCfg('3na'),cfg3l=getCfg('3lang');
+    var cfg2b=getCfg('2bon'),cfg2l=getCfg('2lang'),cfgtod=getCfg('tod');
+    var cfgpb=getCfg('pak-3bon'),cfgpl=getCfg('pak-2lang');
+    if(e.d===3){
+      detail.bon=(e.bon||0)*(cfg3?cfg3.pay:500);
+      detail.na=(e.na||0)*(cfg3na?cfg3na.pay:450);
+      detail.lang=(e.lang||0)*(cfg3l?cfg3l.pay:450);
+      detail.tod=(e.tod||0)*(cfgtod?cfgtod.pay:100);
+      var kd=e.kd||{};
+      (kd.bon||[]).forEach(function(x){detail.bon+=x.price*(cfg3?cfg3.pay:500);});
+      (kd.lang||[]).forEach(function(x){detail.lang+=x.price*(cfg3l?cfg3l.pay:450);});
+      (kd.na||[]).forEach(function(x){detail.na+=x.price*(cfg3na?cfg3na.pay:450);});
+    } else if(e.d===2){
+      detail.bon=(e.bon||0)*(cfg2b?cfg2b.pay:70);
+      detail.lang=(e.lang||0)*(cfg2l?cfg2l.pay:70);
+      detail.tod=(e.tod||0)*(cfgtod?cfgtod.pay:100);
+      var kd2=e.kd||{};
+      (kd2.bon||[]).forEach(function(x){detail.bon+=x.price*(cfg2b?cfg2b.pay:70);});
+      (kd2.lang||[]).forEach(function(x){detail.lang+=x.price*(cfg2l?cfg2l.pay:70);});
+    } else if(e.d===1){
+      detail.bon=(e.bon||0)*(getCfg('vbon')?getCfg('vbon').pay:3);
+      detail.lang=(e.lang||0)*(getCfg('vlang')?getCfg('vlang').pay:4);
+    }
+    (e.paks||[]).forEach(function(p){
+      if(p.type==='3bon'||p.type==='bon') detail.pak+=p.price*(cfgpb?cfgpb.pay:350);
+      else detail.pak+=p.price*(cfgpl?cfgpl.pay:55);
+    });
+    return detail;
+  }
+
   function calcExposureDetail(e){
     var detail={bon:0,lang:0,na:0,tod:0,pak:0};
     var cfg3=getCfg('3bon'),cfg3na=getCfg('3na'),cfg3l=getCfg('3lang');
@@ -4221,9 +4262,16 @@ function renderAnalyze(view){
     var lek=e.lek;
     if(!byLek[lek]) byLek[lek]={lek:lek,d:e.d,total:0,exp:0,
       bon:0,lang:0,na:0,tod:0,paks:0,
-      kd_bon:0,kd_lang:0,kd_na:0};
+      kd_bon:0,kd_lang:0,kd_na:0,
+      detail:{bon:0,lang:0,na:0,tod:0,pak:0}};
     byLek[lek].total+=entryTotal(e);
-    byLek[lek].exp+=calcExposureDetail(e);
+    var det=calcExposureByType(e);
+    byLek[lek].exp+=det.bon+det.lang+det.na+det.tod+det.pak;
+    byLek[lek].detail.bon+=det.bon;
+    byLek[lek].detail.lang+=det.lang;
+    byLek[lek].detail.na+=det.na;
+    byLek[lek].detail.tod+=det.tod;
+    byLek[lek].detail.pak+=det.pak;
     byLek[lek].bon+=(e.bon||0);
     byLek[lek].lang+=(e.lang||0);
     byLek[lek].na+=(e.na||0);
@@ -4365,16 +4413,41 @@ function renderAnalyze(view){
     el.innerHTML=html;
   } else if(view==='risk'){
     // ── เลขควรตีออก ──
-    var NET2 = netIncome;
+    // เทียบ exposure แยกรายประเภท — ไม่ข้ามประเภท
     var danger3=[],danger2=[],dangerV=[],dangerT=[];
     leks.forEach(function(x){
-      var profit=NET2-x.exp;
-      if(x.exp<=NET2) return;
-      var item={x:x,exp:x.exp,profit:profit};
-      if(x.d===3) danger3.push(item);
-      else if(x.d===2) danger2.push(item);
-      else if(x.d===1) dangerV.push(item);
-      else dangerT.push(item);
+      var netRef=netIncome; // default
+      if(x.d===3){
+        // 3ตัว: bon/na/lang/tod แยกกัน
+        var expBon=x.detail?x.detail.bon:0;
+        var expNa=x.detail?x.detail.na:0;
+        var expLang=x.detail?x.detail.lang:0;
+        var expTod=x.detail?x.detail.tod:0;
+        var isDanger=false;
+        var worstProfit=0;
+        if(expBon>0&&expBon>net3bon){isDanger=true;worstProfit=Math.min(worstProfit,net3bon-expBon);}
+        if(expNa>0&&expNa>net3na){isDanger=true;worstProfit=Math.min(worstProfit,net3na-expNa);}
+        if(expLang>0&&expLang>net3lang){isDanger=true;worstProfit=Math.min(worstProfit,net3lang-expLang);}
+        if(expTod>0&&expTod>netTod){isDanger=true;worstProfit=Math.min(worstProfit,netTod-expTod);}
+        if(isDanger) danger3.push({x:x,exp:x.exp,profit:worstProfit});
+      } else if(x.d===2){
+        var expBon2=x.detail?x.detail.bon:0;
+        var expLang2=x.detail?x.detail.lang:0;
+        var isDanger2=false; var worstProfit2=0;
+        if(expBon2>0&&expBon2>net2bon){isDanger2=true;worstProfit2=Math.min(worstProfit2,net2bon-expBon2);}
+        if(expLang2>0&&expLang2>net2lang){isDanger2=true;worstProfit2=Math.min(worstProfit2,net2lang-expLang2);}
+        if(isDanger2) danger2.push({x:x,exp:x.exp,profit:worstProfit2});
+      } else if(x.d===1){
+        var expVbon=x.detail?x.detail.bon:0;
+        var expVlang=x.detail?x.detail.lang:0;
+        var isDangerV=false; var worstProfitV=0;
+        if(expVbon>0&&expVbon>netVbon){isDangerV=true;worstProfitV=Math.min(worstProfitV,netVbon-expVbon);}
+        if(expVlang>0&&expVlang>netVlang){isDangerV=true;worstProfitV=Math.min(worstProfitV,netVlang-expVlang);}
+        if(isDangerV) dangerV.push({x:x,exp:x.exp,profit:worstProfitV});
+      } else {
+        var expT=x.detail?x.detail.tod:0;
+        if(expT>netTod) dangerT.push({x:x,exp:x.exp,profit:netTod-expT});
+      }
     });
     [danger3,danger2,dangerV,dangerT].forEach(function(a){a.sort(function(a,b){return a.profit-b.profit;});});
     var totalD=danger3.length+danger2.length+dangerV.length+dangerT.length;
