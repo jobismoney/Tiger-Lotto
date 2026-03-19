@@ -2606,7 +2606,7 @@ function updateSummary(){
     }
 
     azEl.innerHTML=
-      azBtn('🎯','แยกประเภทเลข','3ตัว / 2ตัว / วิ่ง / โต๊ด','6 ประเภท','#60a5fa','')+
+      azBtn('🎯','แยกประเภทเลข','3ตัว / 2ตัว / วิ่ง / โต๊ด',(function(){var t=0;if(g.t3>0)t++;if(g.t2>0)t++;if(g.tod>0)t++;if(g.t3l>0)t++;if(g.vb>0)t++;if(g.vl>0)t++;return t+' ประเภท';})(),'#60a5fa','')+
       azBtn('⚠️','เลขควรตีออก','ถ้าถูกจะขาดทุน',riskCount+' เลข','#f87171','risk')+
       azBtn('📊','ยอดรายลูกค้า','เปรียบเทียบแต่ละคน',customers.length+' คน','#f5c518','cust')+
       azBtn('👥','เอเย่นต์','ลูกค้าและยอดต่อเอเย่นต์',agentSet.size+' คน','#34d399','agent');
@@ -4251,7 +4251,7 @@ function renderAnalyze(view){
       if(!arr.length) return '';
       return '<div style="font-size:12px;font-weight:800;color:#f87171;margin:8px 0 5px;">'+lbl+'</div>'+arr.slice(0,10).map(rRow).join('');
     }
-    var html2='<button onclick="renderAnalyze()" style="background:none;border:none;color:#f5c518;font-family:Sarabun,sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:0;margin-bottom:10px;">◀ กลับ</button>';
+    var html2='<div style="font-size:14px;font-weight:900;color:#f5c518;margin-bottom:10px;">⚠️ เลขควรตีออก</div>';
     html2+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'
       +'<div style="background:#0a0e1a;border-radius:8px;padding:8px 10px;"><div style="font-size:10px;color:#556;">ยอดสุทธิรวม</div>'
       +'<div style="font-family:Bebas Neue,sans-serif;font-size:20px;color:#f5c518;">฿'+fmtN(NET2)+'</div></div>'
@@ -4268,7 +4268,7 @@ function renderAnalyze(view){
       .filter(function(x){return x.val>0;}).sort(function(a,b){return b.val-a.val;});
     var maxCV=custData.length?custData[0].val:1;
     var COLS=['#f5c518','#60a5fa','#34d399','#a78bfa','#fb923c','#f87171'];
-    var html3='<button onclick="renderAnalyze()" style="background:none;border:none;color:#f5c518;font-family:Sarabun,sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:0;margin-bottom:10px;">◀ กลับ</button>';
+    var html3='<div style="font-size:14px;font-weight:900;color:#f5c518;margin-bottom:10px;">📊 ยอดรายลูกค้า</div>';
     html3+=custData.map(function(c,i){
       var pct=Math.round(c.val/maxCV*100), col=COLS[i%COLS.length];
       return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">'
@@ -4292,7 +4292,7 @@ function renderAnalyze(view){
       });
     });
     var agents2=Object.keys(agentMap2).sort(function(a,b){return agentMap2[b].total-agentMap2[a].total;});
-    var html4='<button onclick="renderAnalyze()" style="background:none;border:none;color:#f5c518;font-family:Sarabun,sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:0;margin-bottom:10px;">◀ กลับ</button>';
+    var html4='<div style="font-size:14px;font-weight:900;color:#f5c518;margin-bottom:10px;">👥 เอเย่นต์</div>';
     if(!agents2.length){ html4+='<div style="color:#556;text-align:center;padding:16px;">ยังไม่มีข้อมูล QR scan ครับ</div>'; }
     else {
       html4+=agents2.map(function(ag){
@@ -4366,7 +4366,7 @@ function renderAnalyze(view){
       return {lek:x.lek,d:x.d,total:t,exp:e};
     }).filter(function(x){return x.total>0;})
       .sort(function(a,b){return b.total-a.total;});
-    var html='<button onclick="renderAnalyze()" style="background:none;border:none;color:var(--gold);font-family:\'Sarabun\',sans-serif;font-size:13px;font-weight:800;cursor:pointer;padding:0;margin-bottom:10px;">◀ กลับ</button>';
+    var html='<div style="font-size:14px;font-weight:900;color:#f5c518;margin-bottom:10px;">🎯 '+folder.emoji+' '+folder.label+'</div>';
     html+=topTable(filtered, folder.label, folder.emoji, folder.net);
     el.innerHTML=html;
   }
