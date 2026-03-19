@@ -764,6 +764,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var isLocked=false;    // หลังพิมพ์แล้ว ล็อค
   var basket=[];         // ตะกร้า: [{entries,time,ngod}]
   var ngodInfo={sender:'',receiver:'',ngod:'',date:''};
+  var lastBasketName = "";
   var ngodOpen=false;    // มีงวดเปิดอยู่ไหม
 
   function makeFS(){return{bon:{price:'',klbOpen:false,pp:{}},tod:{price:'',klbOpen:false,pp:{}},lang:{price:'',klbOpen:false,pp:{}},na:{price:'',klbOpen:false,pp:{}}};}
@@ -1044,6 +1045,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var countBefore=hist2.filter(function(h){return h.ngod===ngod&&h.isBasket;}).length;
         var newCount=countBefore+1;
         var displayName=basketName||('ชุดที่ '+newCount);
+        if(basketName) lastBasketName=basketName;
         var dr=discRates||DEFAULT_DISC;
         var db=calcDiscountBreakdown(entries,dr);
         var discInfo=db.totalDisc>0
@@ -1119,6 +1121,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var mm=String(now.getMinutes()).padStart(2,'0');
     var ngodWithTime=ngod+' '+hh+':'+mm;
     ngodInfo={sender:sender,receiver:sender,ngod:ngodWithTime,date:getToday(),basketName:'',ngodId:Date.now()};
+    lastBasketName='';
     ngodOpen=true;
     entries=[];eid=0;pageBreakIds=[];isLocked=false;
     save();
@@ -2129,9 +2132,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       +LEGEND;
   }
 
-  function buildAllSlips(){
+  function buildAllSlips(custName){
     if(!entries.length){toast('ยังไม่มีรายการ');return null;}
-    var inf=Object.assign({},ngodInfo,{sender:ngodInfo.basketName||'—',receiver:ngodInfo.sender||'—'});
+    var inf=Object.assign({},ngodInfo,{sender:custName||lastBasketName||'—',receiver:ngodInfo.sender||'—'});
     var sorted=entries.slice().sort(function(a,b){return a.id-b.id;});
     var pages=[],pEn=[],rc=0;
     sorted.forEach(function(e){
@@ -2309,7 +2312,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function doPrint(){
     if(!entries.length){toast('ยังไม่มีรายการ');return;}
     isLocked=true;save();updateLockUI();renderList();
-    var result=buildAllSlips();if(!result)return;
+    var result=buildAllSlips(displayName);if(!result)return;
     document.getElementById('slip-pages').innerHTML=result.html;
     document.getElementById('slip-ov').classList.add('show');
     setTimeout(function(){
