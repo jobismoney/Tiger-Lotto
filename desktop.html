@@ -4296,6 +4296,7 @@ function renderAnalyze(view){
     getAllEntries(c.id).forEach(function(e){ allE.push(e); });
   });
   var el=document.getElementById('analyze-content');
+  console.log('[renderAnalyze] view='+view+' allE='+allE.length+' el='+(el?'ok':'NULL'));
   if(!allE.length){el.innerHTML='<div style="color:#555;text-align:center;padding:20px;">ยังไม่มีข้อมูลครับ</div>';return;}
 
   // คำนวณยอดสุทธิ (หลังหัก%)
