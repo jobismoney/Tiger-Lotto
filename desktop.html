@@ -592,7 +592,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
           <!-- 3ตัวล่าง 4 รางวัล | 2ตัวล่าง -->
           <div style="display:grid;grid-template-columns:2fr 1fr;gap:6px;margin-bottom:12px;">
             <div>
-              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">3ตัวล่าง (4 รางวัล)</div>
+              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">3ตัวล่าง (หน้า 2 + ท้าย 2)</div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
                 <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang1" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3lang2').focus()">
                 <input type="tel" inputmode="numeric" maxlength="3" id="res-3lang2" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3lang3').focus()">
@@ -3303,10 +3303,11 @@ function fetchLottoResult(){
       setVal('res-3na',  first6[0]?first6[0].slice(0,3):'');
       setVal('res-3bon', first6[0]?first6[0].slice(-3):'');
       setVal('res-2bon', first6[0]?first6[0].slice(-2):'');
-      setVal('res-3lang1', back3[0]||'');
-      setVal('res-3lang2', back3[1]||'');
-      setVal('res-3lang3', back3[2]||'');
-      setVal('res-3lang4', back3[3]||'');
+      // 3ล่าง = front3 (2 ตัว) + back3 (2 ตัว) รวม 4 รางวัล
+      setVal('res-3lang1', front3[0]||'');
+      setVal('res-3lang2', front3[1]||'');
+      setVal('res-3lang3', back3[0]||'');
+      setVal('res-3lang4', back3[1]||'');
       setVal('res-2lang', back2[0]||'');
       toast('✅ ดึงผลรางวัลสำเร็จ งวด '+res.date);
     })
@@ -3365,18 +3366,19 @@ function doCheckResult(){
         if(e.bon){ hits.push({lek:lek,type:'3ตัวบน',bet:e.bon,pay:e.bon*pr}); custPay+=e.bon*pr; }
         (e.kd.bon||[]).forEach(function(x){ hits.push({lek:x.perm,type:'3ตัวบน(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; });
       }
-      // ── 3ตัวหน้า (na) ──
+      // ── 3ตัวหน้า (na) ── ตรวจกับ 3ตัวแรกของรางวัลที่ 1
       if(d===3 && r3na && lek===r3na){
         var cfg=getCfg('3na'); var pr=cfg?cfg.pay:450;
         if(e.na){ hits.push({lek:lek,type:'3ตัวหน้า',bet:e.na,pay:e.na*pr}); custPay+=e.na*pr; }
         (e.kd.na||[]).forEach(function(x){ hits.push({lek:x.perm,type:'3ตัวหน้า(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; });
       }
-      // ── 3ตัวล่าง (lang) ── ตรวจทั้ง 4 รางวัล
+      // ── 3ล่าง (lang) ── ตรวจกับ 4 รางวัล (front3 + back3)
       if(d===3 && r3langList.indexOf(lek)>=0){
         var cfg=getCfg('3lang'); var pr=cfg?cfg.pay:450;
         if(e.lang){ hits.push({lek:lek,type:'3ตัวล่าง',bet:e.lang,pay:e.lang*pr}); custPay+=e.lang*pr; }
         (e.kd.lang||[]).forEach(function(x){ if(r3langList.indexOf(x.perm)>=0){ hits.push({lek:x.perm,type:'3ตัวล่าง(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; } });
       }
+
       // ── โต๊ด ──
       if(d===3 && todWin.indexOf(lek)>=0){
         var cfg=getCfg('tod'); var pr=cfg?cfg.pay:120;
