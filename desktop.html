@@ -2659,7 +2659,10 @@ function updateSummary(){
     azEl.innerHTML=
       azBtn('⚠️','เลขควรตีออก','ถ้าถูกจะขาดทุน',riskCount+' เลข','#f87171','risk')+
       azBtn('📊','ยอดรายลูกค้า','เปรียบเทียบแต่ละคน',customers.length+' คน','#f5c518','cust')+
-      azBtn('👥','เอเย่นต์','ลูกค้าและยอดต่อเอเย่นต์',agentSet.size+' คน','#34d399','agent');
+      azBtn('👥','เอเย่นต์','ลูกค้าและยอดต่อเอเย่นต์',agentSet.size+' คน','#34d399','agent')+
+      azBtn('🛡️','เลขคุม','คำนวณยอดซื้อคุม','กรอก threshold','#a78bfa','hedge')+
+      azBtn('📋','รายการตีออก','เลขที่ flag ตีออกแล้ว',Object.keys(flaggedLeks||{}).length+' เลข','#fb923c','flagged')+
+      azBtn('📅','ผลย้อนหลัง','ดูผลรางวัลงวดก่อนหน้า','เลือกงวด','#60a5fa','history');
   }
 }
 // ================================================================
@@ -4127,6 +4130,124 @@ selectCust = function(id){
 </div>
 
 <script>
+function calcHedge(){
+  var t=parseInt(document.getElementById('hedge-threshold').value)||0;
+  if(!t){toast('กรุณาใส่ threshold ครับ');return;}
+  // หา 5 ตัวเลขที่ exposure รวมสูงสุด
+  var digitExp={};
+  for(var d=0;d<=9;d++) digitExp[d]=0;
+  Object.values(byLek||{}).forEach(function(x){
+    x.lek.split('').forEach(function(ch){ digitExp[parseInt(ch)]+=x.exp; });
+  });
+  var sorted=Object.keys(digitExp).sort(function(a,b){return digitExp[b]-digitExp[a];});
+  var top5=sorted.slice(0,5).map(Number);
+  // ผสม 3ตัว C(5,3)=10 และ 2ตัว C(5,2)=10
+  var combo3=[],combo2=[];
+  for(var i=0;i<5;i++) for(var j=i+1;j<5;j++){
+    combo2.push(''+top5[i]+top5[j]);
+    for(var k=j+1;k<5;k++) combo3.push(''+top5[i]+top5[j]+top5[k]);
+  }
+  var cfg3=getCfg('3bon'),cfg2=getCfg('2bon');
+  var pay3=cfg3?cfg3.pay:500, pay2=cfg2?cfg2.pay:70;
+  var rows3=combo3.map(function(lek){
+    var lk=byLek&&byLek[lek];
+    var exp=lk?lk.exp:0;
+    var need=Math.max(0,Math.ceil((exp-t)/pay3));
+    return {lek:lek,exp:exp,need:need};
+  }).filter(function(x){return x.need>0;});
+  var rows2=combo2.map(function(lek){
+    var lk=byLek&&byLek[lek];
+    var exp=lk?lk.exp:0;
+    var need=Math.max(0,Math.ceil((exp-t)/pay2));
+    return {lek:lek,exp:exp,need:need};
+  }).filter(function(x){return x.need>0;});
+  var el=document.getElementById('hedge-result');
+  if(!el)return;
+  if(!rows3.length&&!rows2.length){el.innerHTML='<div style="color:#22c55e;text-align:center;padding:16px;font-weight:700;">✅ ไม่มีเลขที่ต้องคุมครับ</div>';return;}
+  function rowHtml(r,pay,type){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;margin-bottom:5px;background:#0a1a0a;border:1px solid rgba(167,139,250,.2);">'
+      +'<div><div style="font-family:Bebas Neue,sans-serif;font-size:18px;color:#a78bfa;">'+r.lek+'</div>'
+      +'<div style="font-size:11px;color:#556;">'+type+' · exp ฿'+fmtN(r.exp)+'</div></div>'
+      +'<div style="text-align:right;"><div style="font-size:13px;font-weight:900;color:#f0f2ff;">ซื้อ ฿'+fmtN(r.need)+'</div></div>'
+      +'</div>';
+  }
+  var html='<div style="font-size:12px;font-weight:800;color:#556;margin-bottom:6px;">5 ตัวหลัก: '+top5.join(', ')+'</div>';
+  if(rows3.length){html+='<div style="font-size:12px;color:#a78bfa;font-weight:800;margin-bottom:5px;">3ตัว</div>';html+=rows3.map(function(r){return rowHtml(r,pay3,'3ตัว');}).join('');}
+  if(rows2.length){html+='<div style="font-size:12px;color:#a78bfa;font-weight:800;margin:8px 0 5px;">2ตัว</div>';html+=rows2.map(function(r){return rowHtml(r,pay2,'2ตัว');}).join('');}
+  el.innerHTML=html;
+}
+
+function flagLek(lek,cost,note){
+  if(!flaggedLeks) flaggedLeks={};
+  flaggedLeks[lek]={cost:cost||0,note:note||''};
+  save();
+}
+function unflagLek(lek){
+  if(flaggedLeks) delete flaggedLeks[lek];
+  save();
+  openAnalyze('flagged');
+}
+
+var _azHistList=[];
+function loadHistoryListAz(){
+  var sel=document.getElementById('hist-ngod-sel2');
+  var loading=document.getElementById('hist-result-loading');
+  if(!sel)return;
+  if(_azHistList.length){
+    var opts='<option value="">— เลือกงวด —</option>';
+    _azHistList.forEach(function(item){opts+='<option value="'+item.id+'">'+item.date+'</option>';});
+    sel.innerHTML=opts;return;
+  }
+  if(loading) loading.style.display='';
+  fetch('https://lotto.api.rayriffy.com/list')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      _azHistList=data.response||[];
+      if(loading) loading.style.display='none';
+      var opts='<option value="">— เลือกงวด —</option>';
+      _azHistList.forEach(function(item){opts+='<option value="'+item.id+'">'+item.date+'</option>';});
+      if(sel) sel.innerHTML=opts;
+    }).catch(function(){if(loading) loading.style.display='none';});
+}
+
+function loadHistResult(id){
+  if(!id)return;
+  var loading=document.getElementById('hist-result-loading');
+  var content=document.getElementById('hist-result-content');
+  if(loading) loading.style.display='';
+  fetch('https://lotto.api.rayriffy.com/'+id)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(loading) loading.style.display='none';
+      var res=data.response;
+      var first6=(res.prizes.find(function(p){return p.id==='prizeFirst';})||{}).number||[];
+      var rn=res.runningNumbers||[];
+      var front3=(rn.find(function(x){return x.id==='runningNumberFrontThree';})||{}).number||[];
+      var back3=(rn.find(function(x){return x.id==='runningNumberBackThree';})||{}).number||[];
+      var back2=(rn.find(function(x){return x.id==='runningNumberBackTwo';})||{}).number||[];
+      var f=first6[0]||'';
+      if(!content)return;
+      content.innerHTML='<div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:10px;padding:12px;">'
+        +'<div style="font-size:13px;font-weight:900;color:#f5c518;margin-bottom:8px;">งวด '+res.date+'</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">'
+        +'<div style="background:#0d101a;border-radius:8px;padding:8px;text-align:center;">'
+        +'<div style="font-size:10px;color:#556;">รางวัลที่ 1</div>'
+        +'<div style="font-family:Bebas Neue,sans-serif;font-size:22px;color:#f5c518;letter-spacing:3px;">'+f+'</div>'
+        +'<div style="font-size:11px;color:#8899bb;">บน: '+f.slice(-3)+' · หน้า: '+f.slice(0,3)+'</div>'
+        +'</div>'
+        +'<div style="background:#0d101a;border-radius:8px;padding:8px;text-align:center;">'
+        +'<div style="font-size:10px;color:#556;">2ตัวบน / 2ตัวล่าง</div>'
+        +'<div style="font-family:Bebas Neue,sans-serif;font-size:22px;color:#60a5fa;">'+f.slice(-2)+' / '+(back2[0]||'—')+'</div>'
+        +'</div>'
+        +'</div>'
+        +'<div style="font-size:11px;color:#556;margin-bottom:4px;">3ตัวล่าง (หน้า: '+front3.join(', ')+' · ท้าย: '+back3.join(', ')+')</div>'
+        +'</div>';
+    }).catch(function(err){
+      if(loading) loading.style.display='none';
+      toast('⚠️ โหลดไม่ได้: '+err.message);
+    });
+}
+
 function openAnalyze(view){
   var el=document.getElementById('analyze-popup');
   el.style.display='flex';
@@ -4492,6 +4613,59 @@ function renderAnalyze(view){
         +'</div></div></div>';
     }).join('');
     el.innerHTML=html3;
+
+  } else if(view==='hedge'){
+    // ── 🛡️ เลขคุม ──
+    var html5='<div style="font-size:14px;font-weight:900;color:#a78bfa;margin-bottom:10px;">🛡️ เลขคุม</div>';
+    html5+='<div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:10px;padding:12px;margin-bottom:10px;">'
+      +'<div style="font-size:12px;color:#556;margin-bottom:6px;">กรอก threshold (บาท) — ยอดที่รับได้ถ้าถูก</div>'
+      +'<input type="tel" inputmode="numeric" id="hedge-threshold" placeholder="เช่น 20000" style="width:100%;background:#0d101a;border:1px solid #2a3060;border-radius:8px;color:#f0f2ff;font-family:Sarabun,sans-serif;font-size:18px;font-weight:800;padding:10px;text-align:center;outline:none;">'
+      +'<button onclick="calcHedge()" style="width:100%;margin-top:8px;background:linear-gradient(135deg,#7c3aed,#5b21b6);border:none;border-radius:8px;color:#fff;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;padding:10px;cursor:pointer;">คำนวณ</button>'
+      +'</div>'
+      +'<div id="hedge-result"></div>';
+    el.innerHTML=html5;
+
+  } else if(view==='flagged'){
+    // ── 📋 รายการตีออก ──
+    var flagKeys=Object.keys(flaggedLeks||{});
+    var html6='<div style="font-size:14px;font-weight:900;color:#fb923c;margin-bottom:10px;">📋 รายการตีออก</div>';
+    if(!flagKeys.length){
+      html6+='<div style="color:#556;text-align:center;padding:20px;">ยังไม่มีเลขที่ flag ตีออกครับ</div>';
+    } else {
+      var totalCost=0;
+      html6+=flagKeys.map(function(lek){
+        var f=flaggedLeks[lek];
+        totalCost+=f.cost||0;
+        return '<div style="background:#0f1220;border:1px solid rgba(251,146,60,.3);border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">'
+          +'<div>'
+          +'<div style="font-family:Bebas Neue,sans-serif;font-size:20px;color:#fb923c;">'+lek+'</div>'
+          +'<div style="font-size:11px;color:#556;">'+(f.note||'')+'</div>'
+          +'</div>'
+          +'<div style="text-align:right;">'
+          +'<div style="font-size:13px;color:#f0f2ff;font-weight:800;">ค่าส่งต่อ ฿'+fmtN(f.cost||0)+'</div>'
+          +'<button data-lek="'+lek+'" onclick="unflagLek(this.dataset.lek)" style="background:none;border:1px solid #333;border-radius:6px;color:#556;font-size:11px;padding:2px 8px;cursor:pointer;margin-top:4px;">ยกเลิก</button>'
+          +'</div>'
+          +'</div>';
+      }).join('');
+      html6+='<div style="background:#1a1200;border:1px solid rgba(251,146,60,.2);border-radius:8px;padding:10px 12px;text-align:right;">'
+        +'<div style="font-size:12px;color:#556;">ค่าส่งต่อรวม</div>'
+        +'<div style="font-family:Bebas Neue,sans-serif;font-size:22px;color:#fb923c;">฿'+fmtN(totalCost)+'</div>'
+        +'</div>';
+    }
+    el.innerHTML=html6;
+
+  } else if(view==='history'){
+    // ── 📅 ผลย้อนหลัง ──
+    var html7='<div style="font-size:14px;font-weight:900;color:#60a5fa;margin-bottom:10px;">📅 ผลย้อนหลัง</div>';
+    html7+='<div style="background:#0a0e1a;border:1px solid #1a2040;border-radius:10px;padding:12px;margin-bottom:10px;">'
+      +'<select id="hist-ngod-sel2" onchange="loadHistResult(this.value)" style="width:100%;background:#0d101a;border:1px solid #2a3060;border-radius:8px;color:#f0f2ff;font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:10px;cursor:pointer;">'
+      +'<option value="">— เลือกงวด —</option>'
+      +'</select>'
+      +'<div id="hist-result-loading" style="display:none;text-align:center;color:#556;font-size:12px;padding:8px;">⏳ กำลังโหลด...</div>'
+      +'</div>'
+      +'<div id="hist-result-content"></div>';
+    el.innerHTML=html7;
+    loadHistoryListAz();
 
   } else if(view==='agent'){
     // ── เอเย่นต์ ──
