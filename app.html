@@ -1816,46 +1816,72 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var TC={bon:'#f5c518',tod:'#a78bfa',lang:'#34d399',na:'#fb923c'};
     var TL={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
     var TYPE_ORDER=['bon','tod','lang','na'];
-    var S='lek';
-    var leks=[], curLek='';
-    var selTypes={bon:false,tod:false,lang:false,na:false};
+    var S='lek'; // lek|price
     var klbOn=false;
     var rawPrice='';
     var prices={bon:0,tod:0,lang:0,na:0};
     var priceQ=[], priceStep=0;
+    // selTypes — auto-set จากจำนวนหลัก แต่ผู้ใช้ override ได้
+    var selTypes={bon:false,tod:false,lang:false,na:false};
+    var userOverride={}; // ประเภทที่ผู้ใช้กด toggle เอง
+
+    // auto-select ตามหลักเลข
+    function autoSelect(d){
+      // รีเซ็ต selTypes ตาม default ก่อน (ยกเว้นที่ user override)
+      var defaults={};
+      if(d===1){ defaults={bon:false,tod:false,lang:false,na:false}; } // วิ่ง — ไม่มีปุ่มพิเศษ
+      else if(d===2){ defaults={bon:true,tod:false,lang:true,na:false}; }
+      else if(d===3){ defaults={bon:true,tod:true,lang:false,na:false}; }
+      else { defaults={bon:false,tod:false,lang:false,na:false}; }
+      TYPE_ORDER.forEach(function(t){
+        if(userOverride[t]!==undefined) selTypes[t]=userOverride[t];
+        else selTypes[t]=defaults[t]||false;
+      });
+      renderTypeBtns();
+    }
+
+    function renderTypeBtns(){
+      TYPE_ORDER.forEach(function(t){
+        var el=document.getElementById('ckt-'+t);
+        if(el) el.className=selTypes[t]?'ck-type on-'+t:'ck-type';
+      });
+    }
 
     function getTypes(){ return TYPE_ORDER.filter(function(k){return selTypes[k];}); }
 
     function render(){
-      // จอราคา
       var elRaw=document.getElementById('ck-raw');
       var elInterp=document.getElementById('ck-interp');
+      var shown=document.getElementById('lek-shown');
+      // sync lek-shown กับ curLek ของ app
+      if(shown) shown.textContent=curLek||'? ? ?';
+
       if(S==='lek'){
         var types=getTypes();
-        if(elRaw){ elRaw.textContent=types.map(function(t){return TL[t];}).join(' × ')||'—'; elRaw.classList.add('idle'); }
+        if(elRaw){
+          elRaw.textContent=types.length?types.map(function(t){return TL[t];}).join(' × '):'เลือกประเภท';
+          elRaw.style.color='#334';
+        }
         if(elInterp) elInterp.innerHTML='';
       } else {
-        if(elRaw){ elRaw.textContent=rawPrice||'—'; elRaw.classList.remove('idle'); }
+        if(elRaw){ elRaw.textContent=rawPrice||'_'; elRaw.style.color='#f0f2ff'; }
         if(elInterp){
           elInterp.innerHTML=priceQ.map(function(t,i){
-            if(i>priceStep&&!prices[t]) return '';
             var v=i<priceStep?prices[t]:(i===priceStep?'_':'');
-            if(!v&&i>priceStep) return '';
+            if(i>priceStep&&!prices[t]) return '';
             return '<span style="color:'+TC[t]+';margin-right:6px;">'+TL[t]+v+'</span>';
-          }).join('');
+          }).filter(Boolean).join('');
         }
       }
-      // sync lek-shown
-      var shown=document.getElementById('lek-shown');
-      if(shown) shown.textContent=curLek||'? ? ?';
+
       // ปุ่ม ก/ช
       var btn=document.getElementById('ck-klb');
       if(btn){
-        var d2=curLek.length||(leks[0]&&leks[0].length)||0;
-        btn.style.opacity=d2>=2?'1':'0.3';
-        if(klbOn&&d2>=2){
+        var d=curLek?curLek.length:0;
+        btn.style.opacity=d>=2?'1':'0.3';
+        if(klbOn&&d>=2){
           btn.classList.add('on');
-          btn.textContent=d2===2?'กลับ':'ชุด';
+          btn.textContent=d===2?'กลับ':'ชุด';
         } else {
           btn.classList.remove('on');
           btn.textContent='ก/ช';
@@ -1866,17 +1892,28 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     return {
       toggleType:function(t){
         selTypes[t]=!selTypes[t];
-        var el=document.getElementById('ckt-'+t);
-        if(el) el.className=selTypes[t]?'ck-type on-'+t:'ck-type';
+        userOverride[t]=selTypes[t]; // บันทึก user override
+        renderTypeBtns();
+        render();
+      },
+      // เรียกตอนเลขเปลี่ยน (จาก setLek ของ app)
+      onLekChange:function(lek){
+        if(S!=='lek') return;
+        var d=lek?lek.length:0;
+        userOverride={}; // reset override เมื่อเลขเปลี่ยน
+        autoSelect(d);
+        klbOn=false;
         render();
       },
       num:function(n){
         if(S==='lek'){
-          var cur=curLek;
-          if(cur.length>=3) return;
-          var nv=cur+n;
-          curLek=nv;
-          if(typeof setLek==='function') setLek(nv);
+          if(curLek&&curLek.length>=3) return;
+          var nv=(curLek||'')+n;
+          setLek(nv); // ใช้ setLek ของ app โดยตรง
+          // auto-select ตามหลัก
+          userOverride={};
+          autoSelect(nv.length);
+          klbOn=false;
           render();
           return;
         } else {
@@ -1886,22 +1923,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         }
         render();
       },
-      sep:function(){
-        if(S!=='lek') return;
-        if(curLek.length>=2){leks.push(curLek);curLek='';}
-        render();
-      },
-      x:function(){
-        if(S!=='price') return;
-        rawPrice+='×';
-        if(priceStep<priceQ.length-1) priceStep++;
-        render();
-      },
       del:function(){
         if(S==='lek'){
-          if(curLek.length>0){
-            curLek=curLek.slice(0,-1);
-            if(typeof setLek==='function') setLek(curLek);
+          if(curLek&&curLek.length>0){
+            var nv=curLek.slice(0,-1);
+            setLek(nv);
+            userOverride={};
+            autoSelect(nv.length);
+            klbOn=false;
             render();
           }
           return;
@@ -1912,27 +1941,24 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         }
         render();
       },
+      x:function(){
+        if(S!=='price') return;
+        rawPrice+='×';
+        if(priceStep<priceQ.length-1) priceStep++;
+        render();
+      },
       klb:function(){
-        // ก/ช กดได้ทั้ง lek mode และ price mode (กดหลังราคาก็ได้)
-        var d=curLek.length||(leks[0]&&leks[0].length)||0;
-        if(S==='price') d=(leks[0]&&leks[0].length)||0;
+        var d=curLek?curLek.length:0;
+        if(S==='price') d=curLek?curLek.length:0;
         if(d<2) return;
         klbOn=!klbOn;
-        // อัพเดทปุ่ม
-        var btn=document.getElementById('ck-klb');
-        if(btn){
-          btn.style.opacity='1';
-          if(klbOn){btn.classList.add('on');btn.textContent=d===2?'กลับ':'ชุด';}
-          else{btn.classList.remove('on');btn.textContent='ก/ช';}
-        }
         render();
       },
       eq:function(){
         var types=getTypes();
         if(S==='lek'){
-          var lek=curLek.trim();
+          var lek=curLek?curLek.trim():'';
           if(lek.length<2){toast('กรอกเลขก่อนครับ');return;}
-          leks=[lek];
           if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
           S='price';
           priceQ=types.slice();
@@ -1940,37 +1966,40 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           prices={bon:0,tod:0,lang:0,na:0};
           rawPrice='';
         } else {
-          // commit — เพิ่มเข้า app ทีละเลข
+          // commit
+          var lek2=curLek||'';
           var allLeks=[];
-          leks.forEach(function(lek){
-            if(klbOn&&lek.length===2){allLeks.push(lek);allLeks.push(lek[1]+lek[0]);}
-            else if(klbOn&&lek.length===3){getPerms(lek).forEach(function(p){allLeks.push(p);});}
-            else allLeks.push(lek);
-          });
+          if(klbOn&&lek2.length===2){allLeks=[lek2,lek2[1]+lek2[0]];}
+          else if(klbOn&&lek2.length===3){allLeks=getPerms(lek2);}
+          else allLeks=[lek2];
           var seen={};
           allLeks=allLeks.filter(function(l){if(seen[l])return false;seen[l]=1;return true;});
-          allLeks.forEach(function(lek){
-            setLek(lek);
+          allLeks.forEach(function(l){
+            setLek(l);
             TYPE_ORDER.forEach(function(t){
-              if(FS[t]){FS[t].price=prices[t]>0?String(prices[t]):'';}
+              if(FS[t]) FS[t].price=prices[t]>0?String(prices[t]):'';
               var fi=document.getElementById('fi-'+t);
               if(fi) fi.value=prices[t]>0?prices[t]:'';
             });
             addEntry();
           });
           // reset
-          leks=[];curLek='';S='lek';klbOn=false;
+          S='lek'; klbOn=false;
           prices={bon:0,tod:0,lang:0,na:0};
-          priceStep=0;priceQ=[];rawPrice='';
-          if(typeof setLek==='function') setLek('');
+          priceStep=0; priceQ=[]; rawPrice='';
+          userOverride={}; selTypes={bon:false,tod:false,lang:false,na:false};
+          setLek('');
+          renderTypeBtns();
         }
         render();
       },
       reset:function(){
-        leks=[];curLek='';S='lek';klbOn=false;
+        S='lek'; klbOn=false;
         prices={bon:0,tod:0,lang:0,na:0};
-        priceStep=0;priceQ=[];rawPrice='';
-        if(typeof setLek==='function') setLek('');
+        priceStep=0; priceQ=[]; rawPrice='';
+        userOverride={}; selTypes={bon:false,tod:false,lang:false,na:false};
+        setLek('');
+        renderTypeBtns();
         render();
       },
       render:render
@@ -2133,6 +2162,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function setLek(v){
     curLek=v;FS=makeFS();
+    if(window.CK&&window.CK.onLekChange&&typeof v==='string') setTimeout(function(){window.CK.render();},0);
     var sh=document.getElementById('lek-shown'),ring=document.getElementById('tap-ring'),disp=document.getElementById('lek-display');
     var cur=document.getElementById('lek-cursor');
     if(v){sh.className='lv';sh.textContent=v.split('').join(' ');if(ring)ring.style.display='none';disp.classList.add('has-lek');if(cur)cur.classList.add('hide');}
