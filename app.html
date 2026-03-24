@@ -620,7 +620,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       <div class="lek-display" id="lek-display" onclick="document.getElementById('lek-inp').focus()">
         <div class="tap-ring" id="tap-ring"></div>
         <span id="lek-shown" class="lp">? ? ?</span>
-        <input id="lek-inp" type="tel" inputmode="none" maxlength="5" enterkeyhint="go" readonly
+        <input id="lek-inp" type="tel" inputmode="numeric" maxlength="3" enterkeyhint="go"
           style="position:absolute;inset:0;width:100%;height:100%;opacity:0;background:transparent;border:none;outline:none;font-size:48px;text-align:center;letter-spacing:12px;caret-color:var(--gold);z-index:2;">
       </div>
       <div class="lek-hint" id="lek-hint">แตะเพื่อพิมพ์เลข</div>
@@ -1869,8 +1869,17 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       },
       num:function(n){
         if(S==='lek'){
-          if(curLek.length>=3) return;
-          curLek+=n;
+          // ส่งเลขไปยัง app เดิม
+          var inp=document.getElementById('lek-inp');
+          var cur=inp?inp.value:'';
+          if(cur.length>=3) return;
+          var nv=cur+n;
+          // setLek ของ app
+          if(typeof setLek==='function'){
+            setLek(nv);
+            if(inp) inp.value=nv;
+          }
+          return;
         } else {
           rawPrice+=n;
           var cur=priceQ[priceStep];
@@ -1891,8 +1900,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       },
       del:function(){
         if(S==='lek'){
-          if(curLek.length>0) curLek=curLek.slice(0,-1);
-          else if(leks.length>0) curLek=leks.pop();
+          var inp=document.getElementById('lek-inp');
+          var cur=inp?inp.value:'';
+          if(cur.length>0){
+            var nv=cur.slice(0,-1);
+            if(typeof setLek==='function'){setLek(nv);if(inp)inp.value=nv;}
+          }
+          return;
         } else {
           rawPrice=rawPrice.slice(0,-1);
           var cur=priceQ[priceStep];
@@ -1918,8 +1932,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       eq:function(){
         var types=getTypes();
         if(S==='lek'){
-          if(curLek.length>=2){leks.push(curLek);curLek='';}
-          if(!leks.length) return;
+          // อ่านเลขจาก lek-inp เดิม
+          var inp=document.getElementById('lek-inp');
+          var lek=inp?inp.value.trim():'';
+          if(lek.length<2) return;
+          leks=[lek];
           if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
           S='price';
           priceQ=types.slice();
