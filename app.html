@@ -1996,8 +1996,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
               if(FS[t]) FS[t].price=savedPrices[t]>0?String(savedPrices[t]):'';
             });
             // กด OK button เพื่อ trigger addEntry flow เดิม
+            console.log('[CK.eq] l='+l+' savedPrices='+JSON.stringify(savedPrices)+' FS='+JSON.stringify({bon:FS&&FS.bon&&FS.bon.price,tod:FS&&FS.tod&&FS.tod.price}));
             var ab=document.getElementById('add-btn');
             if(ab) ab.click();
+            else console.log('[CK.eq] add-btn NOT FOUND');
           });
           // reset
           S='lek'; klbOn=false;
@@ -2042,6 +2044,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function clearAddBtnHl(){window.clearAddBtnHl();}
 
   function addEntry(){
+    console.log('[addEntry] ngodOpen='+ngodOpen+' curLek='+curLek+' FS='+JSON.stringify({bon:FS.bon&&FS.bon.price,tod:FS.tod&&FS.tod.price,lang:FS.lang&&FS.lang.price}));
     if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');return;}
     if(isLocked){toast('โพยถูกล็อคแล้ว — กด "ซื้อเพิ่ม" ในหน้าดูโพย');return;}
     if(!curLek){toast('กรุณากรอกเลขก่อน');return;}
