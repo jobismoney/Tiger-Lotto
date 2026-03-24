@@ -131,10 +131,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 /* type toggles */
 .ck-type-row{display:flex;gap:5px;margin-bottom:6px;}
 .ck-type{flex:1;background:#0f1220;border:1.5px solid #1a2040;border-radius:8px;padding:7px 4px;text-align:center;font-size:13px;font-weight:800;color:#334;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:all .1s;}
-.ck-type.on-bon{background:rgba(245,197,24,.12);border-color:#f5c518;color:#f5c518;}
-.ck-type.on-tod{background:rgba(167,139,250,.12);border-color:#a78bfa;color:#a78bfa;}
-.ck-type.on-lang{background:rgba(52,211,153,.12);border-color:#34d399;color:#34d399;}
-.ck-type.on-na{background:rgba(251,146,60,.12);border-color:#fb923c;color:#fb923c;}
+.ck-type.on-bon{background:rgba(96,165,250,.15);border-color:#60a5fa;color:#60a5fa;}
+.ck-type.on-tod{background:rgba(244,114,182,.15);border-color:#f472b6;color:#f472b6;}
+.ck-type.on-lang{background:rgba(52,211,153,.15);border-color:#34d399;color:#34d399;}
+.ck-type.on-na{background:rgba(251,146,60,.15);border-color:#fb923c;color:#fb923c;}
 /* keyboard grid */
 .ck-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
 .ck-btn{background:#0f1220;border:1.5px solid #1a2040;border-radius:10px;height:52px;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;color:#f0f2ff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .08s,transform .08s;user-select:none;-webkit-tap-highlight-color:transparent;}
@@ -1813,7 +1813,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   // ─── CUSTOM KEYBOARD ───
   var CK = (function(){
-    var TC={bon:'#f5c518',tod:'#a78bfa',lang:'#34d399',na:'#fb923c'};
+    var TC={bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
     var TL={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
     var TYPE_ORDER=['bon','tod','lang','na'];
     var S='lek'; // lek|price
@@ -1900,8 +1900,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       onLekChange:function(lek){
         if(S!=='lek') return;
         var d=lek?lek.length:0;
-        userOverride={}; // reset override เมื่อเลขเปลี่ยน
-        autoSelect(d);
+        if(!lek) {
+          // ล้างเลข — reset ทุกอย่าง
+          userOverride={};
+          selTypes={bon:false,tod:false,lang:false,na:false};
+          renderTypeBtns();
+        } else {
+          userOverride={}; // reset override เมื่อเลขเปลี่ยน
+          autoSelect(d);
+        }
         klbOn=false;
         render();
       },
@@ -1974,15 +1981,16 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           else allLeks=[lek2];
           var seen={};
           allLeks=allLeks.filter(function(l){if(seen[l])return false;seen[l]=1;return true;});
+          // บันทึกราคาไว้ก่อน เพราะ setLek จะ reset FS
+          var savedPrices={};
+          TYPE_ORDER.forEach(function(t){savedPrices[t]=prices[t]||0;});
           allLeks.forEach(function(l){
-            setLek(l); // setLek reset FS — ต้อง set FS หลัง setLek
+            setLek(l);
+            // set FS ทันทีหลัง setLek (ก่อน addEntry อ่าน)
             TYPE_ORDER.forEach(function(t){
-              if(FS[t]) FS[t].price=prices[t]>0?String(prices[t]):'';
-              var fi=document.getElementById('fi-'+t);
-              if(fi) fi.value=prices[t]>0?prices[t]:'';
+              if(FS[t]) FS[t].price=savedPrices[t]>0?String(savedPrices[t]):'';
             });
             addEntry();
-            FS=makeFS(); // reset FS หลัง addEntry
           });
           // reset
           S='lek'; klbOn=false;
@@ -2067,11 +2075,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       APP.allowedDupKeys = APP.allowedDupKeys.filter(function(k){ return k !== curLek; });
       setLek('');
       var inp=document.getElementById('lek-inp');
-      inp.value='';
-      FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
+      if(inp) inp.value='';
+      FS=makeFS();
+      var pgEl=document.getElementById('pgrid');
+      if(pgEl) renderPGrid([]);
+      renderList();updateTotal();save();
       var ab2=document.getElementById('add-btn');if(ab2)ab2.classList.remove('ready');
       document.getElementById('list-scroll').scrollTop=0;
-      inp.focus();
+      if(window.CK) window.CK.reset();
     }
   }
 
@@ -2163,7 +2174,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function setLek(v){
     curLek=v;FS=makeFS();
-    if(window.CK&&window.CK.onLekChange&&typeof v==='string') setTimeout(function(){window.CK.render();},0);
+    if(window.CK&&typeof v==='string'){
+      setTimeout(function(){
+        if(window.CK.onLekChange) window.CK.onLekChange(v);
+        else window.CK.render();
+      },0);
+    }
     var sh=document.getElementById('lek-shown'),ring=document.getElementById('tap-ring'),disp=document.getElementById('lek-display');
     var cur=document.getElementById('lek-cursor');
     if(v){sh.className='lv';sh.textContent=v.split('').join(' ');if(ring)ring.style.display='none';disp.classList.add('has-lek');if(cur)cur.classList.add('hide');}
