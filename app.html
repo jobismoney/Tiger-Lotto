@@ -610,10 +610,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     <div class="tot-bar">
       <div class="lbl">ยอดรวมทั้งหมด</div>
       <div class="val" id="total-val">฿0</div>
+    <button class="basket-btn" id="basket-btn" style="width:calc(100% - 16px);margin:6px 8px 0;">📂 เก็บเข้าแฟ้ม</button>
     </div>
   </div>
 
-  <button class="basket-btn" id="basket-btn">📂 เก็บเข้าแฟ้ม</button>
   <div class="ipanel" id="ipanel">
     <div class="psec">
       <div class="plbl">✏️ กรอกเลข (1-5 หลัก)</div>
@@ -623,8 +623,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         <input id="lek-inp" type="tel" inputmode="none" maxlength="3" readonly tabindex="-1"
           style="position:absolute;inset:0;width:100%;height:100%;opacity:0;background:transparent;border:none;outline:none;font-size:48px;text-align:center;letter-spacing:12px;caret-color:var(--gold);z-index:2;">
       </div>
-      <div class="lek-hint" id="lek-hint">แตะเพื่อพิมพ์เลข</div>
-      <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()">📌 ปักหลัก — บน / ล่าง</button>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+        <div class="lek-hint" id="lek-hint" style="flex:1;margin-top:0;">แตะเพื่อพิมพ์เลข</div>
+        <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()" style="display:block;margin:0;padding:5px 10px;font-size:12px;">📌 ปักหลัก</button>
+      </div>
     </div>
     <div class="ck-wrap" id="ck-wrap">
       <!-- จอราคา -->
@@ -1866,10 +1868,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       } else {
         if(elRaw){ elRaw.textContent=rawPrice||'_'; elRaw.style.color='#f0f2ff'; }
         if(elInterp){
+          // แสดง label เฉพาะประเภทที่มีราคา หรือกำลังพิมพ์
           elInterp.innerHTML=priceQ.map(function(t,i){
-            var v=i<priceStep?prices[t]:(i===priceStep?'_':'');
-            if(i>priceStep&&!prices[t]) return '';
-            return '<span style="color:'+TC[t]+';margin-right:6px;">'+TL[t]+v+'</span>';
+            if(i>priceStep) return ''; // ยังไม่ถึง
+            var v=prices[t]||0;
+            var isActive=i===priceStep;
+            var col=TC[t];
+            return '<span style="color:'+col+';margin-right:8px;font-size:12px;opacity:'+(isActive?'1':'0.6')+';">'+TL[t]+(v>0?' '+v:'')+'</span>';
           }).filter(Boolean).join('');
         }
       }
@@ -1990,7 +1995,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             TYPE_ORDER.forEach(function(t){
               if(FS[t]) FS[t].price=savedPrices[t]>0?String(savedPrices[t]):'';
             });
-            addEntry();
+            // กด OK button เพื่อ trigger addEntry flow เดิม
+            var ab=document.getElementById('add-btn');
+            if(ab) ab.click();
           });
           // reset
           S='lek'; klbOn=false;
