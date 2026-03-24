@@ -124,7 +124,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .ck-lek.multi{font-size:20px;letter-spacing:2px;}
 .ck-klbtag{font-size:11px;color:#a78bfa;font-weight:800;align-self:flex-start;margin-top:3px;}
 .ck-screen-bot{min-height:36px;}
-.ck-raw{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#8899bb;letter-spacing:2px;min-height:20px;}
+.ck-price-screen{background:#0a0e1a;border:1px solid #1a2040;border-radius:8px;padding:6px 10px;margin-bottom:6px;min-height:42px;}
+.ck-raw{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#f0f2ff;letter-spacing:2px;min-height:22px;}
+.ck-raw.idle{color:#334;}
 .ck-interp{font-size:12px;font-weight:700;min-height:16px;margin-top:2px;}
 /* type toggles */
 .ck-type-row{display:flex;gap:5px;margin-bottom:6px;}
@@ -623,19 +625,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       </div>
       <div class="lek-hint" id="lek-hint">แตะเพื่อพิมพ์เลข</div>
       <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()">📌 ปักหลัก — บน / ล่าง</button>
-      <div class="dchips" id="dchips"></div>
     </div>
     <div class="ck-wrap" id="ck-wrap">
-      <!-- 2 จอ -->
-      <div class="ck-screens">
-        <div class="ck-screen ck-screen-top">
-          <div class="ck-lek" id="ck-lek">—</div>
-          <div class="ck-klbtag" id="ck-klbtag"></div>
-        </div>
-        <div class="ck-screen ck-screen-bot">
-          <div class="ck-raw" id="ck-raw">—</div>
-          <div class="ck-interp" id="ck-interp"></div>
-        </div>
+      <!-- จอราคา -->
+      <div class="ck-price-screen" id="ck-price-screen">
+        <div class="ck-raw" id="ck-raw">—</div>
+        <div class="ck-interp" id="ck-interp"></div>
       </div>
       <!-- type toggles -->
       <div class="ck-type-row">
@@ -1832,28 +1827,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     function getTypes(){ return TYPE_ORDER.filter(function(k){return selTypes[k];}); }
 
     function render(){
-      // จอบน — เลข
-      var elLek=document.getElementById('ck-lek');
-      var elTag=document.getElementById('ck-klbtag');
-      var txt=leks.join('/');
-      if(curLek) txt+=(txt?'/':'')+curLek;
-      if(elLek){
-        elLek.textContent=txt||'—';
-        elLek.className='ck-lek'+(txt.indexOf('/')>=0||leks.length>1?' multi':'');
-      }
-      if(elTag){
-        var d=curLek.length||(leks[0]&&leks[0].length)||0;
-        elTag.textContent=klbOn&&d>=2?'['+(d===2?'กลับ':'ชุด')+']':'';
-      }
-      // จอล่าง — ราคา
+      // จอราคา
       var elRaw=document.getElementById('ck-raw');
       var elInterp=document.getElementById('ck-interp');
       if(S==='lek'){
         var types=getTypes();
-        if(elRaw){ elRaw.textContent=types.map(function(t){return TL[t];}).join(' × ')||'—'; elRaw.style.color='#334'; }
+        if(elRaw){ elRaw.textContent=types.map(function(t){return TL[t];}).join(' × ')||'—'; elRaw.classList.add('idle'); }
         if(elInterp) elInterp.innerHTML='';
       } else {
-        if(elRaw){ elRaw.textContent=rawPrice||'—'; elRaw.style.color='#f0f2ff'; }
+        if(elRaw){ elRaw.textContent=rawPrice||'—'; elRaw.classList.remove('idle'); }
         if(elInterp){
           elInterp.innerHTML=priceQ.map(function(t,i){
             if(i>priceStep&&!prices[t]) return '';
@@ -1919,10 +1901,18 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         render();
       },
       klb:function(){
-        if(S!=='lek') return;
+        // ก/ช กดได้ทั้ง lek mode และ price mode (กดหลังราคาก็ได้)
         var d=curLek.length||(leks[0]&&leks[0].length)||0;
+        if(S==='price') d=(leks[0]&&leks[0].length)||0;
         if(d<2) return;
         klbOn=!klbOn;
+        // อัพเดทปุ่ม
+        var btn=document.getElementById('ck-klb');
+        if(btn){
+          btn.style.opacity='1';
+          if(klbOn){btn.classList.add('on');btn.textContent=d===2?'กลับ':'ชุด';}
+          else{btn.classList.remove('on');btn.textContent='ก/ช';}
+        }
         render();
       },
       eq:function(){
