@@ -617,10 +617,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   <div class="ipanel" id="ipanel">
     <div class="psec">
       <div class="plbl">✏️ กรอกเลข (1-5 หลัก)</div>
-      <div class="lek-display" id="lek-display" onclick="document.getElementById('lek-inp').focus()">
+      <div class="lek-display" id="lek-display">
         <div class="tap-ring" id="tap-ring"></div>
         <span id="lek-shown" class="lp">? ? ?</span>
-        <input id="lek-inp" type="tel" inputmode="numeric" maxlength="3" enterkeyhint="go"
+        <input id="lek-inp" type="tel" inputmode="none" maxlength="3" readonly tabindex="-1"
           style="position:absolute;inset:0;width:100%;height:100%;opacity:0;background:transparent;border:none;outline:none;font-size:48px;text-align:center;letter-spacing:12px;caret-color:var(--gold);z-index:2;">
       </div>
       <div class="lek-hint" id="lek-hint">แตะเพื่อพิมพ์เลข</div>
@@ -1845,6 +1845,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           }).join('');
         }
       }
+      // sync lek-shown
+      var shown=document.getElementById('lek-shown');
+      if(shown) shown.textContent=curLek||'? ? ?';
       // ปุ่ม ก/ช
       var btn=document.getElementById('ck-klb');
       if(btn){
@@ -1869,16 +1872,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       },
       num:function(n){
         if(S==='lek'){
-          // ส่งเลขไปยัง app เดิม
-          var inp=document.getElementById('lek-inp');
-          var cur=inp?inp.value:'';
+          var cur=curLek;
           if(cur.length>=3) return;
           var nv=cur+n;
-          // setLek ของ app
-          if(typeof setLek==='function'){
-            setLek(nv);
-            if(inp) inp.value=nv;
-          }
+          curLek=nv;
+          if(typeof setLek==='function') setLek(nv);
+          render();
           return;
         } else {
           rawPrice+=n;
@@ -1900,11 +1899,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       },
       del:function(){
         if(S==='lek'){
-          var inp=document.getElementById('lek-inp');
-          var cur=inp?inp.value:'';
-          if(cur.length>0){
-            var nv=cur.slice(0,-1);
-            if(typeof setLek==='function'){setLek(nv);if(inp)inp.value=nv;}
+          if(curLek.length>0){
+            curLek=curLek.slice(0,-1);
+            if(typeof setLek==='function') setLek(curLek);
+            render();
           }
           return;
         } else {
@@ -1932,10 +1930,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       eq:function(){
         var types=getTypes();
         if(S==='lek'){
-          // อ่านเลขจาก lek-inp เดิม
-          var inp=document.getElementById('lek-inp');
-          var lek=inp?inp.value.trim():'';
-          if(lek.length<2) return;
+          var lek=curLek.trim();
+          if(lek.length<2){toast('กรอกเลขก่อนครับ');return;}
           leks=[lek];
           if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
           S='price';
@@ -1966,6 +1962,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           leks=[];curLek='';S='lek';klbOn=false;
           prices={bon:0,tod:0,lang:0,na:0};
           priceStep=0;priceQ=[];rawPrice='';
+          if(typeof setLek==='function') setLek('');
         }
         render();
       },
@@ -1973,6 +1970,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         leks=[];curLek='';S='lek';klbOn=false;
         prices={bon:0,tod:0,lang:0,na:0};
         priceStep=0;priceQ=[];rawPrice='';
+        if(typeof setLek==='function') setLek('');
         render();
       },
       render:render
