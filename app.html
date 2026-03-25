@@ -2340,7 +2340,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +cellV(e.bon)+cellV(e.tod)+cellV(e.lang)+cellV(e.na)
         +'<button class="rm-btn" onclick="removeEntry('+e.id+')"'+rmDisabled+'>✕</button></div>';
       var klbRows=[];
-      ['bon','lang','na'].forEach(function(k){(e.kd[k]||[]).forEach(function(x){klbRows.push({perm:x.perm,k:k,price:x.price});});});
+      ['bon','lang','na'].forEach(function(k){((e.kd||{})[k]||[]).forEach(function(x){klbRows.push({perm:x.perm,k:k,price:x.price});});});
       var permMap={};
       klbRows.forEach(function(r){if(!permMap[r.perm])permMap[r.perm]={bon:null,lang:null,na:null};permMap[r.perm][r.k]=r.price;});
       Object.keys(permMap).sort().forEach(function(perm){
