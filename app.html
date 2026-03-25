@@ -30,8 +30,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{--bg:#0f1117;--card:#1a1d27;--card2:#222533;--border:#2e3248;--gold:#f5c518;--gold2:#c9a010;--red:#e74c3c;--white:#f0f2ff;--gray:#6b7280;--lg:#9ca3af;--purple:#a78bfa;--green:#27ae60;}
-body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);max-width:480px;margin:0 auto;}
-html,body{height:100%;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;max-width:480px;margin:0 auto;}
 
 
 /* ─── WELCOME SCREEN ─── */
@@ -56,7 +55,7 @@ html,body{height:100%;}
 .modal-ok{flex:2;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#111;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;padding:12px;cursor:pointer;}
 
 /* ─── HEADER ─── */
-.hdr{background:linear-gradient(135deg,#1a1d27,#12151f);border-bottom:2px solid var(--gold);padding:11px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:50;}
+.hdr{background:linear-gradient(135deg,#1a1d27,#12151f);border-bottom:2px solid var(--gold);padding:11px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
 .hdr-left h1{font-size:20px;font-weight:900;color:var(--gold);}
 .hdr-left p{font-size:12px;color:var(--gray);margin-top:1px;}
 .hdr-btns{display:flex;gap:6px;}
@@ -67,12 +66,10 @@ html,body{height:100%;}
 
 /* ─── MAIN CONTENT ─── */
 .main-wrap{display:none;}
-.main-wrap.show{display:flex;flex-direction:column;height:100dvh;height:100vh;overflow:hidden;}
-@media print{html,body{height:auto!important;}.main-wrap.show{display:block!important;height:auto!important;overflow:visible!important;}}
+.main-wrap.show{display:block;}
 
-/* ─── LIST ZONE: scroll ในกล่องนี้เอง ไม่ scroll page ─── */
-.list-zone{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
-.list-wrap{margin:8px 12px;background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden;}
+/* ─── LIST ─── */
+.list-wrap{margin:10px 12px 0;background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden;}
 .tbl-hd{display:grid;grid-template-columns:90px 1fr 1fr 1fr 1fr 28px;gap:2px;padding:6px 8px;background:var(--card2);border-bottom:1px solid var(--border);}
 .tbl-hd span{font-size:13px;font-weight:700;color:var(--lg);text-align:center;}
 .tbl-hd span:first-child{text-align:left;}
@@ -96,8 +93,8 @@ html,body{height:100%;}
 .tot-bar .val{font-size:22px;font-weight:900;color:var(--gold);}
 .basket-btn-inline{width:100%;background:linear-gradient(135deg,#e67e22,#d35400);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:900;padding:12px;cursor:pointer;display:block;}
 
-/* ─── INPUT PANEL ─── */
-.ipanel{flex-shrink:0;background:var(--card);border-top:2px solid var(--border);}
+/* ─── INPUT PANEL: fixed ติดล่าง ─── */
+.ipanel{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:2px solid var(--border);z-index:40;}
 .ipanel.locked{opacity:.4;pointer-events:none;}
 .psec{padding:10px 14px;border-bottom:1px solid var(--border);}
 .psec:last-child{border-bottom:none;}
@@ -488,8 +485,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 /* ─── PRINT ─── */
 @page{margin:6mm;size:A4;margin-top:4mm;}
 @media print{
-  body{background:#fff!important;max-width:none;}
-  .hdr,.main-wrap .list-zone,.main-wrap .ipanel,.add-btn,.print-btn-main,.locked-notice,
+  body{background:#fff!important;max-width:none;padding-bottom:0!important;}
+  .hdr,.main-wrap .list-wrap,.main-wrap .ipanel,.add-btn,.print-btn-main,.locked-notice,
   #_toast,.ov-back,.ov-print,.ov-basket,.ov-print-merged,.ov-del-set,.close-ngod-main-btn,.hist-ov,.check-ov,.cf-ov,.welcome-screen{display:none!important;}
   .slip-ov{display:block!important;position:static!important;background:transparent!important;overflow:visible!important;}
   .slip-ov-inner{padding:0!important;max-width:none!important;}
@@ -639,29 +636,25 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
   </div>
 
-  <!-- LIST ZONE: scroll ในกล่องนี้เลย -->
-  <div class="list-zone" id="list-zone">
-    <div class="list-wrap" id="list-wrap">
-      <div class="tbl-hd">
-        <span>เลข</span>
-        <span style="color:#60a5fa">บน</span>
-        <span style="color:#f472b6">โต๊ด</span>
-        <span style="color:#34d399">ล่าง</span>
-        <span style="color:#fb923c">หน้า</span>
-        <span></span>
+  <div class="list-wrap" id="list-wrap">
+    <div class="tbl-hd">
+      <span>เลข</span>
+      <span style="color:#60a5fa">บน</span>
+      <span style="color:#f472b6">โต๊ด</span>
+      <span style="color:#34d399">ล่าง</span>
+      <span style="color:#fb923c">หน้า</span>
+      <span></span>
+    </div>
+    <div class="list-scroll" id="list-scroll"><div class="empty-row">ยังไม่มีรายการ</div></div>
+    <div class="tot-bar">
+      <div class="tot-bar-top">
+        <div class="lbl">ยอดรวมทั้งหมด</div>
+        <div class="val" id="total-val">฿0</div>
       </div>
-      <div class="list-scroll" id="list-scroll"><div class="empty-row">ยังไม่มีรายการ</div></div>
-      <div class="tot-bar">
-        <div class="tot-bar-top">
-          <div class="lbl">ยอดรวมทั้งหมด</div>
-          <div class="val" id="total-val">฿0</div>
-        </div>
-        <button class="basket-btn-inline" id="basket-btn">📂 เก็บเข้าแฟ้ม</button>
-      </div>
+      <button class="basket-btn-inline" id="basket-btn">📂 เก็บเข้าแฟ้ม</button>
     </div>
   </div>
 
-  <!-- KEYBOARD ZONE: ติดล่างตลอด -->
   <div class="ipanel" id="ipanel">
     <div class="screen" id="screen" onclick="CK.screenTap(event)" style="margin:8px 12px 0;cursor:default;">
       <div class="s1">
@@ -691,8 +684,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         </div>
       </div>
       <!-- ปักหลัก: แสดงเฉพาะเลข 1 หลัก -->
-      <div id="pak-open-row" style="display:none;margin:4px 0 2px;">
-        <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()" style="display:block;width:100%;margin:0;padding:8px;font-size:13px;">📌 ปักหลัก</button>
+      <div id="pak-open-row" style="display:none;margin:3px 0;">
+        <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()" style="display:block;width:100%;margin:0;padding:7px;font-size:13px;">📌 ปักหลัก</button>
       </div>
       <div class="kb">
         <div class="k kn" onclick="CK.num('1')">1</div>
@@ -979,14 +972,16 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function showMain(){
     document.getElementById('welcome-screen').style.display='none';
     document.getElementById('main-wrap').classList.add('show');
-    console.log('[showMain] called');
     updateHdr();
     renderList();
     updateTotal();
     updateLockUI();
-    // ไม่ต้อง scroll เพราะ keyboard ใหม่อยู่ตลอด
-    // if(!isLocked) scrollToInput();
     updateBasketBadge();
+    // set padding-bottom ให้ body = ความสูง ipanel fixed
+    setTimeout(function(){
+      var ip=document.getElementById('ipanel');
+      if(ip) document.body.style.paddingBottom=ip.offsetHeight+'px';
+    },100);
   }
 
   function updateHdr(){
@@ -2153,8 +2148,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       bon:mp.bon||null,tod:mp.tod||null,
       lang:mp.lang||null,na:mp.na||null,kd:{}});
     renderList(); updateTotal(); save();
-    var lz=document.getElementById('list-zone');
-    if(lz) lz.scrollTop=0;
+    window.scrollTo({top:0,behavior:'instant'});
   }
 
   function ckCommitToApp(lekList2, priceArr2, klbSel2){
@@ -2205,8 +2199,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         addEntryDirect(perm, pm);
       });
     });
-    var lz=document.getElementById('list-zone');
-    if(lz) lz.scrollTop=0;
+    window.scrollTo({top:0,behavior:'instant'});
   }
 
   // ─── ADD ENTRY ───
@@ -2273,7 +2266,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(pgEl) renderPGrid([]);
       renderList();updateTotal();save();
       var ab2=document.getElementById('add-btn');if(ab2)ab2.classList.remove('ready');
-      var lz2=document.getElementById('list-zone');if(lz2)lz2.scrollTop=0;
+      window.scrollTo({top:0,behavior:'instant'});
       if(window.CK) window.CK.reset();
     }
   }
