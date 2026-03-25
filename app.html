@@ -2136,9 +2136,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   // ─── CK → APP bridge ───
   function addEntryDirect(lek2, priceMap){
     // เพิ่ม entry โดยตรง ไม่ผ่าน global state ไม่มี popup
-    if(!ngodOpen) return;
-    if(isLocked) return;
-    if(!lek2) return;
+    if(!ngodOpen){toast('⚠️ ยังไม่ได้เปิดงวดครับ');return;}
+    if(isLocked){toast('⚠️ โพยถูกล็อคแล้ว');return;}
+    if(!lek2){toast('⚠️ ไม่มีเลข');return;}
     var d=lek2.length;
     var al=RULES[d]||[];
     var mp={}, hasAny=false;
@@ -2147,7 +2147,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       mp[k]=v>0?v:null;
       if(v>0) hasAny=true;
     });
-    if(!hasAny) return;
+    if(!hasAny){toast('⚠️ ไม่มีราคา lek='+lek2+' map='+JSON.stringify(priceMap));return;}
     eid++;
     entries.unshift({id:eid,lek:lek2,d:d,
       bon:mp.bon||null,tod:mp.tod||null,
