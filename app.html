@@ -113,6 +113,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .dchip{font-size:13px;padding:3px 9px;border-radius:20px;font-weight:700;background:var(--card2);color:var(--gray);border:1px solid var(--border);}
 .dchip.on{background:var(--gold);color:#111;border-color:var(--gold);}
 .pgrid{display:grid;gap:6px;}
+/* ─── SCREEN ─── */
+.screen{background:#0a0e1a;border:1px solid #1a2040;border-radius:12px;padding:10px 14px;min-height:68px;}
+.s1{display:flex;align-items:baseline;gap:6px;min-height:40px;}
+.s-lek{font-family:'Bebas Neue',sans-serif;font-size:36px;color:#f5c518;letter-spacing:2px;word-break:break-all;line-height:1.1;}
+.s-eq{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#f0f2ff;}
+.s-price{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;}
+.s2{display:flex;align-items:center;min-height:18px;margin-top:2px;}
+.seg-tap{cursor:pointer;padding:0 2px;border-radius:4px;}
 /* ─── CUSTOM KEYBOARD ─── */
 
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -653,62 +661,57 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   </div>
 
   <div class="ipanel" id="ipanel">
-    <div class="psec">
-      <div class="plbl">✏️ กรอกเลข (1-5 หลัก)</div>
-      <div class="lek-display" id="lek-display">
-        <div class="tap-ring" id="tap-ring"></div>
-        <span id="lek-shown" class="lp">? ? ?</span>
-        <input id="lek-inp" type="tel" inputmode="none" maxlength="3" readonly tabindex="-1"
-          style="position:absolute;inset:0;width:100%;height:100%;opacity:0;background:transparent;border:none;outline:none;font-size:48px;text-align:center;letter-spacing:12px;caret-color:var(--gold);z-index:2;">
+    <!-- จอแสดงผล -->
+    <div class="screen" id="screen" onclick="CK.screenTap(event)" style="margin:0 12px;cursor:default;">
+      <div class="s1">
+        <span class="s-lek" id="s-lek">—</span>
+        <span class="s-eq" id="s-eq" style="opacity:0;">=</span>
+        <span class="s-price" id="s-price"></span>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
-        <div class="lek-hint" id="lek-hint" style="flex:1;margin-top:0;">แตะเพื่อพิมพ์เลข</div>
-        <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()" style="display:block;margin:0;padding:5px 10px;font-size:12px;">📌 ปักหลัก</button>
+      <div class="s2" id="s2"></div>
+    </div>
+    <!-- ปุ่มปักหลัก -->
+    <div style="display:flex;justify-content:flex-end;padding:4px 12px 0;">
+      <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()" style="display:block;margin:0;padding:5px 10px;font-size:12px;">📌 ปักหลัก</button>
+    </div>
+    <!-- keyboard -->
+    <div class="ck-wrap" id="ck-wrap" style="padding:8px 12px 12px;">
+      <div class="trow">
+        <div class="tcol">
+          <div class="ttype" id="t-bon" onclick="CK.toggleType('bon')">บน</div>
+          <div class="ksub" id="ks-bon" onclick="CK.toggleKlb('bon')">กลับ</div>
+        </div>
+        <div class="tcol">
+          <div class="ttype" id="t-tod" onclick="CK.toggleType('tod')">โต๊ด</div>
+          <div class="klb-ph"></div>
+        </div>
+        <div class="tcol">
+          <div class="ttype" id="t-lang" onclick="CK.toggleType('lang')">ล่าง</div>
+          <div class="ksub" id="ks-lang" onclick="CK.toggleKlb('lang')">กลับ</div>
+        </div>
+        <div class="tcol">
+          <div class="ttype" id="t-na" onclick="CK.toggleType('na')">หน้า</div>
+          <div class="ksub" id="ks-na" onclick="CK.toggleKlb('na')">กลับ</div>
+        </div>
+      </div>
+      <div class="kb">
+        <div class="k kn" onclick="CK.num('1')">1</div>
+        <div class="k kn" onclick="CK.num('2')">2</div>
+        <div class="k kn" onclick="CK.num('3')">3</div>
+        <div class="k kdel" onclick="CK.del()">⌫</div>
+        <div class="k kn" onclick="CK.num('4')">4</div>
+        <div class="k kn" onclick="CK.num('5')">5</div>
+        <div class="k kn" onclick="CK.num('6')">6</div>
+        <div class="k ksep" onclick="CK.sep()">/</div>
+        <div class="k kn" onclick="CK.num('7')">7</div>
+        <div class="k kn" onclick="CK.num('8')">8</div>
+        <div class="k kn" onclick="CK.num('9')">9</div>
+        <div class="k kx" onclick="CK.x()">×</div>
+        <div class="k kblank"></div>
+        <div class="k kn" onclick="CK.num('0')">0</div>
+        <div class="k keq" onclick="CK.eq()">=</div>
       </div>
     </div>
-        <div class="ck-wrap" id="ck-wrap" style="padding:8px 12px 12px;">
-    <div class="trow">
-      <div class="tcol">
-        <div class="ttype" id="t-bon" onclick="CK.toggleType('bon')">บน</div>
-        <div class="ksub" id="ks-bon" onclick="CK.toggleKlb('bon')">กลับ</div>
-      </div>
-      <div class="tcol">
-        <div class="ttype" id="t-tod" onclick="CK.toggleType('tod')">โต๊ด</div>
-        <div class="klb-ph"></div>
-      </div>
-      <div class="tcol">
-        <div class="ttype" id="t-lang" onclick="CK.toggleType('lang')">ล่าง</div>
-        <div class="ksub" id="ks-lang" onclick="CK.toggleKlb('lang')">กลับ</div>
-      </div>
-      <div class="tcol">
-        <div class="ttype" id="t-na" onclick="CK.toggleType('na')">หน้า</div>
-        <div class="ksub" id="ks-na" onclick="CK.toggleKlb('na')">กลับ</div>
-      </div>
-    </div>
-    
-    <div class="kb">
-      <div class="k kn" onclick="CK.num('1')">1</div>
-      <div class="k kn" onclick="CK.num('2')">2</div>
-      <div class="k kn" onclick="CK.num('3')">3</div>
-      <div class="k kdel" onclick="CK.del()">⌫</div>
-      <div class="k kn" onclick="CK.num('4')">4</div>
-      <div class="k kn" onclick="CK.num('5')">5</div>
-      <div class="k kn" onclick="CK.num('6')">6</div>
-      <div class="k ksep" onclick="CK.sep()">/</div>
-      <div class="k kn" onclick="CK.num('7')">7</div>
-      <div class="k kn" onclick="CK.num('8')">8</div>
-      <div class="k kn" onclick="CK.num('9')">9</div>
-      <div class="k kx" onclick="CK.x()">×</div>
-      <div class="k kblank"></div>
-      <div class="k kn" onclick="CK.num('0')">0</div>
-      <div class="k keq" onclick="CK.eq()">=</div>
-    </div>
-    </div>
-    </div>
-  </div>
-  <div style="display:flex;gap:8px;margin:6px 12px 0;">
-    <button class="add-btn" id="add-btn" style="margin:0;flex:1;font-size:20px;">✓ OK</button>
-  </div>
   <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — ดูโพยได้ในแฟ้ม</div>
 </div>
 
