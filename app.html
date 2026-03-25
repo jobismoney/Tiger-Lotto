@@ -2198,18 +2198,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       });
     });
 
-    // ── scroll ขึ้นไปดูรายการใหม่ที่เพิ่งเพิ่ม ──
-    setTimeout(function(){
-      var ls=document.getElementById('list-scroll');
-      if(ls) ls.scrollTop=0;
-      var lw=document.getElementById('list-wrap');
-      if(lw){
-        var hdr=document.querySelector('.hdr');
-        var hdrH=hdr?hdr.offsetHeight+8:70;
-        var y=lw.getBoundingClientRect().top+window.scrollY-hdrH;
-        window.scrollTo({top:y,behavior:'smooth'});
-      }
-    },80);
+    // scroll ขึ้นไปดูรายการหลังเพิ่มเสร็จ
+    scrollToList();
   }
 
   // ─── ADD ENTRY ───
