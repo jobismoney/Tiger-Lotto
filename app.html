@@ -2087,8 +2087,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var leks2=ckLekList.slice();
       var price2=ckPriceArr.slice();
       var klb2=JSON.parse(JSON.stringify(ckKlbSel));
+      doReset(); // reset ก่อน แล้วค่อย commit
       ckCommitToApp(leks2, price2, klb2);
-      doReset();
     }
 
     function doReset(){
@@ -2134,6 +2134,28 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
 
   // ─── CK → APP bridge ───
+  function addEntryDirect(lek2, priceMap){
+    // เพิ่ม entry โดยตรง ไม่ผ่าน global state ไม่มี popup
+    if(!ngodOpen) return;
+    if(isLocked) return;
+    if(!lek2) return;
+    var d=lek2.length;
+    var al=RULES[d]||[];
+    var mp={}, hasAny=false;
+    al.forEach(function(k){
+      var v=parseInt(priceMap[k])||0;
+      mp[k]=v>0?v:null;
+      if(v>0) hasAny=true;
+    });
+    if(!hasAny) return;
+    eid++;
+    entries.unshift({id:eid,lek:lek2,d:d,
+      bon:mp.bon||null,tod:mp.tod||null,
+      lang:mp.lang||null,na:mp.na||null,kd:{}});
+    renderList(); updateTotal(); save();
+    document.getElementById('list-scroll').scrollTop=0;
+  }
+
   function ckCommitToApp(lekList2, priceArr2, klbSel2){
     var KLB_TYPES2=['bon','lang','na'];
     var TO2=['bon','tod','lang','na'];
@@ -2158,10 +2180,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
       // solo entry ต่อประเภท
       Object.keys(soloTypes).forEach(function(t){
-        curLek=l;
-        FS=makeFS();
-        FS[t].price=String(soloTypes[t].val);
-        addEntry();
+        var pm={};pm[t]=soloTypes[t].val;
+        addEntryDirect(l, pm);
       });
 
       // spread — กระจาย permutations
@@ -2179,12 +2199,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       allPerms=allPerms.concat(Object.keys(extraSet));
 
       allPerms.forEach(function(perm){
-        curLek=perm;
-        FS=makeFS();
-        Object.keys(spreadTypes).forEach(function(t){
-          FS[t].price=String(spreadTypes[t].val);
-        });
-        addEntry();
+        var pm={};
+        Object.keys(spreadTypes).forEach(function(t){pm[t]=spreadTypes[t].val;});
+        addEntryDirect(perm, pm);
       });
     });
   }
