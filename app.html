@@ -730,7 +730,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         <div class="k keq" onclick="CK.eq()">=</div>
       </div>
     </div>
-    <button class="add-btn" id="add-btn" onclick="CK.eq()">✓ OK</button>
+    <button class="add-btn" id="add-btn">✓ OK</button>
     <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — ดูโพยได้ในแฟ้ม</div>
 </div>
 
@@ -2185,7 +2185,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         typeConfigs[seg.type]={val:seg.val,mode:mode};
       }
     });
-    if(!Object.keys(typeConfigs).length) return;
+    if(!Object.keys(typeConfigs).length){toast('⚠️ กรุณาใส่ราคาก่อนกด OK ครับ');return;}
 
     lekList2.forEach(function(l){
       // solo types — โต๊ด หรือไม่กด กลับ/ชุด → entry เดี่ยวต่อประเภท
