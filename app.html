@@ -122,15 +122,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .s2{display:flex;align-items:center;min-height:18px;margin-top:2px;}
 .seg-tap{cursor:pointer;padding:0 2px;border-radius:4px;}
 /* ─── CUSTOM KEYBOARD ─── */
-
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Sarabun',sans-serif;background:#0b0e1a;color:#f0f2ff;display:flex;flex-direction:column;align-items:center;padding:10px;min-height:100vh;}
-.wrap{width:100%;max-width:380px;display:flex;flex-direction:column;gap:6px;}
-.elist{display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto;}
-.erow{background:#0f1220;border:1px solid #1a2040;border-radius:8px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;}
-.elek{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#f5c518;letter-spacing:2px;}
-.edet{font-size:11px;color:#8899bb;margin-top:1px;}
-.erm{background:none;border:none;color:#334;cursor:pointer;font-size:14px;}
 .screen{background:#0a0e1a;border:1px solid #1a2040;border-radius:12px;padding:10px 14px;min-height:68px;}
 .s1{display:flex;align-items:baseline;gap:6px;min-height:40px;}
 .s-lek{font-family:'Bebas Neue',sans-serif;font-size:36px;color:#f5c518;letter-spacing:2px;word-break:break-all;line-height:1.1;flex-wrap:wrap;}
@@ -981,11 +972,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function showMain(){
     document.getElementById('welcome-screen').style.display='none';
     document.getElementById('main-wrap').classList.add('show');
+    console.log('[showMain] called');
     updateHdr();
     renderList();
     updateTotal();
     updateLockUI();
-    if(!isLocked) scrollToInput();
+    // ไม่ต้อง scroll เพราะ keyboard ใหม่อยู่ตลอด
+    // if(!isLocked) scrollToInput();
     updateBasketBadge();
   }
 
