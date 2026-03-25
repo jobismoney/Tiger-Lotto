@@ -712,6 +712,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         <div class="k keq" onclick="CK.eq()">=</div>
       </div>
     </div>
+  <div style="display:flex;gap:8px;margin:6px 12px 0;">
+    <button class="add-btn" id="add-btn" style="margin:0;flex:1;font-size:20px;" onclick="CK.eq()">✓ OK</button>
+  </div>
   <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — ดูโพยได้ในแฟ้ม</div>
 </div>
 
@@ -2128,6 +2131,63 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     };
   })();
 
+
+
+  // ─── CK → APP bridge ───
+  function ckCommitToApp(lekList2, priceArr2, klbSel2){
+    var KLB_TYPES2=['bon','lang','na'];
+    var TO2=['bon','tod','lang','na'];
+
+    var typeConfigs={};
+    priceArr2.forEach(function(seg){
+      if(seg.val>0){
+        var mode=KLB_TYPES2.indexOf(seg.type)>=0?(klbSel2[seg.type]||''):'';
+        typeConfigs[seg.type]={val:seg.val,mode:mode};
+      }
+    });
+    if(!Object.keys(typeConfigs).length) return;
+
+    lekList2.forEach(function(l){
+      // solo types — โต๊ด หรือไม่กด กลับ/ชุด → entry เดี่ยวต่อประเภท
+      var soloTypes={}, spreadTypes={};
+      Object.keys(typeConfigs).forEach(function(t){
+        var cfg=typeConfigs[t];
+        if(t==='tod'||!cfg.mode) soloTypes[t]=cfg;
+        else spreadTypes[t]=cfg;
+      });
+
+      // solo entry ต่อประเภท
+      Object.keys(soloTypes).forEach(function(t){
+        curLek=l;
+        FS=makeFS();
+        FS[t].price=String(soloTypes[t].val);
+        addEntry();
+      });
+
+      // spread — กระจาย permutations
+      if(!Object.keys(spreadTypes).length) return;
+      var allPerms=[l];
+      var extraSet={};
+      Object.keys(spreadTypes).forEach(function(t){
+        var mode=spreadTypes[t].mode;
+        if(mode==='klb'&&l.length===2) extraSet[l[1]+l[0]]=1;
+        else if(mode==='chu'&&l.length>=3){
+          var r={};(function p(s,c){if(!s.length){r[c]=1;return;}for(var i=0;i<s.length;i++)p(s.slice(0,i)+s.slice(i+1),c+s[i]);})(l,'');
+          Object.keys(r).forEach(function(k){if(k!==l)extraSet[k]=1;});
+        }
+      });
+      allPerms=allPerms.concat(Object.keys(extraSet));
+
+      allPerms.forEach(function(perm){
+        curLek=perm;
+        FS=makeFS();
+        Object.keys(spreadTypes).forEach(function(t){
+          FS[t].price=String(spreadTypes[t].val);
+        });
+        addEntry();
+      });
+    });
+  }
 
   // ─── ADD ENTRY ───
   var _addBtnHl=false;
