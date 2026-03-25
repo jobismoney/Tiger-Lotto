@@ -3473,41 +3473,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       showWelcome();
     }
 
-    // Lek input
-    // scroll ลงมา input panel เมื่อแตะช่องกรอกเลข
-    document.getElementById('lek-display').addEventListener('click',function(){
-      scrollToInput();
-    });
-    document.getElementById('lek-inp').addEventListener('focus',function(){
-      scrollToInput();
-    });
-    document.getElementById('lek-inp').addEventListener('input',function(){
-      var v=this.value.replace(/\D/g,'').slice(0,5);this.value=v;setLek(v);
-      clearAddBtnHl();
-    });
-    document.getElementById('lek-inp').addEventListener('keydown',function(e){
-      if(e.key!=='Enter'&&e.keyCode!==13)return;
-      e.preventDefault();
-      e.stopPropagation();
-      if(!curLek)return;
-      var order=['bon','tod','lang','na'];
-      for(var i=0;i<order.length;i++){
-        var f=document.getElementById('fi-'+order[i]);
-        if(f&&!f.disabled){
-          f.removeAttribute('tabindex');
-          f.focus();f.select();
-          f.setAttribute('tabindex','-1');
-          return;
-        }
-      }
-      // ทุกช่อง disabled → focus OK
-      var ab=document.getElementById('add-btn');
-      ab.focus();
-      ab.scrollIntoView({behavior:'smooth',block:'center'});
-    });
+    // Lek input — ใช้ CK keyboard แทนแล้ว
 
     // Buttons
-    document.getElementById('add-btn').addEventListener('click',addEntry);
+    var addBtnEl=document.getElementById('add-btn');
+    if(addBtnEl) addBtnEl.addEventListener('click',function(){if(window.CK)CK.eq();});
     document.getElementById('add-btn').addEventListener('keydown',function(e){
       if(e.key==='Enter'||e.keyCode===13){e.preventDefault();addEntry();}
     });
@@ -3649,7 +3619,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById('cf-yes').addEventListener('click',function(){document.getElementById('cf-ov').classList.remove('show');if(_cfCb)_cfCb();_cfCb=null;});
 
     // Quick Add
-    document.getElementById('qa-open-btn').addEventListener('click',openQA);
+    var qaBtn=document.getElementById('qa-open-btn');
+    if(qaBtn) qaBtn.addEventListener('click',openQA);
     document.getElementById('qa-close').addEventListener('click',closeQA);
     document.getElementById('qa-add-lek-btn').addEventListener('click',qaAddLek);
     document.getElementById('qa-inp').addEventListener('keydown',function(e){
