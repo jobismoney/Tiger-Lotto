@@ -30,7 +30,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{--bg:#0f1117;--card:#1a1d27;--card2:#222533;--border:#2e3248;--gold:#f5c518;--gold2:#c9a010;--red:#e74c3c;--white:#f0f2ff;--gray:#6b7280;--lg:#9ca3af;--purple:#a78bfa;--green:#27ae60;}
-body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:60px;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;max-width:480px;margin:0 auto;}
 
 
 /* ─── WELCOME SCREEN ─── */
@@ -92,7 +92,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .tot-bar .val{font-size:22px;font-weight:900;color:var(--gold);}
 
 /* ─── INPUT PANEL ─── */
-.ipanel{margin:10px 12px 0;background:var(--card);border-radius:14px;border:1px solid var(--border);}
+.ipanel{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:2px solid var(--border);z-index:40;}
 .ipanel.locked{opacity:.4;pointer-events:none;}
 .psec{padding:10px 14px;border-bottom:1px solid var(--border);}
 .psec:last-child{border-bottom:none;}
@@ -209,7 +209,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .pqb:active{background:var(--purple);color:#fff;}
 
 /* ─── BUTTONS ─── */
-.add-btn{width:calc(100% - 24px);margin:10px 12px 0;background:linear-gradient(135deg,#27ae60,#1a7a3e);border:none;border-radius:14px;color:#fff;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:14px;cursor:pointer;display:block;outline:none;transition:box-shadow .15s;}
+.add-btn{width:100%;margin:0;background:linear-gradient(135deg,#27ae60,#1a7a3e);border:none;border-radius:0;color:#fff;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:14px;cursor:pointer;display:block;outline:none;}
 .add-btn:focus{outline:none;}
 .add-btn.ready{box-shadow:0 0 0 3px rgba(245,197,24,.9),0 0 0 6px rgba(245,197,24,.3);animation:pulse-gold 1s ease-in-out infinite;}
 @keyframes pulse-gold{0%,100%{box-shadow:0 0 0 3px rgba(245,197,24,.9),0 0 0 6px rgba(245,197,24,.3);}50%{box-shadow:0 0 0 4px rgba(245,197,24,1),0 0 0 10px rgba(245,197,24,.5);}}
@@ -483,8 +483,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 /* ─── PRINT ─── */
 @page{margin:6mm;size:A4;margin-top:4mm;}
 @media print{
-  body{background:#fff!important;max-width:none;}
-  .hdr,.main-wrap .list-wrap,.main-wrap .ipanel,.add-btn,.print-btn-main,.locked-notice,
+  body{background:#fff!important;max-width:none;padding-bottom:0!important;}
+  .ipanel{position:static!important;transform:none!important;}
+  .hdr,.main-wrap .list-zone,.main-wrap .ipanel,.add-btn,.print-btn-main,.locked-notice,
   #_toast,.ov-back,.ov-print,.ov-basket,.ov-print-merged,.ov-del-set,.close-ngod-main-btn,.hist-ov,.check-ov,.cf-ov,.welcome-screen{display:none!important;}
   .slip-ov{display:block!important;position:static!important;background:transparent!important;overflow:visible!important;}
   .slip-ov-inner{padding:0!important;max-width:none!important;}
@@ -599,6 +600,30 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 .pak-btn-cancel{flex:1;background:#222533;border:1px solid #2e3248;border-radius:12px;padding:12px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;color:#667;}
 .pak-btn-add{flex:2;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;padding:12px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;color:#111;}
 .pak-btn-mobile{width:100%;margin-top:8px;background:rgba(251,146,60,.12);border:1.5px solid rgba(251,146,60,.4);border-radius:10px;color:#fb923c;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;display:none;letter-spacing:0.5px;}
+
+/* ─── LIST ZONE ใหม่ ─── */
+.list-zone{overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--card);border-radius:14px;margin:8px 12px 0;border:1px solid var(--border);}
+.lz-hd{display:grid;grid-template-columns:90px 1fr 1fr 1fr 1fr 28px;gap:2px;padding:6px 8px;background:var(--card2);border-bottom:1px solid var(--border);border-radius:14px 14px 0 0;}
+.lz-hd span{font-size:13px;font-weight:700;color:var(--lg);text-align:center;}
+.lz-hd span:first-child{text-align:left;}
+.lz-body{overflow-y:visible;}
+.lz-empty{padding:20px;text-align:center;color:var(--gray);font-size:15px;}
+.lz-row{display:grid;grid-template-columns:90px 1fr 1fr 1fr 1fr 28px;gap:2px;padding:7px 8px;border-bottom:1px solid var(--border);align-items:center;}
+.lz-row:last-child{border-bottom:none;}
+.lz-row.sub{background:rgba(167,139,250,.06);}
+.lz-row.locked{opacity:.6;}
+.lz-lek{font-size:19px;font-weight:900;color:var(--gold);}
+.lz-lek.sub{font-size:14px;color:var(--purple);padding-left:4px;}
+.lz-cel{text-align:center;font-size:14px;font-weight:700;color:var(--white);}
+.lz-cel.e{color:#2a2d42;font-size:11px;}
+.lz-cel.vp{color:var(--purple);}
+.lz-rm{background:none;border:none;color:var(--red);font-size:15px;cursor:pointer;}
+.lz-rm:disabled{opacity:.2;cursor:default;}
+.lz-tot{padding:8px 12px 10px;display:flex;flex-direction:column;gap:6px;background:var(--card2);border-top:1px solid var(--border);border-radius:0 0 14px 14px;}
+.lz-tot-row{display:flex;justify-content:space-between;align-items:center;}
+.lz-tot .lbl{font-size:14px;color:var(--lg);font-weight:600;}
+.lz-tot .val{font-size:22px;font-weight:900;color:var(--gold);}
+.lz-basket{width:100%;background:linear-gradient(135deg,#e67e22,#d35400);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:900;padding:12px;cursor:pointer;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -636,9 +661,30 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
 
 
+
+  <!-- LIST ZONE ใหม่ -->
+  <div class="list-zone" id="list-zone">
+    <div class="lz-hd">
+      <span>เลข</span>
+      <span style="color:#60a5fa">บน</span>
+      <span style="color:#f472b6">โต๊ด</span>
+      <span style="color:#34d399">ล่าง</span>
+      <span style="color:#fb923c">หน้า</span>
+      <span></span>
+    </div>
+    <div class="lz-body" id="list-scroll"><div class="lz-empty">ยังไม่มีรายการ</div></div>
+    <div class="lz-tot">
+      <div class="lz-tot-row">
+        <div class="lbl">ยอดรวมทั้งหมด</div>
+        <div class="val" id="total-val">฿0</div>
+      </div>
+      <button class="lz-basket" id="basket-btn">📂 เก็บเข้าแฟ้ม</button>
+    </div>
+  </div>
+
   <div class="ipanel" id="ipanel">
     <!-- จอแสดงผล -->
-    <div class="screen" id="screen" onclick="CK.screenTap(event)" style="margin:0 12px;cursor:default;">
+    <div class="screen" id="screen" onclick="CK.screenTap(event)" style="margin:8px 12px 0;cursor:default;">
       <div class="s1">
         <span class="s-lek" id="s-lek">—</span>
         <span class="s-eq" id="s-eq" style="opacity:0;">=</span>
@@ -646,12 +692,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       </div>
       <div class="s2" id="s2"></div>
     </div>
-    <!-- ปุ่มปักหลัก -->
-    <div style="display:flex;justify-content:flex-end;padding:4px 12px 0;">
-      <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()" style="display:block;margin:0;padding:5px 10px;font-size:12px;">📌 ปักหลัก</button>
-    </div>
-    <!-- keyboard -->
-    <div class="ck-wrap" id="ck-wrap" style="padding:8px 12px 12px;">
+    <div class="ck-wrap" id="ck-wrap" style="padding:6px 12px 4px;">
+      <div id="pak-open-row" style="display:none;margin:0 0 4px;"><button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()" style="display:block;width:100%;margin:0;padding:7px;font-size:13px;">📌 ปักหลัก</button></div>
       <div class="trow">
         <div class="tcol">
           <div class="ttype" id="t-bon" onclick="CK.toggleType('bon')">บน</div>
@@ -688,11 +730,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         <div class="k keq" onclick="CK.eq()">=</div>
       </div>
     </div>
-  <div style="display:flex;gap:8px;margin:6px 12px 0;">
-    <button class="add-btn" id="add-btn" style="margin:0;flex:1;font-size:20px;" onclick="CK.eq()">✓ OK</button>
-  </div>
-  <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — ดูโพยได้ในแฟ้ม</div>
+    <button class="add-btn" id="add-btn" onclick="CK.eq()">✓ OK</button>
+    <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — ดูโพยได้ในแฟ้ม</div>
 </div>
+
 
 <!-- SLIP OVERLAY -->
 <div class="slip-ov" id="slip-ov">
@@ -957,14 +998,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function showMain(){
     document.getElementById('welcome-screen').style.display='none';
     document.getElementById('main-wrap').classList.add('show');
-    console.log('[showMain] called');
-    updateHdr();
-    renderList();
-    updateTotal();
-    updateLockUI();
-    // ไม่ต้อง scroll เพราะ keyboard ใหม่อยู่ตลอด
-    // if(!isLocked) scrollToInput();
-    updateBasketBadge();
+    updateHdr();renderList();updateTotal();updateLockUI();updateBasketBadge();
+    if(window.CK) CK.render();
+    function setPad(){
+      var ip=document.getElementById('ipanel');
+      if(ip) document.body.style.paddingBottom=ip.offsetHeight+'px';
+    }
+    setPad(); setTimeout(setPad,300);
   }
 
   function updateHdr(){
@@ -2269,7 +2309,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     },0);
   }
 
-  function cellV(v){return v!==null?'<div class="cel">฿'+v+'</div>':'<div class="cel e">-</div>';}
+  function cellV(v){return v!==null?'<div class="lz-cel">฿'+v+'</div>':'<div class="lz-cel e">-</div>';}
 
   // ─── RENDER LIST ───
   function renderList(){
@@ -2286,7 +2326,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           var isBon=p.type==='3bon';
           var priceVal='<div class="cel" style="color:#fb923c;font-weight:800;">฿'+p.price+'</div>';
           var dash='<div class="cel e">-</div>';
-          h+='<div class="bet-row'+(isLocked?' locked':'')+'">'
+          h+='<div class="lz-row'+(isLocked?' locked':'')+'">' 
             +'<div class="lek-cell" style="color:#fb923c;font-size:15px;">'+e.lek+'<span style="font-size:11px;color:#fb923c;"> '+({na:'หน้า 📍__',mid:'กลาง _📍_',lang:'หลัง __📍'}[p.pos]||p.pos)+'</span></div>'
             +(isBon?priceVal:dash)
             +dash
@@ -2296,7 +2336,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         });
         return;
       }
-      h+='<div class="bet-row'+(isLocked?' locked':'')+'"><div class="lek-cell">'+e.lek+'</div>'
+      h+='<div class="lz-row'+(isLocked?' locked':'')+'"><div class="lz-lek">'+e.lek+'</div>'
         +cellV(e.bon)+cellV(e.tod)+cellV(e.lang)+cellV(e.na)
         +'<button class="rm-btn" onclick="removeEntry('+e.id+')"'+rmDisabled+'>✕</button></div>';
       var klbRows=[];
@@ -2305,11 +2345,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       klbRows.forEach(function(r){if(!permMap[r.perm])permMap[r.perm]={bon:null,lang:null,na:null};permMap[r.perm][r.k]=r.price;});
       Object.keys(permMap).sort().forEach(function(perm){
         var pm=permMap[perm];
-        h+='<div class="bet-row sub"><div class="lek-cell sub">'+perm+'</div>'
-          +(pm.bon!==null?'<div class="cel vp">฿'+pm.bon+'</div>':'<div class="cel e">-</div>')
+        h+='<div class="lz-row sub"><div class="lz-lek sub">'+perm+'</div>'
+          +(pm.bon!==null?'<div class="lz-cel vp">฿'+pm.bon+'</div>':'<div class="cel e">-</div>')
           +'<div class="cel e">-</div>'
-          +(pm.lang!==null?'<div class="cel vp">฿'+pm.lang+'</div>':'<div class="cel e">-</div>')
-          +(pm.na!==null?'<div class="cel vp">฿'+pm.na+'</div>':'<div class="cel e">-</div>')
+          +(pm.lang!==null?'<div class="lz-cel vp">฿'+pm.lang+'</div>':'<div class="cel e">-</div>')
+          +(pm.na!==null?'<div class="lz-cel vp">฿'+pm.na+'</div>':'<div class="cel e">-</div>')
           +'<div></div></div>';
       });
     });
@@ -2352,8 +2392,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(v){sh.className='lv';sh.textContent=v.split('').join(' ');if(ring)ring.style.display='none';disp.classList.add('has-lek');if(cur)cur.classList.add('hide');}
     else{sh.className='lp';sh.textContent='';if(ring)ring.style.display='';disp.classList.remove('has-lek');if(cur)cur.classList.remove('hide');}
     document.getElementById('lek-hint').textContent=v.length?'เลข '+v.length+' หลัก':'แตะเพื่อพิมพ์เลข';
-    var pakBtn=document.getElementById('pak-open-btn');
-    if(pakBtn) pakBtn.style.display=v.length===1?'block':'none';
+    var pakRow=document.getElementById('pak-open-row');
+    if(pakRow) pakRow.style.display=v.length===1?'block':'none';
     renderChips(v.length);renderPGrid(RULES[v.length]||[]);
     checkReady();
   }
