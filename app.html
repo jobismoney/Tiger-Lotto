@@ -30,8 +30,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{--bg:#0f1117;--card:#1a1d27;--card2:#222533;--border:#2e3248;--gold:#f5c518;--gold2:#c9a010;--red:#e74c3c;--white:#f0f2ff;--gray:#6b7280;--lg:#9ca3af;--purple:#a78bfa;--green:#27ae60;}
-html{height:100%;}
-body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);height:100%;max-width:480px;margin:0 auto;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:60px;}
 
 
 /* ─── WELCOME SCREEN ─── */
@@ -56,7 +55,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);he
 .modal-ok{flex:2;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#111;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;padding:12px;cursor:pointer;}
 
 /* ─── HEADER ─── */
-.hdr{background:linear-gradient(135deg,#1a1d27,#12151f);border-bottom:2px solid var(--gold);padding:11px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:50;}
+.hdr{background:linear-gradient(135deg,#1a1d27,#12151f);border-bottom:2px solid var(--gold);padding:11px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
 .hdr-left h1{font-size:20px;font-weight:900;color:var(--gold);}
 .hdr-left p{font-size:12px;color:var(--gray);margin-top:1px;}
 .hdr-btns{display:flex;gap:6px;}
@@ -67,16 +66,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);he
 
 /* ─── MAIN CONTENT ─── */
 .main-wrap{display:none;}
-.main-wrap.show{display:flex;flex-direction:column;height:100dvh;height:100vh;overflow:hidden;}
-@media print{.main-wrap.show{display:block!important;height:auto!important;overflow:visible!important;}}
+.main-wrap.show{display:block;}
 
-/* ─── LIST ZONE ─── */
-.list-zone{flex:1;overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch;}
-.list-wrap{margin:8px 12px;background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden;}
+/* ─── LIST ─── */
+.list-wrap{margin:10px 12px 0;background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden;}
 .tbl-hd{display:grid;grid-template-columns:90px 1fr 1fr 1fr 1fr 28px;gap:2px;padding:6px 8px;background:var(--card2);border-bottom:1px solid var(--border);}
 .tbl-hd span{font-size:13px;font-weight:700;color:var(--lg);text-align:center;}
 .tbl-hd span:first-child{text-align:left;}
-.list-scroll{overflow-y:visible;}
+.list-scroll{max-height:220px;overflow-y:auto;}
 .bet-row{display:grid;grid-template-columns:90px 1fr 1fr 1fr 1fr 28px;gap:2px;padding:7px 8px;border-bottom:1px solid var(--border);align-items:center;}
 .bet-row:last-child{border-bottom:none;}
 .bet-row.sub{background:rgba(167,139,250,.06);}
@@ -90,13 +87,12 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);he
 .rm-btn:disabled{opacity:.2;cursor:default;}
 .empty-row{padding:20px;text-align:center;color:var(--gray);font-size:15px;}
 .page-break-row{display:grid;grid-template-columns:1fr;text-align:center;font-size:12px;font-weight:800;color:#f59e0b;background:rgba(245,197,24,.08);border-top:1.5px dashed #f5c518;border-bottom:1.5px dashed #f5c518;padding:5px 8px;letter-spacing:.3px;}
-.tot-bar{padding:8px 12px 10px;display:flex;flex-direction:column;gap:6px;background:var(--card2);border-top:1px solid var(--border);}
-.tot-bar-top{display:flex;justify-content:space-between;align-items:center;}
+.tot-bar{padding:8px 14px;display:flex;justify-content:space-between;align-items:center;background:var(--card2);border-top:1px solid var(--border);}
 .tot-bar .lbl{font-size:14px;color:var(--lg);font-weight:600;}
 .tot-bar .val{font-size:22px;font-weight:900;color:var(--gold);}
 
 /* ─── INPUT PANEL ─── */
-.ipanel{flex-shrink:0;background:var(--card);border-top:2px solid var(--border);border-radius:14px 14px 0 0;}
+.ipanel{margin:10px 12px 0;background:var(--card);border-radius:14px;border:1px solid var(--border);}
 .ipanel.locked{opacity:.4;pointer-events:none;}
 .psec{padding:10px 14px;border-bottom:1px solid var(--border);}
 .psec:last-child{border-bottom:none;}
@@ -213,14 +209,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);he
 .pqb:active{background:var(--purple);color:#fff;}
 
 /* ─── BUTTONS ─── */
-.add-btn{width:100%;background:linear-gradient(135deg,#27ae60,#1a7a3e);border:none;border-radius:0 0 12px 12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:14px;cursor:pointer;display:block;outline:none;transition:box-shadow .15s;}
+.add-btn{width:calc(100% - 24px);margin:10px 12px 0;background:linear-gradient(135deg,#27ae60,#1a7a3e);border:none;border-radius:14px;color:#fff;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:14px;cursor:pointer;display:block;outline:none;transition:box-shadow .15s;}
 .add-btn:focus{outline:none;}
 .add-btn.ready{box-shadow:0 0 0 3px rgba(245,197,24,.9),0 0 0 6px rgba(245,197,24,.3);animation:pulse-gold 1s ease-in-out infinite;}
 @keyframes pulse-gold{0%,100%{box-shadow:0 0 0 3px rgba(245,197,24,.9),0 0 0 6px rgba(245,197,24,.3);}50%{box-shadow:0 0 0 4px rgba(245,197,24,1),0 0 0 10px rgba(245,197,24,.5);}}
 .print-btn-main{width:calc(100% - 24px);margin:8px 12px 0;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:14px;color:#fff;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:14px;cursor:pointer;display:block;}
 .view-btn-main{width:calc(100% - 24px);margin:8px 12px 0;background:var(--card2);border:1.5px solid var(--border);border-radius:14px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:17px;font-weight:800;padding:11px;cursor:pointer;display:block;}
 .close-ngod-main-btn{width:calc(100% - 24px);margin:8px 12px 0;background:transparent;border:1.5px solid #7f1d1d;border-radius:14px;color:#fca5a5;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;padding:11px;cursor:pointer;display:block;}
-.basket-btn{width:100%;background:linear-gradient(135deg,#e67e22,#d35400);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:900;padding:12px;cursor:pointer;display:block;}
+.basket-btn{width:calc(100% - 24px);margin:8px 12px 0;background:linear-gradient(135deg,#e67e22,#d35400);border:none;border-radius:14px;color:#fff;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:14px;cursor:pointer;display:block;}
 .check-btn-main{width:calc(100% - 24px);margin:8px 12px 0;background:linear-gradient(135deg,#1e3a8a,#1d4ed8);border:none;border-radius:14px;color:#fff;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:14px;cursor:pointer;display:block;}
 .locked-notice{margin:8px 12px 0;background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.3);border-radius:12px;padding:12px 16px;font-size:14px;color:#f5c518;font-weight:700;text-align:center;}
 
@@ -487,9 +483,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 /* ─── PRINT ─── */
 @page{margin:6mm;size:A4;margin-top:4mm;}
 @media print{
-  html,body{height:auto!important;overflow:visible!important;}
   body{background:#fff!important;max-width:none;}
-  .hdr,.main-wrap .list-zone,.main-wrap .ipanel,.add-btn,.print-btn-main,.locked-notice,
+  .hdr,.main-wrap .list-wrap,.main-wrap .ipanel,.add-btn,.print-btn-main,.locked-notice,
   #_toast,.ov-back,.ov-print,.ov-basket,.ov-print-merged,.ov-del-set,.close-ngod-main-btn,.hist-ov,.check-ov,.cf-ov,.welcome-screen{display:none!important;}
   .slip-ov{display:block!important;position:static!important;background:transparent!important;overflow:visible!important;}
   .slip-ov-inner{padding:0!important;max-width:none!important;}
@@ -639,32 +634,26 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
   </div>
 
-  <!-- ZONE รายการ: scroll ใน zone นี้เลย ไม่ต้อง scroll page -->
-  <div class="list-zone" id="list-zone">
-    <div class="list-wrap" id="list-wrap">
-      <div class="tbl-hd">
-        <span>เลข</span>
-        <span style="color:#60a5fa">บน</span>
-        <span style="color:#f472b6">โต๊ด</span>
-        <span style="color:#34d399">ล่าง</span>
-        <span style="color:#fb923c">หน้า</span>
-        <span></span>
-      </div>
-      <div class="list-scroll" id="list-scroll"><div class="empty-row">ยังไม่มีรายการ</div></div>
-      <div class="tot-bar">
-        <div class="tot-bar-top">
-          <div class="lbl">ยอดรวมทั้งหมด</div>
-          <div class="val" id="total-val">฿0</div>
-        </div>
-        <button class="basket-btn" id="basket-btn">📂 เก็บเข้าแฟ้ม</button>
-      </div>
+  <div class="list-wrap" id="list-wrap">
+    <div class="tbl-hd">
+      <span>เลข</span>
+      <span style="color:#60a5fa">บน</span>
+      <span style="color:#f472b6">โต๊ด</span>
+      <span style="color:#34d399">ล่าง</span>
+      <span style="color:#fb923c">หน้า</span>
+      <span></span>
+    </div>
+    <div class="list-scroll" id="list-scroll"><div class="empty-row">ยังไม่มีรายการ</div></div>
+    <div class="tot-bar">
+      <div class="lbl">ยอดรวมทั้งหมด</div>
+      <div class="val" id="total-val">฿0</div>
+    <button class="basket-btn" id="basket-btn" style="width:calc(100% - 16px);margin:6px 8px 0;">📂 เก็บเข้าแฟ้ม</button>
     </div>
   </div>
 
-  <!-- ZONE keyboard: ติดล่างตลอด -->
   <div class="ipanel" id="ipanel">
     <!-- จอแสดงผล -->
-    <div class="screen" id="screen" onclick="CK.screenTap(event)" style="margin:8px 12px 0;cursor:default;">
+    <div class="screen" id="screen" onclick="CK.screenTap(event)" style="margin:0 12px;cursor:default;">
       <div class="s1">
         <span class="s-lek" id="s-lek">—</span>
         <span class="s-eq" id="s-eq" style="opacity:0;">=</span>
@@ -672,9 +661,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       </div>
       <div class="s2" id="s2"></div>
     </div>
+    <!-- ปุ่มปักหลัก -->
+    <div style="display:flex;justify-content:flex-end;padding:4px 12px 0;">
+      <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()" style="display:block;margin:0;padding:5px 10px;font-size:12px;">📌 ปักหลัก</button>
+    </div>
     <!-- keyboard -->
-    <div class="ck-wrap" id="ck-wrap" style="padding:6px 12px 4px;">
-      <div class="trow" style="margin-bottom:5px;">
+    <div class="ck-wrap" id="ck-wrap" style="padding:8px 12px 12px;">
+      <div class="trow">
         <div class="tcol">
           <div class="ttype" id="t-bon" onclick="CK.toggleType('bon')">บน</div>
           <div class="ksub" id="ks-bon" onclick="CK.toggleKlb('bon')">กลับ</div>
@@ -691,10 +684,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           <div class="ttype" id="t-na" onclick="CK.toggleType('na')">หน้า</div>
           <div class="ksub" id="ks-na" onclick="CK.toggleKlb('na')">กลับ</div>
         </div>
-      </div>
-      <!-- ปุ่มปักหลัก: แสดงเมื่อพิมพ์เลขตัวเดียว -->
-      <div id="pak-open-row" style="display:none;margin-bottom:4px;">
-        <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()" style="display:block;width:100%;margin:0;padding:8px;font-size:13px;">📌 ปักหลัก</button>
       </div>
       <div class="kb">
         <div class="k kn" onclick="CK.num('1')">1</div>
@@ -714,9 +703,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         <div class="k keq" onclick="CK.eq()">=</div>
       </div>
     </div>
-    <button class="add-btn" id="add-btn" onclick="CK.eq()">✓ OK</button>
-    <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — ดูโพยได้ในแฟ้ม</div>
+  <div style="display:flex;gap:8px;margin:6px 12px 0;">
+    <button class="add-btn" id="add-btn" style="margin:0;flex:1;font-size:20px;" onclick="CK.eq()">✓ OK</button>
   </div>
+  <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — ดูโพยได้ในแฟ้ม</div>
+</div>
 
 <!-- SLIP OVERLAY -->
 <div class="slip-ov" id="slip-ov">
@@ -971,8 +962,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
   function scrollToList(){
     setTimeout(function(){
-      var lz=document.getElementById('list-zone');
-      if(lz) lz.scrollTop=0;
+      var el=document.getElementById('list-wrap');
+      if(!el)return;
+      var y=el.getBoundingClientRect().top+window.scrollY-getHdrH();
+      smoothScrollTo(y);
     },80);
   }
 
@@ -2153,8 +2146,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       bon:mp.bon||null,tod:mp.tod||null,
       lang:mp.lang||null,na:mp.na||null,kd:{}});
     renderList(); updateTotal(); save();
-    // scroll list-zone ขึ้นบนสุดให้เห็นรายการใหม่ทันที
-    var lz=document.getElementById('list-zone');if(lz)lz.scrollTop=0;
+    document.getElementById('list-scroll').scrollTop=0;
+    window.scrollTo({top:0,behavior:'smooth'});
   }
 
   function ckCommitToApp(lekList2, priceArr2, klbSel2){
@@ -2205,11 +2198,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         addEntryDirect(perm, pm);
       });
     });
-    // scroll ขึ้นดูรายการใหม่ — ครั้งเดียวหลังเพิ่มเสร็จทั้งหมด
-    setTimeout(function(){
-      var lz=document.getElementById('list-zone');
-      if(lz) lz.scrollTop=0;
-    },80);
+    window.scrollTo({top:0,behavior:'smooth'});
   }
 
   // ─── ADD ENTRY ───
@@ -2276,7 +2265,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(pgEl) renderPGrid([]);
       renderList();updateTotal();save();
       var ab2=document.getElementById('add-btn');if(ab2)ab2.classList.remove('ready');
-      var lz=document.getElementById('list-zone');if(lz)lz.scrollTop=0;
+      document.getElementById('list-scroll').scrollTop=0;
       if(window.CK) window.CK.reset();
     }
   }
@@ -2380,8 +2369,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(v){sh.className='lv';sh.textContent=v.split('').join(' ');if(ring)ring.style.display='none';disp.classList.add('has-lek');if(cur)cur.classList.add('hide');}
     else{sh.className='lp';sh.textContent='';if(ring)ring.style.display='';disp.classList.remove('has-lek');if(cur)cur.classList.remove('hide');}
     document.getElementById('lek-hint').textContent=v.length?'เลข '+v.length+' หลัก':'แตะเพื่อพิมพ์เลข';
-    var pakRow=document.getElementById('pak-open-row');
-    if(pakRow) pakRow.style.display=v.length===1?'block':'none';
+    var pakBtn=document.getElementById('pak-open-btn');
+    if(pakBtn) pakBtn.style.display=v.length===1?'block':'none';
     renderChips(v.length);renderPGrid(RULES[v.length]||[]);
     checkReady();
   }
