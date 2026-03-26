@@ -3312,8 +3312,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var firstLen=parts[0].length;
         var newLen=last.length+1;
         if(newLen>firstLen){
-          toast('⚠️ เลขคนละประเภท: '+firstLen+' หลัก กับ '+newLen+' หลัก
-กรุณาใส่เลขประเภทเดียวกัน');
+          toast('⚠️ เลขคนละประเภท: '+firstLen+' หลัก กับ '+newLen+' หลัก — กรุณาใส่ประเภทเดียวกัน');
           return;
         }
       }
@@ -3333,8 +3332,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(!last||!last.length) return;
     // ตรวจขนาดต้องเท่ากัน
     if(parts.length>0&&parts[0].length!==last.length){
-      toast('⚠️ เลขคนละประเภท: '+parts[0].length+' หลัก กับ '+last.length+' หลัก
-กรุณาใส่เลขประเภทเดียวกัน');
+      toast('⚠️ เลขคนละประเภท: '+parts[0].length+' หลัก กับ '+last.length+' หลัก');
       return;
     }
     fkBuf+='/';
