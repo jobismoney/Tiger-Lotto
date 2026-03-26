@@ -113,76 +113,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .dchip{font-size:13px;padding:3px 9px;border-radius:20px;font-weight:700;background:var(--card2);color:var(--gray);border:1px solid var(--border);}
 .dchip.on{background:var(--gold);color:#111;border-color:var(--gold);}
 .pgrid{display:grid;gap:6px;}
-/* ─── SCREEN ─── */
-.screen{background:#0a0e1a;border:1px solid #1a2040;border-radius:12px;padding:10px 14px;min-height:68px;}
-.s1{display:flex;align-items:baseline;gap:6px;min-height:40px;}
-.s-lek{font-family:'Bebas Neue',sans-serif;font-size:36px;color:#f5c518;letter-spacing:2px;word-break:break-all;line-height:1.1;}
-.s-eq{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#f0f2ff;}
-.s-price{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;}
-.s2{display:flex;align-items:center;min-height:18px;margin-top:2px;}
-.seg-tap{cursor:pointer;padding:0 2px;border-radius:4px;}
-/* ─── CUSTOM KEYBOARD ─── */
-.screen{background:#0a0e1a;border:1px solid #1a2040;border-radius:12px;padding:10px 14px;min-height:68px;}
-.s1{display:flex;align-items:baseline;gap:6px;min-height:40px;}
-.s-lek{font-family:'Bebas Neue',sans-serif;font-size:36px;color:#f5c518;letter-spacing:2px;word-break:break-all;line-height:1.1;flex-wrap:wrap;}
-.s-eq{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#f0f2ff;}
-.s-price{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;}
-.seg-tap{cursor:pointer;padding:0 2px;border-radius:4px;}
-.seg-tap:active{background:rgba(255,255,255,.1);}
-.s2{display:flex;align-items:center;min-height:18px;margin-top:2px;}
-.trow{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
-.tcol{display:flex;flex-direction:column;gap:3px;}
-.ttype{background:#0f1220;border:1.5px solid #1a2040;border-radius:8px;padding:8px 4px;text-align:center;font-size:13px;font-weight:800;color:#334;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;}
-.ttype.on-bon{background:rgba(96,165,250,.15);border-color:#60a5fa;color:#60a5fa;}
-.ttype.on-tod{background:rgba(244,114,182,.15);border-color:#f472b6;color:#f472b6;}
-.ttype.on-lang{background:rgba(52,211,153,.15);border-color:#34d399;color:#34d399;}
-.ttype.on-na{background:rgba(251,146,60,.15);border-color:#fb923c;color:#fb923c;}
-.ksub{background:#0f0a1a;border:1.5px solid #2a1a4a;border-radius:7px;height:28px;font-size:11px;font-weight:800;color:#a78bfa;cursor:pointer;display:none;align-items:center;justify-content:center;user-select:none;-webkit-tap-highlight-color:transparent;}
-.ksub.on{background:rgba(167,139,250,.2);border-color:#a78bfa;}
-.klb-ph{height:28px;}
-.kb{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
-.k{background:#0f1220;border:1.5px solid #1a2040;border-radius:10px;height:54px;font-size:20px;font-weight:900;color:#f0f2ff;cursor:pointer;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-tap-highlight-color:transparent;}
-.k:active{transform:scale(.93);background:#1a2040;}
-.kn{font-family:'Bebas Neue',sans-serif;font-size:28px;}
-.kdel{background:#1a0e1a;border-color:#3a1a3a;color:#f87171;}
-.keq{background:linear-gradient(135deg,#f5c518,#e6a800);border:none;color:#111;font-size:24px;font-weight:900;grid-column:span 2;}
-.ksep{color:#60a5fa;background:#0a0f1a;border-color:#1a2540;font-size:18px;}
-.kx{color:#fb923c;background:#0f0d0a;border-color:#2a2010;font-size:22px;}
-.kblank{background:transparent;border-color:transparent;pointer-events:none;}
-
-
-/* ─── CUSTOM KEYBOARD ─── */
-.ck-wrap{padding:8px 12px 12px;background:var(--bg);border-top:1px solid var(--border);}
-/* 2 จอ */
-.ck-screens{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
-.ck-screen{background:#0a0e1a;border:1px solid #1a2040;border-radius:10px;padding:7px 12px;}
-.ck-screen-top{min-height:44px;display:flex;align-items:center;justify-content:space-between;}
-.ck-lek{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:4px;color:#f5c518;}
-.ck-lek.multi{font-size:20px;letter-spacing:2px;}
-.ck-klbtag{font-size:11px;color:#a78bfa;font-weight:800;align-self:flex-start;margin-top:3px;}
-.ck-screen-bot{min-height:36px;}
-.ck-price-screen{background:#0a0e1a;border:1px solid #1a2040;border-radius:8px;padding:6px 10px;margin-bottom:6px;min-height:42px;}
-.ck-raw{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#f0f2ff;letter-spacing:2px;min-height:22px;}
-.ck-raw.idle{color:#334;}
-.ck-interp{font-size:12px;font-weight:700;min-height:16px;margin-top:2px;}
-/* type toggles */
-.ck-type-row{display:flex;gap:5px;margin-bottom:6px;}
-.ck-type{flex:1;background:#0f1220;border:1.5px solid #1a2040;border-radius:8px;padding:7px 4px;text-align:center;font-size:13px;font-weight:800;color:#334;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:all .1s;}
-.ck-type.on-bon{background:rgba(96,165,250,.15);border-color:#60a5fa;color:#60a5fa;}
-.ck-type.on-tod{background:rgba(244,114,182,.15);border-color:#f472b6;color:#f472b6;}
-.ck-type.on-lang{background:rgba(52,211,153,.15);border-color:#34d399;color:#34d399;}
-.ck-type.on-na{background:rgba(251,146,60,.15);border-color:#fb923c;color:#fb923c;}
-/* keyboard grid */
-.ck-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
-.ck-btn{background:#0f1220;border:1.5px solid #1a2040;border-radius:10px;height:52px;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;color:#f0f2ff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .08s,transform .08s;user-select:none;-webkit-tap-highlight-color:transparent;}
-.ck-btn:active{transform:scale(.92);background:#1a2040;}
-.ck-num{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;}
-.ck-del{background:#1a0e1a;border-color:#3a1a3a;color:#f87171;}
-.ck-eq{background:linear-gradient(135deg,#f5c518,#e6a800);border:none;color:#111;font-size:24px;font-weight:900;grid-column:span 2;}
-.ck-sep{color:#60a5fa;background:#0a0f1a;border-color:#1a2540;font-size:18px;}
-.ck-x{color:#fb923c;background:#0f0d0a;border-color:#2a2010;font-size:20px;}
-.ck-klb{background:#0f0a1a;border-color:#2a1a4a;color:#556;font-size:13px;font-weight:800;}
-.ck-klb.on{background:rgba(167,139,250,.2);border-color:#a78bfa;color:#a78bfa;}
 .field-block{background:var(--bg);border-radius:10px;border:1px solid var(--border);}
 .field-block.disabled{opacity:.18;pointer-events:none;}
 .field-block.klb-active{border-color:rgba(167,139,250,.4);}
@@ -613,8 +543,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   <div class="welcome-icon">🐯</div>
   <div class="welcome-title">TIGER 999</div>
   <div class="welcome-sub">ระบบบันทึกและคำนวณเลขหวย<br>กรุณาเปิดงวดก่อนเข้าใช้งานครับ</div>
-  <button class="welcome-btn" id="open-ngod-btn" onclick="openNgodModal(entries.length>0)">🎯 เปิดงวดใหม่</button>
-  <button class="welcome-hist" id="welcome-hist-btn" onclick="renderHistory();document.getElementById('hist-ov').classList.add('show')">📂 ดูแฟ้ม</button>
+  <button class="welcome-btn" id="open-ngod-btn">🎯 เปิดงวดใหม่</button>
+  <button class="welcome-hist" id="welcome-hist-btn">📂 ดูแฟ้ม</button>
 <button class="welcome-hist" id="welcome-guide-btn" style="margin-top:8px;">💡 วิธีใช้งาน</button>
 </div>
 
@@ -647,64 +577,32 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     <div class="tot-bar">
       <div class="lbl">ยอดรวมทั้งหมด</div>
       <div class="val" id="total-val">฿0</div>
-    <button class="basket-btn" id="basket-btn" style="width:calc(100% - 16px);margin:6px 8px 0;">📂 เก็บเข้าแฟ้ม</button>
     </div>
   </div>
 
+  <button class="basket-btn" id="basket-btn">📂 เก็บเข้าแฟ้ม</button>
   <div class="ipanel" id="ipanel">
-    <!-- จอแสดงผล -->
-    <div class="screen" id="screen" onclick="CK.screenTap(event)" style="margin:0 12px;cursor:default;">
-      <div class="s1">
-        <span class="s-lek" id="s-lek">—</span>
-        <span class="s-eq" id="s-eq" style="opacity:0;">=</span>
-        <span class="s-price" id="s-price"></span>
+    <div class="psec">
+      <div class="plbl">✏️ กรอกเลข (1-5 หลัก)</div>
+      <div class="lek-display" id="lek-display" onclick="document.getElementById('lek-inp').focus()">
+        <div class="tap-ring" id="tap-ring"></div>
+        <span id="lek-shown" class="lp">? ? ?</span>
+        <input id="lek-inp" type="tel" inputmode="numeric" maxlength="5" enterkeyhint="go"
+          style="position:absolute;inset:0;width:100%;height:100%;opacity:1;color:transparent;background:transparent;border:none;outline:none;font-size:48px;text-align:center;letter-spacing:12px;caret-color:var(--gold);z-index:2;">
       </div>
-      <div class="s2" id="s2"></div>
+      <div class="lek-hint" id="lek-hint">แตะเพื่อพิมพ์เลข</div>
+      <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()">📌 ปักหลัก — บน / ล่าง</button>
+      <div class="dchips" id="dchips"></div>
     </div>
-    <!-- ปุ่มปักหลัก -->
-    <div style="display:flex;justify-content:flex-end;padding:4px 12px 0;">
-      <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()" style="display:block;margin:0;padding:5px 10px;font-size:12px;">📌 ปักหลัก</button>
+    <div class="psec">
+      <div class="plbl">💰 ใส่ราคา</div>
+      <div class="lek-hint" id="price-hint" style="margin-bottom:4px;">ปุ่มลัด: - (ชุด/กลับ) &nbsp;•&nbsp; Enter / Tab / + (ถัดไป)</div>
+      <div class="pgrid" id="pgrid"></div>
     </div>
-    <!-- keyboard -->
-    <div class="ck-wrap" id="ck-wrap" style="padding:8px 12px 12px;">
-      <div class="trow">
-        <div class="tcol">
-          <div class="ttype" id="t-bon" onclick="CK.toggleType('bon')">บน</div>
-          <div class="ksub" id="ks-bon" onclick="CK.toggleKlb('bon')">กลับ</div>
-        </div>
-        <div class="tcol">
-          <div class="ttype" id="t-tod" onclick="CK.toggleType('tod')">โต๊ด</div>
-          <div class="klb-ph"></div>
-        </div>
-        <div class="tcol">
-          <div class="ttype" id="t-lang" onclick="CK.toggleType('lang')">ล่าง</div>
-          <div class="ksub" id="ks-lang" onclick="CK.toggleKlb('lang')">กลับ</div>
-        </div>
-        <div class="tcol">
-          <div class="ttype" id="t-na" onclick="CK.toggleType('na')">หน้า</div>
-          <div class="ksub" id="ks-na" onclick="CK.toggleKlb('na')">กลับ</div>
-        </div>
-      </div>
-      <div class="kb">
-        <div class="k kn" onclick="CK.num('1')">1</div>
-        <div class="k kn" onclick="CK.num('2')">2</div>
-        <div class="k kn" onclick="CK.num('3')">3</div>
-        <div class="k kdel" onclick="CK.del()">⌫</div>
-        <div class="k kn" onclick="CK.num('4')">4</div>
-        <div class="k kn" onclick="CK.num('5')">5</div>
-        <div class="k kn" onclick="CK.num('6')">6</div>
-        <div class="k ksep" onclick="CK.sep()">/</div>
-        <div class="k kn" onclick="CK.num('7')">7</div>
-        <div class="k kn" onclick="CK.num('8')">8</div>
-        <div class="k kn" onclick="CK.num('9')">9</div>
-        <div class="k kx" onclick="CK.x()">×</div>
-        <div class="k kblank"></div>
-        <div class="k kn" onclick="CK.num('0')">0</div>
-        <div class="k keq" onclick="CK.eq()">=</div>
-      </div>
-    </div>
-  <div style="display:flex;gap:8px;margin:6px 12px 0;">
-    <button class="add-btn" id="add-btn" style="margin:0;flex:1;font-size:20px;" onclick="CK.eq()">✓ OK</button>
+  </div>
+  <div style="display:flex;gap:8px;margin:10px 12px 0;">
+    <button class="add-btn" id="qa-open-btn" style="margin:0;flex:1;font-size:16px;background:linear-gradient(135deg,#7c3aed,#5b21b6);">⚡ เพิ่มเลขด่วน</button>
+    <button class="add-btn" id="add-btn" style="margin:0;flex:1;font-size:20px;">✓ OK</button>
   </div>
   <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — ดูโพยได้ในแฟ้ม</div>
 </div>
@@ -728,8 +626,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     <div class="modal-field"><label>ชื่อเอเย่นต์ (ชื่อของคุณ)</label><input type="text" id="m-sender" placeholder="ชื่อเอเย่นต์"></div>
     <div class="modal-field"><label>งวดที่</label><input type="text" id="m-ngod" placeholder="1/3/2569"></div>
     <div class="modal-btns">
-      <button class="modal-cancel" id="modal-cancel" onclick="document.getElementById('modal-ngod').classList.remove('show')">ยกเลิก</button>
-      <button class="modal-ok" id="modal-ok" onclick="doOpenNgod()">✅ เปิดงวด</button>
+      <button class="modal-cancel" id="modal-cancel">ยกเลิก</button>
+      <button class="modal-ok" id="modal-ok">✅ เปิดงวด</button>
     </div>
   </div>
 </div>
@@ -972,13 +870,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function showMain(){
     document.getElementById('welcome-screen').style.display='none';
     document.getElementById('main-wrap').classList.add('show');
-    console.log('[showMain] called');
     updateHdr();
     renderList();
     updateTotal();
     updateLockUI();
-    // ไม่ต้อง scroll เพราะ keyboard ใหม่อยู่ตลอด
-    // if(!isLocked) scrollToInput();
+    if(!isLocked) scrollToInput();
     updateBasketBadge();
   }
 
@@ -1857,348 +1753,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     }
   };
 
-  // ─── CUSTOM KEYBOARD ───
-  window.CK = (function(){
-    var TC={bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
-    var TL={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
-    var TO=['bon','tod','lang','na'];
-    var KLB_TYPES=['bon','lang','na'];
-    var AUTO_ORDER={2:['bon','lang','na'],3:['bon','tod','lang','na'],4:['tod'],5:['tod']};
-
-    var ckPhase='lek';
-    var ckCurLek='', ckLekList=[];
-    var ckSel={bon:false,tod:false,lang:false,na:false};
-    var ckOvr={};
-    var ckKlbSel={bon:'',lang:'',na:''};
-    var ckPriceArr=[];
-    var ckPStep=0;
-
-    function getTypes(){ return TO.filter(function(t){return ckSel[t];}); }
-
-    function autoSel(d){
-      var def=d===2?{bon:1,lang:1}:d===3?{bon:1,tod:1}:d===4||d===5?{tod:1}:{};
-      TO.forEach(function(t){
-        ckSel[t]=ckOvr[t]!==undefined?ckOvr[t]:!!(def[t]);
-        var el=document.getElementById('t-'+t);
-        if(el) el.className='ttype'+(ckSel[t]?' on-'+t:'');
-      });
-    }
-
-    function toggleT(t){
-      ckSel[t]=!ckSel[t]; ckOvr[t]=ckSel[t];
-      document.getElementById('t-'+t).className='ttype'+(ckSel[t]?' on-'+t:'');
-      if(ckPhase==='price'){
-        var types=getTypes();
-        types.forEach(function(t2){
-          var exists=ckPriceArr.some(function(s){return s.type===t2;});
-          if(!exists) ckPriceArr.push({type:t2,val:0});
-        });
-        ckPriceArr.sort(function(a,b){return TO.indexOf(a.type)-TO.indexOf(b.type);});
-        ckPriceArr=ckPriceArr.filter(function(s){return ckSel[s.type];});
-        if(ckPStep>=ckPriceArr.length) ckPStep=Math.max(0,ckPriceArr.length-1);
-      }
-      render();
-    }
-
-    function toggleKlb(t){
-      var lekLen=ckLekList[0]?ckLekList[0].length:0;
-      var mode=lekLen===2?'klb':'chu';
-      ckKlbSel[t]=ckKlbSel[t]===mode?'':mode;
-      render();
-    }
-
-    function updateKlbBtns(inPrice, lekLen){
-      KLB_TYPES.forEach(function(t){
-        var btn=document.getElementById('ks-'+t);
-        if(!btn) return;
-        var show=inPrice&&ckSel[t]&&lekLen>=2;
-        btn.style.display=show?'flex':'none';
-        if(!show) return;
-        var mode=lekLen===2?'klb':'chu';
-        btn.textContent=lekLen===2?'กลับ':'ชุด';
-        btn.classList.toggle('on', ckKlbSel[t]===mode);
-      });
-    }
-
-    function render(){
-      var elLek=document.getElementById('s-lek');
-      var elEq=document.getElementById('s-eq');
-      var elPr=document.getElementById('s-price');
-      var elS2=document.getElementById('s2');
-      if(!elLek) return;
-      var lekLen=ckLekList.length>0?ckLekList[0].length:ckCurLek.length;
-
-      if(ckPhase==='lek'){
-        var txt=ckLekList.join('/');
-        if(ckLekList.length&&!ckCurLek) txt+='/';
-        else if(ckLekList.length&&ckCurLek) txt+='/'+ckCurLek;
-        else txt=ckCurLek;
-        elLek.textContent=txt||'—';
-        var len=(txt||'').replace(/\//g,'').length+(txt.match(/\//g)||[]).length*0.5;
-        var fs=len<=6?36:len<=10?28:len<=14?22:16;
-        elLek.style.fontSize=fs+'px';
-        elEq.style.opacity=(txt&&txt!=='—')?'0.15':'0';
-        elPr.innerHTML='';
-        var types=getTypes();
-        elS2.innerHTML=types.map(function(t){
-          return '<span style="color:'+TC[t]+';opacity:0.4;font-size:12px;font-weight:800;margin-right:10px;">'+TL[t]+'</span>';
-        }).join('');
-        updateKlbBtns(false, lekLen);
-      } else {
-        elLek.textContent=ckLekList.join('/');
-        elEq.style.opacity='1';
-        elPr.innerHTML=ckPriceArr.map(function(seg,i){
-          if(i>ckPStep+1) return '';
-          var past=i<ckPStep, act=i===ckPStep, next=i===ckPStep+1;
-          var v=seg.val>0?String(seg.val):'_';
-          var op=past||act?'1':next?'0.2':'0';
-          var xop=past?'1':act?'1':'0.2';
-          var s=i>0?'<span style="color:#fb923c;opacity:'+xop+';margin:0 3px;">×</span>':'';
-          return s+'<span class="seg-tap" data-idx="'+i+'" style="opacity:'+op+';">'+v+'</span>';
-        }).filter(Boolean).join('');
-        elS2.innerHTML=ckPriceArr.map(function(seg,i){
-          if(i>ckPStep+1) return '';
-          var past=i<ckPStep, act=i===ckPStep;
-          var op=past||act?'1':'0.2';
-          var s=i>0?'<span style="opacity:0;margin:0 3px;">×</span>':'';
-          return s+'<span style="color:'+TC[seg.type]+';opacity:'+op+';font-size:12px;font-weight:800;">'+TL[seg.type]+'</span>';
-        }).filter(Boolean).join('');
-        updateKlbBtns(true, lekLen);
-      }
-    }
-
-    function num(n){
-      if(ckPhase==='lek'){
-        if(ckCurLek.length>=5) return;
-        ckCurLek+=n; ckOvr={}; ckKlbSel={bon:'',lang:'',na:''};
-        autoSel(ckCurLek.length);
-        // sync กับ app
-        if(typeof setLek==='function') setLek(ckCurLek);
-      } else {
-        if(ckPriceArr&&ckPStep<ckPriceArr.length){
-          var v=ckPriceArr[ckPStep].val;
-          ckPriceArr[ckPStep].val=parseInt(String(v||'')+n)||0;
-        }
-      }
-      render();
-    }
-
-    function sep(){
-      if(ckPhase!=='lek') return;
-      if(ckCurLek.length<2) return;
-      if(ckLekList.length>0&&ckCurLek.length!==ckLekList[0].length){
-        alert('⚠️ เพิ่มเลขคนละประเภทไม่ได้ครับ\n('+ckLekList[0].length+' หลัก กับ '+ckCurLek.length+' หลัก)\n\nกรุณากดเข้าใหม่');
-        doReset(); return;
-      }
-      if(ckLekList.indexOf(ckCurLek)>=0){
-        if(!confirm('⚠️ เลข '+ckCurLek+' ซ้ำครับ\nต้องการเพิ่มเลขซ้ำหรือไม่?')){
-          ckCurLek=''; render(); return;
-        }
-      }
-      ckLekList.push(ckCurLek); ckCurLek='';
-      render();
-    }
-
-    function nextType(){
-      if(ckPhase!=='price') return;
-      if(ckPStep<ckPriceArr.length-1){
-        ckPStep++;
-      } else {
-        var lekLen=ckLekList[0]?ckLekList[0].length:0;
-        var order=AUTO_ORDER[lekLen]||[];
-        var cur=ckPriceArr.map(function(s){return s.type;});
-        var next=null;
-        for(var i=0;i<order.length;i++){if(cur.indexOf(order[i])<0){next=order[i];break;}}
-        if(next){
-          ckSel[next]=true; ckOvr[next]=true;
-          var el=document.getElementById('t-'+next);
-          if(el) el.className='ttype on-'+next;
-          ckPriceArr.push({type:next,val:0});
-          ckPStep=ckPriceArr.length-1;
-        }
-      }
-      render();
-    }
-
-    function del(){
-      if(ckPhase==='lek'){
-        if(ckCurLek.length>0){
-          ckCurLek=ckCurLek.slice(0,-1);
-          ckOvr={}; ckKlbSel={bon:'',lang:'',na:''};
-          autoSel(ckCurLek.length);
-          if(typeof setLek==='function') setLek(ckCurLek);
-        } else if(ckLekList.length>0){
-          ckCurLek=ckLekList.pop();
-          autoSel(ckCurLek.length);
-          if(typeof setLek==='function') setLek(ckCurLek);
-        }
-      } else {
-        if(!ckPriceArr||!ckPriceArr.length){
-          doReset(); return;
-        }
-        if(ckPStep>=ckPriceArr.length) ckPStep=ckPriceArr.length-1;
-        var s=String(ckPriceArr[ckPStep].val||'');
-        if(s.length>0){
-          ckPriceArr[ckPStep].val=parseInt(s.slice(0,-1))||0;
-        } else if(ckPStep>0){
-          ckPStep--;
-        } else {
-          ckPhase='lek';
-          ckCurLek=ckLekList.pop()||'';
-          ckPriceArr=[]; ckPStep=0;
-          ckKlbSel={bon:'',lang:'',na:''};
-          autoSel(ckCurLek.length);
-          if(typeof setLek==='function') setLek(ckCurLek);
-        }
-      }
-      render();
-    }
-
-    function eq(){
-      var types=getTypes();
-      if(ckPhase==='lek'){
-        if(ckCurLek.length>=2){
-          if(ckLekList.length>0&&ckCurLek.length!==ckLekList[0].length){
-            alert('⚠️ เพิ่มเลขคนละประเภทไม่ได้ครับ\n('+ckLekList[0].length+' หลัก กับ '+ckCurLek.length+' หลัก)\n\nกรุณากดเข้าใหม่');
-            doReset(); return;
-          }
-          ckLekList.push(ckCurLek); ckCurLek='';
-        }
-        if(!ckLekList.length) return;
-        if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
-        ckPhase='price';
-        ckPriceArr=types.map(function(t){return{type:t,val:0};});
-        ckPStep=0;
-      } else {
-        // commit → addEntry
-        doCommit();
-      }
-      render();
-    }
-
-    function doCommit(){
-      var leks2=ckLekList.slice();
-      var price2=ckPriceArr.slice();
-      var klb2=JSON.parse(JSON.stringify(ckKlbSel));
-      doReset(); // reset ก่อน แล้วค่อย commit
-      ckCommitToApp(leks2, price2, klb2);
-    }
-
-    function doReset(){
-      ckPhase='lek'; ckLekList=[]; ckCurLek='';
-      ckPriceArr=[]; ckPStep=0;
-      ckKlbSel={bon:'',lang:'',na:''};
-      ckOvr={};
-      TO.forEach(function(t){
-        ckSel[t]=false;
-        var el=document.getElementById('t-'+t);
-        if(el) el.className='ttype';
-      });
-      if(typeof setLek==='function') setLek('');
-      render();
-    }
-
-    function screenTap(e){
-      var seg=e.target.closest('[data-idx]');
-      if(seg&&ckPhase==='price'){
-        var idx=parseInt(seg.dataset.idx);
-        if(!isNaN(idx)&&idx<=ckPStep) ckPStep=idx;
-        render();
-      }
-    }
-
-    return {
-      toggleType:toggleT,
-      toggleKlb:toggleKlb,
-      num:num, sep:sep, x:nextType, del:del, eq:eq,
-      screenTap:screenTap,
-      reset:doReset,
-      render:render,
-      onLekChange:function(v){
-        if(ckPhase!=='lek') return;
-        ckCurLek=v||'';
-        ckOvr={}; ckKlbSel={bon:'',lang:'',na:''};
-        autoSel(ckCurLek.length);
-        render();
-      }
-    };
-  })();
-
-
-
-  // ─── CK → APP bridge ───
-  function addEntryDirect(lek2, priceMap){
-    // เพิ่ม entry โดยตรง ไม่ผ่าน global state ไม่มี popup
-    if(!ngodOpen){toast('⚠️ ยังไม่ได้เปิดงวดครับ');return;}
-    if(isLocked){toast('⚠️ โพยถูกล็อคแล้ว');return;}
-    if(!lek2){toast('⚠️ ไม่มีเลข');return;}
-    var d=lek2.length;
-    var al=RULES[d]||[];
-    var mp={}, hasAny=false;
-    al.forEach(function(k){
-      var v=parseInt(priceMap[k])||0;
-      mp[k]=v>0?v:null;
-      if(v>0) hasAny=true;
-    });
-    if(!hasAny){toast('⚠️ ไม่มีราคา lek='+lek2+' map='+JSON.stringify(priceMap));return;}
-    eid++;
-    entries.unshift({id:eid,lek:lek2,d:d,
-      bon:mp.bon||null,tod:mp.tod||null,
-      lang:mp.lang||null,na:mp.na||null,kd:{}});
-    renderList(); updateTotal(); save();
-    document.getElementById('list-scroll').scrollTop=0;
-  }
-
-  function ckCommitToApp(lekList2, priceArr2, klbSel2){
-    var KLB_TYPES2=['bon','lang','na'];
-    var TO2=['bon','tod','lang','na'];
-
-    var typeConfigs={};
-    priceArr2.forEach(function(seg){
-      if(seg.val>0){
-        var mode=KLB_TYPES2.indexOf(seg.type)>=0?(klbSel2[seg.type]||''):'';
-        typeConfigs[seg.type]={val:seg.val,mode:mode};
-      }
-    });
-    if(!Object.keys(typeConfigs).length) return;
-
-    lekList2.forEach(function(l){
-      // solo types — โต๊ด หรือไม่กด กลับ/ชุด → entry เดี่ยวต่อประเภท
-      var soloTypes={}, spreadTypes={};
-      Object.keys(typeConfigs).forEach(function(t){
-        var cfg=typeConfigs[t];
-        if(t==='tod'||!cfg.mode) soloTypes[t]=cfg;
-        else spreadTypes[t]=cfg;
-      });
-
-      // solo entry ต่อประเภท
-      Object.keys(soloTypes).forEach(function(t){
-        var pm={};pm[t]=soloTypes[t].val;
-        addEntryDirect(l, pm);
-      });
-
-      // spread — กระจาย permutations
-      if(!Object.keys(spreadTypes).length) return;
-      var allPerms=[l];
-      var extraSet={};
-      Object.keys(spreadTypes).forEach(function(t){
-        var mode=spreadTypes[t].mode;
-        if(mode==='klb'&&l.length===2) extraSet[l[1]+l[0]]=1;
-        else if(mode==='chu'&&l.length>=3){
-          var r={};(function p(s,c){if(!s.length){r[c]=1;return;}for(var i=0;i<s.length;i++)p(s.slice(0,i)+s.slice(i+1),c+s[i]);})(l,'');
-          Object.keys(r).forEach(function(k){if(k!==l)extraSet[k]=1;});
-        }
-      });
-      allPerms=allPerms.concat(Object.keys(extraSet));
-
-      allPerms.forEach(function(perm){
-        var pm={};
-        Object.keys(spreadTypes).forEach(function(t){pm[t]=spreadTypes[t].val;});
-        addEntryDirect(perm, pm);
-      });
-    });
-  }
-
   // ─── ADD ENTRY ───
   var _addBtnHl=false;
   function highlightAddBtn(){
@@ -2257,14 +1811,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       APP.allowedDupKeys = APP.allowedDupKeys.filter(function(k){ return k !== curLek; });
       setLek('');
       var inp=document.getElementById('lek-inp');
-      if(inp) inp.value='';
-      FS=makeFS();
-      var pgEl=document.getElementById('pgrid');
-      if(pgEl) renderPGrid([]);
-      renderList();updateTotal();save();
+      inp.value='';
+      FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
       var ab2=document.getElementById('add-btn');if(ab2)ab2.classList.remove('ready');
       document.getElementById('list-scroll').scrollTop=0;
-      if(window.CK) window.CK.reset();
+      inp.focus();
     }
   }
 
@@ -2356,12 +1907,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function setLek(v){
     curLek=v;FS=makeFS();
-    if(window.CK&&typeof v==='string'){
-      setTimeout(function(){
-        if(window.CK.onLekChange) window.CK.onLekChange(v);
-        else window.CK.render();
-      },0);
-    }
     var sh=document.getElementById('lek-shown'),ring=document.getElementById('tap-ring'),disp=document.getElementById('lek-display');
     var cur=document.getElementById('lek-cursor');
     if(v){sh.className='lv';sh.textContent=v.split('').join(' ');if(ring)ring.style.display='none';disp.classList.add('has-lek');if(cur)cur.classList.add('hide');}
@@ -3473,11 +3018,41 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       showWelcome();
     }
 
-    // Lek input — ใช้ CK keyboard แทนแล้ว
+    // Lek input
+    // scroll ลงมา input panel เมื่อแตะช่องกรอกเลข
+    document.getElementById('lek-display').addEventListener('click',function(){
+      scrollToInput();
+    });
+    document.getElementById('lek-inp').addEventListener('focus',function(){
+      scrollToInput();
+    });
+    document.getElementById('lek-inp').addEventListener('input',function(){
+      var v=this.value.replace(/\D/g,'').slice(0,5);this.value=v;setLek(v);
+      clearAddBtnHl();
+    });
+    document.getElementById('lek-inp').addEventListener('keydown',function(e){
+      if(e.key!=='Enter'&&e.keyCode!==13)return;
+      e.preventDefault();
+      e.stopPropagation();
+      if(!curLek)return;
+      var order=['bon','tod','lang','na'];
+      for(var i=0;i<order.length;i++){
+        var f=document.getElementById('fi-'+order[i]);
+        if(f&&!f.disabled){
+          f.removeAttribute('tabindex');
+          f.focus();f.select();
+          f.setAttribute('tabindex','-1');
+          return;
+        }
+      }
+      // ทุกช่อง disabled → focus OK
+      var ab=document.getElementById('add-btn');
+      ab.focus();
+      ab.scrollIntoView({behavior:'smooth',block:'center'});
+    });
 
     // Buttons
-    var addBtnEl=document.getElementById('add-btn');
-    if(addBtnEl) addBtnEl.addEventListener('click',function(){if(window.CK)CK.eq();});
+    document.getElementById('add-btn').addEventListener('click',addEntry);
     document.getElementById('add-btn').addEventListener('keydown',function(e){
       if(e.key==='Enter'||e.keyCode===13){e.preventDefault();addEntry();}
     });
@@ -3619,8 +3194,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById('cf-yes').addEventListener('click',function(){document.getElementById('cf-ov').classList.remove('show');if(_cfCb)_cfCb();_cfCb=null;});
 
     // Quick Add
-    var qaBtn=document.getElementById('qa-open-btn');
-    if(qaBtn) qaBtn.addEventListener('click',openQA);
+    document.getElementById('qa-open-btn').addEventListener('click',openQA);
     document.getElementById('qa-close').addEventListener('click',closeQA);
     document.getElementById('qa-add-lek-btn').addEventListener('click',qaAddLek);
     document.getElementById('qa-inp').addEventListener('keydown',function(e){
@@ -3644,11 +3218,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById('qa-submit-btn').addEventListener('click',qaSubmit);
 
     // Init render
-    var pgEl=document.getElementById('pgrid');
-    if(pgEl) renderPGrid([]);
-    var dcEl=document.getElementById('dchips');
-    if(dcEl) renderChips(0);
-    if(window.CK) CK.render();
+    renderPGrid([]);renderChips(0);
   }
 
 
@@ -4108,11 +3678,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     setTimeout(function(){document.getElementById('qa-inp').focus();},100);
   }
 
-  window.openNgodModal=openNgodModal;
-  window.doOpenNgod=doOpenNgod;
-  window.renderHistory=renderHistory;
-  window.openGuide=openGuide;
-  window.entries=entries;
   document.addEventListener('DOMContentLoaded',init);
 })();
 </script>
