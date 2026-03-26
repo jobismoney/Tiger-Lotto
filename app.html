@@ -3413,8 +3413,24 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(!ps[0]){toast("ใส่ราคาก่อนครับ");return;}
     var types=["bon","tod","lang","na"].filter(function(t){return fkSel[t];});
     if(!types.length){toast("เลือกประเภทก่อนครับ");return;}
+    // ตรวจว่าใส่ราคาครบทุกประเภทหรือไม่
+    if(ps.length<types.length){
+      var missing=types.slice(ps.length).map(function(t){
+        var d2=fkBuf.split("=")[0].split("/")[0].replace(/\D/g,"").length||2;
+        var klbWord=d2===2?"ก":"ช";
+        return FK_LABEL[t]+(fkKlb[t]?klbWord:"");
+      }).join(", ");
+      toast("ยังไม่ได้ใส่ราคา: "+missing);
+      return;
+    }
     var pm={};
-    types.forEach(function(t,i){pm[t]=ps[i]>0?ps[i]:ps[ps.length-1]||0;});
+    types.forEach(function(t,i){pm[t]=ps[i]>0?ps[i]:0;});
+    // ตรวจราคาครบทุกช่อง
+    var zeroTypes=types.filter(function(t){return !pm[t];});
+    if(zeroTypes.length){
+      toast("ราคายังไม่ครบ: "+zeroTypes.map(function(t){return FK_LABEL[t];}).join(", "));
+      return;
+    }
     var d=leks[0].length;
     var added=0;
     leks.forEach(function(l){
