@@ -3169,7 +3169,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       scrollToInput();
     });
     document.getElementById('lek-inp').addEventListener('input',function(){
-      var v=this.value.replace(/\D/g,'').slice(0,5);this.value=v;setLek(v);
+      var raw=this.value.replace(/[^0-9\/]/g,'');
+      var parts=raw.split('/').map(function(s){return s.slice(0,5);}).slice(0,10);
+      this.value=parts.join('/');
+      // setLek ใช้เลขแรกสำหรับ display/UI
+      var firstLek=parts[0]||'';
+      setLek(firstLek);
+      // เก็บ full string ไว้ใน curLek
+      curLek=this.value;
       clearAddBtnHl();
     });
     document.getElementById('lek-inp').addEventListener('keydown',function(e){
