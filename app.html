@@ -3230,8 +3230,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var FK_LABEL={bon:"บน",tod:"โต๊ด",lang:"ล่าง",na:"หน้า"};
 
   function fkAutoSel(d){
-    // ถ้าผู้ใช้ยังไม่ได้ toggle เอง → ใช้ default ตามหลักเลข
-    if(!fkUserOverride){
+    // 4-5 หลัก: บังคับโต๊ดอย่างเดียวเสมอ ไม่สนใจ fkUserOverride
+    if(d>=4){
+      ["bon","tod","lang","na"].forEach(function(t){
+        fkSel[t]=(t==="tod");
+        var btn=document.getElementById("fkt-"+t);
+        if(btn) btn.className="fk-tbtn"+(fkSel[t]?" on-"+t:"");
+      });
+      fkKlb={bon:false,lang:false,na:false};
+    } else if(!fkUserOverride){
       var def=FK_DEFAULT[d]||["bon","lang"];
       ["bon","tod","lang","na"].forEach(function(t){
         fkSel[t]=def.indexOf(t)>=0;
@@ -3261,6 +3268,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   function fkToggle(t){
+    // 4-5 หลัก: ห้าม toggle
+    var d=fkBuf.split("=")[0].split("/")[0].replace(/\D/g,"").length||0;
+    if(d>=4) return;
     fkUserOverride=true;
     fkSel[t]=!fkSel[t];
     if(!fkSel[t]){
@@ -3356,8 +3366,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var ps=pp.split("x");
     if(!pp||!ps[ps.length-1]) return;
     var types=["bon","tod","lang","na"].filter(function(t){return fkSel[t];});
-    // ถ้า x มากกว่าจำนวน type ที่เลือก → auto-add ประเภทถัดไป
+    // 4-5 หลัก: ไม่ให้เพิ่มประเภทใหม่ผ่าน ×
+    var d=fkBuf.split("=")[0].split("/")[0].replace(/\D/g,"").length||0;
     if(ps.length>=types.length){
+      if(d>=4) return; // 4-5 หลักมีแค่โต๊ด กด × ไม่ได้
       var allOrder=["bon","tod","lang","na"];
       var next=null;
       for(var i=0;i<allOrder.length;i++){
