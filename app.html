@@ -3223,19 +3223,22 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var fkSel={bon:false,tod:false,lang:false,na:false};
   var fkKlb={bon:false,lang:false,na:false};
   var fkAdded=[];
+  var fkUserOverride=false;
   var FK_DEFAULT={1:["bon","lang"],2:["bon","lang"],3:["bon","tod"],4:["tod"],5:["tod"]};
   var FK_KLB_TYPES=["bon","lang","na"];
   var FK_COLOR={bon:"#60a5fa",tod:"#f472b6",lang:"#34d399",na:"#fb923c"};
   var FK_LABEL={bon:"บน",tod:"โต๊ด",lang:"ล่าง",na:"หน้า"};
 
   function fkAutoSel(d){
-    var def=FK_DEFAULT[d]||["bon","lang"];
-    ["bon","tod","lang","na"].forEach(function(t){
-      fkSel[t]=def.indexOf(t)>=0;
-      var btn=document.getElementById("fkt-"+t);
-      if(btn) btn.className="fk-tbtn"+(fkSel[t]?" on-"+t:"");
-    });
-    fkKlb={bon:false,lang:false,na:false};
+    // ถ้าผู้ใช้ยังไม่ได้ toggle เอง → ใช้ default ตามหลักเลข
+    if(!fkUserOverride){
+      var def=FK_DEFAULT[d]||["bon","lang"];
+      ["bon","tod","lang","na"].forEach(function(t){
+        fkSel[t]=def.indexOf(t)>=0;
+        var btn=document.getElementById("fkt-"+t);
+        if(btn) btn.className="fk-tbtn"+(fkSel[t]?" on-"+t:"");
+      });
+    }
     fkUpdateKlbBtns(d);
   }
 
@@ -3257,6 +3260,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   function fkToggle(t){
+    fkUserOverride=true;
     fkSel[t]=!fkSel[t];
     if(!fkSel[t]) fkKlb[t]=false;
     var btn=document.getElementById("fkt-"+t);
@@ -3281,11 +3285,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     el.style.color="var(--gold)";
     el.textContent=fkBuf.replace(/x/gi,"×");
     var types=["bon","tod","lang","na"].filter(function(t){return fkSel[t];});
+    var d2=fkBuf.split("=")[0].split("/")[0].replace(/\D/g,"").length||2;
+    var klbWord=d2===2?"ก":"ช";
     hint.innerHTML=types.map(function(t){
-      var s='<span style="color:'+FK_COLOR[t]+'">'+FK_LABEL[t]+'</span>';
-      if(fkKlb[t]) s+='<span style="color:#d4a017;font-size:10px;">+กลับ</span>';
+      var s='<span style="color:'+FK_COLOR[t]+'">'+FK_LABEL[t]+(fkKlb[t]?klbWord:"")+'</span>';
       return s;
-    }).join(" ");
+    }).join(' <span style="color:#555">x</span> ');
   }
 
   function fkNum(n){
@@ -3327,9 +3332,22 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(fkBuf.indexOf("=")<0) return;
     var pp=fkBuf.split("=")[1]||"";
     var ps=pp.split("x");
-    var types=["bon","tod","lang","na"].filter(function(t){return fkSel[t];});
-    if(ps.length>=types.length) return;
     if(!pp||!ps[ps.length-1]) return;
+    var types=["bon","tod","lang","na"].filter(function(t){return fkSel[t];});
+    // ถ้า x มากกว่าจำนวน type ที่เลือก → auto-add ประเภทถัดไป
+    if(ps.length>=types.length){
+      var allOrder=["bon","tod","lang","na"];
+      var next=null;
+      for(var i=0;i<allOrder.length;i++){
+        if(!fkSel[allOrder[i]]){next=allOrder[i];break;}
+      }
+      if(!next) return;
+      fkSel[next]=true;
+      fkUserOverride=true;
+      var btn=document.getElementById("fkt-"+next);
+      if(btn) btn.className="fk-tbtn on-"+next;
+      fkUpdateKlbBtns();
+    }
     fkBuf+="x";
     fkRender();
   }
@@ -3394,7 +3412,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       entries.unshift({id:eid,lek:l,d:l.length,
         bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,kd:kd});
       added++;
-      fkAdded.unshift(l+"="+types.map(function(t){return FK_LABEL[t]+" "+pm[t];}).join("x"));
+      var d2=l.length;
+      var klbWord=d2===2?"ก":"ช";
+      fkAdded.unshift(l+"="+types.map(function(t){
+        return FK_LABEL[t]+(fkKlb[t]?klbWord:"")+" "+pm[t];
+      }).join("x"));
     });
     if(added>0){
       renderList();updateTotal();save();
@@ -3404,7 +3426,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     }
     fkBuf="";
     fkKlb={bon:false,lang:false,na:false};
-    fkAutoSel(d||2);
+    // ไม่ reset fkSel — คงประเภทที่เลือกไว้ตลอด
+    fkUpdateKlbBtns();
     fkRender();
   }
 
@@ -3418,9 +3441,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function openQA(){
     if(!ngodOpen){toast("กรุณาเปิดงวดก่อนครับ");return;}
-    fkBuf="";fkAdded=[];
+    fkBuf="";
     fkKlb={bon:false,lang:false,na:false};
-    fkAutoSel(2);
+    // ไม่ reset fkSel — คงประเภทที่ผู้ใช้เลือกไว้
+    fkUpdateKlbBtns();
     fkRender();
     fkRenderRecent();
     document.getElementById("qa-ov").classList.add("show");
