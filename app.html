@@ -3466,7 +3466,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     }
     fkBuf="";
     fkKlb={bon:false,lang:false,na:false};
-    // ไม่ reset fkSel — คงประเภทที่เลือกไว้ตลอด
+    // reset override เพื่อให้ default ทำงานตามหลักถัดไป
+    fkUserOverride=false;
+    fkAutoSel(d||2);
     fkUpdateKlbBtns();
     fkRender();
   }
