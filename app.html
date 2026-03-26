@@ -1196,16 +1196,18 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   // ─── RENDER CHIPS & GRID ───
   function renderChips(d){
     var al=RULES[d]||[];
-    var gl={1:'1 ตัว — วิ่ง',2:'2 ตัว',3:'3 ตัว',4:'4 ตัว — โต๊ด',5:'5 ตัว — โต๊ด'};
     var w=document.getElementById('dchips');
+    if(!w) return;
     var h='';
     Object.keys(FM).forEach(function(k){h+='<div class="dchip '+(al.indexOf(k)>=0?'on':'')+'">'+ FM[k].l+'</div>';});
     w.innerHTML=h;
   }
 
   function renderPGrid(al){
+    var pg=document.getElementById('pgrid');
+    if(!pg) return;
     var h='';['bon','tod','lang','na'].forEach(function(k){h+=buildBlock(k,al);});
-    document.getElementById('pgrid').innerHTML=h;
+    pg.innerHTML=h;
   }
 
   function buildBlock(k,al){
@@ -1893,15 +1895,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var d=firstLen;
     // อ่านราคาจาก NP grid
     var mp={},hasAny=false;
-    var dbg=[];
     ['bon','tod','lang','na'].forEach(function(k){
       var inp=document.getElementById('np-'+k);
-      dbg.push(k+'='+(inp?inp.value:'null')+'(dis='+(!!(inp&&inp.disabled))+')');
       var v=inp&&!inp.disabled?parseInt(inp.value)||0:0;
       mp[k]=v>0?v:null;
       if(v>0)hasAny=true;
     });
-    toast('DEBUG: '+dbg.join(' | '));
     if(!hasAny){toast('กรุณาใส่ราคาอย่างน้อย 1 ช่อง');return;}
     // กลับ/ชุด
     var kd={};
