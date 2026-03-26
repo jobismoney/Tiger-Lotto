@@ -3253,7 +3253,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     FK_KLB_TYPES.forEach(function(t){
       var btn=document.getElementById("fkk-"+t);
       if(!btn) return;
-      var show=fkSel[t]&&fkBuf.indexOf("=")<0;
+      // แสดงตลอดเมื่อประเภทนั้นถูกเลือก (ไม่ซ่อนหลัง =)
+      var show=fkSel[t];
       btn.style.display=show?"block":"none";
       if(show){btn.textContent=lbl;btn.className="fk-klb"+(fkKlb[t]?" on":"");}
     });
@@ -3262,7 +3263,25 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function fkToggle(t){
     fkUserOverride=true;
     fkSel[t]=!fkSel[t];
-    if(!fkSel[t]) fkKlb[t]=false;
+    if(!fkSel[t]){
+      fkKlb[t]=false;
+      // ตัดราคาช่องนั้นออกจาก fkBuf
+      if(fkBuf.indexOf("=")>=0){
+        var types=["bon","tod","lang","na"].filter(function(t2){return fkSel[t2];});
+        var pp=fkBuf.split("=")[1]||"";
+        var ps=pp.split("x");
+        // ตัด segment ของ type ที่ปิดออก
+        var allTypes=["bon","tod","lang","na"];
+        var oldIdx=-1;
+        var oldTypes=allTypes.filter(function(t2){return t2===t?true:fkSel[t2];});
+        oldIdx=oldTypes.indexOf(t);
+        if(oldIdx>=0&&oldIdx<ps.length){
+          ps.splice(oldIdx,1);
+          fkBuf=fkBuf.split("=")[0]+"="+(ps.join("x"));
+          if(fkBuf.endsWith("=")) fkBuf=fkBuf.slice(0,-1)+"=";
+        }
+      }
+    }
     var btn=document.getElementById("fkt-"+t);
     if(btn) btn.className="fk-tbtn"+(fkSel[t]?" on-"+t:"");
     fkUpdateKlbBtns();
