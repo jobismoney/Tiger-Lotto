@@ -613,8 +613,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   <div class="welcome-icon">🐯</div>
   <div class="welcome-title">TIGER 999</div>
   <div class="welcome-sub">ระบบบันทึกและคำนวณเลขหวย<br>กรุณาเปิดงวดก่อนเข้าใช้งานครับ</div>
-  <button class="welcome-btn" id="open-ngod-btn">🎯 เปิดงวดใหม่</button>
-  <button class="welcome-hist" id="welcome-hist-btn">📂 ดูแฟ้ม</button>
+  <button class="welcome-btn" id="open-ngod-btn" onclick="openNgodModal(entries.length>0)">🎯 เปิดงวดใหม่</button>
+  <button class="welcome-hist" id="welcome-hist-btn" onclick="renderHistory();document.getElementById('hist-ov').classList.add('show')">📂 ดูแฟ้ม</button>
 <button class="welcome-hist" id="welcome-guide-btn" style="margin-top:8px;">💡 วิธีใช้งาน</button>
 </div>
 
@@ -728,8 +728,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     <div class="modal-field"><label>ชื่อเอเย่นต์ (ชื่อของคุณ)</label><input type="text" id="m-sender" placeholder="ชื่อเอเย่นต์"></div>
     <div class="modal-field"><label>งวดที่</label><input type="text" id="m-ngod" placeholder="1/3/2569"></div>
     <div class="modal-btns">
-      <button class="modal-cancel" id="modal-cancel">ยกเลิก</button>
-      <button class="modal-ok" id="modal-ok">✅ เปิดงวด</button>
+      <button class="modal-cancel" id="modal-cancel" onclick="document.getElementById('modal-ngod').classList.remove('show')">ยกเลิก</button>
+      <button class="modal-ok" id="modal-ok" onclick="doOpenNgod()">✅ เปิดงวด</button>
     </div>
   </div>
 </div>
@@ -4108,7 +4108,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     setTimeout(function(){document.getElementById('qa-inp').focus();},100);
   }
 
-  // init called from end of body
+  window.openNgodModal=openNgodModal;
+  window.doOpenNgod=doOpenNgod;
+  window.renderHistory=renderHistory;
+  window.openGuide=openGuide;
+  window.entries=entries;
+  document.addEventListener('DOMContentLoaded',init);
 })();
 </script>
 
@@ -4406,6 +4411,5 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
   </div>
 </div>
-<script>init();</script>
 </body>
 </html>
