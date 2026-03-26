@@ -3468,7 +3468,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var qaLeks=[];  // legacy
 
 
-  document.addEventListener('DOMContentLoaded',init);
+  // init called at end of body
 })();
 </script>
 
@@ -3801,5 +3801,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
   </div>
 </div>
+<script>init();</script>
 </body>
 </html>
