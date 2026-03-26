@@ -3027,7 +3027,55 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       scrollToInput();
     });
     document.getElementById('lek-inp').addEventListener('input',function(){
-      var v=this.value.replace(/\D/g,'').slice(0,5);this.value=v;setLek(v);
+      var raw=this.value;
+
+      // ─── โหมดด่วน: มี = และมีตัวเลขหลัง = ───
+      if(raw.indexOf('=')>=0){
+        var parts=raw.split('=');
+        var lekPart=parts[0];
+        var pricePart=parts[1]||'';
+        var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
+        var prices=pricePart.split(/[x×*X]/);
+        var bon=parseInt(prices[0])||0;
+        var lang=parseInt(prices[1])||bon;
+        if(leks.length>0&&bon>0){
+          if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');this.value='';return;}
+          if(isLocked){toast('โพยถูกล็อคแล้ว');this.value='';return;}
+          this.value='';
+          setLek('');
+          var added=0;
+          leks.forEach(function(l){
+            if(!l||l.length<1||l.length>5)return;
+            var d=l.length;
+            var al=RULES[d]||[];
+            var mp={};
+            if(al.indexOf('bon')>=0) mp.bon=bon;
+            if(al.indexOf('lang')>=0) mp.lang=lang;
+            if(d>=4) mp.tod=bon;
+            var hasAny=Object.keys(mp).some(function(k){return mp[k]>0;});
+            if(!hasAny)return;
+            var isDup=entries.some(function(e){return e.lek===l&&!(e.paks&&e.paks.length);});
+            if(isDup&&APP.allowedDupKeys.indexOf(l)<0){toast('⚠️ เลข '+l+' ซ้ำ ข้ามไป');return;}
+            eid++;
+            entries.unshift({id:eid,lek:l,d:d,bon:mp.bon||null,tod:mp.tod||null,lang:mp.lang||null,na:null,kd:{}});
+            added++;
+          });
+          if(added>0){
+            FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
+            document.getElementById('list-scroll').scrollTop=0;
+            toast('✅ เพิ่ม '+added+' รายการ');
+          }
+          return;
+        }
+        // ยังพิมพ์ไม่ครบ (มี = แต่ยังไม่มีราคา) → แสดงเลขปกติ
+        var firstLek=lekPart.split('/')[0].replace(/\D/g,'').slice(0,5);
+        setLek(firstLek);
+        return;
+      }
+
+      // ─── โหมดปกติ ───
+      var v=raw.replace(/\D/g,'').slice(0,5);
+      this.value=v;setLek(v);
       clearAddBtnHl();
     });
     document.getElementById('lek-inp').addEventListener('keydown',function(e){
