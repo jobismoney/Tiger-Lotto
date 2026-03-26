@@ -456,6 +456,19 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 .qa-hd-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .qa-hd-title{font-size:18px;font-weight:900;color:var(--gold);}
 .qa-close{background:none;border:1px solid #444;border-radius:8px;color:#aaa;font-size:18px;padding:4px 12px;cursor:pointer;font-family:'Sarabun',sans-serif;flex-shrink:0;}
+/* FK keyboard buttons */
+.fk-btn{background:var(--card);border:1px solid var(--border);border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:24px;font-weight:900;padding:16px 8px;cursor:pointer;text-align:center;transition:background .1s;-webkit-tap-highlight-color:transparent;}
+.fk-btn:active{background:#2a2d3a;}
+.fk-del{background:#2a1a1a;color:#ef4444;}
+.fk-sep{background:#1a1a2a;color:#818cf8;}
+.fk-mul{background:#1a2a1a;color:#34d399;}
+.fk-eq{font-size:20px;}
+/* Type toggle buttons */
+.fk-tbtn{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--gray);font-family:'Sarabun',sans-serif;font-size:15px;font-weight:800;padding:8px 4px;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
+.fk-tbtn.on-bon{background:#1e3a5f;border-color:#60a5fa;color:#60a5fa;}
+.fk-tbtn.on-tod{background:#3d1a3d;border-color:#f472b6;color:#f472b6;}
+.fk-tbtn.on-lang{background:#1a3d2a;border-color:#34d399;color:#34d399;}
+.fk-tbtn.on-na{background:#3d2a1a;border-color:#fb923c;color:#fb923c;}
 .qa-inp-row{display:flex;gap:8px;width:100%;box-sizing:border-box;}
 .qa-inp{flex:1;min-width:0;background:var(--bg);border:2px solid var(--border);border-radius:12px;color:var(--white);font-family:'Sarabun',sans-serif;font-size:26px;font-weight:900;padding:9px 12px;outline:none;text-align:center;letter-spacing:4px;box-sizing:border-box;}
 .qa-inp:focus{border-color:var(--gold);}
@@ -3027,55 +3040,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       scrollToInput();
     });
     document.getElementById('lek-inp').addEventListener('input',function(){
-      var raw=this.value;
-
-      // ─── โหมดด่วน: มี = และมีตัวเลขหลัง = ───
-      if(raw.indexOf('=')>=0){
-        var parts=raw.split('=');
-        var lekPart=parts[0];
-        var pricePart=parts[1]||'';
-        var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
-        var prices=pricePart.split(/[x×*X]/);
-        var bon=parseInt(prices[0])||0;
-        var lang=parseInt(prices[1])||bon;
-        if(leks.length>0&&bon>0){
-          if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');this.value='';return;}
-          if(isLocked){toast('โพยถูกล็อคแล้ว');this.value='';return;}
-          this.value='';
-          setLek('');
-          var added=0;
-          leks.forEach(function(l){
-            if(!l||l.length<1||l.length>5)return;
-            var d=l.length;
-            var al=RULES[d]||[];
-            var mp={};
-            if(al.indexOf('bon')>=0) mp.bon=bon;
-            if(al.indexOf('lang')>=0) mp.lang=lang;
-            if(d>=4) mp.tod=bon;
-            var hasAny=Object.keys(mp).some(function(k){return mp[k]>0;});
-            if(!hasAny)return;
-            var isDup=entries.some(function(e){return e.lek===l&&!(e.paks&&e.paks.length);});
-            if(isDup&&APP.allowedDupKeys.indexOf(l)<0){toast('⚠️ เลข '+l+' ซ้ำ ข้ามไป');return;}
-            eid++;
-            entries.unshift({id:eid,lek:l,d:d,bon:mp.bon||null,tod:mp.tod||null,lang:mp.lang||null,na:null,kd:{}});
-            added++;
-          });
-          if(added>0){
-            FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
-            document.getElementById('list-scroll').scrollTop=0;
-            toast('✅ เพิ่ม '+added+' รายการ');
-          }
-          return;
-        }
-        // ยังพิมพ์ไม่ครบ (มี = แต่ยังไม่มีราคา) → แสดงเลขปกติ
-        var firstLek=lekPart.split('/')[0].replace(/\D/g,'').slice(0,5);
-        setLek(firstLek);
-        return;
-      }
-
-      // ─── โหมดปกติ ───
-      var v=raw.replace(/\D/g,'').slice(0,5);
-      this.value=v;setLek(v);
+      var v=this.value.replace(/\D/g,'').slice(0,5);this.value=v;setLek(v);
       clearAddBtnHl();
     });
     document.getElementById('lek-inp').addEventListener('keydown',function(e){
@@ -3244,26 +3209,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     // Quick Add
     document.getElementById('qa-open-btn').addEventListener('click',openQA);
     document.getElementById('qa-close').addEventListener('click',closeQA);
-    document.getElementById('qa-add-lek-btn').addEventListener('click',qaAddLek);
-    document.getElementById('qa-inp').addEventListener('keydown',function(e){
-      if(e.key==='Enter'||e.keyCode===13){
-        // เฉพาะตอนอยู่ mode1 เท่านั้น
-        if(!document.getElementById('qa-mode1').classList.contains('hide')){
-          e.preventDefault();qaAddLek();
-        }
-      }
-    });
-    document.getElementById('qa-inp').addEventListener('keydown',function(e){
-      if(e.key==='Enter'||e.keyCode===13){
-        // เฉพาะตอนอยู่ mode1 เท่านั้น
-        if(!document.getElementById('qa-mode1').classList.contains('hide')){
-          e.preventDefault();qaAddLek();
-        }
-      }
-    });
-    document.getElementById('qa-next-btn').addEventListener('click',qaGoPrice);
-    document.getElementById('qa-back-btn').addEventListener('click',qaBack);
-    document.getElementById('qa-submit-btn').addEventListener('click',qaSubmit);
 
     // Init render
     renderPGrid([]);renderChips(0);
@@ -3271,460 +3216,159 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
 
   // ─── QUICK ADD ───
-  var qaLeks = [];  // [{lek:'365'}, ...]
+  // ─── FK FAST KEYBOARD ───
+  var fkBuf='';
+  var fkSel={bon:false,tod:false,lang:false,na:false};
+  var fkAdded=[];
+  var FK_DEFAULT={1:['bon','lang'],2:['bon','lang'],3:['bon','tod'],4:['tod'],5:['tod']};
+  var FK_COLOR={bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
+  var FK_LABEL={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
+
+  function fkAutoSel(d){
+    var def=FK_DEFAULT[d]||['bon','lang'];
+    ['bon','tod','lang','na'].forEach(function(t){
+      fkSel[t]=def.indexOf(t)>=0;
+      var btn=document.getElementById('fkt-'+t);
+      if(btn) btn.className='fk-tbtn'+(fkSel[t]?' on-'+t:'');
+    });
+  }
+
+  function fkToggle(t){
+    fkSel[t]=!fkSel[t];
+    var btn=document.getElementById('fkt-'+t);
+    if(btn) btn.className='fk-tbtn'+(fkSel[t]?' on-'+t:'');
+  }
+
+  function fkRender(){
+    var el=document.getElementById('fk-text');
+    var hint=document.getElementById('fk-hint');
+    if(!fkBuf){el.textContent='—';el.style.color='var(--gray)';hint.textContent='กดเลข แล้ว =';return;}
+    el.style.color='var(--gold)';
+    el.textContent=fkBuf.replace(/x/gi,'×');
+    var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
+    hint.innerHTML=types.map(function(t){return '<span style="color:'+FK_COLOR[t]+'">'+FK_LABEL[t]+'</span>';}).join(' ');
+  }
+
+  function fkNum(n){
+    var eqIdx=fkBuf.indexOf('=');
+    if(eqIdx>=0){
+      fkBuf+=n;
+    } else {
+      var parts=fkBuf.split('/');
+      var last=parts[parts.length-1];
+      if(last.length>=5) return;
+      fkBuf+=n;
+      var firstLek=fkBuf.split('/')[0];
+      if(firstLek.length>=1) fkAutoSel(firstLek.length);
+    }
+    fkRender();
+  }
+
+  function fkSep(){
+    if(fkBuf.indexOf('=')>=0) return;
+    var parts=fkBuf.split('/');
+    var last=parts[parts.length-1];
+    if(!last) return;
+    fkBuf+='/';
+    fkRender();
+  }
+
+  function fkMul(){
+    if(fkBuf.indexOf('=')<0) return;
+    var pricePart=fkBuf.split('=')[1]||'';
+    var priceSegs=pricePart.split('x');
+    var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
+    if(priceSegs.length>=types.length) return;
+    if(!pricePart||!priceSegs[priceSegs.length-1]) return;
+    fkBuf+='x';
+    fkRender();
+  }
+
+  function fkDel(){
+    if(!fkBuf) return;
+    fkBuf=fkBuf.slice(0,-1);
+    if(!fkBuf) fkAutoSel(2);
+    fkRender();
+  }
+
+  function fkEq(){
+    if(fkBuf.indexOf('=')<0){
+      var lekPart=fkBuf.split('/').filter(function(s){return s.replace(/\D/g,'').length>0;});
+      if(!lekPart.length){toast('กรอกเลขก่อนครับ');return;}
+      fkBuf+='=';
+      fkRender();
+      return;
+    }
+    fkCommit();
+  }
+
+  function fkCommit(){
+    if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');return;}
+    if(isLocked){toast('โพยถูกล็อคแล้ว');return;}
+    var parts=fkBuf.split('=');
+    var lekPart=parts[0];
+    var pricePart=parts[1]||'';
+    var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
+    var priceSegs=pricePart.split('x').map(function(s){return parseInt(s.replace(/\D/g,''))||0;});
+    if(!leks.length){toast('ไม่มีเลขครับ');return;}
+    if(!priceSegs[0]){toast('ใส่ราคาก่อนครับ');return;}
+    var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
+    if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
+    var priceMap={};
+    types.forEach(function(t,i){
+      priceMap[t]=priceSegs[i]!==undefined&&priceSegs[i]>0?priceSegs[i]:priceSegs[priceSegs.length-1]||0;
+    });
+    var added=0;
+    leks.forEach(function(l){
+      var isDup=entries.some(function(e){return e.lek===l&&!(e.paks&&e.paks.length);});
+      if(isDup&&APP.allowedDupKeys.indexOf(l)<0){toast('\u26a0\ufe0f เลข '+l+' ซ้ำ ข้ามไป');return;}
+      var d=l.length;
+      eid++;
+      entries.unshift({id:eid,lek:l,d:d,
+        bon:priceMap.bon||null,tod:priceMap.tod||null,
+        lang:priceMap.lang||null,na:priceMap.na||null,kd:{}});
+      added++;
+      fkAdded.unshift(l+' = '+types.map(function(t){return FK_LABEL[t]+' \u0e3f'+(priceMap[t]||0);}).join(' '));
+    });
+    if(added>0){
+      renderList();updateTotal();save();
+      document.getElementById('list-scroll').scrollTop=0;
+      fkRenderRecent();
+      toast('\u2705 เพิ่ม '+added+' รายการ');
+    }
+    fkBuf='';
+    fkRender();
+  }
+
+  function fkRenderRecent(){
+    var el=document.getElementById('fk-recent');
+    if(!fkAdded.length){el.textContent='รายการที่เพิ่มแล้วจะแสดงที่นี่';return;}
+    el.innerHTML=fkAdded.slice(0,8).map(function(s){
+      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;margin-bottom:5px;font-size:14px;font-weight:700;color:#fff;">\u2705 '+s+'</div>';
+    }).join('');
+  }
 
   function openQA(){
     if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');return;}
-    if(isLocked){toast('โพยถูกล็อคแล้ว');return;}
-    qaLeks=[];
-    renderQALekList();
-    document.getElementById('qa-inp').value='';
-    document.getElementById('qa-hd-title').textContent='⚡ เพิ่มเลขด่วน';
-    document.getElementById('qa-mode1').classList.remove('hide');
-    document.getElementById('qa-mode2').classList.remove('show');
+    fkBuf='';fkAdded=[];
+    fkAutoSel(2);
+    fkRender();
+    fkRenderRecent();
     document.getElementById('qa-ov').classList.add('show');
-    setTimeout(function(){document.getElementById('qa-inp').focus();},100);
   }
 
   function closeQA(){
     document.getElementById('qa-ov').classList.remove('show');
   }
 
-  function qaAddLek(){
-    var v=document.getElementById('qa-inp').value.replace(/\D/g,'').slice(0,5);
-    if(!v){toast('กรอกเลขก่อนครับ');return;}
-    if(!(RULES[v.length])){toast('เลข 1-5 หลักเท่านั้นครับ');return;}
-    // block เฉพาะเลขซ้ำตรงๆ ในลิสต์เดียวกัน
-    if(qaLeks.some(function(x){return x.lek===v;})){
-      toast('⚠️ เลข '+v+' มีในลิสต์แล้วครับ');
-      document.getElementById('qa-inp').select();
-      return;
-    }
-    qaLeks.unshift({lek:v});
-    document.getElementById('qa-inp').value='';
-    document.getElementById('qa-inp').focus();
-    renderQALekList();
-  }
+  window.fkNum=fkNum;
+  window.fkSep=fkSep;
+  window.fkMul=fkMul;
+  window.fkDel=fkDel;
+  window.fkEq=fkEq;
+  window.fkToggle=fkToggle;
 
-  function qaRemoveLek(i){
-    qaLeks.splice(i,1);
-    renderQALekList();
-  }
-  window.qaRemoveLek=qaRemoveLek;
-
-  function renderQALekList(){
-    var el=document.getElementById('qa-lek-list');
-    var empty=document.getElementById('qa-empty-msg');
-    if(!qaLeks.length){
-      el.innerHTML='<div class="qa-empty">ยังไม่มีเลข — กรอกแล้วกด + เพิ่ม</div>';
-      return;
-    }
-    el.innerHTML=qaLeks.map(function(x,i){
-      return '<div class="qa-lek-item">'
-        +'<span class="qa-lek-num">'+x.lek+'</span>'
-        +'<button class="qa-lek-rm" onclick="qaRemoveLek('+i+')">✕</button>'
-        +'</div>';
-    }).join('');
-  }
-
-  function qaGoPrice(){
-    if(!qaLeks.length){toast('กรอกเลขก่อนครับ');return;}
-    document.getElementById('qa-mode1').classList.add('hide');
-    document.getElementById('qa-mode2').classList.add('show');
-    document.getElementById('qa-hd-title').textContent='💰 ใส่ราคา ('+qaLeks.length+' เลข)';
-    renderQAPriceList();
-    setTimeout(function(){
-      var first=document.querySelector('.qa-field-inp');
-      if(first){first.focus();first.select();}
-    },100);
-  }
-
-  function renderQAPriceList(){
-    var el=document.getElementById('qa-price-list');
-    el.innerHTML='';
-    qaLeks.forEach(function(x,ri){
-      var d=x.lek.length;
-      var al=RULES[d]||[];
-      var row=document.createElement('div');
-      row.className='qa-price-row';
-      var hd=document.createElement('div');
-      hd.className='qa-price-lek';
-      hd.innerHTML=x.lek+' <span style="font-size:13px;color:var(--gray);font-weight:600;">('+d+' หลัก)</span>';
-      row.appendChild(hd);
-      var pf=document.createElement('div');
-      pf.className='qa-price-fields';
-      al.forEach(function(k){
-        var lbl=FM[k].l, cls='lbl-'+k;
-        var canKlb=KLB[k]&&KLB[k].indexOf(d)>=0;
-        var klbLbl=d===2?'กลับ':'ชุด';
-
-        // wrapper block
-        var block=document.createElement('div');
-        block.style.marginBottom='4px';
-
-        // main line
-        var line=document.createElement('div');
-        line.className='qa-field-line';
-        var lblEl=document.createElement('div');
-        lblEl.className='qa-field-lbl '+cls;
-        lblEl.textContent=lbl;
-        var inp=document.createElement('input');
-        inp.type='tel'; inp.inputMode='numeric'; inp.pattern='[0-9]*';
-        inp.className='qa-field-inp'; inp.enterKeyHint='next';
-        inp.dataset.ri=ri; inp.dataset.k=k; inp.placeholder='฿';
-        inp.addEventListener('input',(function(inpEl,riVal,kVal){return function(){
-          var raw=this.value;
-          if(raw.indexOf('-')>=0){
-            this.value=raw.replace(/[^0-9]/g,'');
-            // หา klbBtn ของ line นี้
-            var par=inpEl.parentElement;
-            while(par){
-              var kb=par.querySelector('.qa-klb-btn');
-              if(kb){kb.click();break;}
-              par=par.parentElement;
-              if(!par||par.tagName==='BODY')break;
-            }
-            return;
-          }
-          this.value=raw.replace(/[^0-9]/g,'');
-        };})(inp,ri,k));
-        inp.addEventListener('keypress',function(e){if(!/[0-9]/.test(e.key))e.preventDefault();});
-        inp.addEventListener('keydown',function(e){qaPriceKey(e,ri,k);});
-        var qbtns=document.createElement('div');
-        qbtns.className='qa-qbtns';
-        [10,20,50,100].forEach(function(n){
-          var b=document.createElement('button');
-          b.className='qa-qb'; b.textContent=n;
-          b.addEventListener('click',(function(rr,kk,nn){return function(){qaSetPrice(rr,kk,nn);};})(ri,k,n));
-          qbtns.appendChild(b);
-        });
-        line.appendChild(lblEl); line.appendChild(inp); line.appendChild(qbtns);
-
-        // ปุ่มชุด/กลับ
-        if(canKlb){
-          var klbBtn=document.createElement('button');
-          klbBtn.className='qa-klb-btn';
-          klbBtn.textContent=klbLbl;
-          // perm rows
-          var permRows=document.createElement('div');
-          permRows.className='qa-perm-rows';
-          var perms=getPerms(x.lek).filter(function(p){return p!==x.lek;});
-          perms.forEach(function(p){
-            var pr=document.createElement('div');
-            pr.className='qa-perm-row';
-            var pnum=document.createElement('div');
-            pnum.className='qa-perm-num'; pnum.textContent=p;
-            var pinp=document.createElement('input');
-            pinp.type='tel'; pinp.inputMode='numeric'; pinp.pattern='[0-9]*';
-            pinp.className='qa-field-inp'; pinp.placeholder='฿';
-            pinp.dataset.ri=ri; pinp.dataset.k=k; pinp.dataset.p=p;
-            pinp.addEventListener('input',function(){
-              var raw=this.value;
-              if(raw.indexOf('-')>=0){
-                this.value=raw.replace(/[^0-9]/g,'');
-                // หา klbBtn ใน block เดียวกัน
-                var par=this.parentElement;
-                while(par){
-                  var kb=par.querySelector('.qa-klb-btn');
-                  if(kb){kb.click();break;}
-                  par=par.parentElement;
-                  if(par&&par.classList.contains('qa-price-fields'))break;
-                }
-                return;
-              }
-              this.value=raw.replace(/[^0-9]/g,'');
-            });
-            pinp.addEventListener('keypress',function(e){if(!/[0-9]/.test(e.key))e.preventDefault();});
-            pinp.addEventListener('keydown',(function(kk,rri){return function(e){
-              if(e.key==='Enter'||e.keyCode===13){
-                e.preventDefault();
-                // ข้ามไปช่อง QA หลักถัดไปในแถวเดียวกัน
-                var d=qaLeks[rri].lek.length;
-                var al=RULES[d]||[];
-                var idx=al.indexOf(kk);
-                for(var i=idx+1;i<al.length;i++){
-                  var nx=document.querySelector('.qa-field-inp[data-ri="'+rri+'"][data-k="'+al[i]+'"]:not([data-p])');
-                  if(nx){nx.focus();nx.select();return;}
-                }
-                // ไปแถวถัดไป
-                var nextRi=rri+1;
-                if(nextRi<qaLeks.length){
-                  var nd=qaLeks[nextRi].lek.length;
-                  var nal=RULES[nd]||[];
-                  if(nal.length){
-                    var nx2=document.querySelector('.qa-field-inp[data-ri="'+nextRi+'"][data-k="'+nal[0]+'"]:not([data-p])');
-                    if(nx2){nx2.focus();nx2.select();return;}
-                  }
-                }
-                document.getElementById('qa-submit-btn').focus();
-              }
-            };})(k,ri));
-            var pqbtns=document.createElement('div');
-            pqbtns.className='qa-qbtns';
-            [10,20,50,100].forEach(function(n){
-              var pb=document.createElement('button');
-              pb.className='qa-qb'; pb.textContent=n;
-              pb.addEventListener('click',(function(pinp2,nn){return function(){pinp2.value=nn;};})(pinp,n));
-              pqbtns.appendChild(pb);
-            });
-            pr.appendChild(pnum); pr.appendChild(pinp); pr.appendChild(pqbtns);
-            permRows.appendChild(pr);
-          });
-          klbBtn.addEventListener('click',(function(mainInp,permRowsEl,klbBtnEl){
-            return function(){
-              var isOn=permRowsEl.classList.toggle('show');
-              klbBtnEl.classList.toggle('on',isOn);
-              // ถ้าเพิ่งเปิด → copy ราคาจากช่องหลักไปทุก perm ที่ยังว่าง
-              if(isOn){
-                var mainVal=mainInp.value;
-                if(mainVal){
-                  permRowsEl.querySelectorAll('.qa-field-inp').forEach(function(pi){
-                    if(!pi.value)pi.value=mainVal;
-                  });
-                }
-                // focus perm แรก
-                var first=permRowsEl.querySelector('.qa-field-inp');
-                if(first){first.focus();first.select();}
-              }
-            };
-          })(inp,permRows,klbBtn));
-          line.appendChild(klbBtn);
-          block.appendChild(line);
-          block.appendChild(permRows);
-        } else {
-          block.appendChild(line);
-        }
-        pf.appendChild(block);
-      });
-      row.appendChild(pf);
-      el.appendChild(row);
-    });
-  }
-
-  window.qaSetPrice=function(ri,k,v){
-    var inp=document.querySelector('.qa-field-inp[data-ri="'+ri+'"][data-k="'+k+'"]:not([data-p])');
-    if(inp){
-      inp.value=v;
-      // simulate Enter เพื่อเลื่อนช่องถัดไปอัตโนมัติ
-      var fakeE={key:'Enter',keyCode:13,preventDefault:function(){}};
-      qaPriceKey(fakeE,ri,k);
-    }
-  };
-
-  // smart tab ในโหมด 2
-  window.qaPriceKey=function(e,ri,k){
-    if(e.key!=='Enter'&&e.keyCode!==13)return;
-    e.preventDefault();
-    var d=qaLeks[ri].lek.length;
-    var al=RULES[d]||[];
-    var idx=al.indexOf(k);
-    // หาช่องถัดไปในแถวเดียวกัน (เฉพาะ main field ไม่ใช่ perm)
-    for(var i=idx+1;i<al.length;i++){
-      var nx=document.querySelector('.qa-field-inp[data-ri="'+ri+'"][data-k="'+al[i]+'"]:not([data-p])');
-      if(nx){nx.focus();nx.select();return;}
-    }
-    // ไปแถวถัดไป ช่องแรก
-    var nextRi=ri+1;
-    if(nextRi<qaLeks.length){
-      var nd=qaLeks[nextRi].lek.length;
-      var nal=RULES[nd]||[];
-      if(nal.length){
-        var nx2=document.querySelector('.qa-field-inp[data-ri="'+nextRi+'"][data-k="'+nal[0]+'"]:not([data-p])');
-        if(nx2){nx2.focus();nx2.select();return;}
-      }
-    }
-    document.getElementById('qa-submit-btn').focus();
-  };
-
-  function qaSubmit(){
-    // รวบรวมข้อมูลทั้งหมดก่อน
-    var items=[];
-    qaLeks.forEach(function(x,ri){
-      var d=x.lek.length;
-      var al=RULES[d]||[];
-      var mp={};var kd={};var hasAny=false;
-      al.forEach(function(k){
-        var inp=document.querySelector('.qa-field-inp[data-ri="'+ri+'"][data-k="'+k+'"]:not([data-p])');
-        var v=inp?parseInt(inp.value)||0:0;
-        mp[k]=v>0?v:null;
-        if(v>0)hasAny=true;
-        if(KLB[k]&&KLB[k].indexOf(d)>=0){
-          var perms=getPerms(x.lek).filter(function(p){return p!==x.lek;});
-          var permItems=[];
-          perms.forEach(function(p){
-            var pi=document.querySelector('.qa-field-inp[data-ri="'+ri+'"][data-k="'+k+'"][data-p="'+p+'"]');
-            var pv=pi?parseInt(pi.value)||0:0;
-            if(pv>0){permItems.push({perm:p,price:pv});hasAny=true;}
-          });
-          if(permItems.length)kd[k]=permItems;
-        }
-      });
-      if(hasAny)items.push({lek:x.lek,d:d,mp:mp,kd:kd});
-    });
-    if(!items.length){toast('กรุณาใส่ราคาอย่างน้อย 1 รายการ');return;}
-
-    // ตรวจเลขซ้ำ — รวม perm/ชุด/โต๊ด และซ้ำกันเองใน items
-    function getFullPerms(lek,mp,kd){
-      var leks=getPerms(lek);
-      if(mp&&mp.tod>0){getPerms(lek).forEach(function(p){if(leks.indexOf(p)<0)leks.push(p);});}
-      if(kd){Object.keys(kd).forEach(function(k){kd[k].forEach(function(x){if(leks.indexOf(x.perm)<0)leks.push(x.perm);});});}
-      return leks;
-    }
-    // label แต่ละประเภท
-    var TYPE_LABEL={
-      bon:{1:'วิ่งบน',2:'2ตัวบน',3:'3ตัวบน',4:'4ตัวบน',5:'5ตัวบน'},
-      tod:{2:'2ตัวโต๊ด',3:'3ตัวโต๊ด',4:'4ตัวโต๊ด',5:'5ตัวโต๊ด'},
-      lang:{1:'วิ่งล่าง',2:'2ตัวล่าง',3:'3ตัวล่าง'},
-      na:{3:'3ตัวหน้า'},
-      kd_bon:{2:'2ตัวกลับบน',3:'ชุด3ตัวบน'},
-      kd_lang:{2:'2ตัวกลับล่าง',3:'ชุด3ตัวล่าง'},
-      kd_na:{3:'ชุด3ตัวหน้า'}
-    };
-    function getTypedPerms(it){
-      // คืน [{leks:[...], typeKey, typeLabel}]
-      var groups=[];
-      var d=it.lek.length;
-      // ประเภทตรง (bon,tod,lang,na)
-      ['bon','tod','lang','na'].forEach(function(t){
-        if(it.mp[t]>0){
-          var lbl=TYPE_LABEL[t]&&TYPE_LABEL[t][d]?TYPE_LABEL[t][d]:t;
-          // โต๊ด = perm ทั้งหมด, อื่น = เลขตรง
-          var leks=(t==='tod')?getPerms(it.lek):[it.lek];
-          groups.push({leks:leks,typeKey:t,typeLabel:lbl,lek:it.lek});
-        }
-      });
-      // ชุด (kd)
-      if(it.kd){
-        ['bon','lang','na'].forEach(function(t){
-          if(it.kd[t]&&it.kd[t].length){
-            var tk='kd_'+t;
-            var lbl=TYPE_LABEL[tk]&&TYPE_LABEL[tk][d]?TYPE_LABEL[tk][d]:'ชุด'+t;
-            var leks=[it.lek].concat(it.kd[t].map(function(x){return x.perm;}));
-            groups.push({leks:leks,typeKey:tk,typeLabel:lbl,lek:it.lek});
-          }
-        });
-      }
-      return groups;
-    }
-    function getExistTypedPerms(e){
-      var d=e.d||e.lek.length;
-      var all=[];
-      ['bon','tod','lang','na'].forEach(function(t){
-        if(e[t]>0){
-          var leks=(t==='tod')?getPerms(e.lek):[e.lek];
-          leks.forEach(function(l){all.push(l);});
-        }
-      });
-      if(e.kd){Object.keys(e.kd).forEach(function(k){
-        all.push(e.lek);
-        e.kd[k].forEach(function(x){all.push(x.perm);});
-      });}
-      return all;
-    }
-
-    var dupLines=[]; // [{lek, typeLabel, source}]
-    function addDupLine(lek,typeLabel,source){
-      var key=lek+'|'+typeLabel+'|'+(source||'');
-      var exists=dupLines.some(function(x){return x.key===key;});
-      if(!exists)dupLines.push({key:key,lek:lek,typeLabel:typeLabel,source:source||''});
-    }
-
-    // ตรวจซ้ำกับ entries ในชุดปัจจุบัน
-    items.forEach(function(it){
-      var groups=getTypedPerms(it);
-      groups.forEach(function(g){
-        entries.forEach(function(e){
-          var eLeks=getExistTypedPerms(e);
-          if(g.leks.some(function(l){return eLeks.indexOf(l)>=0;})){
-            addDupLine(g.lek, g.typeLabel, 'ชุดปัจจุบัน');
-          }
-        });
-      });
-    });
-    // ตรวจซ้ำกับชุดที่เก็บแล้วในประวัติ (isBasket)
-    var hist=getHistory();
-    var basketSetsH=[];
-    hist.forEach(function(h){
-      if(h.ngod===ngodInfo.ngod&&h.isBasket) basketSetsH.push(h);
-    });
-    basketSetsH.forEach(function(h,si){
-      var setNum=si+1;
-      items.forEach(function(it){
-        var groups=getTypedPerms(it);
-        groups.forEach(function(g){
-          h.entries.forEach(function(e){
-            var eLeks=getExistTypedPerms(e);
-            if(g.leks.some(function(l){return eLeks.indexOf(l)>=0;})){
-              addDupLine(g.lek, g.typeLabel, 'ชุดที่ '+setNum);
-            }
-          });
-        });
-      });
-    });
-    // ตรวจซ้ำกันเองใน items
-    for(var ii=0;ii<items.length;ii++){
-      var gi=getTypedPerms(items[ii]);
-      for(var jj=ii+1;jj<items.length;jj++){
-        var gj=getTypedPerms(items[jj]);
-        gi.forEach(function(a){
-          gj.forEach(function(b){
-            if(a.typeKey===b.typeKey && a.leks.some(function(l){return b.leks.indexOf(l)>=0;})){
-              addDupLine(a.lek, a.typeLabel, 'เลขใหม่ซ้ำกันเอง');
-              addDupLine(b.lek, b.typeLabel, 'เลขใหม่ซ้ำกันเอง');
-            }
-          });
-        });
-      }
-    }
-    var dupSet=dupLines;
-
-    function doAdd(){
-      var added=0;
-      items.forEach(function(it){
-        eid++;
-        entries.unshift({id:eid,lek:it.lek,d:it.d,
-          bon:it.mp.bon||null,tod:it.mp.tod||null,lang:it.mp.lang||null,na:it.mp.na||null,kd:it.kd});
-        added++;
-      });
-      save();renderList();updateTotal();
-      closeQA();
-      toast('เพิ่ม '+added+' รายการเรียบร้อยครับ ✅');
-      scrollToList();
-    }
-
-    if(dupSet.length){
-      // จัดกลุ่มตาม typeLabel
-      var grouped={};
-      dupSet.forEach(function(x){
-        if(!grouped[x.typeLabel])grouped[x.typeLabel]=[];
-        if(grouped[x.typeLabel].indexOf(x.lek)<0)grouped[x.typeLabel].push(x.lek);
-      });
-      // จัดกลุ่มตาม source → typeLabel → leks
-      var bySource={};var sourceOrder=[];
-      dupSet.forEach(function(x){
-        var src=x.source||'ซ้ำ';
-        if(!bySource[src]){bySource[src]={};sourceOrder.push(src);}
-        if(!bySource[src][x.typeLabel])bySource[src][x.typeLabel]=[];
-        if(bySource[src][x.typeLabel].indexOf(x.lek)<0)bySource[src][x.typeLabel].push(x.lek);
-      });
-      var dupLinesArr=[];
-      dupSet.forEach(function(x){
-        dupLinesArr.push('เลข <b>'+x.lek+'</b> '+x.typeLabel+' ('+x.source+')');
-      });
-      var dupMsg=dupLinesArr.join('<br>');
-      showConfirm('พบเลขซ้ำ<br><br>'+dupMsg+'<br><br>ต้องการเพิ่มซ้ำหรือไม่?', doAdd, false);
-      return;
-    }
-    doAdd();
-    scrollToList();
-  }
-
-  function qaBack(){
-    document.getElementById('qa-mode2').classList.remove('show');
-    document.getElementById('qa-mode1').classList.remove('hide');
-    document.getElementById('qa-hd-title').textContent='⚡ เพิ่มเลขด่วน';
-    setTimeout(function(){document.getElementById('qa-inp').focus();},100);
-  }
+  var qaLeks=[];  // legacy
 
   document.addEventListener('DOMContentLoaded',init);
 })();
@@ -3938,6 +3582,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
 <!-- QUICK ADD OVERLAY -->
 <div class="qa-ov" id="qa-ov">
+  <!-- Header -->
   <div class="qa-hd">
     <div class="qa-hd-top">
       <div class="qa-hd-title" id="qa-hd-title">⚡ เพิ่มเลขด่วน</div>
@@ -3945,26 +3590,43 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
   </div>
 
-  <!-- โหมด 1: คีย์เลข -->
-  <div class="qa-mode1" id="qa-mode1">
-    <div class="qa-inp-row" style="padding:10px 12px 0;">
-      <input id="qa-inp" type="tel" inputmode="numeric" maxlength="5" enterkeyhint="go"
-        class="qa-inp" placeholder="กรอกเลข">
-      <button class="qa-add-lek" id="qa-add-lek-btn">+ เพิ่ม</button>
+  <!-- Display -->
+  <div id="fk-display" style="padding:10px 14px 6px;flex-shrink:0;">
+    <div id="fk-screen" style="background:#0d0f1a;border:2px solid var(--border);border-radius:14px;padding:12px 16px;min-height:64px;display:flex;align-items:center;justify-content:space-between;">
+      <div id="fk-text" style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold);letter-spacing:2px;flex:1;word-break:break-all;">—</div>
+      <div id="fk-hint" style="font-size:12px;color:var(--gray);text-align:right;line-height:1.4;">กดเลข<br>แล้ว =</div>
     </div>
-    <div style="font-size:11px;color:var(--gray);text-align:center;margin:4px 12px 0;">ปุ่มลัด: Enter / + (เพิ่มเลข) &nbsp;•&nbsp; - (ชุด/กลับ) &nbsp;•&nbsp; Enter / Tab (ถัดไป ตอนใส่ราคา)</div>
-    <div class="qa-lek-list" id="qa-lek-list">
-      <div class="qa-empty" id="qa-empty-msg">ยังไม่มีเลข — กรอกแล้วกด + เพิ่ม</div>
-    </div>
-    <button class="qa-next-btn" id="qa-next-btn">ถัดไป ▶</button>
   </div>
 
-  <!-- โหมด 2: ใส่ราคา -->
-  <div class="qa-mode2" id="qa-mode2">
-    <div style="font-size:11px;color:var(--gray);text-align:center;padding:6px 12px 0;">ปุ่มลัด: - (ชุด/กลับ) &nbsp;•&nbsp; Enter / Tab / + (ถัดไป)</div>
-    <div class="qa-price-list" id="qa-price-list"></div>
-    <button class="qa-back-btn" id="qa-back-btn">◀ กลับแก้เลข</button>
-    <button class="qa-submit-btn" id="qa-submit-btn">✓ เพิ่มเข้าโพย</button>
+  <!-- Type toggles -->
+  <div id="fk-types" style="display:flex;gap:6px;padding:0 14px 8px;flex-shrink:0;">
+    <button class="fk-tbtn" id="fkt-bon" onclick="fkToggle('bon')">บน</button>
+    <button class="fk-tbtn" id="fkt-tod" onclick="fkToggle('tod')">โต๊ด</button>
+    <button class="fk-tbtn" id="fkt-lang" onclick="fkToggle('lang')">ล่าง</button>
+    <button class="fk-tbtn" id="fkt-na" onclick="fkToggle('na')">หน้า</button>
+  </div>
+
+  <!-- Keyboard -->
+  <div id="fk-kb" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 14px 14px;flex-shrink:0;">
+    <button class="fk-btn fk-num" onclick="fkNum('1')">1</button>
+    <button class="fk-btn fk-num" onclick="fkNum('2')">2</button>
+    <button class="fk-btn fk-num" onclick="fkNum('3')">3</button>
+    <button class="fk-btn fk-del" onclick="fkDel()">⌫</button>
+    <button class="fk-btn fk-num" onclick="fkNum('4')">4</button>
+    <button class="fk-btn fk-num" onclick="fkNum('5')">5</button>
+    <button class="fk-btn fk-num" onclick="fkNum('6')">6</button>
+    <button class="fk-btn fk-sep" onclick="fkSep()">/</button>
+    <button class="fk-btn fk-num" onclick="fkNum('7')">7</button>
+    <button class="fk-btn fk-num" onclick="fkNum('8')">8</button>
+    <button class="fk-btn fk-num" onclick="fkNum('9')">9</button>
+    <button class="fk-btn fk-mul" onclick="fkMul()">×</button>
+    <button class="fk-btn fk-num" style="grid-column:span 2;" onclick="fkNum('0')">0</button>
+    <button class="fk-btn fk-eq" style="grid-column:span 2;background:linear-gradient(135deg,#27ae60,#1a7a3e);color:#fff;" onclick="fkEq()">= OK</button>
+  </div>
+
+  <!-- Recent list -->
+  <div style="flex:1;overflow-y:auto;padding:0 14px 8px;">
+    <div id="fk-recent" style="font-size:13px;color:var(--gray);text-align:center;padding:8px 0;">รายการที่เพิ่มแล้วจะแสดงที่นี่</div>
   </div>
 </div>
 
