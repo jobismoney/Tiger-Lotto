@@ -2080,10 +2080,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var leks2=ckLekList.slice();
       var price2=ckPriceArr.slice();
       var klb2=JSON.parse(JSON.stringify(ckKlbSel));
-      // ตรวจราคาก่อน reset — ถ้าไม่มีราคาเลขจะได้ไม่หาย
-      var hasPrice=price2.some(function(s){return s.val>0;});
-      if(!hasPrice){toast('กรุณาใส่ราคาก่อนครับ');return;}
-      doReset();
+      doReset(); // reset ก่อน แล้วค่อย commit
       ckCommitToApp(leks2, price2, klb2);
     }
 
@@ -2132,7 +2129,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   // ─── CK → APP bridge ───
   function addEntryDirect(lek2, priceMap){
     // เพิ่ม entry โดยตรง ไม่ผ่าน global state ไม่มี popup
-    console.log('[addEntryDirect] lek='+lek2, 'map=', priceMap, 'ngodOpen='+ngodOpen, 'isLocked='+isLocked);
     if(!ngodOpen){toast('⚠️ ยังไม่ได้เปิดงวดครับ');return;}
     if(isLocked){toast('⚠️ โพยถูกล็อคแล้ว');return;}
     if(!lek2){toast('⚠️ ไม่มีเลข');return;}
@@ -2144,13 +2140,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       mp[k]=v>0?v:null;
       if(v>0) hasAny=true;
     });
-    console.log('[addEntryDirect] mp=', mp, 'hasAny='+hasAny, 'entries.length before='+entries.length);
     if(!hasAny){toast('⚠️ ไม่มีราคา lek='+lek2+' map='+JSON.stringify(priceMap));return;}
     eid++;
     entries.unshift({id:eid,lek:lek2,d:d,
       bon:mp.bon||null,tod:mp.tod||null,
       lang:mp.lang||null,na:mp.na||null,kd:{}});
-    console.log('[addEntryDirect] entries.length after='+entries.length);
     renderList(); updateTotal(); save();
     document.getElementById('list-scroll').scrollTop=0;
   }
@@ -2166,7 +2160,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         typeConfigs[seg.type]={val:seg.val,mode:mode};
       }
     });
-    if(!Object.keys(typeConfigs).length){toast('กรุณาใส่ราคาก่อนครับ');return;}
+    if(!Object.keys(typeConfigs).length) return;
 
     lekList2.forEach(function(l){
       // solo types — โต๊ด หรือไม่กด กลับ/ชุด → entry เดี่ยวต่อประเภท
@@ -4114,13 +4108,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     setTimeout(function(){document.getElementById('qa-inp').focus();},100);
   }
 
-  // DEBUG expose
-  window._D={
-    status:function(){console.log('ngodOpen='+ngodOpen,'isLocked='+isLocked,'entries='+entries.length,'ngod='+ngodInfo.ngod);},
-    testAdd:function(){addEntryDirect('123',{bon:100});},
-    getState:function(){return{ngodOpen:ngodOpen,isLocked:isLocked,entries:entries.slice()};}
-  };
-  // init จะถูกเรียกจาก script ท้าย body แทน
+  // init called from end of body
 })();
 </script>
 
