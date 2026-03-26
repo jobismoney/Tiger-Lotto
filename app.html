@@ -4120,7 +4120,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     testAdd:function(){addEntryDirect('123',{bon:100});},
     getState:function(){return{ngodOpen:ngodOpen,isLocked:isLocked,entries:entries.slice()};}
   };
-  document.addEventListener('DOMContentLoaded',init);
+  // init จะถูกเรียกจาก script ท้าย body แทน
 })();
 </script>
 
@@ -4418,5 +4418,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
   </div>
 </div>
+<script>init();</script>
 </body>
 </html>
