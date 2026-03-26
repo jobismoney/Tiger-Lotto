@@ -1155,9 +1155,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(li){li.value='';}
     var ab=document.getElementById('add-btn');
     if(ab)ab.classList.remove('ready');
-    // reset chips และ price grid ให้ว่าง (ยังไม่มีเลข)
     renderChips(0);
     renderPGrid([]);
+    npReset();
+    npUpdateForLek(0);
     var ls=document.getElementById('lek-shown');
     if(ls){ls.className='lp';ls.textContent='? ? ?';}
     var lh=document.getElementById('lek-hint');
@@ -3633,6 +3634,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function closeQA(){
     document.getElementById("qa-ov").classList.remove("show");
+    // re-render รายการหลักหลังปิด FK overlay
+    renderList();updateTotal();
+    document.getElementById("list-scroll").scrollTop=0;
   }
 
   window.fkNum=fkNum;
