@@ -452,15 +452,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 /* ─── QUICK ADD OVERLAY ─── */
 .qa-ov{display:none;position:fixed;inset:0;background:var(--bg);z-index:250;flex-direction:column;}
 .qa-ov.show{display:flex;}
-/* FK keyboard */
-.fk-btn{background:var(--card);border:1px solid var(--border);border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:24px;font-weight:900;padding:15px 8px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;transition:background .1s;}
+.fk-btn{background:var(--card);border:1px solid var(--border);border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:24px;font-weight:900;padding:15px 8px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;}
 .fk-btn:active{background:#2a2d3a;}
-.fk-num{}
 .fk-del{background:#2a1a1a;color:#ef4444;}
 .fk-sep{background:#1a1a2a;color:#818cf8;}
 .fk-mul{background:#1a2a1a;color:#34d399;}
 .fk-eq{background:linear-gradient(135deg,#27ae60,#1a7a3e);color:#fff;font-size:20px;}
-.fk-tbtn{background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--gray);font-family:'Sarabun',sans-serif;font-size:15px;font-weight:800;padding:9px 4px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;width:100%;}
+.fk-tbtn{background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--gray);font-family:'Sarabun',sans-serif;font-size:15px;font-weight:800;padding:9px 4px;cursor:pointer;-webkit-tap-highlight-color:transparent;width:100%;}
 .fk-tbtn.on-bon{background:#1e3a5f;border-color:#60a5fa;color:#60a5fa;}
 .fk-tbtn.on-tod{background:#3d1a3d;border-color:#f472b6;color:#f472b6;}
 .fk-tbtn.on-lang{background:#1a3d2a;border-color:#34d399;color:#34d399;}
@@ -3221,21 +3219,21 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   // ─── QUICK ADD ───
   // ─── FK FAST KEYBOARD ───
-  var fkBuf='';
+  var fkBuf="";
   var fkSel={bon:false,tod:false,lang:false,na:false};
   var fkKlb={bon:false,lang:false,na:false};
   var fkAdded=[];
-  var FK_DEFAULT={1:['bon','lang'],2:['bon','lang'],3:['bon','tod'],4:['tod'],5:['tod']};
-  var FK_KLB_TYPES=['bon','lang','na'];
-  var FK_COLOR={bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
-  var FK_LABEL={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
+  var FK_DEFAULT={1:["bon","lang"],2:["bon","lang"],3:["bon","tod"],4:["tod"],5:["tod"]};
+  var FK_KLB_TYPES=["bon","lang","na"];
+  var FK_COLOR={bon:"#60a5fa",tod:"#f472b6",lang:"#34d399",na:"#fb923c"};
+  var FK_LABEL={bon:"บน",tod:"โต๊ด",lang:"ล่าง",na:"หน้า"};
 
   function fkAutoSel(d){
-    var def=FK_DEFAULT[d]||['bon','lang'];
-    ['bon','tod','lang','na'].forEach(function(t){
+    var def=FK_DEFAULT[d]||["bon","lang"];
+    ["bon","tod","lang","na"].forEach(function(t){
       fkSel[t]=def.indexOf(t)>=0;
-      var btn=document.getElementById('fkt-'+t);
-      if(btn) btn.className='fk-tbtn'+(fkSel[t]?' on-'+t:'');
+      var btn=document.getElementById("fkt-"+t);
+      if(btn) btn.className="fk-tbtn"+(fkSel[t]?" on-"+t:"");
     });
     fkKlb={bon:false,lang:false,na:false};
     fkUpdateKlbBtns(d);
@@ -3243,29 +3241,26 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function fkUpdateKlbBtns(d){
     if(!d&&fkBuf){
-      var lekPart=fkBuf.split('=')[0];
-      var firstLek=lekPart.split('/')[0].replace(/\D/g,'');
-      d=firstLek.length||2;
+      var lp=fkBuf.split("=")[0];
+      var fl=lp.split("/")[0].replace(/\D/g,"");
+      d=fl.length||2;
     }
     d=d||2;
-    var klbLabel=d===2?'กลับ':'ชุด';
+    var lbl=d===2?"กลับ":"ชุด";
     FK_KLB_TYPES.forEach(function(t){
-      var btn=document.getElementById('fkk-'+t);
+      var btn=document.getElementById("fkk-"+t);
       if(!btn) return;
-      var show=fkSel[t]&&fkBuf.indexOf('=')<0;
-      btn.style.display=show?'block':'none';
-      if(show){
-        btn.textContent=klbLabel;
-        btn.className='fk-klb'+(fkKlb[t]?' on':'');
-      }
+      var show=fkSel[t]&&fkBuf.indexOf("=")<0;
+      btn.style.display=show?"block":"none";
+      if(show){btn.textContent=lbl;btn.className="fk-klb"+(fkKlb[t]?" on":"");}
     });
   }
 
   function fkToggle(t){
     fkSel[t]=!fkSel[t];
     if(!fkSel[t]) fkKlb[t]=false;
-    var btn=document.getElementById('fkt-'+t);
-    if(btn) btn.className='fk-tbtn'+(fkSel[t]?' on-'+t:'');
+    var btn=document.getElementById("fkt-"+t);
+    if(btn) btn.className="fk-tbtn"+(fkSel[t]?" on-"+t:"");
     fkUpdateKlbBtns();
     fkRender();
   }
@@ -3273,80 +3268,69 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function fkToggleKlb(t){
     if(!fkSel[t]) return;
     fkKlb[t]=!fkKlb[t];
-    var btn=document.getElementById('fkk-'+t);
-    if(btn) btn.className='fk-klb'+(fkKlb[t]?' on':'');
+    var btn=document.getElementById("fkk-"+t);
+    if(btn) btn.className="fk-klb"+(fkKlb[t]?" on":"");
     fkRender();
   }
 
   function fkRender(){
-    var el=document.getElementById('fk-text');
-    var hint=document.getElementById('fk-hint');
+    var el=document.getElementById("fk-text");
+    var hint=document.getElementById("fk-hint");
     if(!el) return;
-    if(!fkBuf){
-      el.textContent='—';el.style.color='#555';
-      hint.innerHTML='กดเลข<br>แล้ว =';
-      return;
-    }
-    el.style.color='var(--gold)';
-    el.textContent=fkBuf.replace(/x/gi,'×');
-    var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
-    var klbTypes=FK_KLB_TYPES.filter(function(t){return fkKlb[t];});
-    var hintParts=types.map(function(t){
+    if(!fkBuf){el.textContent="—";el.style.color="#555";hint.innerHTML="กดเลข<br>แล้ว =";return;}
+    el.style.color="var(--gold)";
+    el.textContent=fkBuf.replace(/x/gi,"×");
+    var types=["bon","tod","lang","na"].filter(function(t){return fkSel[t];});
+    hint.innerHTML=types.map(function(t){
       var s='<span style="color:'+FK_COLOR[t]+'">'+FK_LABEL[t]+'</span>';
-      if(klbTypes.indexOf(t)>=0) s+='<span style="color:#d4a017;font-size:10px;">+กลับ</span>';
+      if(fkKlb[t]) s+='<span style="color:#d4a017;font-size:10px;">+กลับ</span>';
       return s;
-    });
-    hint.innerHTML=hintParts.join(' ');
+    }).join(" ");
   }
 
   function fkNum(n){
-    var eqIdx=fkBuf.indexOf('=');
-    if(eqIdx>=0){
+    if(fkBuf.indexOf("=")>=0){
       fkBuf+=n;
     } else {
-      var parts=fkBuf.split('/');
+      var parts=fkBuf.split("/");
       var last=parts[parts.length-1];
       if(last.length>=5) return;
-      // ตรวจเลขคนละประเภท
-      if(parts.length>1){
-        var firstLen=parts[0].length;
+      if(parts.length>1&&last.length>0){
         var newLen=last.length+1;
-        if(newLen>firstLen){
-          toast('⚠️ เลขคนละประเภท: '+firstLen+' หลัก กับ '+newLen+' หลัก — กรุณาใส่ประเภทเดียวกัน');
+        if(newLen>parts[0].length){
+          toast("เลขคนละประเภท: "+parts[0].length+" หลัก กับ "+newLen+" หลัก");
           return;
         }
       }
       fkBuf+=n;
-      var lekPart=fkBuf.split('=')[0];
-      var firstLek=lekPart.split('/')[0];
-      if(firstLek.length>=1) fkAutoSel(firstLek.length);
+      var fl=fkBuf.split("=")[0].split("/")[0];
+      if(fl.length>=1) fkAutoSel(fl.length);
     }
     fkUpdateKlbBtns();
     fkRender();
   }
 
   function fkSep(){
-    if(fkBuf.indexOf('=')>=0) return;
-    var parts=fkBuf.split('/');
+    if(fkBuf.indexOf("=")>=0) return;
+    var parts=fkBuf.split("/");
     var last=parts[parts.length-1];
     if(!last||!last.length) return;
-    // ตรวจขนาดต้องเท่ากัน
     if(parts.length>0&&parts[0].length!==last.length){
-      toast('⚠️ เลขคนละประเภท: '+parts[0].length+' หลัก กับ '+last.length+' หลัก');
+      toast("เลขคนละประเภท: "+parts[0].length+" หลัก กับ "+last.length+" หลัก");
       return;
     }
-    fkBuf+='/';
+    fkBuf+="/";
     fkRender();
   }
 
   function fkMul(){
-    if(fkBuf.indexOf('=')<0) return;
-    var pricePart=fkBuf.split('=')[1]||'';
-    var priceSegs=pricePart.split('x');
-    var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
-    if(priceSegs.length>=types.length) return;
-    if(!pricePart||!priceSegs[priceSegs.length-1]) return;
-    fkBuf+='x';
+    if(fkBuf.indexOf("=")<0) return;
+    var pp=fkBuf.split("=")[1]||"";
+    var ps=pp.split("x");
+    var types=["bon","tod","lang","na"].filter(function(t){return fkSel[t];});
+    if(ps.length>=types.length) return;
+    if(!pp||!ps[ps.length-1]) return;
+    fkBuf+="x";
     fkRender();
   }
 
@@ -3355,26 +3339,24 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     fkBuf=fkBuf.slice(0,-1);
     if(!fkBuf){fkAutoSel(2);}
     else{
-      var lekPart=fkBuf.split('=')[0];
-      var firstLek=lekPart.split('/')[0].replace(/\D/g,'');
-      if(firstLek.length>=1) fkAutoSel(firstLek.length);
+      var fl=fkBuf.split("=")[0].split("/")[0].replace(/\D/g,"");
+      if(fl.length>=1) fkAutoSel(fl.length);
     }
     fkUpdateKlbBtns();
     fkRender();
   }
 
   function fkEq(){
-    if(fkBuf.indexOf('=')<0){
-      var lekPart=fkBuf.split('/').filter(function(s){return s.replace(/\D/g,'').length>0;});
-      if(!lekPart.length){toast('กรอกเลขก่อนครับ');return;}
-      // ตรวจเลขสุดท้ายที่ค้างอยู่
-      var parts=fkBuf.split('/');
+    if(fkBuf.indexOf("=")<0){
+      var leks=fkBuf.split("/").filter(function(s){return s.replace(/\D/g,"").length>0;});
+      if(!leks.length){toast("กรอกเลขก่อนครับ");return;}
+      var parts=fkBuf.split("/");
       var last=parts[parts.length-1];
       if(parts.length>1&&last.length!==parts[0].length){
-        toast('\u26a0\ufe0f เลขคนละประเภท: '+parts[0].length+' หลัก กับ '+last.length+' หลัก');
+        toast("เลขคนละประเภท: "+parts[0].length+" หลัก กับ "+last.length+" หลัก");
         return;
       }
-      fkBuf+='=';
+      fkBuf+="=";
       fkUpdateKlbBtns();
       fkRender();
       return;
@@ -3383,76 +3365,69 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   function fkCommit(){
-    if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');return;}
-    if(isLocked){toast('โพยถูกล็อคแล้ว');return;}
-    var parts=fkBuf.split('=');
+    if(!ngodOpen){toast("กรุณาเปิดงวดก่อนครับ");return;}
+    if(isLocked){toast("โพยถูกล็อคแล้ว");return;}
+    var parts=fkBuf.split("=");
     var lekPart=parts[0];
-    var pricePart=parts[1]||'';
-    var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
-    var priceSegs=pricePart.split('x').map(function(s){return parseInt(s.replace(/\D/g,''))||0;});
-    if(!leks.length){toast('ไม่มีเลขครับ');return;}
-    if(!priceSegs[0]){toast('ใส่ราคาก่อนครับ');return;}
-    var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
-    if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
-    var priceMap={};
-    types.forEach(function(t,i){
-      priceMap[t]=priceSegs[i]>0?priceSegs[i]:(priceSegs[priceSegs.length-1]||0);
-    });
+    var pricePart=parts[1]||"";
+    var leks=lekPart.split("/").map(function(s){return s.replace(/\D/g,"");}).filter(function(s){return s.length>=1&&s.length<=5;});
+    var ps=pricePart.split("x").map(function(s){return parseInt(s.replace(/\D/g,""))||0;});
+    if(!leks.length){toast("ไม่มีเลขครับ");return;}
+    if(!ps[0]){toast("ใส่ราคาก่อนครับ");return;}
+    var types=["bon","tod","lang","na"].filter(function(t){return fkSel[t];});
+    if(!types.length){toast("เลือกประเภทก่อนครับ");return;}
+    var pm={};
+    types.forEach(function(t,i){pm[t]=ps[i]>0?ps[i]:ps[ps.length-1]||0;});
     var d=leks[0].length;
-    var klbLabel=d===2?'กลับ':'ชุด';
     var added=0;
     leks.forEach(function(l){
       var isDup=entries.some(function(e){return e.lek===l&&!(e.paks&&e.paks.length);});
-      if(isDup&&APP.allowedDupKeys.indexOf(l)<0){toast('\u26a0\ufe0f เลข '+l+' ซ้ำ ข้ามไป');return;}
+      if(isDup&&APP.allowedDupKeys.indexOf(l)<0){toast("เลข "+l+" ซ้ำ ข้ามไป");return;}
       var kd={};
       FK_KLB_TYPES.forEach(function(t){
-        if(fkSel[t]&&fkKlb[t]&&priceMap[t]){
+        if(fkSel[t]&&fkKlb[t]&&pm[t]){
           var perms=getPerms(l).filter(function(p){return p!==l;});
-          if(perms.length){
-            kd[t]=perms.map(function(p){return{perm:p,price:priceMap[t]};});
-          }
+          if(perms.length) kd[t]=perms.map(function(p){return{perm:p,price:pm[t]};});
         }
       });
       eid++;
       entries.unshift({id:eid,lek:l,d:l.length,
-        bon:priceMap.bon||null,tod:priceMap.tod||null,
-        lang:priceMap.lang||null,na:priceMap.na||null,kd:kd});
+        bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,kd:kd});
       added++;
-      var klbInfo=FK_KLB_TYPES.filter(function(t){return fkKlb[t]&&fkSel[t];}).map(function(t){return FK_LABEL[t]+klbLabel;}).join(',');
-      fkAdded.unshift(l+'='+types.map(function(t){return FK_LABEL[t]+'\u0e3f'+(priceMap[t]||0);}).join('\u00d7')+(klbInfo?' ['+klbInfo+']':''));
+      fkAdded.unshift(l+"="+types.map(function(t){return FK_LABEL[t]+" "+pm[t];}).join("x"));
     });
     if(added>0){
       renderList();updateTotal();save();
-      document.getElementById('list-scroll').scrollTop=0;
+      document.getElementById("list-scroll").scrollTop=0;
       fkRenderRecent();
-      toast('\u2705 เพิ่ม '+added+' รายการ');
+      toast("เพิ่ม "+added+" รายการ");
     }
-    fkBuf='';
+    fkBuf="";
     fkKlb={bon:false,lang:false,na:false};
     fkAutoSel(d||2);
     fkRender();
   }
 
   function fkRenderRecent(){
-    var el=document.getElementById('fk-recent');
-    if(!fkAdded.length){el.textContent='รายการที่เพิ่มแล้วจะแสดงที่นี่';el.style.color='var(--gray)';return;}
+    var el=document.getElementById("fk-recent");
+    if(!fkAdded.length){el.textContent="รายการที่เพิ่มแล้วจะแสดงที่นี่";return;}
     el.innerHTML=fkAdded.slice(0,8).map(function(s){
-      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 12px;margin-bottom:5px;font-size:14px;font-weight:700;color:#fff;">\u2705 '+s+'</div>';
-    }).join('');
+      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 12px;margin-bottom:5px;font-size:14px;font-weight:700;color:#fff;">'+s+'</div>';
+    }).join("");
   }
 
   function openQA(){
-    if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');return;}
-    fkBuf='';fkAdded=[];
+    if(!ngodOpen){toast("กรุณาเปิดงวดก่อนครับ");return;}
+    fkBuf="";fkAdded=[];
     fkKlb={bon:false,lang:false,na:false};
     fkAutoSel(2);
     fkRender();
     fkRenderRecent();
-    document.getElementById('qa-ov').classList.add('show');
+    document.getElementById("qa-ov").classList.add("show");
   }
 
   function closeQA(){
-    document.getElementById('qa-ov').classList.remove('show');
+    document.getElementById("qa-ov").classList.remove("show");
   }
 
   window.fkNum=fkNum;
@@ -3463,10 +3438,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   window.fkToggle=fkToggle;
   window.fkToggleKlb=fkToggleKlb;
 
-  var qaLeks=[];  // legacy
 
-
-  // init called at end of body
+  document.addEventListener('DOMContentLoaded',init);
 })();
 </script>
 
@@ -3684,60 +3657,48 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       <button class="qa-close" id="qa-close">✕</button>
     </div>
   </div>
-
-  <!-- หน้าจอแสดงผล -->
   <div style="padding:10px 14px 6px;flex-shrink:0;">
-    <div id="fk-screen" style="background:#0d0f1a;border:2px solid var(--border);border-radius:14px;padding:10px 16px;min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+    <div style="background:#0d0f1a;border:2px solid var(--border);border-radius:14px;padding:10px 16px;min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
       <div id="fk-text" style="font-family:'Bebas Neue',sans-serif;font-size:34px;color:#555;letter-spacing:2px;flex:1;word-break:break-all;line-height:1.1;">—</div>
       <div id="fk-hint" style="font-size:12px;color:var(--gray);text-align:right;line-height:1.6;flex-shrink:0;">กดเลข<br>แล้ว =</div>
     </div>
   </div>
-
-  <!-- ปุ่มประเภท + กลับ/ชุด -->
   <div style="padding:0 14px 8px;flex-shrink:0;">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
-      <!-- บน -->
       <div style="display:flex;flex-direction:column;gap:4px;">
         <button class="fk-tbtn" id="fkt-bon" onclick="fkToggle('bon')">บน</button>
         <button class="fk-klb" id="fkk-bon" onclick="fkToggleKlb('bon')" style="display:none;"></button>
       </div>
-      <!-- โต๊ด -->
       <div style="display:flex;flex-direction:column;gap:4px;">
         <button class="fk-tbtn" id="fkt-tod" onclick="fkToggle('tod')">โต๊ด</button>
         <div style="height:28px;"></div>
       </div>
-      <!-- ล่าง -->
       <div style="display:flex;flex-direction:column;gap:4px;">
         <button class="fk-tbtn" id="fkt-lang" onclick="fkToggle('lang')">ล่าง</button>
         <button class="fk-klb" id="fkk-lang" onclick="fkToggleKlb('lang')" style="display:none;"></button>
       </div>
-      <!-- หน้า -->
       <div style="display:flex;flex-direction:column;gap:4px;">
         <button class="fk-tbtn" id="fkt-na" onclick="fkToggle('na')">หน้า</button>
         <button class="fk-klb" id="fkk-na" onclick="fkToggleKlb('na')" style="display:none;"></button>
       </div>
     </div>
   </div>
-
-  <!-- Keyboard -->
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 14px 14px;flex-shrink:0;">
-    <button class="fk-btn fk-num" onclick="fkNum('1')">1</button>
-    <button class="fk-btn fk-num" onclick="fkNum('2')">2</button>
-    <button class="fk-btn fk-num" onclick="fkNum('3')">3</button>
+    <button class="fk-btn" onclick="fkNum('1')">1</button>
+    <button class="fk-btn" onclick="fkNum('2')">2</button>
+    <button class="fk-btn" onclick="fkNum('3')">3</button>
     <button class="fk-btn fk-del" onclick="fkDel()">⌫</button>
-    <button class="fk-btn fk-num" onclick="fkNum('4')">4</button>
-    <button class="fk-btn fk-num" onclick="fkNum('5')">5</button>
-    <button class="fk-btn fk-num" onclick="fkNum('6')">6</button>
+    <button class="fk-btn" onclick="fkNum('4')">4</button>
+    <button class="fk-btn" onclick="fkNum('5')">5</button>
+    <button class="fk-btn" onclick="fkNum('6')">6</button>
     <button class="fk-btn fk-sep" onclick="fkSep()">/</button>
-    <button class="fk-btn fk-num" onclick="fkNum('7')">7</button>
-    <button class="fk-btn fk-num" onclick="fkNum('8')">8</button>
-    <button class="fk-btn fk-num" onclick="fkNum('9')">9</button>
+    <button class="fk-btn" onclick="fkNum('7')">7</button>
+    <button class="fk-btn" onclick="fkNum('8')">8</button>
+    <button class="fk-btn" onclick="fkNum('9')">9</button>
     <button class="fk-btn fk-mul" onclick="fkMul()">×</button>
-    <button class="fk-btn fk-num" style="grid-column:span 2;" onclick="fkNum('0')">0</button>
+    <button class="fk-btn" style="grid-column:span 2;" onclick="fkNum('0')">0</button>
     <button class="fk-btn fk-eq" style="grid-column:span 2;" onclick="fkEq()">= OK</button>
   </div>
-
-  <!-- รายการที่เพิ่มแล้ว -->
   <div style="flex:1;overflow-y:auto;padding:0 14px 8px;">
     <div id="fk-recent" style="font-size:13px;color:var(--gray);text-align:center;padding:8px 0;">รายการที่เพิ่มแล้วจะแสดงที่นี่</div>
   </div>
@@ -3799,6 +3760,5 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
   </div>
 </div>
-<script>init();</script>
 </body>
 </html>
