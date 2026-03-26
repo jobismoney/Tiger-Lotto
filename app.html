@@ -92,6 +92,21 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .tot-bar .val{font-size:22px;font-weight:900;color:var(--gold);}
 
 /* ─── INPUT PANEL ─── */
+
+/* ─── NEW PRICE GRID ─── */
+.npgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 14px;}
+.npcol{display:flex;flex-direction:column;gap:5px;align-items:center;}
+.nplbl{font-size:15px;font-weight:900;text-align:center;}
+.nplbl.bon{color:#60a5fa;}.nplbl.tod{color:#f472b6;}.nplbl.lang{color:#34d399;}.nplbl.na{color:#fb923c;}
+.npinp{width:100%;background:#0d0f18;border:2px solid var(--border);border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:22px;font-weight:900;padding:10px 4px;text-align:center;outline:none;-webkit-tap-highlight-color:transparent;}
+.npinp:focus{border-color:var(--gold);background:#12140a;}
+.npinp.has{border-color:rgba(245,197,24,.35);}
+.npinp:disabled{opacity:.15;pointer-events:none;}
+.npklb{width:100%;background:#2a2000;border:1px solid #d4a017;border-radius:7px;color:#d4a017;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:800;padding:5px 2px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.npklb.on{background:#d4a017;color:#000;}
+.npklb:disabled{opacity:.15;pointer-events:none;}
+.np-spacer{height:27px;}
+
 .ipanel{margin:10px 12px 0;background:var(--card);border-radius:14px;border:1px solid var(--border);}
 .ipanel.locked{opacity:.4;pointer-events:none;}
 .psec{padding:10px 14px;border-bottom:1px solid var(--border);}
@@ -605,13 +620,30 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           style="position:absolute;inset:0;width:100%;height:100%;opacity:1;color:transparent;background:transparent;border:none;outline:none;font-size:48px;text-align:center;letter-spacing:12px;caret-color:var(--gold);z-index:2;">
       </div>
       <div class="lek-hint" id="lek-hint">แตะเพื่อพิมพ์เลข</div>
-      <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()">📌 ปักหลัก — บน / ล่าง</button>
-      <div class="dchips" id="dchips"></div>
+      <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()" style="display:none;">📌 ปักหลัก</button>
     </div>
-    <div class="psec">
-      <div class="plbl">💰 ใส่ราคา</div>
-      <div class="lek-hint" id="price-hint" style="margin-bottom:4px;">ปุ่มลัด: - (ชุด/กลับ) &nbsp;•&nbsp; Enter / Tab / + (ถัดไป)</div>
-      <div class="pgrid" id="pgrid"></div>
+    <!-- NEW: 4 ช่องราคา -->
+    <div class="npgrid" id="npgrid">
+      <div class="npcol">
+        <span class="nplbl bon">บน</span>
+        <input class="npinp" id="np-bon" type="tel" inputmode="numeric" placeholder="฿" oninput="npInp(this,'bon')" onfocus="npFocus(this)">
+        <button class="npklb" id="npk-bon" onclick="npKlb('bon')">กลับ</button>
+      </div>
+      <div class="npcol">
+        <span class="nplbl tod">โต๊ด</span>
+        <input class="npinp" id="np-tod" type="tel" inputmode="numeric" placeholder="฿" oninput="npInp(this,'tod')" onfocus="npFocus(this)">
+        <div class="np-spacer"></div>
+      </div>
+      <div class="npcol">
+        <span class="nplbl lang">ล่าง</span>
+        <input class="npinp" id="np-lang" type="tel" inputmode="numeric" placeholder="฿" oninput="npInp(this,'lang')" onfocus="npFocus(this)">
+        <button class="npklb" id="npk-lang" onclick="npKlb('lang')">กลับ</button>
+      </div>
+      <div class="npcol">
+        <span class="nplbl na">หน้า</span>
+        <input class="npinp" id="np-na" type="tel" inputmode="numeric" placeholder="฿" oninput="npInp(this,'na')" onfocus="npFocus(this)">
+        <button class="npklb" id="npk-na" onclick="npKlb('na')">กลับ</button>
+      </div>
     </div>
   </div>
   <div style="display:flex;gap:8px;margin:10px 12px 0;">
@@ -1267,7 +1299,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     },
     setPakPreset:function(n){document.getElementById('pak-price').value=n;},
     addPak:function(){
-      var price=parseInt(document.getElementById('pak-price').value)||0;
+      // อ่านราคาจาก NP grid ช่องบน (ปักหลักใช้ราคาเดียวกัน)
+      var bonInp=document.getElementById('np-bon');
+      var price=parseInt(bonInp?bonInp.value:0)||0;
+      if(!price){var todInp=document.getElementById('np-tod');price=parseInt(todInp?todInp.value:0)||0;}
       if(!price){toast('ใส่ราคาด้วยครับ');return;}
       if(!curLek){toast('กรอกเลขก่อนครับ');return;}
       if(!APP.pakPos.length){toast('เลือกตำแหน่งด้วยครับ');return;}
@@ -1784,33 +1819,106 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   };
   function clearAddBtnHl(){window.clearAddBtnHl();}
 
+  // ─── NP GRID (4 ช่องราคาใหม่) ───
+  var npKlbState={bon:false,lang:false,na:false};
+
+  function npReset(){
+    ['bon','tod','lang','na'].forEach(function(k){
+      var inp=document.getElementById('np-'+k);
+      if(inp){inp.value='';inp.classList.remove('has');}
+    });
+    ['bon','lang','na'].forEach(function(k){
+      npKlbState[k]=false;
+      var btn=document.getElementById('npk-'+k);
+      if(btn){btn.classList.remove('on');}
+    });
+  }
+
+  function npInp(el,k){
+    el.value=el.value.replace(/\D/g,'');
+    if(el.value) el.classList.add('has');
+    else el.classList.remove('has');
+  }
+
+  function npFocus(el){
+    el.select();
+  }
+
+  function npKlb(k){
+    npKlbState[k]=!npKlbState[k];
+    var btn=document.getElementById('npk-'+k);
+    if(btn) btn.className='npklb'+(npKlbState[k]?' on':'');
+  }
+
+  function npUpdateForLek(d){
+    // 4-5 หลัก: เฉพาะโต๊ด
+    var isTodOnly=d>=4;
+    ['bon','tod','lang','na'].forEach(function(k){
+      var inp=document.getElementById('np-'+k);
+      if(!inp) return;
+      if(isTodOnly){
+        if(k==='tod'){inp.disabled=false;}
+        else{inp.disabled=true;inp.value='';inp.classList.remove('has');}
+      } else {
+        inp.disabled=false;
+      }
+    });
+    // ปักหลัก: โชว์เฉพาะ 1 หลัก และไม่มี /
+    var pakBtn=document.getElementById('pak-open-btn');
+    if(pakBtn) pakBtn.style.display=(d===1&&curLek.indexOf('/')<0)?'block':'none';
+    // กลับ/ชุด label
+    var lbl=d===2?'กลับ':'ชุด';
+    ['bon','lang','na'].forEach(function(k){
+      var btn=document.getElementById('npk-'+k);
+      if(btn&&!btn.disabled) btn.textContent=lbl;
+    });
+  }
+
+  window.npInp=npInp;
+  window.npFocus=npFocus;
+  window.npKlb=npKlb;
+
   function addEntry(){
     if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');return;}
     if(isLocked){toast('โพยถูกล็อคแล้ว — กด "ซื้อเพิ่ม" ในหน้าดูโพย');return;}
     if(!curLek){toast('กรุณากรอกเลขก่อน');return;}
-    var al=RULES[curLek.length]||[],d=curLek.length,hasAny=false,mp={},kd={};
-    al.forEach(function(k){var v=parseInt(FS[k].price)||0;mp[k]=v>0?v:null;if(v>0)hasAny=true;});
-    al.forEach(function(k){
-      if(FS[k].klbOpen&&KLB[k]&&KLB[k].indexOf(d)>=0){
-        var it=getPerms(curLek).filter(function(p){return p!==curLek;})
-          .map(function(p){return{perm:p,price:parseInt(FS[k].pp[p])||0};})
-          .filter(function(x){return x.price>0;});
-        if(it.length){kd[k]=it;hasAny=true;}
-      }
+    var leks=curLek.split("/").map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
+    if(!leks.length){toast('กรุณากรอกเลขก่อน');return;}
+    // ตรวจเลขคนละประเภท
+    var firstLen=leks[0].length;
+    for(var li=1;li<leks.length;li++){
+      if(leks[li].length!==firstLen){toast('เลขคนละประเภท: '+firstLen+' หลัก กับ '+leks[li].length+' หลัก');return;}
+    }
+    var d=firstLen;
+    // อ่านราคาจาก NP grid
+    var mp={},hasAny=false;
+    ['bon','tod','lang','na'].forEach(function(k){
+      var inp=document.getElementById('np-'+k);
+      var v=inp&&!inp.disabled?parseInt(inp.value)||0:0;
+      mp[k]=v>0?v:null;
+      if(v>0)hasAny=true;
     });
     if(!hasAny){toast('กรุณาใส่ราคาอย่างน้อย 1 ช่อง');return;}
-
-    // ตรวจเลขซ้ำ — เฉพาะเลขหลักในชุดปัจจุบัน
-    var isDup = entries.some(function(e){
-      if(e.paks&&e.paks.length) return false; // ปักหลักไม่นับ
-      return e.lek === curLek;
+    // กลับ/ชุด
+    var kd={};
+    ['bon','lang','na'].forEach(function(k){
+      if(mp[k]&&npKlbState[k]&&KLB[k]&&KLB[k].indexOf(d)>=0){
+        // ใส่ราคาเดิมให้ทุก perm (เจ้ามือมักใช้ราคาเดิม)
+      }
     });
 
-    if(isDup && APP.allowedDupKeys.indexOf(curLek) < 0){
+    // ตรวจเลขซ้ำ — ตรวจเลขแรกก่อน ถ้าซ้ำให้ถาม
+    var firstLek=leks[0];
+    var isDup = entries.some(function(e){
+      if(e.paks&&e.paks.length) return false;
+      return e.lek === firstLek;
+    });
+
+    if(isDup && APP.allowedDupKeys.indexOf(firstLek) < 0){
       showConfirm(
-        'เลข <b>'+curLek+'</b> มีอยู่แล้วในชุดนี้<br><br>ต้องการเพิ่มซ้ำหรือไม่?',
+        'เลข <b>'+firstLek+'</b> มีอยู่แล้วในชุดนี้<br><br>ต้องการเพิ่มซ้ำหรือไม่?',
         function(){
-          APP.allowedDupKeys.push(curLek);
+          leks.forEach(function(l){APP.allowedDupKeys.push(l);});
           doAddEntry();
         }, false
       );
@@ -1819,17 +1927,35 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     doAddEntry();
 
     function doAddEntry(){
-      eid++;
-      entries.unshift({id:eid,lek:curLek,d:d,bon:mp.bon||null,tod:mp.tod||null,lang:mp.lang||null,na:mp.na||null,kd:kd});
-      // reset allowedDupKeys เมื่อเพิ่มเลขใหม่สำเร็จ (ถามซ้ำอีกครั้งถ้าคีย์ซ้ำอีก)
-      APP.allowedDupKeys = APP.allowedDupKeys.filter(function(k){ return k !== curLek; });
-      setLek('');
-      var inp=document.getElementById('lek-inp');
-      inp.value='';
-      FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
-      var ab2=document.getElementById('add-btn');if(ab2)ab2.classList.remove('ready');
-      document.getElementById('list-scroll').scrollTop=0;
-      inp.focus();
+      var added=0;
+      leks.forEach(function(l){
+        var isDupL=entries.some(function(e){return e.lek===l&&!(e.paks&&e.paks.length);});
+        if(isDupL&&APP.allowedDupKeys.indexOf(l)<0){toast('เลข '+l+' ซ้ำ ข้ามไป');return;}
+        // kd จาก npKlbState
+        var kdl={};
+        ['bon','lang','na'].forEach(function(k){
+          if(mp[k]&&npKlbState[k]&&KLB[k]&&KLB[k].indexOf(d)>=0){
+            var perms=getPerms(l).filter(function(p){return p!==l;});
+            if(perms.length) kdl[k]=perms.map(function(p){return{perm:p,price:mp[k]};});
+          }
+        });
+        eid++;
+        entries.unshift({id:eid,lek:l,d:l.length,bon:mp.bon||null,tod:mp.tod||null,lang:mp.lang||null,na:mp.na||null,kd:kdl});
+        APP.allowedDupKeys=APP.allowedDupKeys.filter(function(k){return k!==l;});
+        added++;
+      });
+      if(added>0){
+        setLek('');
+        var inp=document.getElementById('lek-inp');
+        inp.value='';
+        npReset();
+        FS=makeFS();renderChips(0);renderPGrid([]);renderList();updateTotal();save();
+        var ab2=document.getElementById('add-btn');if(ab2)ab2.classList.remove('ready');
+        document.getElementById('list-scroll').scrollTop=0;
+        npUpdateForLek(0);
+        inp.focus();
+        if(added>1) toast('เพิ่ม '+added+' รายการ');
+      }
     }
   }
 
@@ -1921,6 +2047,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function setLek(v){
     curLek=v;FS=makeFS();
+    npUpdateForLek(v.replace(/\//g,'').length?v.split('/')[0].length:0);
     var sh=document.getElementById('lek-shown'),ring=document.getElementById('tap-ring'),disp=document.getElementById('lek-display');
     var cur=document.getElementById('lek-cursor');
     if(v){sh.className='lv';sh.textContent=v.split('').join(' ');if(ring)ring.style.display='none';disp.classList.add('has-lek');if(cur)cur.classList.add('hide');}
@@ -3824,15 +3951,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         <div class="pak-pbtn-ex" id="pak-ex-lang">_ _?</div>
       </div>
     </div>
-    <div class="pak-sec">ราคา</div>
-    <div class="pak-presets">
-      <div class="pak-preset" onclick="APP.setPakPreset(10)">10</div>
-      <div class="pak-preset" onclick="APP.setPakPreset(20)">20</div>
-      <div class="pak-preset" onclick="APP.setPakPreset(50)">50</div>
-      <div class="pak-preset" onclick="APP.setPakPreset(100)">100</div>
-    </div>
-    <input class="pak-price-inp" type="tel" id="pak-price" placeholder="0" inputmode="numeric">
-    <div class="pak-btns">
+    <div class="pak-btns" style="margin-top:8px;">
       <button class="pak-btn-cancel" onclick="APP.closePak()">ยกเลิก</button>
       <button class="pak-btn-add" onclick="APP.addPak()">+ เพิ่มรายการ</button>
     </div>
