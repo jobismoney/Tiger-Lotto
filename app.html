@@ -4114,6 +4114,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     setTimeout(function(){document.getElementById('qa-inp').focus();},100);
   }
 
+  // DEBUG expose
+  window._D={
+    status:function(){console.log('ngodOpen='+ngodOpen,'isLocked='+isLocked,'entries='+entries.length,'ngod='+ngodInfo.ngod);},
+    testAdd:function(){addEntryDirect('123',{bon:100});},
+    getState:function(){return{ngodOpen:ngodOpen,isLocked:isLocked,entries:entries.slice()};}
+  };
   document.addEventListener('DOMContentLoaded',init);
 })();
 </script>
