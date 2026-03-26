@@ -3326,8 +3326,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           return;
         }
       }
+      var prevLen=fkBuf.split("=")[0].split("/")[0].length;
       fkBuf+=n;
       var fl=fkBuf.split("=")[0].split("/")[0];
+      // ถ้าจำนวนหลักเปลี่ยน → reset override เพื่อให้ default ทำงาน
+      if(fl.length!==prevLen) fkUserOverride=false;
       if(fl.length>=1) fkAutoSel(fl.length);
     }
     fkUpdateKlbBtns();
@@ -3373,10 +3376,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function fkDel(){
     if(!fkBuf) return;
+    var prevLen2=fkBuf.split("=")[0].split("/")[0].replace(/\D/g,"").length;
     fkBuf=fkBuf.slice(0,-1);
-    if(!fkBuf){fkAutoSel(2);}
+    if(!fkBuf){fkUserOverride=false;fkAutoSel(2);}
     else{
       var fl=fkBuf.split("=")[0].split("/")[0].replace(/\D/g,"");
+      if(fl.length!==prevLen2) fkUserOverride=false;
       if(fl.length>=1) fkAutoSel(fl.length);
     }
     fkUpdateKlbBtns();
