@@ -3468,11 +3468,13 @@ function doCheckResult(){
         // ชุดหน้า: ตรวจแต่ละ perm ว่าตรงกับ r3na ไหม
         (e.kd.na||[]).forEach(function(x){ if(x.perm===r3na){ hits.push({lek:x.perm,type:'3ตัวหน้า(ชุด)',bet:x.price,pay:x.price*pr3na}); custPay+=x.price*pr3na; } });
       }
-      // ── 3ล่าง (lang) ── ตรวจกับ 4 รางวัล (front3 + back3)
-      if(d===3 && r3langList.indexOf(lek)>=0){
-        var cfg=getCfg('3lang'); var pr=cfg?cfg.pay:450;
-        if(e.lang){ hits.push({lek:lek,type:'3ตัวล่าง',bet:e.lang,pay:e.lang*pr}); custPay+=e.lang*pr; }
-        (e.kd.lang||[]).forEach(function(x){ if(r3langList.indexOf(x.perm)>=0){ hits.push({lek:x.perm,type:'3ตัวล่าง(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; } });
+      // ── 3ล่าง (lang) ── ตรวจกับ 4 รางวัล
+      if(d===3 && r3langList.length){
+        var cfg3l=getCfg('3lang'); var pr3l=cfg3l?cfg3l.pay:450;
+        // lang ตรง
+        if(e.lang && r3langList.indexOf(lek)>=0){ hits.push({lek:lek,type:'3ตัวล่าง',bet:e.lang,pay:e.lang*pr3l}); custPay+=e.lang*pr3l; }
+        // ชุดล่าง — ตรวจแต่ละ perm ว่าอยู่ใน r3langList ไหม (ไม่ต้องให้ lek ตรงก่อน)
+        (e.kd.lang||[]).forEach(function(x){ if(r3langList.indexOf(x.perm)>=0){ hits.push({lek:x.perm,type:'3ตัวล่าง(ชุด)',bet:x.price,pay:x.price*pr3l}); custPay+=x.price*pr3l; } });
       }
 
       // ── โต๊ด ──
