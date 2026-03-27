@@ -3609,7 +3609,7 @@ function openCustRate(cid){
   if(!cust) return;
   document.getElementById('cr-cust-name').textContent=cust.name;
   var r=cust.rates||{};
-  ['3bon','2bon','vbon','tod','3lang'].forEach(function(k){
+  ['3bon','2bon','vbon','tod3','tod2','tod4','tod5','3lang'].forEach(function(k){
     var el=document.getElementById('cr-'+k);
     if(el) el.value=(r[k]!==undefined&&r[k]!==null&&r[k]!=='')?r[k]:'';
   });
@@ -3619,7 +3619,7 @@ function saveCustRate(){
   var cust=customers.find(function(c){return c.id===_crCustId;});
   if(!cust) return;
   function gv(k){var el=document.getElementById('cr-'+k);return(el&&el.value.trim()!=='')?parseFloat(el.value):null;}
-  var r={'3bon':gv('3bon'),'2bon':gv('2bon'),'vbon':gv('vbon'),'tod':gv('tod'),'3lang':gv('3lang')};
+  var r={'3bon':gv('3bon'),'2bon':gv('2bon'),'vbon':gv('vbon'),'tod3':gv('tod3'),'tod2':gv('tod2'),'tod4':gv('tod4'),'tod5':gv('tod5'),'3lang':gv('3lang')};
   cust.rates=Object.values(r).some(function(v){return v!==null;})?r:null;
   save();renderCustList();
   document.getElementById('modal-cust-rate').classList.remove('show');
@@ -4098,7 +4098,10 @@ selectCust = function(id){
       <div><div style="font-size:12px;color:#888;margin-bottom:4px;">3ตัว ลด%</div><input id="cr-3bon" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
       <div><div style="font-size:12px;color:#888;margin-bottom:4px;">2ตัว ลด%</div><input id="cr-2bon" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
       <div><div style="font-size:12px;color:#888;margin-bottom:4px;">วิ่ง ลด%</div><input id="cr-vbon" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
-      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">โต๊ด ลด%</div><input id="cr-tod" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
+      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">โต๊ด 3ต ลด%</div><input id="cr-tod3" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
+      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">โต๊ด 2ต ลด%</div><input id="cr-tod2" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
+      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">โต๊ด 4ต ลด%</div><input id="cr-tod4" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
+      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">โต๊ด 5ต ลด%</div><input id="cr-tod5" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
       <div style="grid-column:1/-1;"><div style="font-size:12px;color:#888;margin-bottom:4px;">3ล่าง ลด%</div><input id="cr-3lang" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
     </div>
     </div><!-- end cr-panel-rate -->
