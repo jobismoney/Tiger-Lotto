@@ -2865,7 +2865,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
     _checkEntries.forEach(function(e){
       var lek=e.lek;
-      var d=e.d;
+      var d=parseInt(e.d)||e.lek.length; // normalize เป็น number
       var hits=[];
 
       // ─ BON ─
@@ -2909,8 +2909,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(e.tod>0){
         var perms=getPerms(lek);
         if(d===2){
-          // 2โต๊ด: เลขทั้ง 2 ตัวต้องอยู่ใน win3 (3หลักท้าย) ครบ 2 ตัว
-          if(perms.indexOf(win2top)>=0)hits.push({type:'โต๊ด 2 ตัว',amt:e.tod});
+          // 2โต๊ด: ตัวเลขทั้ง 2 ตัวต้องอยู่ใน win3 (456) ครบทั้งคู่
+          var w3=win3.split('');
+          var lk=lek.split('');
+          var hit2tod=lk.every(function(c){return w3.indexOf(c)>=0;});
+          if(hit2tod)hits.push({type:'โต๊ด 2 ตัว',amt:e.tod});
         } else if(d===3){
           // 3โต๊ด: permutation ใดใดตรงกับ win3
           if(perms.indexOf(win3)>=0)hits.push({type:'โต๊ด 3 ตัว',amt:e.tod});
@@ -2925,6 +2928,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           });
           if(coversAll)hits.push({type:'โต๊ด '+d+' ตัว',amt:e.tod});
         }
+      }
+      // ─ NA (2ตัวหน้า) ─
+      if(d===2&&e.na>0&&win2front&&win2front.length===2){
+        if(lek===win2front)hits.push({type:'หน้า 2 ตัว',amt:e.na});
+      }
+      if(d===2&&(e.kd['na']||[]).length>0&&win2front&&win2front.length===2){
+        (e.kd['na']||[]).forEach(function(x){if(x.perm===win2front)hits.push({type:'หน้า 2 ตัว (กลับ '+x.perm+')',amt:x.price});});
       }
       // ─ WING BON (วิ่งบน) ─
       if(d===1&&e.bon>0){
