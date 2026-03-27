@@ -2131,11 +2131,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var ps=[];if(b>0)ps.push('บ'+fmt(b));if(l>0)ps.push('ล'+fmt(l));
       if(ps.length)push(lek,pstr(ps),b+l);
     } else if(d===2){
-      var hasKb=(e.kd['bon']||[]).length>0,hasKl=(e.kd['lang']||[]).length>0;
+      var hasKb=(e.kd['bon']||[]).length>0,hasKl=(e.kd['lang']||[]).length>0,hasKn2=(e.kd['na']||[]).length>0;
       var ps2=[];var pt2=0;
       if(b>0&&!hasKb){ps2.push('บ'+fmt(b));pt2+=b;}
       if(t>0){ps2.push('ต'+fmt(t));pt2+=t;}
       if(l>0&&!hasKl){ps2.push('ล'+fmt(l));pt2+=l;}
+      if(n>0&&!hasKn2){ps2.push('หน้า'+fmt(n));pt2+=n;}
       if(ps2.length)push(lek,pstr(ps2),pt2);
       var kb2=e.kd['bon']||[],kl2=e.kd['lang']||[];
       if(kb2.length||kl2.length){
