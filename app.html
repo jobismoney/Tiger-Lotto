@@ -1862,16 +1862,16 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   function npUpdateForLek(d){
-    // 4-5 หลัก: เฉพาะโต๊ด
+    // 4-5 หลัก: เฉพาะโต๊ด, 0 หลัก = ยังไม่มีเลข ทุกช่องใช้ได้
     var isTodOnly=d>=4;
     ['bon','tod','lang','na'].forEach(function(k){
       var inp=document.getElementById('np-'+k);
       if(!inp) return;
       if(isTodOnly){
-        if(k==='tod'){inp.disabled=false;}
-        else{inp.disabled=true;inp.value='';inp.classList.remove('has');}
+        if(k==='tod'){inp.disabled=false;inp.style.opacity='';}
+        else{inp.disabled=true;inp.style.opacity='0.15';inp.value='';inp.classList.remove('has');}
       } else {
-        inp.disabled=false;
+        inp.disabled=false;inp.style.opacity='';
       }
     });
     // ปักหลัก: โชว์เฉพาะ 1 หลัก และไม่มี /
@@ -3197,7 +3197,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var idx=order.indexOf(currentId);
       for(var i=idx+1;i<order.length;i++){
         var el=document.getElementById(order[i]);
-        if(el&&!el.disabled){el.focus();el.select();return;}
+        // ข้ามช่องที่ disabled หรือ opacity ต่ำ
+        if(el&&!el.disabled&&parseFloat(getComputedStyle(el).opacity||1)>0.5){
+          el.focus();el.select();return;
+        }
       }
       // ครบทุกช่อง → กด OK
       document.getElementById('add-btn').click();
@@ -3241,7 +3244,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById('add-btn').addEventListener('beforeinput',function(e){
       if(e.inputType==='insertLineBreak'||e.inputType==='insertParagraph'){e.preventDefault();addEntry();}
     });
-    document.getElementById('basket-btn').addEventListener('click',doBasket);
+    document.getElementById('basket-btn').addEventListener('click',function(){doBasket();});
 
     // print-btn removed from header
     // print-btn2 removed
@@ -3686,6 +3689,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   window.fkEq=fkEq;
   window.fkToggle=fkToggle;
   window.fkToggleKlb=fkToggleKlb;
+  window.openQA=openQA;
+  window.closeQA=closeQA;
+  window.doBasket=doBasket;
 
 
   document.addEventListener('DOMContentLoaded',init);
