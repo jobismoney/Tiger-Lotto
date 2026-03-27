@@ -1314,10 +1314,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     },
     setPakPreset:function(n){var pakP=document.getElementById('pak-price');if(pakP)pakP.value=n;},
     addPak:function(){
-      // อ่านราคาจาก NP grid ช่องบน (ปักหลักใช้ราคาเดียวกัน)
-      var bonInp=document.getElementById('np-bon');
-      var price=parseInt(bonInp?bonInp.value:0)||0;
-      if(!price){var todInp=document.getElementById('np-tod');price=parseInt(todInp?todInp.value:0)||0;}
+      // อ่านราคาจาก pak-price input
+      var pakPriceInp=document.getElementById('pak-price');
+      var price=parseInt(pakPriceInp?pakPriceInp.value:0)||0;
       if(!price){toast('ใส่ราคาด้วยครับ');return;}
       if(!curLek){toast('กรอกเลขก่อนครับ');return;}
       if(!APP.pakPos.length){toast('เลือกตำแหน่งด้วยครับ');return;}
