@@ -2417,12 +2417,13 @@ function renderSummaryCharts(g, totalAll){
   var byLek = {};
   allE.forEach(function(e){
     if(!byLek[e.lek]) byLek[e.lek] = {exp:0};
-    var cfg3=getCfg('3bon'),cfg3na=getCfg('3na'),cfg3l=getCfg('3lang'),cfg2b=getCfg('2bon'),cfg2l=getCfg('2lang'),cfgtod=getCfg('tod'),cfgp=getCfg('pak-3bon');
-    var exp=0;
-    if(e.d===3){ exp+=(e.bon||0)*(cfg3?cfg3.pay:500)+(e.na||0)*(cfg3na?cfg3na.pay:450)+(e.lang||0)*(cfg3l?cfg3l.pay:450)+(e.tod||0)*(getCfg('tod')?getCfg('tod').pay:120); }
-    else if(e.d===2){ exp+=(e.bon||0)*(cfg2b?cfg2b.pay:70)+(e.lang||0)*(cfg2l?cfg2l.pay:70)+(e.tod||0)*(cfgtod?cfgtod.pay:120); }
-    else if(e.d===1){ exp+=(e.bon||0)*3+(e.lang||0)*4; }
-    (e.paks||[]).forEach(function(p){ exp+=p.price*(cfgp?cfgp.pay:350); });
+    var cfg3=getCfg('3bon'),cfg3na=getCfg('3na'),cfg3l=getCfg('3lang'),cfg2b=getCfg('2bon'),cfg2l=getCfg('2lang'),cfg2na=getCfg('2na'),cfgp=getCfg('pak-3bon');
+    var exp=0; var d2=parseInt(e.d)||e.lek.length;
+    if(d2===3){ exp+=(e.bon||0)*(cfg3?cfg3.pay:500)+(e.na||0)*(cfg3na?cfg3na.pay:500)+(e.lang||0)*(cfg3l?cfg3l.pay:500)+(e.tod||0)*getTodPay(3); }
+    else if(d2===2){ exp+=(e.bon||0)*(cfg2b?cfg2b.pay:70)+(e.lang||0)*(cfg2l?cfg2l.pay:70)+(e.na||0)*(cfg2na?cfg2na.pay:70)+(e.tod||0)*getTodPay(2); }
+    else if(d2===1){ exp+=(e.bon||0)*(getCfg('vbon')||{pay:3}).pay+(e.lang||0)*(getCfg('vlang')||{pay:4}).pay; }
+    else if(d2>=4){ exp+=(e.tod||0)*getTodPay(d2); }
+    (e.paks||[]).forEach(function(p){ var pk=p.type==='3bon'?getCfg('pak-3bon'):getCfg('pak-2lang'); exp+=p.price*(pk?pk.pay:8); });
     byLek[e.lek].exp += exp;
   });
   Object.values(byLek).forEach(function(x){ if(x.exp > NET) riskCount++; });
@@ -2622,12 +2623,13 @@ function updateSummary(){
     var byLek2={};
     allE2.forEach(function(e){
       if(!byLek2[e.lek]) byLek2[e.lek]={exp:0};
-      var cfg3=getCfg('3bon'),cfg3na=getCfg('3na'),cfg3l=getCfg('3lang'),cfg2b=getCfg('2bon'),cfg2l=getCfg('2lang'),cfgtod=getCfg('tod'),cfgp=getCfg('pak-3bon');
-      var exp=0;
-      if(e.d===3) exp+=(e.bon||0)*(cfg3?cfg3.pay:500)+(e.na||0)*(cfg3na?cfg3na.pay:450)+(e.lang||0)*(cfg3l?cfg3l.pay:450)+(e.tod||0)*(cfgtod?cfgtod.pay:120);
-      else if(e.d===2) exp+=(e.bon||0)*(cfg2b?cfg2b.pay:70)+(e.lang||0)*(cfg2l?cfg2l.pay:70)+(e.tod||0)*(cfgtod?cfgtod.pay:120);
-      else if(e.d===1) exp+=(e.bon||0)*3+(e.lang||0)*4;
-      (e.paks||[]).forEach(function(p){exp+=p.price*(cfgp?cfgp.pay:350);});
+      var cfg3=getCfg('3bon'),cfg3na=getCfg('3na'),cfg3l=getCfg('3lang'),cfg2b=getCfg('2bon'),cfg2l=getCfg('2lang'),cfg2na=getCfg('2na'),cfgp=getCfg('pak-3bon');
+      var exp=0; var d2=parseInt(e.d)||e.lek.length;
+      if(d2===3) exp+=(e.bon||0)*(cfg3?cfg3.pay:500)+(e.na||0)*(cfg3na?cfg3na.pay:500)+(e.lang||0)*(cfg3l?cfg3l.pay:500)+(e.tod||0)*getTodPay(3);
+      else if(d2===2) exp+=(e.bon||0)*(cfg2b?cfg2b.pay:70)+(e.lang||0)*(cfg2l?cfg2l.pay:70)+(e.na||0)*(cfg2na?cfg2na.pay:70)+(e.tod||0)*getTodPay(2);
+      else if(d2===1) exp+=(e.bon||0)*(getCfg('vbon')||{pay:3}).pay+(e.lang||0)*(getCfg('vlang')||{pay:4}).pay;
+      else if(d2>=4) exp+=(e.tod||0)*getTodPay(d2);
+      (e.paks||[]).forEach(function(p){var pk=p.type==='3bon'?getCfg('pak-3bon'):getCfg('pak-2lang');exp+=p.price*(pk?pk.pay:8);});
       byLek2[e.lek].exp+=exp;
     });
     Object.values(byLek2).forEach(function(x){if(x.exp>totalAll)riskCount++;});
@@ -3402,6 +3404,7 @@ function fetchLottoResult(){
     });
 }
 
+function getTodPay(d){var k=d===2?'tod2':d===3?'tod3':d===4?'tod4':'tod5';return (getCfg(k)||{pay:d===3?100:d===4?20:d===2?10:10}).pay;}
 function doCheckResult(){
   var first6  = getResInput('res-1st').trim();
   var r3na    = getResInput('res-3na').trim();
