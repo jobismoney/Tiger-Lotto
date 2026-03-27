@@ -659,6 +659,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     <button class="add-btn" id="add-btn" style="margin:0;flex:1;font-size:20px;">✓ OK</button>
   </div>
   <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — ดูโพยได้ในแฟ้ม</div>
+  <div style="margin:8px 12px 12px;padding:10px 12px;background:#0d0f18;border:1px solid var(--border);border-radius:10px;">
+    <div style="font-size:12px;font-weight:800;color:var(--gold);margin-bottom:6px;">📋 วิธีใช้หน้าหลัก</div>
+    <div style="font-size:12px;color:var(--gray);line-height:1.8;">1. กรอกเลข 1-5 หลัก<br>2. กด Enter หรือแตะช่องราคา<br>3. ใส่ราคาช่องที่ต้องการ (บน/โต๊ด/ล่าง/หน้า)<br>4. กด Enter ไหลไปช่องถัดไป → OK เพิ่มรายการ<br>5. ปุ่ม <b style="color:#d4a017;">กลับ/ชุด</b> ใต้ช่องราคา = เพิ่ม perm อัตโนมัติ</div>
+  </div>
 </div>
 
 <!-- SLIP OVERLAY -->
@@ -3940,6 +3944,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       <div id="fk-text" style="font-family:'Bebas Neue',sans-serif;font-size:34px;color:#555;letter-spacing:2px;flex:1;word-break:break-all;line-height:1.1;">—</div>
       <div id="fk-hint" style="font-size:12px;color:var(--gray);text-align:right;line-height:1.6;flex-shrink:0;">กดเลข<br>แล้ว =</div>
     </div>
+    <div style="margin-top:6px;font-size:11px;color:#444;line-height:1.7;"><span style="color:#555;">ตัวอย่าง:</span> <span style="color:#60a5fa;">123</span>=บน100 • <span style="color:#f472b6;">123×</span>=เพิ่มประเภท • <span style="color:#34d399;">123/456/789</span>=หลายเลข • <span style="color:#d4a017;">กลับ/ชุด</span>=perm</div>
   </div>
   <div style="padding:0 14px 8px;flex-shrink:0;">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
@@ -4024,7 +4029,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         <div class="pak-pbtn-ex" id="pak-ex-lang">_ _?</div>
       </div>
     </div>
-    <div class="pak-btns" style="margin-top:8px;">
+    <div class="pak-sec" style="margin-top:10px;">ราคา</div>
+    <input class="pak-price-inp" type="tel" id="pak-price" placeholder="0" inputmode="numeric" style="margin-bottom:10px;">
+    <div class="pak-btns">
       <button class="pak-btn-cancel" onclick="APP.closePak()">ยกเลิก</button>
       <button class="pak-btn-add" onclick="APP.addPak()">+ เพิ่มรายการ</button>
     </div>
