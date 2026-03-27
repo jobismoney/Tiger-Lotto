@@ -2942,21 +2942,19 @@ function toLines(e){
 }
 
 function entrySummary(e){
-  var d=e.d, b=e.bon||0, t=e.tod||0, l=e.lang||0, n=e.na||0;
+  var d=parseInt(e.d)||e.lek.length;
+  var b=e.bon||0, t=e.tod||0, l=e.lang||0, n=e.na||0;
   var kd=e.kd||{};
   var kb=(kd['bon']||[]).reduce(function(s,x){ return s+x.price; },0);
   var kl=(kd['lang']||[]).reduce(function(s,x){ return s+x.price; },0);
   var kn=(kd['na']||[]).reduce(function(s,x){ return s+x.price; },0);
-  // ปักหลักทุกตัวทุก position → c1
-  var pak_bon=0, pak_lang=0;
-  (e.paks||[]).forEach(function(p){
-    if(p.type==='3bon') pak_bon+=p.price;
-    else pak_lang+=p.price;
-  });
-  if(d===3) return {c3:b+kb+n+kn, c2:0,         c1:pak_bon, ct:t, cl:l+kl, vl:pak_lang};
-  if(d===2) return {c3:0,          c2:b+kb+l+kl, c1:pak_bon, ct:t, cl:0,    vl:pak_lang};
-  if(d===1) return {c3:0,          c2:0,         c1:b+l+pak_bon, ct:0, cl:0, vl:pak_lang};
-  return           {c3:0,          c2:0,         c1:pak_bon, ct:t, cl:0,    vl:pak_lang};
+  // ปักหลักทุกแบบ = 1ตัว (c1)
+  var pk=0;
+  (e.paks||[]).forEach(function(p){ pk+=p.price; });
+  if(d===3) return {c3:b+kb+n+kn, c2:0,              c1:pk, ct:t, cl:l+kl};
+  if(d===2) return {c3:0,          c2:b+kb+l+kl+n+kn, c1:pk, ct:t, cl:0};
+  if(d===1) return {c3:0,          c2:0,              c1:b+l+n+pk, ct:0, cl:0};
+  return           {c3:0,          c2:0,              c1:pk, ct:t, cl:0};
 }
 
 function pageSumTotals(pEntries){
@@ -3416,6 +3414,7 @@ function doCheckResult(){
   var r3na    = getResInput('res-3na').trim();
   var r3bon   = getResInput('res-3bon').trim();
   var r2bon   = getResInput('res-2bon').trim();
+  var r2na    = getResInput('res-2na')?getResInput('res-2na').trim():'';
   var r2lang  = getResInput('res-2lang').trim();
   var r3lang1 = getResInput('res-3lang1').trim();
   var r3lang2 = getResInput('res-3lang2').trim();
@@ -3427,6 +3426,7 @@ function doCheckResult(){
     if(!r3na)  r3na  = first6.slice(0,3);
     if(!r3bon) r3bon = first6.slice(-3);
     if(!r2bon) r2bon = first6.slice(-2);
+    if(!r2na)  r2na  = first6.slice(3,5); // 2ตัวหน้า = หลัก 4,5
   }
 
   // 3ตัวล่าง = array 4 รางวัล
@@ -3452,7 +3452,7 @@ function doCheckResult(){
 
     all.forEach(function(e,ei){
       var lek = e.lek;
-      var d   = e.d;
+      var d   = parseInt(e.d)||e.lek.length;
       var setId = e._setId||'?';
 
       // ── 3ตัวบน (bon) ──
@@ -3475,9 +3475,23 @@ function doCheckResult(){
       }
 
       // ── โต๊ด ──
-      if(d===3 && todWin.indexOf(lek)>=0){
-        var cfg=getCfg('tod'); var pr=cfg?cfg.pay:120;
-        if(e.tod){ hits.push({lek:lek,type:'โต๊ด',bet:e.tod,pay:e.tod*pr}); custPay+=e.tod*pr; }
+      if(e.tod>0){
+        var cfgTod=getCfg('tod'); var prTod=cfgTod?cfgTod.pay:120;
+        var win3=r3bon||'';
+        if(d===2){
+          // 2โต๊ด: ตัวเลขทั้ง 2 ต้องอยู่ใน win3 ครบ
+          var w3=win3.split(''), lk=lek.split('');
+          if(w3.length===3 && lk.every(function(c){return w3.indexOf(c)>=0;}))
+            { hits.push({lek:lek,type:'โต๊ด 2ตัว',bet:e.tod,pay:e.tod*prTod}); custPay+=e.tod*prTod; }
+        } else if(d===3){
+          if(todWin.indexOf(lek)>=0)
+            { hits.push({lek:lek,type:'โต๊ด 3ตัว',bet:e.tod,pay:e.tod*prTod}); custPay+=e.tod*prTod; }
+        } else if(d===4||d===5){
+          // 4-5โต๊ด: ต้องครอบคลุม win3 ครบ 3 ตัว
+          var w3b=win3.split(''), lkb=lek.split('');
+          var covers=w3b.length===3&&w3b.every(function(c){var i=lkb.indexOf(c);if(i>=0){lkb.splice(i,1);return true;}return false;});
+          if(covers){ hits.push({lek:lek,type:'โต๊ด '+d+'ตัว',bet:e.tod,pay:e.tod*prTod}); custPay+=e.tod*prTod; }
+        }
       }
       // ── 2ตัวบน ──
       if(d===2 && r2bon && lek===r2bon){
@@ -3489,7 +3503,13 @@ function doCheckResult(){
       if(d===2 && r2lang && lek===r2lang){
         var cfg=getCfg('2lang'); var pr=cfg?cfg.pay:70;
         if(e.lang){ hits.push({lek:lek,type:'2ตัวล่าง',bet:e.lang,pay:e.lang*pr}); custPay+=e.lang*pr; }
-        (e.kd.lang||[]).forEach(function(x){ hits.push({lek:x.perm,type:'2ตัวล่าง(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; });
+        (e.kd.lang||[]).forEach(function(x){ if(x.perm===r2lang){ hits.push({lek:x.perm,type:'2ตัวล่าง(กลับ)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; } });
+      }
+      // ── 2ตัวหน้า ──
+      if(d===2 && r2na && r2na.length===2 && lek===r2na){
+        var cfgNa=getCfg('2na'); var prNa=cfgNa?cfgNa.pay:70;
+        if(e.na){ hits.push({lek:lek,type:'2ตัวหน้า',bet:e.na,pay:e.na*prNa}); custPay+=e.na*prNa; }
+        (e.kd.na||[]).forEach(function(x){ if(x.perm===r2na){ hits.push({lek:x.perm,type:'2ตัวหน้า(กลับ)',bet:x.price,pay:x.price*prNa}); custPay+=x.price*prNa; } });
       }
       // ── วิ่งบน ──
       if(d===1 && vbon.indexOf(lek)>=0){
