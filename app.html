@@ -588,8 +588,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     <div class="hdr-btns">
       <button class="hbtn" id="guide-btn"><span class="hbtn-icon">💡</span><span class="hbtn-lbl">วิธีใช้</span></button>
       <button class="hbtn" id="hist-btn"><span class="hbtn-icon">📂</span><span class="hbtn-lbl">แฟ้ม</span></button>
+      <button class="hbtn" id="qa-open-btn" onclick="openQA()"><span class="hbtn-icon">⚡</span><span class="hbtn-lbl">คีย์ด่วน</span></button>
       <button class="hbtn gold" id="new-ngod-btn"><span class="hbtn-icon">🎯</span><span class="hbtn-lbl">+ ชุดใหม่</span></button>
-
     </div>
   </div>
 
@@ -609,45 +609,53 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
   </div>
 
-  <button class="basket-btn" id="basket-btn">📂 เก็บเข้าแฟ้ม</button>
   <div class="ipanel" id="ipanel">
-    <div class="psec">
-      <div class="plbl">✏️ กรอกเลข (1-5 หลัก)</div>
-      <div class="lek-display" id="lek-display" onclick="document.getElementById('lek-inp').focus()">
-        <div class="tap-ring" id="tap-ring"></div>
-        <span id="lek-shown" class="lp">? ? ?</span>
-        <input id="lek-inp" type="tel" inputmode="numeric" maxlength="5" enterkeyhint="go"
-          style="position:absolute;inset:0;width:100%;height:100%;opacity:1;color:transparent;background:transparent;border:none;outline:none;font-size:48px;text-align:center;letter-spacing:12px;caret-color:var(--gold);z-index:2;">
-      </div>
-      <div class="lek-hint" id="lek-hint">แตะเพื่อพิมพ์เลข</div>
-      <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()" style="display:none;">📌 ปักหลัก</button>
+    <div style="padding:10px 12px 0;">
+      <button class="pak-btn-mobile" id="pak-open-btn" onclick="APP.openPak()" style="display:none;margin-bottom:6px;">📌 ปักหลัก</button>
     </div>
-    <!-- NEW: 4 ช่องราคา -->
-    <div class="npgrid" id="npgrid">
+    <!-- แถวเดียว: เลข + 4 ช่องราคา -->
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:6px;padding:8px 12px 4px;align-items:end;">
+      <!-- ช่องเลข -->
+      <div class="npcol">
+        <span class="nplbl" style="color:var(--gold);">เลข</span>
+        <div style="position:relative;">
+          <input id="lek-inp" type="tel" inputmode="numeric" placeholder="???"
+            style="width:100%;background:#0d0f18;border:2px solid var(--gold);border-radius:10px;color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:26px;font-weight:900;padding:9px 4px;text-align:center;outline:none;-webkit-tap-highlight-color:transparent;"
+            enterkeyhint="next">
+          <div class="tap-ring" id="tap-ring" style="display:none;"></div>
+        </div>
+        <div id="lek-hint" style="font-size:10px;color:var(--gray);text-align:center;margin-top:2px;">1-5 หลัก</div>
+      </div>
+      <!-- บน -->
       <div class="npcol">
         <span class="nplbl bon">บน</span>
-        <input class="npinp" id="np-bon" type="tel" inputmode="numeric" placeholder="฿" oninput="npInp(this,'bon')" onfocus="npFocus(this)">
+        <input class="npinp" id="np-bon" type="tel" inputmode="numeric" placeholder="฿" oninput="npInp(this,'bon')" onfocus="npFocus(this)" enterkeyhint="next">
         <button class="npklb" id="npk-bon" onclick="npKlb('bon')">กลับ</button>
       </div>
+      <!-- โต๊ด -->
       <div class="npcol">
         <span class="nplbl tod">โต๊ด</span>
-        <input class="npinp" id="np-tod" type="tel" inputmode="numeric" placeholder="฿" oninput="npInp(this,'tod')" onfocus="npFocus(this)">
+        <input class="npinp" id="np-tod" type="tel" inputmode="numeric" placeholder="฿" oninput="npInp(this,'tod')" onfocus="npFocus(this)" enterkeyhint="next">
         <div class="np-spacer"></div>
       </div>
+      <!-- ล่าง -->
       <div class="npcol">
         <span class="nplbl lang">ล่าง</span>
-        <input class="npinp" id="np-lang" type="tel" inputmode="numeric" placeholder="฿" oninput="npInp(this,'lang')" onfocus="npFocus(this)">
+        <input class="npinp" id="np-lang" type="tel" inputmode="numeric" placeholder="฿" oninput="npInp(this,'lang')" onfocus="npFocus(this)" enterkeyhint="next">
         <button class="npklb" id="npk-lang" onclick="npKlb('lang')">กลับ</button>
       </div>
+      <!-- หน้า -->
       <div class="npcol">
         <span class="nplbl na">หน้า</span>
-        <input class="npinp" id="np-na" type="tel" inputmode="numeric" placeholder="฿" oninput="npInp(this,'na')" onfocus="npFocus(this)">
+        <input class="npinp" id="np-na" type="tel" inputmode="numeric" placeholder="฿" oninput="npInp(this,'na')" onfocus="npFocus(this)" enterkeyhint="go">
         <button class="npklb" id="npk-na" onclick="npKlb('na')">กลับ</button>
       </div>
     </div>
+    <!-- lek-shown hidden (ใช้สำหรับ slip rendering เท่านั้น) -->
+    <span id="lek-shown" style="display:none;"></span>
   </div>
   <div style="display:flex;gap:8px;margin:10px 12px 0;">
-    <button class="add-btn" id="qa-open-btn" style="margin:0;flex:1;font-size:16px;background:linear-gradient(135deg,#7c3aed,#5b21b6);">⚡ เพิ่มเลขด่วน</button>
+    <button class="basket-btn" id="basket-btn" style="margin:0;flex:1;font-size:17px;padding:13px;">📂 เก็บเข้าแฟ้ม</button>
     <button class="add-btn" id="add-btn" style="margin:0;flex:1;font-size:20px;">✓ OK</button>
   </div>
   <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — ดูโพยได้ในแฟ้ม</div>
@@ -2050,15 +2058,19 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function setLek(v){
     curLek=v;FS=makeFS();
-    npUpdateForLek(v.replace(/\//g,'').length?v.split('/')[0].length:0);
-    var sh=document.getElementById('lek-shown'),ring=document.getElementById('tap-ring'),disp=document.getElementById('lek-display');
-    var cur=document.getElementById('lek-cursor');
-    if(v){sh.className='lv';sh.textContent=v.split('').join(' ');if(ring)ring.style.display='none';disp.classList.add('has-lek');if(cur)cur.classList.add('hide');}
-    else{sh.className='lp';sh.textContent='';if(ring)ring.style.display='';disp.classList.remove('has-lek');if(cur)cur.classList.remove('hide');}
-    document.getElementById('lek-hint').textContent=v.length?'เลข '+v.length+' หลัก':'แตะเพื่อพิมพ์เลข';
+    var d=v.replace(/\//g,'').length?v.split('/')[0].length:0;
+    npUpdateForLek(d);
+    // อัพเดท lek-inp display
+    var li=document.getElementById('lek-inp');
+    if(li&&document.activeElement!==li) li.value=v;
+    // lek-shown hidden ใช้สำหรับ slip
+    var sh=document.getElementById('lek-shown');
+    if(sh) sh.textContent=v;
+    var lh=document.getElementById('lek-hint');
+    if(lh) lh.textContent=d?'เลข '+d+' หลัก':'1-5 หลัก';
     var pakBtn=document.getElementById('pak-open-btn');
-    if(pakBtn) pakBtn.style.display=v.length===1?'block':'none';
-    renderChips(v.length);renderPGrid(RULES[v.length]||[]);
+    if(pakBtn) pakBtn.style.display=(d===1&&v.indexOf('/')<0)?'block':'none';
+    renderChips(d);renderPGrid(RULES[d]||[]);
     checkReady();
   }
 
@@ -3174,12 +3186,31 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var raw=this.value.replace(/[^0-9\/]/g,'');
       var parts=raw.split('/').map(function(s){return s.slice(0,5);}).slice(0,10);
       this.value=parts.join('/');
-      // setLek ใช้เลขแรกสำหรับ display/UI
       var firstLek=parts[0]||'';
       setLek(firstLek);
-      // เก็บ full string ไว้ใน curLek
       curLek=this.value;
       clearAddBtnHl();
+    });
+    // Enter navigation: เลข → บน → โต๊ด → ล่าง → หน้า → OK
+    function npNextFocus(currentId){
+      var order=['lek-inp','np-bon','np-tod','np-lang','np-na'];
+      var idx=order.indexOf(currentId);
+      for(var i=idx+1;i<order.length;i++){
+        var el=document.getElementById(order[i]);
+        if(el&&!el.disabled){el.focus();el.select();return;}
+      }
+      // ครบทุกช่อง → กด OK
+      document.getElementById('add-btn').click();
+    }
+    ['lek-inp','np-bon','np-tod','np-lang','np-na'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el) return;
+      el.addEventListener('keydown',function(e){
+        if(e.key==='Enter'||e.keyCode===13){
+          e.preventDefault();
+          npNextFocus(id);
+        }
+      });
     });
     document.getElementById('lek-inp').addEventListener('keydown',function(e){
       if(e.key!=='Enter'&&e.keyCode!==13)return;
@@ -3345,7 +3376,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById('cf-yes').addEventListener('click',function(){document.getElementById('cf-ov').classList.remove('show');if(_cfCb)_cfCb();_cfCb=null;});
 
     // Quick Add
-    document.getElementById('qa-open-btn').addEventListener('click',openQA);
+    // qa-open-btn ย้ายไป header แล้ว onclick ตรง
     document.getElementById('qa-close').addEventListener('click',closeQA);
     // FK keyboard uses inline onclick
 
