@@ -768,7 +768,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 // DATA
 // ================================================================
 var STORE_KEY = 't999_desktop_v1';
-var SETTINGS_KEY = 't999_settings_v1';
+var SETTINGS_KEY = 't999_settings_v2';
 
 var customers = [], curCustId = null;
 var custEntries = {}, custEid = {}, custSets = {}; // custSets[cid] = [{entries,locked}]
@@ -1247,7 +1247,21 @@ function saveSettings(){
   toast('บันทึกตั้งค่าแล้ว ✅');
 }
 function loadSettings(){
-  try{var r=localStorage.getItem(SETTINGS_KEY);if(r)settings=JSON.parse(r);}catch(e){}
+  try{
+    var r=localStorage.getItem(SETTINGS_KEY);
+    if(r){
+      var saved=JSON.parse(r);
+      // merge: เพิ่ม key ใหม่จาก default ถ้า key นั้นยังไม่มีใน saved
+      DEFAULT_SETTINGS.normal.forEach(function(def){
+        var found=saved.normal&&saved.normal.find(function(x){return x.key===def.key;});
+        if(!found){
+          if(!saved.normal) saved.normal=[];
+          saved.normal.push(JSON.parse(JSON.stringify(def)));
+        }
+      });
+      settings=saved;
+    }
+  }catch(e){}
 }
 
 // ================================================================
