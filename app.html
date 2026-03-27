@@ -2227,7 +2227,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function pageSumTotals(pEntries){
     var s={c3:0,c2:0,c1:0,ct:0,cl:0};
-    pEntries.forEach(function(e){var es=entrySummary(e);s.c3+=es.c3;s.c2+=es.c2;s.c1+=es.c1;s.ct+=es.ct;s.cl+=es.cl;});
+    pEntries.forEach(function(e){
+      var es=entrySummary(e);
+      if(es.c2>0) console.log("c2 entry:",e.lek,"d=",e.d,"c2=",es.c2,"b=",e.bon,"n=",e.na,"kb=",(e.kd.bon||[]).reduce(function(s,x){return s+x.price;},0));
+      s.c3+=es.c3;s.c2+=es.c2;s.c1+=es.c1;s.ct+=es.ct;s.cl+=es.cl;
+    });
     return s;
   }
 
