@@ -3456,16 +3456,17 @@ function doCheckResult(){
       var setId = e._setId||'?';
 
       // ── 3ตัวบน (bon) ──
-      if(d===3 && r3bon && lek===r3bon){
-        var cfg=getCfg('3bon'); var pr=cfg?cfg.pay:500;
-        if(e.bon){ hits.push({lek:lek,type:'3ตัวบน',bet:e.bon,pay:e.bon*pr}); custPay+=e.bon*pr; }
-        (e.kd.bon||[]).forEach(function(x){ hits.push({lek:x.perm,type:'3ตัวบน(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; });
+      if(d===3 && r3bon){
+        var cfg3bon=getCfg('3bon'); var pr3bon=cfg3bon?cfg3bon.pay:500;
+        if(lek===r3bon && e.bon){ hits.push({lek:lek,type:'3ตัวบน',bet:e.bon,pay:e.bon*pr3bon}); custPay+=e.bon*pr3bon; }
+        (e.kd.bon||[]).forEach(function(x){ if(x.perm===r3bon){ hits.push({lek:x.perm,type:'3ตัวบน(ชุด)',bet:x.price,pay:x.price*pr3bon}); custPay+=x.price*pr3bon; } });
       }
       // ── 3ตัวหน้า (na) ── ตรวจกับ 3ตัวแรกของรางวัลที่ 1
-      if(d===3 && r3na && lek===r3na){
-        var cfg=getCfg('3na'); var pr=cfg?cfg.pay:450;
-        if(e.na){ hits.push({lek:lek,type:'3ตัวหน้า',bet:e.na,pay:e.na*pr}); custPay+=e.na*pr; }
-        (e.kd.na||[]).forEach(function(x){ hits.push({lek:x.perm,type:'3ตัวหน้า(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; });
+      if(d===3 && r3na){
+        var cfg3na=getCfg('3na'); var pr3na=cfg3na?cfg3na.pay:450;
+        if(lek===r3na && e.na){ hits.push({lek:lek,type:'3ตัวหน้า',bet:e.na,pay:e.na*pr3na}); custPay+=e.na*pr3na; }
+        // ชุดหน้า: ตรวจแต่ละ perm ว่าตรงกับ r3na ไหม
+        (e.kd.na||[]).forEach(function(x){ if(x.perm===r3na){ hits.push({lek:x.perm,type:'3ตัวหน้า(ชุด)',bet:x.price,pay:x.price*pr3na}); custPay+=x.price*pr3na; } });
       }
       // ── 3ล่าง (lang) ── ตรวจกับ 4 รางวัล (front3 + back3)
       if(d===3 && r3langList.indexOf(lek)>=0){
@@ -3494,10 +3495,10 @@ function doCheckResult(){
         }
       }
       // ── 2ตัวบน ──
-      if(d===2 && r2bon && lek===r2bon){
-        var cfg=getCfg('2bon'); var pr=cfg?cfg.pay:70;
-        if(e.bon){ hits.push({lek:lek,type:'2ตัวบน',bet:e.bon,pay:e.bon*pr}); custPay+=e.bon*pr; }
-        (e.kd.bon||[]).forEach(function(x){ hits.push({lek:x.perm,type:'2ตัวบน(ชุด)',bet:x.price,pay:x.price*pr}); custPay+=x.price*pr; });
+      if(d===2 && r2bon){
+        var cfg2bon=getCfg('2bon'); var pr2bon=cfg2bon?cfg2bon.pay:70;
+        if(lek===r2bon && e.bon){ hits.push({lek:lek,type:'2ตัวบน',bet:e.bon,pay:e.bon*pr2bon}); custPay+=e.bon*pr2bon; }
+        (e.kd.bon||[]).forEach(function(x){ if(x.perm===r2bon){ hits.push({lek:x.perm,type:'2ตัวบน(กลับ)',bet:x.price,pay:x.price*pr2bon}); custPay+=x.price*pr2bon; } });
       }
       // ── 2ตัวล่าง ──
       if(d===2 && r2lang && lek===r2lang){
