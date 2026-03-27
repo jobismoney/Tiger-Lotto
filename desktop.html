@@ -583,24 +583,13 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
           <div style="margin-bottom:10px;">
             <div style="font-size:12px;color:var(--gold);font-weight:800;margin-bottom:5px;text-align:center;">รางวัลที่ 1</div>
             <input id="res-1st" type="tel" inputmode="numeric" maxlength="6" placeholder="x  x  x  x  x  x"
-              oninput="if(this.value.length===6)document.getElementById('res-3na').focus()"
+              oninput="if(this.value.length===6)document.getElementById('res-3lang1').focus()"
               style="width:100%;background:#1a1a2e;border:2px solid var(--gold);border-radius:10px;color:var(--gold);font-size:24px;font-weight:900;padding:10px;box-sizing:border-box;text-align:center;font-family:inherit;letter-spacing:6px;outline:none;">
           </div>
-          <!-- 3ตัวหน้า | 3ตัวบน | 2ตัวบน/ล่าง -->
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;">
-            <div>
-              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">3ตัวหน้า</div>
-              <input type="tel" inputmode="numeric" maxlength="3" id="res-3na" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-3bon').focus()">
-            </div>
-            <div>
-              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">3ตัวบน</div>
-              <input type="tel" inputmode="numeric" maxlength="3" id="res-3bon" placeholder="xxx" class="check-inp-desk" oninput="if(this.value.length===3)document.getElementById('res-2bon').focus()">
-            </div>
-            <div>
-              <div style="font-size:11px;color:#888;margin-bottom:4px;text-align:center;">2ตัวบน</div>
-              <input type="tel" inputmode="numeric" maxlength="2" id="res-2bon" placeholder="xx" class="check-inp-desk" oninput="if(this.value.length===2)document.getElementById('res-2lang').focus()">
-            </div>
-          </div>
+          <!-- hidden fields สำหรับ backward compat -->
+          <input type="hidden" id="res-3na" value="">
+          <input type="hidden" id="res-3bon" value="">
+          <input type="hidden" id="res-2bon" value="">
           <!-- 3ตัวล่าง (หน้า 2 ช่อง | ท้าย 2 ช่อง) | 2ตัวล่าง -->
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;">
             <div>
@@ -798,7 +787,7 @@ var npLekQueue = []; // เก็บ leks ที่คั่นด้วย /
 // 4-5 ตัว: โต๊ดเท่านั้น
 var DIGIT_RULES = {
   1: ['bon','lang'],
-  2: ['bon','tod','lang'],
+  2: ['bon','tod','lang','na'],
   3: ['bon','tod','lang','na'],
   4: ['tod'],
   5: ['tod']
@@ -810,16 +799,20 @@ var pakType='3bon', pakPos='na';
 // settings
 var DEFAULT_SETTINGS = {
   normal:[
-    {key:'3bon',    lbl:'3ตัวบน',     disc:20, pay:500},
-    {key:'3na',     lbl:'3ตัวหน้า',   disc:20, pay:450},
-    {key:'3lang',   lbl:'3ตัวล่าง',   disc:20, pay:450},
-    {key:'2bon',    lbl:'2ตัวบน',     disc:20, pay:70},
-    {key:'2lang',   lbl:'2ตัวล่าง',   disc:20, pay:70},
-    {key:'vbon',    lbl:'วิ่งบน',     disc:10, pay:3},
-    {key:'vlang',   lbl:'วิ่งล่าง',   disc:10, pay:4},
-    {key:'tod',     lbl:'โต๊ด',       disc:20, pay:120},
-    {key:'pak-3bon',lbl:'ปักหลักบน',  disc:20, pay:350},
-    {key:'pak-2lang',lbl:'ปักหลักล่าง',disc:20, pay:55},
+    {key:'3bon',    lbl:'3ตัวบน',       disc:35, pay:500},
+    {key:'3na',     lbl:'3ตัวหน้า',     disc:35, pay:500},
+    {key:'3lang',   lbl:'3ตัวล่าง',     disc:35, pay:500},
+    {key:'2bon',    lbl:'2ตัวบน',       disc:25, pay:70},
+    {key:'2na',     lbl:'2ตัวหน้า',     disc:25, pay:70},
+    {key:'2lang',   lbl:'2ตัวล่าง',     disc:25, pay:70},
+    {key:'vbon',    lbl:'วิ่งบน',       disc:12, pay:3},
+    {key:'vlang',   lbl:'วิ่งล่าง',     disc:12, pay:4},
+    {key:'tod3',    lbl:'โต๊ด 3ตัว',    disc:25, pay:100},
+    {key:'tod2',    lbl:'โต๊ด 2ตัว',    disc:25, pay:10},
+    {key:'tod4',    lbl:'โต๊ด 4ตัว',    disc:25, pay:20},
+    {key:'tod5',    lbl:'โต๊ด 5ตัว',    disc:25, pay:10},
+    {key:'pak-3bon',lbl:'ปักหลักบน',    disc:12, pay:8},
+    {key:'pak-2lang',lbl:'ปักหลักล่าง', disc:12, pay:8},
   ],
   special:[]
 };
@@ -3479,21 +3472,26 @@ function doCheckResult(){
 
       // ── โต๊ด ──
       if(e.tod>0){
-        var cfgTod=getCfg('tod'); var prTod=cfgTod?cfgTod.pay:120;
         var win3=r3bon||'';
         if(d===2){
-          // 2โต๊ด: ตัวเลขทั้ง 2 ต้องอยู่ใน win3 ครบ
+          var prTod2=(getCfg('tod2')||{pay:10}).pay;
           var w3=win3.split(''), lk=lek.split('');
           if(w3.length===3 && lk.every(function(c){return w3.indexOf(c)>=0;}))
-            { hits.push({lek:lek,type:'โต๊ด 2ตัว',bet:e.tod,pay:e.tod*prTod}); custPay+=e.tod*prTod; }
+            { hits.push({lek:lek,type:'โต๊ด 2ตัว',bet:e.tod,pay:e.tod*prTod2}); custPay+=e.tod*prTod2; }
         } else if(d===3){
+          var prTod3=(getCfg('tod3')||{pay:100}).pay;
           if(todWin.indexOf(lek)>=0)
-            { hits.push({lek:lek,type:'โต๊ด 3ตัว',bet:e.tod,pay:e.tod*prTod}); custPay+=e.tod*prTod; }
-        } else if(d===4||d===5){
-          // 4-5โต๊ด: ต้องครอบคลุม win3 ครบ 3 ตัว
+            { hits.push({lek:lek,type:'โต๊ด 3ตัว',bet:e.tod,pay:e.tod*prTod3}); custPay+=e.tod*prTod3; }
+        } else if(d===4){
+          var prTod4=(getCfg('tod4')||{pay:20}).pay;
           var w3b=win3.split(''), lkb=lek.split('');
-          var covers=w3b.length===3&&w3b.every(function(c){var i=lkb.indexOf(c);if(i>=0){lkb.splice(i,1);return true;}return false;});
-          if(covers){ hits.push({lek:lek,type:'โต๊ด '+d+'ตัว',bet:e.tod,pay:e.tod*prTod}); custPay+=e.tod*prTod; }
+          var covers4=w3b.length===3&&w3b.every(function(c){var i=lkb.indexOf(c);if(i>=0){lkb.splice(i,1);return true;}return false;});
+          if(covers4){ hits.push({lek:lek,type:'โต๊ด 4ตัว',bet:e.tod,pay:e.tod*prTod4}); custPay+=e.tod*prTod4; }
+        } else if(d===5){
+          var prTod5=(getCfg('tod5')||{pay:10}).pay;
+          var w3c=win3.split(''), lkc=lek.split('');
+          var covers5=w3c.length===3&&w3c.every(function(c){var i=lkc.indexOf(c);if(i>=0){lkc.splice(i,1);return true;}return false;});
+          if(covers5){ hits.push({lek:lek,type:'โต๊ด 5ตัว',bet:e.tod,pay:e.tod*prTod5}); custPay+=e.tod*prTod5; }
         }
       }
       // ── 2ตัวบน ──
