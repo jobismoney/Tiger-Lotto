@@ -3175,10 +3175,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     }
 
     // Lek input
-    // scroll ลงมา input panel เมื่อแตะช่องกรอกเลข
-    document.getElementById('lek-display').addEventListener('click',function(){
-      scrollToInput();
-    });
+    var lekDisp=document.getElementById('lek-display');
+    if(lekDisp) lekDisp.addEventListener('click',function(){scrollToInput();});
     document.getElementById('lek-inp').addEventListener('focus',function(){
       scrollToInput();
     });
