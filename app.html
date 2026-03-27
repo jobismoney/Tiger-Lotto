@@ -1266,12 +1266,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var lek=curLek;
       if(!lek){toast('กรอกเลขก่อนครับ');return;}
       document.getElementById('pak-lek-show').textContent=lek;
-      document.getElementById('pak-price').value='';
+      var pakP=document.getElementById('pak-price');if(pakP)pakP.value='';
       APP.pakPos=[];
       document.querySelectorAll('#pak-pos-grid .pak-pbtn').forEach(function(b){b.classList.remove('on');});
       APP.updatePakUI();
       document.getElementById('pak-overlay').classList.add('show');
-      setTimeout(function(){document.getElementById('pak-price').focus();},100);
+      var pp=document.getElementById('pak-price');if(pp)setTimeout(function(){pp.focus();},100);
     },
     closePak:function(){document.getElementById('pak-overlay').classList.remove('show');},
     selPakType:function(el){
@@ -1308,7 +1308,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         document.getElementById('pak-ex-lang').textContent='_'+d;
       }
     },
-    setPakPreset:function(n){document.getElementById('pak-price').value=n;},
+    setPakPreset:function(n){var pakP=document.getElementById('pak-price');if(pakP)pakP.value=n;},
     addPak:function(){
       // อ่านราคาจาก NP grid ช่องบน (ปักหลักใช้ราคาเดียวกัน)
       var bonInp=document.getElementById('np-bon');
