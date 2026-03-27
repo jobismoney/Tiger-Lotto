@@ -2196,10 +2196,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(p.type==='3bon') pk3+=p.price;
       else pk2+=p.price;
     });
-    if(d===3)return{c3:b+kb+n+kn+pk3,c2:pk2,c1:0,ct:t,cl:l+kl};
-    if(d===2)return{c3:pk3,c2:b+kb+pk2,c1:0,ct:t,cl:l+kl};
-    if(d===1)return{c3:pk3,c2:pk2,c1:b,ct:0,cl:l};
-    return{c3:pk3,c2:pk2,c1:0,ct:t,cl:0};
+    // ปักหลักทุกแบบ = 1ตัว (c1)
+    var pk=pk3+pk2;
+    if(d===3)return{c3:b+kb+n+kn,  c2:0,  c1:pk, ct:t, cl:l+kl};
+    if(d===2)return{c3:0,           c2:b+kb+n+kn, c1:pk, ct:t, cl:l+kl};
+    if(d===1)return{c3:0,           c2:0,  c1:b+l+n+pk, ct:0, cl:0};
+    return{c3:0, c2:0, c1:pk, ct:t, cl:0}; // 4-5หลัก = โต๊ด
   }
 
   // คำนวณส่วนลดจาก entries + discRates (map ตรงกับ entrySummary)
