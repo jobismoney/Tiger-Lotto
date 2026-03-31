@@ -2142,8 +2142,19 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(n>0&&!hasKn2){ps2.push('หน้า'+fmt(n));pt2+=n;}
       if(ps2.length)push(lek,pstr(ps2),pt2);
       var kb2=e.kd['bon']||[],kl2=e.kd['lang']||[],kn2arr=e.kd['na']||[];
-      // กลับหน้า d===2
-      kn2arr.forEach(function(x){push(x.perm,'หน้า'+fmt(x.price),x.price);});
+      // กลับ/ชุด หน้า d===2: แสดงเลขหลัก + perm
+      if(kn2arr.length){
+        var allNaP=[]; if(n>0) allNaP.push(n);
+        kn2arr.forEach(function(x){allNaP.push(x.price);});
+        var allNaSame=allNaP.length>0&&allNaP.every(function(p){return p===allNaP[0];});
+        var naFull=(n>0?1:0)+kn2arr.length===2; // 2หลักมีแค่ 1 perm
+        if(naFull&&allNaSame){
+          push(lek,(d===2?'กลับ':'ช')+'หน้า'+fmt(allNaP[0]),allNaP.reduce(function(s,p){return s+p;},0));
+        } else {
+          if(n>0) push(lek,'หน้า'+fmt(n),n);
+          kn2arr.forEach(function(x){push(x.perm,'หน้า'+fmt(x.price),x.price);});
+        }
+      }
       if(kb2.length||kl2.length){
         var allPerms2=getPerms(lek);
         allPerms2.forEach(function(p){
