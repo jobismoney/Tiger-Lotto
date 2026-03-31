@@ -3048,7 +3048,7 @@ function renderDesktopPageQR(pEntries, inf, gid){
   var el=document.getElementById('desk-qr-g-'+gid) || document.getElementById('desk-qr-pg-'+gid);
   if(!el||typeof QRCode==='undefined') return;
   el.innerHTML='';
-  var url=encodePageDataDesk(pEntries,inf,pgNum);
+  var url=encodePageDataDesk(pEntries,inf,gid);
   if(!url||url.length>1800){ el.innerHTML='<div style="font-size:9px;color:#999;text-align:center;">QR เกิน</div>'; return; }
   try{ new QRCode(el,{text:url,width:180,height:180,correctLevel:QRCode.CorrectLevel.L}); }catch(ex){}
 }
