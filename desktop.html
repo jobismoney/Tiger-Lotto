@@ -7,6 +7,9 @@
 <title>T999 Desktop</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
 <script>
+var rateOverrides = {};
+var flaggedLeks = {};
+var _qrQueue = [];
 (function(){
   var key=localStorage.getItem('t999_key');
   var code=localStorage.getItem('t999_code');
@@ -3860,9 +3863,6 @@ function getCfg(key){
 // PER-NUMBER RATE SYSTEM (tab-based)
 // ================================================================
 // rateOverrides: { ngodKey: { "lek|field": pct } }  pct = 0-100
-var rateOverrides = {};
-var flaggedLeks = {};
-var _qrQueue = []; // [{el_id, entries, inf, pgNum}]
 
 var RATE_STORE = 't999_rates_v1';
 
