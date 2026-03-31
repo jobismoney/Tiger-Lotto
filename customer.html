@@ -1091,7 +1091,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   entries=[]; eid=0; isLocked=false; pageBreakIds=[];
   save(); renderList(); updateLockUI();
   document.getElementById('slip-ov').classList.remove('show');
-  toast('✅ สร้างโพยและบันทึกแล้ว');
+  showConfirm('📋 เก็บโพยเข้าแฟ้มแล้ว<br><br>ดูได้ที่ปุ่ม 📂 แฟ้ม',null,false,'✅ ตกลง',function(){},null,null);
 }
 
   function updateBasketBadge(){
@@ -1099,7 +1099,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(!btn)return;
     var total=basket.reduce(function(s,b){return s+b.total;},0);
     var count=basket.reduce(function(s,b){return s+b.entries.length;},0);
-    btn.textContent='📂 เก็บเข้าแฟ้ม';
+    btn.textContent='📋 สร้างโพย';
   }
 
   function resetForm(){
@@ -3097,7 +3097,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         this._mergedMode=false;
         this.innerHTML='✏️ ซื้อเพิ่ม / แก้ไข';
         document.getElementById('ov-basket').style.display='';
-        document.getElementById('ov-print-merged').style.display='none';
         document.getElementById('slip-ov').classList.remove('show');
         document.getElementById('hist-ov').classList.add('show');
         return;
@@ -3150,9 +3149,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       document.getElementById('slip-ov').classList.remove('show');
       doBasket();
     });
-    document.getElementById('ov-print-merged').addEventListener('click',function(){
-      window.print();
-    });
     document.getElementById('ov-share-line').addEventListener('click',shareSlip);
 
     // Open ngod
@@ -3198,9 +3194,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         openNgodModal(entries.length>0);
       }
     });
-    document.getElementById('guide-btn').addEventListener('click',openGuide);
-    document.getElementById('welcome-guide-btn').addEventListener('click',openGuide);
-    document.getElementById('guide-close').addEventListener('click',function(){document.getElementById('guide-ov').classList.remove('show');});
     // History
     document.getElementById('hist-btn').addEventListener('click',function(){renderHistory();document.getElementById('hist-ov').classList.add('show');});
     document.getElementById('hist-close').addEventListener('click',function(){document.getElementById('hist-ov').classList.remove('show');});
