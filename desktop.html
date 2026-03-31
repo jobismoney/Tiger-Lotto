@@ -1545,6 +1545,7 @@ function showSlipSet(cid, idx){
   document.getElementById('slip-pages').innerHTML=html;
   document.getElementById('slip-ov').classList.add('show');
   document.getElementById('slip-ov').scrollTop=0;
+  setTimeout(renderQRQueue,150);
 }
 
 function deleteSet(cid, idx){
@@ -3039,6 +3040,14 @@ function renderDesktopQR(el, pEntries, inf, pgNum){
   }
   new QRCode(el,{text:url,width:180,height:180,correctLevel:QRCode.CorrectLevel.L});
 }
+function renderQRQueue(){
+  if(typeof QRCode==='undefined'){ setTimeout(renderQRQueue,200); return; }
+  var q=_qrQueue.slice(); _qrQueue=[];
+  q.forEach(function(item){
+    var el=document.getElementById(item.id);
+    if(el) renderDesktopQR(el,item.entries,item.inf,item.pgNum);
+  });
+}
 
 function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
   var bodyRows='';
@@ -3077,8 +3086,10 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
     +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
     +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmtN(pt)+'</span></div>'
     +'<div style="display:flex;justify-content:flex-end;padding:8px 10px 4px;">'
-    +'<div id="desk-qr-'+pgNum+'" style="background:#fff;"></div></div>'
+    +'<div id="desk-qr-pg-'+pgNum+'" style="background:#fff;"></div></div>'
     +LEGEND;
+  // เพิ่มเข้า queue สำหรับ render QR ทีหลัง
+  _qrQueue.push({id:'desk-qr-pg-'+pgNum, entries:pEntries, inf:inf, pgNum:pgNum});
 }
 
 function fmtN(n){return parseInt(n||0).toLocaleString();}
@@ -3238,25 +3249,7 @@ function _doShowSlipCust(cid){
     document.getElementById('slip-pages').innerHTML=html;
     document.getElementById('slip-ov').classList.add('show');
     document.getElementById('slip-ov').scrollTop=0;
-    // render QR หลัง DOM พร้อม
-    setTimeout(function(){
-      if(typeof QRCode==='undefined') return;
-      var inf=ngodInfo||{ngod:'—'};
-      var allE=getAllEntries(cid);
-      // แบ่ง pages เหมือน buildSlipHTML
-      var MAX_ROWS=28;
-      var pages2=[],pEn2=[];
-      allE.forEach(function(e){
-        var lc=toLines(e).length||1;
-        if(pEn2.length>0&&pEn2.reduce(function(s,x){return s+(toLines(x).length||1);},0)+lc>MAX_ROWS){pages2.push(pEn2);pEn2=[];}
-        pEn2.push(e);
-      });
-      if(pEn2.length) pages2.push(pEn2);
-      pages2.forEach(function(pg,i){
-        var el=document.getElementById('desk-qr-'+(i+1));
-        if(el) renderDesktopQR(el,pg,inf,i+1);
-      });
-    },100);
+    setTimeout(renderQRQueue,150);
   }catch(err){
     toast('Error: '+err.message);
   }
@@ -3271,6 +3264,7 @@ function showSlipAll(){
   document.getElementById('slip-pages').innerHTML=html;
   document.getElementById('slip-ov').classList.add('show');
   document.getElementById('slip-ov').scrollTop=0;
+  setTimeout(renderQRQueue,150);
 }
 
 function buildAllCustSlip(){
@@ -3868,6 +3862,8 @@ function getCfg(key){
 // rateOverrides: { ngodKey: { "lek|field": pct } }  pct = 0-100
 var rateOverrides = {};
 var flaggedLeks = {};
+var _qrQueue = []; // [{el_id, entries, inf, pgNum}]
+
 var RATE_STORE = 't999_rates_v1';
 
 function loadRates(){
