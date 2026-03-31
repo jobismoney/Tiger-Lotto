@@ -1548,7 +1548,7 @@ function showSlipSet(cid, idx){
   document.getElementById('slip-pages').innerHTML=html;
   document.getElementById('slip-ov').classList.add('show');
   document.getElementById('slip-ov').scrollTop=0;
-  setTimeout(renderQRQueue,150);
+  setTimeout(function(){renderQRQueue(pages,inf);},150);
 }
 
 function deleteSet(cid, idx){
@@ -3043,15 +3043,18 @@ function renderDesktopQR(el, pEntries, inf, pgNum){
   }
   new QRCode(el,{text:url,width:180,height:180,correctLevel:QRCode.CorrectLevel.L});
 }
-function renderQRQueue(){
-  console.log('[QR] queue len='+_qrQueue.length+' QRCode='+typeof QRCode);
-  if(typeof QRCode==='undefined'){ setTimeout(renderQRQueue,200); return; }
-  var q=_qrQueue.slice(); _qrQueue=[];
-  q.forEach(function(item){
-    var el=document.getElementById(item.id);
-    console.log('[QR] item='+item.id+' el='+!!el);
-    if(el) renderDesktopQR(el,item.entries,item.inf,item.pgNum);
-  });
+function renderDesktopPageQR(pEntries, inf, pgNum){
+  var el=document.getElementById('desk-qr-pg-'+pgNum);
+  if(!el||typeof QRCode==='undefined') return;
+  el.innerHTML='';
+  var url=encodePageDataDesk(pEntries,inf,pgNum);
+  if(!url||url.length>1800){ el.innerHTML='<div style="font-size:9px;color:#999;text-align:center;">QR เกิน</div>'; return; }
+  try{ new QRCode(el,{text:url,width:180,height:180,correctLevel:QRCode.CorrectLevel.L}); }catch(ex){}
+}
+function renderQRQueue(pages, inf){
+  if(!pages||!pages.length) return;
+  if(typeof QRCode==='undefined'){ setTimeout(function(){renderQRQueue(pages,inf);},200); return; }
+  pages.forEach(function(pg,i){ renderDesktopPageQR(pg,inf,i+1); });
 }
 
 function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
@@ -3093,8 +3096,6 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
     +'<div style="display:flex;justify-content:flex-end;padding:8px 10px 4px;">'
     +'<div id="desk-qr-pg-'+pgNum+'" style="background:#fff;"></div></div>'
     +LEGEND;
-  // เพิ่มเข้า queue สำหรับ render QR ทีหลัง
-  _qrQueue.push({id:'desk-qr-pg-'+pgNum, entries:pEntries, inf:inf, pgNum:pgNum});
 }
 
 function fmtN(n){return parseInt(n||0).toLocaleString();}
@@ -3246,6 +3247,15 @@ function showSlipCust(cid){
 
 function _doShowSlipCust(cid){
   try{
+    var inf=ngodInfo||{ngod:'—'};
+    var allE=getAllEntries(cid);
+    var pages=[],pEn=[],rc=0;
+    allE.forEach(function(e){
+      var lc=toLines(e).length||1;
+      if(rc>0&&rc+lc>MAX_ROWS){pages.push(pEn);pEn=[];rc=0;}
+      pEn.push(e); rc+=lc;
+    });
+    if(pEn.length) pages.push(pEn);
     var html=buildSlipHTML(cid);
     if(!html){toast('ยังไม่มีรายการ');return;}
     var cust=customers.find(function(cc){return cc.id===cid;})||{name:'?'};
@@ -3254,7 +3264,7 @@ function _doShowSlipCust(cid){
     document.getElementById('slip-pages').innerHTML=html;
     document.getElementById('slip-ov').classList.add('show');
     document.getElementById('slip-ov').scrollTop=0;
-    setTimeout(renderQRQueue,150);
+    setTimeout(function(){renderQRQueue(pages,inf);},150);
   }catch(err){
     toast('Error: '+err.message);
   }
@@ -3269,7 +3279,20 @@ function showSlipAll(){
   document.getElementById('slip-pages').innerHTML=html;
   document.getElementById('slip-ov').classList.add('show');
   document.getElementById('slip-ov').scrollTop=0;
-  setTimeout(renderQRQueue,150);
+  // showSlipAll ใช้หลายลูกค้า render QR ด้วย buildSlipHTML pages
+  var inf2=ngodInfo||{ngod:'—'};
+  var allPages2=[];
+  customers.forEach(function(c){
+    var e2=getAllEntries(c.id); if(!e2.length) return;
+    var pEn2=[],rc2=0;
+    e2.forEach(function(e){
+      var lc=toLines(e).length||1;
+      if(rc2>0&&rc2+lc>MAX_ROWS){allPages2.push(pEn2);pEn2=[];rc2=0;}
+      pEn2.push(e);rc2+=lc;
+    });
+    if(pEn2.length) allPages2.push(pEn2);
+  });
+  setTimeout(function(){renderQRQueue(allPages2,inf2);},150);
 }
 
 function buildAllCustSlip(){
