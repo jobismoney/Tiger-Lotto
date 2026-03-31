@@ -10,6 +10,7 @@
 var rateOverrides = {};
 var flaggedLeks = {};
 var _qrQueue = [];
+var _globalPgNum = 0; // global counter สำหรับ QR id unique
 (function(){
   var key=localStorage.getItem('t999_key');
   var code=localStorage.getItem('t999_code');
@@ -3043,8 +3044,8 @@ function renderDesktopQR(el, pEntries, inf, pgNum){
   }
   new QRCode(el,{text:url,width:180,height:180,correctLevel:QRCode.CorrectLevel.L});
 }
-function renderDesktopPageQR(pEntries, inf, pgNum){
-  var el=document.getElementById('desk-qr-pg-'+pgNum);
+function renderDesktopPageQR(pEntries, inf, gid){
+  var el=document.getElementById('desk-qr-g-'+gid) || document.getElementById('desk-qr-pg-'+gid);
   if(!el||typeof QRCode==='undefined') return;
   el.innerHTML='';
   var url=encodePageDataDesk(pEntries,inf,pgNum);
@@ -3054,7 +3055,17 @@ function renderDesktopPageQR(pEntries, inf, pgNum){
 function renderQRQueue(pages, inf){
   if(!pages||!pages.length) return;
   if(typeof QRCode==='undefined'){ setTimeout(function(){renderQRQueue(pages,inf);},200); return; }
-  pages.forEach(function(pg,i){ renderDesktopPageQR(pg,inf,i+1); });
+  // ใช้ querySelectorAll หา desk-qr-g-* ที่ยังว่างอยู่
+  var els=document.querySelectorAll('[id^="desk-qr-g-"]');
+  var pgIdx=0;
+  els.forEach(function(el){
+    if(pgIdx>=pages.length) return;
+    if(el.innerHTML===''){
+      var pgNum=parseInt(el.getAttribute('data-pg'))||pgIdx+1;
+      renderDesktopPageQR(pages[pgIdx],inf,el.id.replace('desk-qr-g-',''));
+      pgIdx++;
+    }
+  });
 }
 
 function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
@@ -3093,8 +3104,11 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
     +'<col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
     +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
     +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmtN(pt)+'</span></div>'
-    +'<div style="display:flex;justify-content:flex-end;padding:8px 10px 4px;">'
-    +'<div id="desk-qr-pg-'+pgNum+'" style="background:#fff;"></div></div>'
+    +(function(){
+      _globalPgNum++;
+      return '<div style="display:flex;justify-content:flex-end;padding:8px 10px 4px;">'
+        +'<div id="desk-qr-g-'+_globalPgNum+'" data-pg="'+pgNum+'" style="background:#fff;"></div></div>';
+    }())
     +LEGEND;
 }
 
@@ -3256,6 +3270,7 @@ function _doShowSlipCust(cid){
       pEn.push(e); rc+=lc;
     });
     if(pEn.length) pages.push(pEn);
+    _globalPgNum=0;
     var html=buildSlipHTML(cid);
     if(!html){toast('ยังไม่มีรายการ');return;}
     var cust=customers.find(function(cc){return cc.id===cid;})||{name:'?'};
@@ -3272,6 +3287,7 @@ function _doShowSlipCust(cid){
 
 function showSlipAll(){
   if(!customers.length){toast('ยังไม่มีลูกค้า');return;}
+  _globalPgNum=0;
   var html=buildAllCustSlip();
   if(!html){toast('ยังไม่มีรายการ');return;}
   var t=document.getElementById('slip-ov-title');
@@ -3279,20 +3295,25 @@ function showSlipAll(){
   document.getElementById('slip-pages').innerHTML=html;
   document.getElementById('slip-ov').classList.add('show');
   document.getElementById('slip-ov').scrollTop=0;
-  // showSlipAll ใช้หลายลูกค้า render QR ด้วย buildSlipHTML pages
+  // render QR โดยใช้ global pgNum counter
   var inf2=ngodInfo||{ngod:'—'};
-  var allPages2=[];
-  customers.forEach(function(c){
-    var e2=getAllEntries(c.id); if(!e2.length) return;
-    var pEn2=[],rc2=0;
-    e2.forEach(function(e){
-      var lc=toLines(e).length||1;
-      if(rc2>0&&rc2+lc>MAX_ROWS){allPages2.push(pEn2);pEn2=[];rc2=0;}
-      pEn2.push(e);rc2+=lc;
+  setTimeout(function(){
+    if(typeof QRCode==='undefined') return;
+    var pgNum=1;
+    customers.forEach(function(c){
+      var e2=getAllEntries(c.id); if(!e2.length) return;
+      var pEn2=[],rc2=0;
+      e2.forEach(function(e){
+        var lc=toLines(e).length||1;
+        if(rc2>0&&rc2+lc>MAX_ROWS){
+          renderDesktopPageQR(pEn2,inf2,pgNum++);
+          pEn2=[];rc2=0;
+        }
+        pEn2.push(e);rc2+=lc;
+      });
+      if(pEn2.length) renderDesktopPageQR(pEn2,inf2,pgNum++);
     });
-    if(pEn2.length) allPages2.push(pEn2);
-  });
-  setTimeout(function(){renderQRQueue(allPages2,inf2);},150);
+  },150);
 }
 
 function buildAllCustSlip(){
