@@ -3044,10 +3044,12 @@ function renderDesktopQR(el, pEntries, inf, pgNum){
   new QRCode(el,{text:url,width:180,height:180,correctLevel:QRCode.CorrectLevel.L});
 }
 function renderQRQueue(){
+  console.log('[QR] queue len='+_qrQueue.length+' QRCode='+typeof QRCode);
   if(typeof QRCode==='undefined'){ setTimeout(renderQRQueue,200); return; }
   var q=_qrQueue.slice(); _qrQueue=[];
   q.forEach(function(item){
     var el=document.getElementById(item.id);
+    console.log('[QR] item='+item.id+' el='+!!el);
     if(el) renderDesktopQR(el,item.entries,item.inf,item.pgNum);
   });
 }
