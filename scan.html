@@ -181,6 +181,7 @@ function scanNextFile(){
   reader.onload = function(ev){
     var img = new Image();
     img.onload = function(){
+      setTimeout(function(){
       var result = scanFromImage(img);
       var ok = result && result.imp;
       _scannedResults.push({file: file.name, idx: _currentFileIdx+1, result: result});
@@ -198,6 +199,7 @@ function scanNextFile(){
         setStatus('scanning','🔍 กำลัง scan รูปที่ '+(_currentFileIdx+1)+'/'+_pendingFiles.length+'...');
       }
       scanNextFile();
+      },50); // setTimeout ให้ UI update ก่อน
     };
     img.src = ev.target.result;
   };
@@ -277,14 +279,23 @@ function handleFile(file){
 function scanFromImage(img){
   var canvas = document.getElementById('qr-canvas');
   var ctx = canvas.getContext('2d');
-  var w = img.naturalWidth, h = img.naturalHeight;
-  canvas.width = w; canvas.height = h;
-  ctx.drawImage(img, 0, 0, w, h);
-  var imageData = ctx.getImageData(0, 0, w, h);
-  var code = jsQR(imageData.data, w, h, {inversionAttempts:'dontInvert'});
-  if(!code) code = jsQR(imageData.data, w, h, {inversionAttempts:'onlyInvert'});
-  if(!code) return null;
-  return parseQRResult(code.data);
+  var origW = img.naturalWidth, origH = img.naturalHeight;
+  // ลอง scan หลายขนาด: original, 1200px, 800px
+  var scales = [];
+  scales.push({w:origW, h:origH});
+  if(origW > 1200) scales.push({w:1200, h:Math.round(origH*1200/origW)});
+  if(origW > 800) scales.push({w:800, h:Math.round(origH*800/origW)});
+  scales.push({w:400, h:Math.round(origH*400/origW)});
+  for(var i=0;i<scales.length;i++){
+    var w=scales[i].w, h=scales[i].h;
+    canvas.width=w; canvas.height=h;
+    ctx.drawImage(img,0,0,w,h);
+    var imageData=ctx.getImageData(0,0,w,h);
+    var code=jsQR(imageData.data,w,h,{inversionAttempts:'dontInvert'});
+    if(!code) code=jsQR(imageData.data,w,h,{inversionAttempts:'onlyInvert'});
+    if(code) return parseQRResult(code.data);
+  }
+  return null;
 }
 
 function parseQRResult(url){
