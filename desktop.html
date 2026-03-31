@@ -394,6 +394,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 ::-webkit-scrollbar-thumb{background:#1e2235;border-radius:2px;}
 </style>
 <!-- build:20260312_160439 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -3005,6 +3006,40 @@ function sumTableHTML(rows){
     +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
+
+function encodePageDataDesk(pEntries, inf, pgNum){
+  var compEntries=pEntries.map(function(e){
+    var o={l:e.lek};
+    if(e.bon)o.b=e.bon;
+    if(e.tod)o.t=e.tod;
+    if(e.lang)o.la=e.lang;
+    if(e.na)o.n=e.na;
+    if(e.paks&&e.paks.length)
+      o.pk=e.paks.map(function(p){return{tp:p.type,ps:p.pos,pr:p.price};});
+    var kd={};
+    ['bon','lang','na'].forEach(function(k){
+      if(e.kd&&e.kd[k]&&e.kd[k].length)
+        kd[k]=e.kd[k].map(function(x){return[x.perm,x.price];});
+    });
+    if(Object.keys(kd).length)o.k=kd;
+    return o;
+  });
+  var data={p:pgNum,g:inf.ngod||'',s:inf.sender||'',r:inf.receiver||'',e:compEntries};
+  var json=JSON.stringify(data);
+  var b64=btoa(unescape(encodeURIComponent(json)));
+  return 'T999:'+b64;
+}
+function renderDesktopQR(el, pEntries, inf, pgNum){
+  if(!el||typeof QRCode==='undefined') return;
+  el.innerHTML='';
+  var url=encodePageDataDesk(pEntries,inf,pgNum);
+  if(!url||url.length>1800){
+    el.innerHTML='<div style="font-size:10px;color:#f87171;text-align:center;">QR ข้อมูลเกิน</div>';
+    return;
+  }
+  new QRCode(el,{text:url,width:180,height:180,correctLevel:QRCode.CorrectLevel.L});
+}
+
 function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
   var bodyRows='';
   if(custLabel){
@@ -3041,6 +3076,8 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
     +'<col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
     +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
     +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmtN(pt)+'</span></div>'
+    +'<div style="display:flex;justify-content:flex-end;padding:8px 10px 4px;">'
+    +'<div id="desk-qr-'+pgNum+'" style="background:#fff;"></div></div>'
     +LEGEND;
 }
 
@@ -3201,6 +3238,25 @@ function _doShowSlipCust(cid){
     document.getElementById('slip-pages').innerHTML=html;
     document.getElementById('slip-ov').classList.add('show');
     document.getElementById('slip-ov').scrollTop=0;
+    // render QR หลัง DOM พร้อม
+    setTimeout(function(){
+      if(typeof QRCode==='undefined') return;
+      var inf=ngodInfo||{ngod:'—'};
+      var allE=getAllEntries(cid);
+      // แบ่ง pages เหมือน buildSlipHTML
+      var MAX_ROWS=28;
+      var pages2=[],pEn2=[];
+      allE.forEach(function(e){
+        var lc=toLines(e).length||1;
+        if(pEn2.length>0&&pEn2.reduce(function(s,x){return s+(toLines(x).length||1);},0)+lc>MAX_ROWS){pages2.push(pEn2);pEn2=[];}
+        pEn2.push(e);
+      });
+      if(pEn2.length) pages2.push(pEn2);
+      pages2.forEach(function(pg,i){
+        var el=document.getElementById('desk-qr-'+(i+1));
+        if(el) renderDesktopQR(el,pg,inf,i+1);
+      });
+    },100);
   }catch(err){
     toast('Error: '+err.message);
   }
