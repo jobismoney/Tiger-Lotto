@@ -2890,13 +2890,16 @@ function toLines(e){
     if(l>0) ps.push('ล'+slipFmt(l));
     if(ps.length) push(lek,pstr(ps),b+l);
   } else if(d===2){
-    var kbon=kd['bon']||[], klang=kd['lang']||[];
-    var hasKb=kbon.length>0, hasKl=klang.length>0;
+    var kbon=kd['bon']||[], klang=kd['lang']||[], kna2=kd['na']||[];
+    var hasKb=kbon.length>0, hasKl=klang.length>0, hasKn2=kna2.length>0;
     var ps2=[], pt2=0;
     if(b>0&&!hasKb){ ps2.push('บ'+slipFmt(b)); pt2+=b; }
     if(t>0){ ps2.push('ต'+slipFmt(t)); pt2+=t; }
     if(l>0&&!hasKl){ ps2.push('ล'+slipFmt(l)); pt2+=l; }
+    if(n>0&&!hasKn2){ ps2.push('หน้า'+slipFmt(n)); pt2+=n; }
     if(ps2.length) push(lek,pstr(ps2),pt2);
+    // กลับหน้า d===2
+    kna2.forEach(function(x){push(x.perm,'หน้า'+slipFmt(x.price),x.price);});
     if(hasKb||hasKl){
       getPerms(lek).forEach(function(p){
         var bx=null, lx=null;

@@ -2141,7 +2141,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(l>0&&!hasKl){ps2.push('ล'+fmt(l));pt2+=l;}
       if(n>0&&!hasKn2){ps2.push('หน้า'+fmt(n));pt2+=n;}
       if(ps2.length)push(lek,pstr(ps2),pt2);
-      var kb2=e.kd['bon']||[],kl2=e.kd['lang']||[];
+      var kb2=e.kd['bon']||[],kl2=e.kd['lang']||[],kn2arr=e.kd['na']||[];
+      // กลับหน้า d===2
+      kn2arr.forEach(function(x){push(x.perm,'หน้า'+fmt(x.price),x.price);});
       if(kb2.length||kl2.length){
         var allPerms2=getPerms(lek);
         allPerms2.forEach(function(p){
