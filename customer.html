@@ -560,7 +560,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   <div class="welcome-sub">แทงหวยออนไลน์กับเอเย่นต์ของคุณ<br>กรุณาตั้งค่าข้อมูลก่อนเริ่มใช้งานครับ</div>
   <button class="welcome-btn" id="open-ngod-btn" onclick="if(!custProfile.name||!custProfile.agent){openCustSetup();}else{document.getElementById('open-ngod-btn').click();}">🎯 เริ่มใช้งาน</button>
   <button class="welcome-hist" id="welcome-hist-btn">📂 ดูแฟ้ม</button>
-<button class="welcome-hist" id="welcome-guide-btn" style="margin-top:8px;">💡 วิธีใช้งาน</button>
 </div>
 
 <!-- MAIN WRAP -->
@@ -572,11 +571,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       <p id="hd-info">กรอกชื่อและงวด</p>
     </div>
     <div class="hdr-btns">
-      <button class="hbtn" id="guide-btn"><span class="hbtn-icon">💡</span><span class="hbtn-lbl">วิธีใช้</span></button>
       <button class="hbtn" id="hist-btn"><span class="hbtn-icon">📂</span><span class="hbtn-lbl">แฟ้ม</span></button>
       <button class="hbtn" id="qa-open-btn" onclick="openQA()"><span class="hbtn-icon">⚡</span><span class="hbtn-lbl">คีย์ด่วน</span></button>
       <button class="hbtn" onclick="openCustSetup()"><span class="hbtn-icon">⚙️</span><span class="hbtn-lbl">ตั้งค่า</span></button>
-      <button class="hbtn gold" id="new-ngod-btn"><span class="hbtn-icon">🎯</span><span class="hbtn-lbl">+ ชุดใหม่</span></button>
     </div>
   </div>
 
@@ -642,10 +639,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     <span id="lek-shown" style="display:none;"></span>
   </div>
   <div style="display:flex;gap:8px;margin:10px 12px 0;">
-    <button class="basket-btn" id="basket-btn" style="margin:0;flex:1;font-size:17px;padding:13px;">📂 เก็บเข้าแฟ้ม</button>
+    <button class="basket-btn" id="basket-btn" style="margin:0;flex:1;font-size:17px;padding:13px;">📋 สร้างโพย</button>
     <button class="add-btn" id="add-btn" style="margin:0;flex:1;font-size:20px;">✓ OK</button>
   </div>
-  <div class="locked-notice" id="locked-notice" style="display:none">🔒 บันทึกแล้ว — ดูโพยได้ในแฟ้ม</div>
   <div style="margin:8px 12px 12px;padding:10px 12px;background:#0d0f18;border:1px solid var(--border);border-radius:10px;">
     <div style="font-size:12px;font-weight:800;color:var(--gold);margin-bottom:6px;">📋 วิธีใช้หน้าหลัก</div>
     <div style="font-size:12px;color:var(--gray);line-height:1.8;">1. กรอกเลข 1-5 หลัก<br>2. กด Enter หรือแตะช่องราคา<br>3. ใส่ราคาช่องที่ต้องการ (บน/โต๊ด/ล่าง/หน้า)<br>4. กด Enter ไหลไปช่องถัดไป → OK เพิ่มรายการ<br>5. ปุ่ม <b style="color:#d4a017;">กลับ/ชุด</b> ใต้ช่องราคา = เพิ่ม perm อัตโนมัติ</div>
@@ -655,9 +651,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 <!-- SLIP OVERLAY -->
 <div class="slip-ov" id="slip-ov">
   <div class="slip-ov-inner">
-    <button class="ov-back" id="ov-back">✏️ ซื้อเพิ่ม / แก้ไข</button>
-    <button class="ov-basket" id="ov-basket">📂 เก็บเข้าแฟ้ม</button>
-    <button class="ov-print-merged" id="ov-print-merged" style="display:none">🖨️ พิมพ์</button>
+    <button class="ov-back" id="ov-back">← กลับ</button>
+    <button class="ov-basket" id="ov-basket">📋 สร้างโพย</button>
     <button class="ov-share-line" id="ov-share-line" style="display:none;width:100%;background:linear-gradient(135deg,#06c755,#04a543);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:12px;cursor:pointer;margin-bottom:8px;">📤 ส่งโพยให้เอเย่นต์</button>
     <button class="ov-del-set" id="ov-del-set" style="display:none">🗑️ ลบชุดนี้</button>
     <div class="slip-pages-grid" id="slip-pages"></div>
@@ -767,33 +762,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 </div>
 
 <!-- NAME INPUT OVERLAY -->
-<div id="name-inp-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;">
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;width:92%;max-width:360px;">
-    <div id="name-inp-title" style="font-size:17px;font-weight:900;color:var(--gold);margin-bottom:12px;"></div>
-    <div id="name-inp-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
-    <input id="name-inp-field" type="text" placeholder="" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;font-size:17px;font-weight:700;padding:10px 12px;outline:none;margin-bottom:10px;box-sizing:border-box;">
-    <!-- ส่วนลด -->
-    <div id="name-inp-disc-wrap" style="background:rgba(245,197,24,.07);border:1px solid rgba(245,197,24,.25);border-radius:10px;padding:10px 12px;margin-bottom:14px;">
-      <div style="font-size:12px;color:var(--gold);font-weight:800;margin-bottom:8px;">✂️ ส่วนลด (%) — แก้ไขได้รายคน</div>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;">
-        <div><div style="font-size:10px;color:var(--lg);margin-bottom:3px;text-align:center;">3ตัวบน</div>
-          <input id="disc-c3" type="tel" inputmode="numeric" maxlength="3" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:15px;font-weight:700;padding:6px 4px;box-sizing:border-box;text-align:center;"></div>
-        <div><div style="font-size:10px;color:var(--lg);margin-bottom:3px;text-align:center;">2ตัว</div>
-          <input id="disc-c2" type="tel" inputmode="numeric" maxlength="3" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:15px;font-weight:700;padding:6px 4px;box-sizing:border-box;text-align:center;"></div>
-        <div><div style="font-size:10px;color:var(--lg);margin-bottom:3px;text-align:center;">วิ่ง</div>
-          <input id="disc-c1" type="tel" inputmode="numeric" maxlength="3" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:15px;font-weight:700;padding:6px 4px;box-sizing:border-box;text-align:center;"></div>
-        <div><div style="font-size:10px;color:var(--lg);margin-bottom:3px;text-align:center;">โต๊ด</div>
-          <input id="disc-ct" type="tel" inputmode="numeric" maxlength="3" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:15px;font-weight:700;padding:6px 4px;box-sizing:border-box;text-align:center;"></div>
-        <div><div style="font-size:10px;color:var(--lg);margin-bottom:3px;text-align:center;">3ตัวล่าง</div>
-          <input id="disc-cl" type="tel" inputmode="numeric" maxlength="3" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:15px;font-weight:700;padding:6px 4px;box-sizing:border-box;text-align:center;"></div>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;">
-      <button id="name-inp-skip" style="flex:1;padding:12px;border-radius:10px;background:var(--card2);color:var(--lg);border:1px solid var(--border);font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">ข้าม</button>
-      <button id="name-inp-ok" style="flex:2;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:none;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">ตกลง</button>
-    </div>
-  </div>
-</div>
+
 
 <div id="_toast"></div>
 
@@ -1102,61 +1071,28 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   function doBasket(){
-    if(!entries.length){toast('ยังไม่มีรายการครับ');return;}
-    var total=calcTotal();
-    var count=entries.length;
-    var time=getNowTime();
-    var ngod=ngodInfo.ngod||'—';
-    // popup ถามชื่อชุดก่อน
-    showInputConfirm(
-      'เก็บเข้าชื่อใคร?',
-      'เช่น แมน, ป้าดา, ต้อม...',
-      function(basketName,discRates){
-        var hist2=getHistory();
-        var countBefore=hist2.filter(function(h){return h.ngod===ngod&&h.isBasket;}).length;
-        var newCount=countBefore+1;
-        var displayName=basketName||('ชุดที่ '+newCount);
-        if(basketName) lastBasketName=basketName;
-        var dr=discRates||DEFAULT_DISC;
-        var db=calcDiscountBreakdown(entries,dr);
-        var discInfo=db.totalDisc>0
-          ?('<br><span style="font-size:13px;color:#6ee7b7;">✂️ หักส่วนลด ฿'+fmt(db.totalDisc)+' → เก็บ <b>฿'+fmt(db.net)+'</b></span>')
-          :'';
-        var msg='เก็บ <b>'+count+' รายการ</b> รวม <b>฿'+fmt(total)+'</b>'
-               +discInfo+'<br>'
-               +'ชุด: <b>'+displayName+'</b><br>'
-               +'งวด <b>'+ngod+'</b> เวลา <b>'+time+'</b><br><br>'
-               +'<span style="color:#f59e0b;font-size:13px;">⚠️ ตรวจสอบความถูกต้องก่อนนะครับ<br>เก็บเข้าแฟ้มแล้วแก้ไขไม่ได้</span>';
-        showConfirm(msg, function(){
-          var hist=getHistory();
-          hist.unshift({
-            id:Date.now(),
-            ngodId:ngodInfo.ngodId||0,
-            ngod:ngodInfo.ngod,
-            date:ngodInfo.date,
-            sender:ngodInfo.sender,
-            receiver:ngodInfo.receiver,
-            entries:entries.slice(),
-            eid:eid,
-            pageBreakIds:pageBreakIds.slice(),
-            total:total,
-            savedAt:time,
-            closedAt:ngodInfo.date,
-            isBasket:true,
-            basketName:displayName,
-            setNum:(function(){var h2=getHistory();return h2.filter(function(x){return x.isBasket&&x.ngodId===(ngodInfo.ngodId||0);}).length+1;})(),
-            discRates:dr,
-            checkResult:null,
-            checkNumbers:null
-          });
-          saveHistory(hist);
-          entries=[];eid=0;pageBreakIds=[];isLocked=false;
-          resetForm();save();renderList();updateTotal();updateLockUI();
-          toast('📂 เก็บเข้าแฟ้มแล้ว · '+displayName+' · ฿'+fmt(total)+' ครับ ✅', 5000);
-        }, false);
-      }
-    );
-  }
+  if(!entries.length){toast('ยังไม่มีรายการครับ');return;}
+  // บันทึกทันที ใช้ชื่อจาก custProfile
+  var now=new Date();
+  var timeStr=now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  var dateStr=now.toLocaleDateString('th-TH');
+  var sender=custProfile.name||ngodInfo.sender||'ลูกค้า';
+  var receiver=custProfile.agent||ngodInfo.receiver||'เอเย่นต์';
+  ngodInfo.sender=sender; ngodInfo.receiver=receiver;
+  var basket=getHistory();
+  basket.unshift({
+    time:now.toISOString(), timeStr:timeStr, dateStr:dateStr,
+    ngod:ngodInfo.ngod||'-', sender:sender, receiver:receiver,
+    entries:JSON.parse(JSON.stringify(entries)),
+    total:calcTotal()
+  });
+  if(basket.length>50) basket=basket.slice(0,50);
+  saveHistory(basket);
+  entries=[]; eid=0; isLocked=false; pageBreakIds=[];
+  save(); renderList(); updateLockUI();
+  document.getElementById('slip-ov').classList.remove('show');
+  toast('✅ สร้างโพยและบันทึกแล้ว');
+}
 
   function updateBasketBadge(){
     var btn=document.getElementById('basket-btn');
@@ -1564,6 +1500,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var al=RULES[curLek.length]||[];
       var old=document.getElementById('fb-'+k);
       if(old){var d2=document.createElement('div');d2.innerHTML=buildBlock(k,al);old.replaceWith(d2.firstElementChild);}
+    },
+    delHist:function(idx){
+      var hist=getHistory();
+      hist.splice(idx,1);
+      saveHistory(hist);
+      renderHistory();
+      toast('ลบแล้วครับ');
     },
     viewHist:function(i){
       var hist=getHistory();var h=hist[i];if(!h)return;
@@ -2514,165 +2457,19 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function renderHistory(){
     var hist=getHistory();
     var el=document.getElementById('hist-list');
-    var cards=[];
-
-    // งวดปัจจุบัน (กำลังใช้งาน) — แสดงเป็น folder พิเศษ
-    if(ngodOpen&&ngodInfo&&ngodInfo.ngod){
-      var curNgod=ngodInfo.ngod;
-      var curTotal=calcTotal();
-      var curNgodId=ngodInfo.ngodId||0;
-      var basketSets=hist.filter(function(h){return h.ngod===curNgod&&h.isBasket&&(curNgodId?h.ngodId===curNgodId:true);});
-      var basketTotal=basketSets.reduce(function(s,h){return s+h.total;},0);
-      var allTotal=curTotal+basketTotal;
-      var totalSets=basketSets.length+(curTotal>0?1:0);
-      var ngodEscQ=curNgod.replace(/'/g,"\'");
-      var setRows='';
-      // แสดง "กำลังคีย์" ก่อน
-      if(curTotal>0||!basketSets.length){
-        setRows+='<div class="hist-set" style="border-left:3px solid var(--green)">'
-          +'<div class="hist-set-left"><div class="hist-set-num" style="color:var(--green)">✏️ กำลังคีย์...</div>'
-          +'<div class="hist-set-time">ยังไม่ได้เก็บเข้าแฟ้ม</div></div>'
-          +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(curTotal)+'</div>'
-          +'<div class="hist-set-count">'+entries.length+' รายการ</div></div>'
-          +'<div class="hist-set-btns"><button class="hist-set-btn" style="color:var(--green);border-color:var(--green)" onclick="APP.closeHist()">✏️ ไป</button></div>'
-          +'</div>';
-      }
-      // จัดกลุ่มตามชื่อลูกค้า
-      var custGroups={};var custOrder=[];
-      basketSets.forEach(function(h){
-        var name=h.basketName||'ไม่ระบุชื่อ';
-        // ตัดเลขท้ายออกเพื่อ group เช่น "แมน ชุดที่1" → "แมน" ไม่ได้ใช้ เพราะ basketName คือชื่อคนแล้ว
-        if(!custGroups[name]){custGroups[name]=[];custOrder.push(name);}
-        custGroups[name].push(h);
-      });
-      custOrder.forEach(function(name){
-        var custSets=custGroups[name];
-        var custTotal=custSets.reduce(function(s,h){return s+h.total;},0);
-        var firstChar=name.charAt(0)||'?';
-        var avatarColors=['linear-gradient(135deg,#f5c518,#c9a010)','linear-gradient(135deg,#a78bfa,#7c3aed)','linear-gradient(135deg,#27ae60,#1a8a4a)','linear-gradient(135deg,#e74c3c,#c0392b)','linear-gradient(135deg,#3b82f6,#1d4ed8)'];
-        var avatarColor=avatarColors[custOrder.indexOf(name)%avatarColors.length];
-        var avatarTextColor=custOrder.indexOf(name)===0?'#111':'#fff';
-        var innerRows='';
-        custSets.forEach(function(h,ci){
-          var realIdx=hist.indexOf(h);
-          innerRows+='<div class="hist-set" style="padding-left:20px;">'
-            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(custSets.length-ci)+'</div>'
-            +'<div class="hist-set-time">⏰ '+(h.savedAt||'')+'</div></div>'
-            +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
-            +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
-            +'<div class="hist-set-btns">'
-            +'<button class="hist-set-btn sent-btn'+(h.sentLine?' on':'')+'" onclick="APP.toggleSent('+realIdx+',this)">'+(h.sentLine?'✅ ส่งแล้ว':'☐ ส่งแล้ว')+'</button>'
-            +'<button class="hist-set-btn" onclick="APP.viewHist('+realIdx+')">📋 ดู</button></div>'
-            +'</div>';
-        });
-        var nameEsc=name.replace(/'/g,"\'");
-        var ngodEscC=curNgod.replace(/'/g,"\'");
-        setRows+='<div style="border-bottom:1px solid var(--border);">'
-          +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);">'
-          +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;" onclick="APP.toggleCustGroup(this.parentElement.parentElement)">'
-          +'<div style="width:30px;height:30px;border-radius:50%;background:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:'+avatarTextColor+';flex-shrink:0;">'+firstChar+'</div>'
-          +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+name+'</div>'
-          +'<div style="font-size:11px;color:var(--lg);">'+custSets.length+' ชุด · '+custSets.reduce(function(s,h){return s+h.entries.length;},0)+' รายการ</div></div></div>'
-          +'<div style="display:flex;align-items:center;gap:8px;">'
-          +'<div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(custTotal)+'</div>'
-          +'<button class="hist-set-btn" style="white-space:nowrap;" data-ng="'+ngodEscC+'" data-nm="'+nameEsc+'" onclick="APP.viewCust(this.dataset.ng,this.dataset.nm)">📋 ดูรวม</button>'
-          +'</div>'
-          +'</div>'
-          +'<div>'+innerRows+'</div>'
-          +'</div>';
-      });
-      cards.push('<div class="hist-folder" style="border-color:rgba(39,174,96,.5)">'
-        +'<div class="hist-folder-hd" onclick="APP.toggleFolder(this)">'
-        +'<div><div class="hist-folder-ngod">📁 งวด '+curNgod+'</div>'
-        +'<div class="hist-folder-meta">🟢 กำลังใช้งาน · '+(ngodInfo.sender||'')+(ngodInfo.receiver?' → '+ngodInfo.receiver:'')+'</div></div>'
-        +'<div style="display:flex;align-items:center"><div class="hist-folder-right"><div class="hist-folder-total">฿'+fmt(allTotal)+'</div>'
-        +'<div class="hist-folder-count">'+totalSets+' ชุด</div></div>'
-        +'<span class="hist-folder-toggle open">▼</span></div>'
-        +'</div>'
-        +'<div class="hist-folder-body">'+setRows+'</div>'
-        +(basketSets.length>0?'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEscQ+'">📋 ดูทั้งหมด</button><button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEscQ+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHist('+(basketSets[basketSets.length-1].id)+')">🔍 ตรวจผล</button></div>':'')
-        +'</div>');
+    if(!hist.length){
+      el.innerHTML='<div style="text-align:center;padding:40px;color:var(--lg);font-size:15px;">ยังไม่มีประวัติโพยครับ</div>';
+      return;
     }
-
-    // group ประวัติ by งวด (ไม่รวมงวดปัจจุบัน)
-    var groups={};var groupOrder=[];
-    hist.forEach(function(h,i){
-      var ng=h.ngod;
-      if(ngodOpen&&ngodInfo&&ngodInfo.ngod===ng)return; // ข้ามงวดปัจจุบัน
-      if(!groups[ng]){groups[ng]=[];groupOrder.push(ng);}
-      groups[ng].push({h:h,i:i});
+    var h='';
+    hist.forEach(function(item,i){
+      var total=item.total||0;
+      var timeStr=item.timeStr||'';
+      var dateStr=item.dateStr||'';
+      var cnt=(item.entries||[]).length;
+      h+='<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;">'        +'<div style="cursor:pointer;flex:1;" onclick="APP.viewHist('+i+')">'        +'<div style="font-size:11px;color:var(--lg);margin-bottom:2px;">โพยที่ '+(hist.length-i)+' · '+dateStr+' '+timeStr+'</div>'        +'<div style="font-size:13px;color:var(--lg);">'+cnt+' รายการ</div>'        +'</div>'        +'<div style="font-size:18px;font-weight:900;color:var(--gold);">฿'+fmt(total)+'</div>'        +'<button onclick="APP.delHist('+i+')" style="background:none;border:1px solid #7f1d1d;border-radius:8px;color:#fca5a5;font-size:13px;padding:6px 10px;cursor:pointer;">🗑️</button>'        +'</div>';
     });
-
-    if(!groupOrder.length&&!cards.length){
-      el.innerHTML='<div class="hist-empty">ยังไม่มีประวัติ</div>';return;
-    }
-
-    groupOrder.forEach(function(ngod){
-      var sets=groups[ngod];
-      var groupTotal=sets.reduce(function(s,x){return s+x.h.total;},0);
-      var inf=sets[0].h;
-      var hasCheck=sets.some(function(x){return x.h.checkResult;});
-      var ngodEsc=ngod.replace(/'/g,"\'");
-      var setRows='';
-      // จัดกลุ่มตามชื่อลูกค้า
-      var hcGroups={};var hcOrder=[];
-      sets.forEach(function(x){
-        var name=x.h.basketName||'ไม่ระบุชื่อ';
-        if(!hcGroups[name]){hcGroups[name]=[];hcOrder.push(name);}
-        hcGroups[name].push(x);
-      });
-      var avatarColors2=['linear-gradient(135deg,#f5c518,#c9a010)','linear-gradient(135deg,#a78bfa,#7c3aed)','linear-gradient(135deg,#27ae60,#1a8a4a)','linear-gradient(135deg,#e74c3c,#c0392b)','linear-gradient(135deg,#3b82f6,#1d4ed8)'];
-      hcOrder.forEach(function(name){
-        var cSets=hcGroups[name];
-        var cTotal=cSets.reduce(function(s,x){return s+x.h.total;},0);
-        var firstChar=name.charAt(0)||'?';
-        var avatarColor=avatarColors2[hcOrder.indexOf(name)%avatarColors2.length];
-        var avatarTextColor=hcOrder.indexOf(name)===0?'#111':'#fff';
-        var innerRows='';
-        cSets.forEach(function(x,ci){
-          var h=x.h,realIdx=x.i;
-          innerRows+='<div class="hist-set" style="padding-left:20px;">'
-            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(cSets.length-ci)+'</div>'
-            +'<div class="hist-set-time">⏰ '+(h.savedAt||h.closedAt||'')+'</div></div>'
-            +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
-            +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
-            +'<div class="hist-set-btns"><button class="hist-set-btn" onclick="APP.viewHist('+realIdx+')">📋 ดู</button></div>'
-            +'</div>';
-        });
-        var nameEscH=name.replace(/'/g,"\'");
-        var ngodEscH=ngod.replace(/'/g,"\'");
-        setRows+='<div style="border-bottom:1px solid var(--border);">'
-          +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);">'
-          +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;" onclick="APP.toggleCustGroup(this.parentElement.parentElement)">'
-          +'<div style="width:30px;height:30px;border-radius:50%;background:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:'+avatarTextColor+';flex-shrink:0;">'+firstChar+'</div>'
-          +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+name+'</div>'
-          +'<div style="font-size:11px;color:var(--lg);">'+cSets.length+' ชุด · '+cSets.reduce(function(s,x){return s+x.h.entries.length;},0)+' รายการ</div></div></div>'
-          +'<div style="display:flex;align-items:center;gap:8px;">'
-          +'<div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(cTotal)+'</div>'
-          +'<button class="hist-set-btn" style="white-space:nowrap;" data-ng="'+ngodEscH+'" data-nm="'+nameEscH+'" onclick="APP.viewCust(this.dataset.ng,this.dataset.nm)">📋 ดูรวม</button>'
-          +'</div>'
-          +'</div>'
-          +'<div>'+innerRows+'</div>'
-          +'</div>';
-      });
-      cards.push('<div class="hist-folder">'
-        +'<div class="hist-folder-hd" onclick="APP.toggleFolder(this)">'
-        +'<div><div class="hist-folder-ngod">📁 งวด '+ngod+'</div>'
-        +'<div class="hist-folder-meta">🔴 ปิดแล้ว · '+(inf.sender||'')+(inf.receiver?' → '+inf.receiver:'')+'</div></div>'
-        +'<div style="display:flex;align-items:center"><div class="hist-folder-right"><div class="hist-folder-total">฿'+fmt(groupTotal)+'</div>'
-        +'<div class="hist-folder-count">'+sets.length+' ชุด</div></div>'
-        +'<span class="hist-folder-toggle">▼</span></div>'
-        +'</div>'
-        +'<div class="hist-folder-body collapsed">'+setRows+'</div>'
-        +'<div class="hist-folder-actions">'
-        +'<button class="hist-btn del" onclick="APP.delNgod(this.dataset.ngod)" data-ngod="'+ngodEsc+'">🗑️ ลบทั้งงวด</button>'
-        +'<button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEsc+'">📋 ดูทั้งหมด</button>'
-        +'<button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEsc+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button>'
-        +'<button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHist('+(sets[0].h.id)+')">🔍 ตรวจผล</button>'
-        +'</div></div>');
-    });
-
-    el.innerHTML=cards.join('');
+    el.innerHTML=h;
   }
 
   // ─── PRINT MERGED (รวมทุกชุด ใส่เส้นคั่นชุด) ───
@@ -3745,197 +3542,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 </script>
 
 <!-- GUIDE OVERLAY -->
-<div class="guide-ov" id="guide-ov">
-  <div class="guide-inner">
-    <div class="guide-hd">
-      <span>🐯 คู่มือ TIGER 999</span>
-      <button class="guide-close" id="guide-close">✕</button>
-    </div>
-    <div class="guide-body">
 
-      <!-- HERO -->
-      <div class="g-hero">
-        <div class="g-hero-icon">🐯</div>
-        <div class="g-hero-title">TIGER 999</div>
-        <div class="g-hero-sub">ระบบโพยหวยมืออาชีพ</div>
-      </div>
-
-      <!-- FLOW -->
-      <div class="g-section">
-        <div class="g-title">🔄 ขั้นตอนการใช้งาน</div>
-        <div class="g-flow-h">
-          <div class="g-flow-item"><div class="g-flow-icon gold">🎯</div><div class="g-flow-label">เปิดงวด</div></div>
-          <div class="g-flow-arrow">→</div>
-          <div class="g-flow-item"><div class="g-flow-icon">✏️</div><div class="g-flow-label">คีย์เลข</div></div>
-          <div class="g-flow-arrow">→</div>
-          <div class="g-flow-item"><div class="g-flow-icon">📂</div><div class="g-flow-label">เก็บเข้าแฟ้ม</div></div>
-          <div class="g-flow-arrow">→</div>
-          <div class="g-flow-item"><div class="g-flow-icon">🖨️</div><div class="g-flow-label">พิมพ์ทั้งหมด</div></div>
-          <div class="g-flow-arrow">→</div>
-          <div class="g-flow-item"><div class="g-flow-icon">🔒</div><div class="g-flow-label">ปิดงวด</div></div>
-          <div class="g-flow-arrow">→</div>
-          <div class="g-flow-item"><div class="g-flow-icon green">🔍</div><div class="g-flow-label">ตรวจผล</div></div>
-        </div>
-        <div class="g-tip2">🔁 คีย์เลข → เก็บเข้าแฟ้ม ทำซ้ำได้หลายชุด ก่อนพิมพ์ทีเดียว</div>
-      </div>
-
-      <!-- วิธีคีย์เลข -->
-      <div class="g-section">
-        <div class="g-title">✏️ วิธีคีย์เลข</div>
-        <div class="g-card-row">
-          <div class="g-card">
-            <div class="g-card-icon">⌨️</div>
-            <div class="g-card-head">กรอกทีละเลข</div>
-            <div class="g-card-body">พิมพ์เลข → เลือกประเภท → ใส่ราคา → กด <b>✓ OK</b></div>
-          </div>
-          <div class="g-card">
-            <div class="g-card-icon">⚡</div>
-            <div class="g-card-head">พิมพ์เลขด่วน</div>
-            <div class="g-card-body">กรอกหลายเลขก่อน → ใส่ราคาทีเดียว เร็วกว่าเยอะ กด Enter เพื่อเพิ่มเลข</div>
-          </div>
-        </div>
-        <div class="g-steps-wrap">
-          <div class="g-step2">
-            <div class="g-step2-num">1</div>
-            <div class="g-step2-body">พิมพ์เลข 1–5 หลัก → กด <b>Enter</b> หรือ <b>+ เพิ่ม</b> เพิ่มลงลิสต์</div>
-          </div>
-          <div class="g-step2">
-            <div class="g-step2-num">2</div>
-            <div class="g-step2-body">กด <b>ถัดไป →</b> ไปหน้าใส่ราคา</div>
-          </div>
-          <div class="g-step2">
-            <div class="g-step2-num">3</div>
-            <div class="g-step2-body">กด <b>10 / 20 / 50 / 100</b> ระบบเลื่อนช่องถัดไปอัตโนมัติ หรือพิมพ์ราคาเอง → กด Enter</div>
-          </div>
-          <div class="g-step2">
-            <div class="g-step2-num">4</div>
-            <div class="g-step2-body">กดปุ่ม <span class="g-badge-inline gold">กลับ</span> (2 หลัก) หรือ <span class="g-badge-inline gold">ชุด</span> (3 หลัก) เพื่อซื้อทุกตัวสลับ</div>
-          </div>
-        </div>
-        <div class="g-tip2">⌨️ กด <kbd>-</kbd> เพื่อเปิด/ปิด กลับ-ชุด • กด <kbd>Enter</kbd> เลื่อนช่องถัดไป</div>
-      </div>
-
-      <!-- ประเภทการแทง -->
-      <div class="g-section">
-        <div class="g-title">🎯 ประเภทการแทง</div>
-        <div class="g-type-grid">
-          <div class="g-type2"><span class="g-badge bon">บน</span><div><b>2/3 ตัวบน</b><br><small>ท้ายรางวัลที่ 1</small></div></div>
-          <div class="g-type2"><span class="g-badge tod">โต๊ด</span><div><b>โต๊ด</b><br><small>ตัวสลับ ตี match</small></div></div>
-          <div class="g-type2"><span class="g-badge lang">ล่าง</span><div><b>2/3 ตัวล่าง</b><br><small>เลขท้าย 2-3 ตัว</small></div></div>
-          <div class="g-type2"><span class="g-badge na">หน้า</span><div><b>3 ตัวหน้า</b><br><small>3 หลักแรกของรางวัล</small></div></div>
-          <div class="g-type2"><span class="g-badge wing">วิ่ง</span><div><b>วิ่งบน/ล่าง</b><br><small>1 หลัก</small></div></div>
-        </div>
-        <div class="g-tbl-wrap">
-          <table class="g-tbl">
-            <thead><tr><th>จำนวนหลัก</th><th>ประเภทที่แทงได้</th></tr></thead>
-            <tbody>
-              <tr><td>1 หลัก</td><td>วิ่งบน, วิ่งล่าง</td></tr>
-              <tr><td>2 หลัก</td><td>บน, โต๊ด, ล่าง + กลับบน/ล่าง</td></tr>
-              <tr><td>3 หลัก</td><td>บน, โต๊ด, ล่าง, หน้า + ชุดบน/ล่าง/หน้า</td></tr>
-              <tr><td>4–5 หลัก</td><td>โต๊ด</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- เก็บเข้าแฟ้ม -->
-      <div class="g-section">
-        <div class="g-title">🛒 เก็บเข้าโพย &amp; พิมพ์</div>
-        <div class="g-step2">
-          <div class="g-step2-icon">📋</div>
-          <div class="g-step2-body"><b>ดูสรุป</b> → ตรวจรายการก่อนเก็บ → กด <b>📂 เก็บเข้าแฟ้ม</b> บันทึกเป็น 1 ชุด</div>
-        </div>
-        <div class="g-step2">
-          <div class="g-step2-icon">🔁</div>
-          <div class="g-step2-body">คีย์เลขชุดใหม่ต่อได้เลย ทำซ้ำจนครบ แล้วค่อย <b>พิมพ์ทั้งหมด</b> ในประวัติ</div>
-        </div>
-        <div class="g-step2">
-          <div class="g-step2-icon">🖨️</div>
-          <div class="g-step2-body"><b>พิมพ์ทั้งหมด</b> — พิมพ์ทุกชุดในงวดนั้นรวมกัน แบ่งแผ่นอัตโนมัติ แผ่นละ 20 แถว</div>
-        </div>
-        <div class="g-tip2">⚠️ ถ้ามีเลขค้างอยู่ ระบบจะแจ้งเตือนก่อนพิมพ์ทุกครั้ง</div>
-      </div>
-
-      <!-- ตรวจซ้ำ -->
-      <div class="g-section">
-        <div class="g-title">⚠️ ระบบตรวจซ้ำอัตโนมัติ</div>
-        <div class="g-warn-card">
-          <div class="g-warn-row">🔍 <span>ตรวจเลขซ้ำทุกประเภท — บน / ล่าง / โต๊ด / ชุด / กลับ</span></div>
-          <div class="g-warn-row">🔄 <span>ชุดของ <b>308</b> และ <b>803</b> ถือว่าซ้ำกัน เพราะมี perm เดียวกัน</span></div>
-          <div class="g-warn-row">📝 <span>ถ้าซ้ำ — ระบบแจ้งก่อนเพิ่ม ยืนยันเองได้</span></div>
-        </div>
-      </div>
-
-      <!-- ตรวจรางวัล -->
-      <div class="g-section">
-        <div class="g-title">🔍 ตรวจผล</div>
-        <div class="g-step2">
-          <div class="g-step2-num">1</div>
-          <div class="g-step2-body">กด <b>🔍 ตรวจผล</b> ในประวัติงวดนั้น</div>
-        </div>
-        <div class="g-step2">
-          <div class="g-step2-num">2</div>
-          <div class="g-step2-body">กรอก <b>รางวัลที่ 1</b> (6 หลัก) → cursor เดินไปช่องถัดไปอัตโนมัติ → จนครบแล้วตรวจเลย</div>
-        </div>
-        <div class="g-step2">
-          <div class="g-step2-num">3</div>
-          <div class="g-step2-body">ถ้าถูกรางวัล → กด <b>📤 แจ้งเจ้ามือผ่าน Line</b> ส่งข้อความพร้อมชุดที่ถูกได้เลย</div>
-        </div>
-        <div class="g-step2">
-          <div class="g-step2-num">4</div>
-          <div class="g-step2-body">กด <b>✅ บันทึกผลและปิดงวด</b> — เก็บผลไว้ดูย้อนหลังได้ตลอด</div>
-        </div>
-        <div class="g-tip2">🔁 ปิดหน้าตรวจผลแล้ว form จะล้างใหม่อัตโนมัติทุกครั้ง</div>
-      </div>
-
-      <!-- ประวัติ -->
-      <div class="g-section">
-        <div class="g-title">🕐 หน้าประวัติ</div>
-        <div class="g-status-list">
-          <div class="g-status-item">
-            <span class="hist-status active" style="font-size:12px;padding:3px 10px;">🟢 กำลังใช้งาน</span>
-            <span>งวดปัจจุบัน ยังคีย์เพิ่มได้</span>
-          </div>
-          <div class="g-status-item">
-            <span class="hist-status closed" style="font-size:12px;padding:3px 10px;">🔴 ปิดงวดแล้ว</span>
-            <span>ดูย้อนหลัง / ตรวจผล / พิมพ์ได้</span>
-          </div>
-        </div>
-        <div class="g-tip2">📁 แตะหัวโฟลเดอร์เพื่อพับ/ขยายรายชุด • ปุ่ม <b>🗑️ ลบทั้งงวด</b> อยู่ซ้ายสุด</div>
-      </div>
-
-      <!-- เคล็ดลับ -->
-      <div class="g-section">
-        <div class="g-title">💡 ข้อควรรู้</div>
-        <div class="g-tips-grid">
-          <div class="g-tip-card">
-            <div class="g-tip-icon">💾</div>
-            <div><b>บันทึกอัตโนมัติ</b><br>ปิดแอพแล้วเปิดใหม่ข้อมูลยังอยู่</div>
-          </div>
-          <div class="g-tip-card">
-            <div class="g-tip-icon">📱</div>
-            <div><b>ใช้เหมือนแอพ</b><br>Share → Add to Home Screen ติดหน้าจอได้เลย</div>
-          </div>
-          <div class="g-tip-card">
-            <div class="g-tip-icon">🔐</div>
-            <div><b>ข้อมูลส่วนตัว</b><br>ไม่มีการส่งขึ้น Server ทุกอย่างอยู่บนเครื่อง</div>
-          </div>
-          <div class="g-tip-card warn">
-            <div class="g-tip-icon">⚠️</div>
-            <div><b>ข้อควรระวัง</b><br>ล้างแคชเบราว์เซอร์ = ข้อมูลหาย ควรพิมพ์โพยเก็บไว้ด้วย</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="g-footer">
-        <div class="g-footer-logo">🐯 TIGER 999</div>
-        <div class="g-footer-sub">ระบบโพยหวย Professional</div>
-        <div style="margin-top:8px;font-size:13px;color:#a78bfa;">ติดต่อแอดมิน Line: <a href="https://lin.ee/F0PXniE" style="color:#a78bfa;">@TIGER999</a></div>
-      </div>
-
-    </div>
-  </div>
-</div>
 
 
 <!-- WELCOME BACK MODAL -->
