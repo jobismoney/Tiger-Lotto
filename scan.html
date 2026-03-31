@@ -309,13 +309,18 @@ function scanFromImage(img){
 
 function parseQRResult(url){
   var imp = null;
-  // format 1: URL มี import= param
-  if(url.indexOf('import=') >= 0){
+  url = url.trim();
+  // format 1: T999:base64
+  if(url.indexOf('T999:') === 0){
+    imp = url.slice(5);
+  }
+  // format 2: URL มี import= param
+  else if(url.indexOf('import=') >= 0){
     imp = url.split('import=')[1];
   }
-  // format 2: base64 ล้วนๆ
-  else if(/^[A-Za-z0-9+/=]+$/.test(url.trim())){
-    imp = url.trim();
+  // format 3: base64 ล้วนๆ
+  else if(/^[A-Za-z0-9+/=]+$/.test(url)){
+    imp = url;
   }
   if(!imp) return null;
   try{
