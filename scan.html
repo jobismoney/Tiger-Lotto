@@ -279,7 +279,7 @@ function handleFile(file){
 
 function scanFromImage(img){
   var canvas = document.getElementById('qr-canvas');
-  var ctx = canvas.getContext('2d');
+  var ctx = canvas.getContext('2d', {willReadFrequently: true});
   var origW = img.naturalWidth || img.width || 0;
   var origH = img.naturalHeight || img.height || 0;
   if(!origW || !origH) return null; // ป้องกัน canvas = 0
@@ -295,10 +295,12 @@ function scanFromImage(img){
     var imageData;
     try{ imageData=ctx.getImageData(0,0,w,h); }catch(e){ continue; }
     if(!imageData||!imageData.data||imageData.data.length<4) continue;
+    var iw=imageData.width, ih=imageData.height;
+    if(!iw||!ih) continue;
     var code;
     try{
-      code=jsQR(imageData.data,w,h,{inversionAttempts:'dontInvert'});
-      if(!code) code=jsQR(imageData.data,w,h,{inversionAttempts:'onlyInvert'});
+      code=jsQR(imageData.data,iw,ih,{inversionAttempts:'dontInvert'});
+      if(!code) code=jsQR(imageData.data,iw,ih,{inversionAttempts:'onlyInvert'});
     }catch(e){ continue; }
     if(code) return parseQRResult(code.data);
   }
@@ -348,7 +350,7 @@ function scanLoop(){
   var v = document.getElementById('cam-video');
   if(!v.videoWidth){ _camRaf=requestAnimationFrame(scanLoop); return; }
   var canvas = document.getElementById('qr-canvas');
-  var ctx = canvas.getContext('2d');
+  var ctx = canvas.getContext('2d', {willReadFrequently: true});
   canvas.width = v.videoWidth; canvas.height = v.videoHeight;
   ctx.drawImage(v, 0, 0);
   var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
