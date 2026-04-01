@@ -743,6 +743,10 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
       <button class="mbtn" style="background:linear-gradient(135deg,#7f1d1d,#991b1b);color:#fca5a5;width:100%;" onclick="closeNgod()">🔒 ปิดงวด</button>
     </div>
     <div id="ngod-open-section">
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <button id="ltype-thai" onclick="selLottoType('thai')" style="flex:1;padding:10px;border-radius:10px;border:2px solid var(--gold);background:rgba(245,197,24,.15);color:var(--gold);font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;cursor:pointer;">🇹🇭 ไทย</button>
+        <button id="ltype-lao" onclick="selLottoType('lao')" style="flex:1;padding:10px;border-radius:10px;border:2px solid var(--border);background:var(--card2);color:var(--lg);font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;cursor:pointer;">🇱🇦 ลาว</button>
+      </div>
       <input class="modal-inp" id="inp-ngod" placeholder="งวด เช่น 16/03/68">
       <input class="modal-inp" id="inp-sender" placeholder="ชื่อผู้ส่ง (ไม่บังคับ)">
       <input class="modal-inp" id="inp-receiver" placeholder="ชื่อผู้รับ (ไม่บังคับ)">
@@ -777,7 +781,7 @@ var SETTINGS_KEY = 't999_settings_v2';
 
 var customers = [], curCustId = null;
 var custEntries = {}, custEid = {}, custSets = {}; // custSets[cid] = [{entries,locked}]
-var ngodInfo = {ngod:'',sender:'',receiver:'',date:''}, ngodOpen = false;
+var ngodInfo = {ngod:'',sender:'',receiver:'',date:'',type:'thai'}, ngodOpen = false;
 
 // Numpad
 var npLek='', npPhase='lek', npStep=0, npBuffer='';
@@ -797,6 +801,17 @@ var DIGIT_RULES = {
   4: ['tod'],
   5: ['tod']
 };
+var DIGIT_RULES_LAO = {
+  1: ['bon','lang'],
+  2: ['bon','mid','na'],
+  3: ['bon','tod'],
+  4: ['bon','tod'],
+  5: ['tod']
+};
+function getDigitRules(d){
+  if(ngodInfo.type==='lao') return DIGIT_RULES_LAO[d]||[];
+  return getDigitRules(d);
+}
 
 // pak
 var pakType='3bon', pakPos='na';
@@ -817,6 +832,24 @@ var DEFAULT_SETTINGS = {
     {key:'tod4',    lbl:'โต๊ด 4ตัว',    disc:25, pay:20},
     {key:'tod5',    lbl:'โต๊ด 5ตัว',    disc:25, pay:10},
     {key:'pak-3bon',lbl:'ปักหลักบน',    disc:12, pay:8},
+    {key:'pak-2lang',lbl:'ปักหลักล่าง', disc:12, pay:8},
+  ],
+  special:[]
+};
+var DEFAULT_SETTINGS_LAO = {
+  normal:[
+    {key:'4bon',     lbl:'4ตัวหลัง',    disc:25, pay:4000},
+    {key:'4tod',     lbl:'ชุด4ตัว',     disc:25, pay:20},
+    {key:'3bon',     lbl:'3ตัวหลัง',    disc:30, pay:550},
+    {key:'3tod',     lbl:'โต๊ด3ตัว',    disc:30, pay:100},
+    {key:'tod2',     lbl:'โต๊ด2ตัว',    disc:25, pay:10},
+    {key:'tod5',     lbl:'โต๊ด5ตัว',    disc:25, pay:10},
+    {key:'2bon',     lbl:'2ตัวบน',      disc:25, pay:70},
+    {key:'2mid',     lbl:'2ตัวกลาง',    disc:25, pay:70},
+    {key:'2na',      lbl:'2ตัวหน้า',    disc:25, pay:70},
+    {key:'vbon',     lbl:'ลอยหลัง',     disc:12, pay:3},
+    {key:'vlang',    lbl:'ลอยล่าง',     disc:12, pay:4},
+    {key:'pak-3bon', lbl:'ปักหลักหลัง', disc:12, pay:8},
     {key:'pak-2lang',lbl:'ปักหลักล่าง', disc:12, pay:8},
   ],
   special:[]
@@ -1280,7 +1313,8 @@ function saveSettings(){
       if(pi) item.pay=parseFloat(pi.value)||0;
     });
   });
-  localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));
+  var skey=SETTINGS_KEY+'_'+(ngodInfo.type||'thai');
+  localStorage.setItem(skey,JSON.stringify(settings));
   toast('บันทึกตั้งค่าแล้ว ✅');
 }
 function loadSettings(){
@@ -1471,6 +1505,19 @@ function confirmAddCust(){
 // ================================================================
 // NGOD
 // ================================================================
+var _curLottoType='thai';
+function selLottoType(t){
+  _curLottoType=t;
+  var btnThai=document.getElementById('ltype-thai');
+  var btnLao=document.getElementById('ltype-lao');
+  if(t==='thai'){
+    btnThai.style.borderColor='var(--gold)';btnThai.style.background='rgba(245,197,24,.15)';btnThai.style.color='var(--gold)';
+    btnLao.style.borderColor='var(--border)';btnLao.style.background='var(--card2)';btnLao.style.color='var(--lg)';
+  } else {
+    btnLao.style.borderColor='#ce1126';btnLao.style.background='rgba(206,17,38,.15)';btnLao.style.color='#ff6b6b';
+    btnThai.style.borderColor='var(--border)';btnThai.style.background='var(--card2)';btnThai.style.color='var(--lg)';
+  }
+}
 function openNgodModal(){
   // ถ้างวดเปิดอยู่ → แสดงส่วนปิดงวด
   var closeSection=document.getElementById('ngod-close-section');
@@ -1527,7 +1574,13 @@ function doCloseNgod(){
 function confirmNgod(){
   var ngod=document.getElementById('inp-ngod').value.trim();
   if(!ngod){toast('กรุณาใส่งวด');return;}
-  ngodInfo={ngod:ngod,sender:document.getElementById('inp-sender').value.trim(),
+  // โหลด settings ตาม type
+  var ltype=_curLottoType||'thai';
+  var defSettings=ltype==='lao'?DEFAULT_SETTINGS_LAO:DEFAULT_SETTINGS;
+  settings=JSON.parse(JSON.stringify(defSettings));
+  var savedS=localStorage.getItem(SETTINGS_KEY+'_'+ltype);
+  if(savedS){try{var sv=JSON.parse(savedS);settings.normal=sv.normal||settings.normal;}catch(e){}}
+  ngodInfo={ngod:ngod,type:ltype,sender:document.getElementById('inp-sender').value.trim(),
     receiver:document.getElementById('inp-receiver').value.trim(),date:new Date().toLocaleDateString('th-TH')};
   ngodOpen=true;
   // ล้างข้อมูลทุกลูกค้า แต่เก็บรายชื่อไว้
@@ -1535,8 +1588,10 @@ function confirmNgod(){
   // reset การเลือกลูกค้า เพื่อให้ header อัพเดทถูก
   curCustId=customers.length>0?customers[0].id:null;
   closeNgodModal();
+  updateNpLabels();
   // อัพเดท header badge
-  document.getElementById('ngod-badge').textContent='งวด '+ngod;
+  var _flagBadge=ngodInfo.type==='lao'?'🇱🇦 ':'🇹🇭 ';
+  document.getElementById('ngod-badge').textContent=_flagBadge+'งวด '+ngod;
   save(); renderCustList(); renderHist(); updateSummary();
   toast('เปิดงวด '+ngod+' แล้ว ✅');
 }
@@ -1688,9 +1743,22 @@ function confirmLockSet(){
 function getActiveFields(){
   if(!npLek&&!npLekQueue.length) return [];
   var d=npLek.length||npLekQueue[0].length;
-  return DIGIT_RULES[d]||[];
+  return getDigitRules(d);
 }
 
+function updateNpLabels(){
+  var isLao=ngodInfo.type==='lao';
+  var labels={
+    bon: isLao?'บน/หลัง':'บน',
+    lang: isLao?'กลาง/ล่าง':'ล่าง',
+    na: isLao?'หน้า':'หน้า',
+    tod: isLao?'โต๊ด/ชุด':'โต๊ด'
+  };
+  ['bon','lang','na','tod'].forEach(function(k){
+    var el=document.querySelector('.np-lbl-'+k);
+    if(el)el.textContent=labels[k];
+  });
+}
 function setupNumpad(){
   window.addEventListener('keydown',function(e){
     if(document.getElementById('pak-overlay').classList.contains('show')) return;
@@ -3562,7 +3630,150 @@ function fetchLottoResult(){
 }
 
 function getTodPay(d){var k=d===2?'tod2':d===3?'tod3':d===4?'tod4':'tod5';return (getCfg(k)||{pay:d===3?100:d===4?20:d===2?10:10}).pay;}
+
+function doCheckResult_LAO(){
+  // ผลลาว 6 หลัก เช่น 123456
+  var first6 = getResInput('res-1st').trim();
+  if(first6.length!==6){toast('ใส่ผลลาว 6 หลักครับ');return;}
+
+  var r4bon  = first6.slice(2);      // 3456 — 4ตัวหลัง
+  var r3bon  = first6.slice(3);      // 456  — 3ตัวหลัง = 3ตัวบน
+  var r2bon  = first6.slice(4);      // 56   — 2ตัวบน
+  var r2mid  = first6.slice(2,4);    // 34   — 2ตัวกลาง
+  var r2na   = first6.slice(0,2);    // 12   — 2ตัวหน้า
+  var vbon   = r3bon.split('');      // ลอยหลัง อิง 4,5,6
+  var vlang  = r2mid.split('');      // ลอยล่าง อิง 3,4
+
+  // โต๊ด อิง 3 ตัวหลัง (456)
+  var todWin3 = getTod(r3bon);
+
+  // ชุด 4 ตัว = perms ของ r4bon
+  function getPerms4(s){
+    if(s.length<=1)return[s];
+    var res={};
+    for(var i=0;i<s.length;i++){var r=s.slice(0,i)+s.slice(i+1);getPerms4(r).forEach(function(p){res[s[i]+p]=1;});}
+    return Object.keys(res).sort();
+  }
+  var tod4Win = getPerms4(r4bon);
+
+  var out='', grandPay=0;
+  lastCheckResult={};
+
+  customers.forEach(function(cust){
+    var all=getAllEntries(cust.id);
+    if(!all.length)return;
+    var hits=[], custPay=0;
+
+    all.forEach(function(e){
+      var lek=e.lek, d=parseInt(e.d)||lek.length;
+
+      // ── 4ตัวหลัง (bon, d=4) ──
+      if(d===4 && lek===r4bon && e.bon){
+        var pr=(getCfg('4bon')||{pay:4000}).pay;
+        hits.push({lek:lek,type:'4ตัวหลัง',bet:e.bon,pay:e.bon*pr}); custPay+=e.bon*pr;
+      }
+      // ── ชุด4ตัว (tod, d=4) ──
+      if(d===4 && e.tod && tod4Win.indexOf(lek)>=0){
+        var pr4t=(getCfg('4tod')||{pay:20}).pay;
+        hits.push({lek:lek,type:'ชุด4ตัว',bet:e.tod,pay:e.tod*pr4t}); custPay+=e.tod*pr4t;
+      }
+      // ── 3ตัวหลัง (bon, d=3) ──
+      if(d===3 && lek===r3bon && e.bon){
+        var pr3=(getCfg('3bon')||{pay:550}).pay;
+        hits.push({lek:lek,type:'3ตัวหลัง',bet:e.bon,pay:e.bon*pr3}); custPay+=e.bon*pr3;
+        (e.kd.bon||[]).forEach(function(x){if(x.perm===r3bon){hits.push({lek:x.perm,type:'3ตัวหลัง(ชุด)',bet:x.price,pay:x.price*pr3});custPay+=x.price*pr3;}});
+      }
+      // ── โต๊ด3ตัว ──
+      if(d===3 && e.tod && todWin3.indexOf(lek)>=0){
+        var prt=(getCfg('3tod')||{pay:100}).pay;
+        hits.push({lek:lek,type:'โต๊ด3ตัว',bet:e.tod,pay:e.tod*prt}); custPay+=e.tod*prt;
+      }
+      // ── โต๊ด2ตัว ── (d=2, เลขต้องอยู่ใน r3bon)
+      if(d===2 && e.tod){
+        var w3=r3bon.split(''), lk2=lek.split('');
+        if(w3.length===3 && lk2.every(function(c){return w3.indexOf(c)>=0;})){
+          var pr2t=(getCfg('tod2')||{pay:10}).pay;
+          hits.push({lek:lek,type:'โต๊ด2ตัว',bet:e.tod,pay:e.tod*pr2t}); custPay+=e.tod*pr2t;
+        }
+      }
+      // ── โต๊ด5ตัว ── (d=5, ครอบ 3ตัวหลัง)
+      if(d===5 && e.tod){
+        var w3c=r3bon.split(''), lk5=lek.split('');
+        var cov5=w3c.every(function(c){var i=lk5.indexOf(c);if(i>=0){lk5.splice(i,1);return true;}return false;});
+        if(cov5){var pr5t=(getCfg('tod5')||{pay:10}).pay;hits.push({lek:lek,type:'โต๊ด5ตัว',bet:e.tod,pay:e.tod*pr5t});custPay+=e.tod*pr5t;}
+      }
+      // ── 2ตัวบน (bon, d=2) ──
+      if(d===2 && lek===r2bon && e.bon){
+        var pr2b=(getCfg('2bon')||{pay:70}).pay;
+        hits.push({lek:lek,type:'2ตัวบน',bet:e.bon,pay:e.bon*pr2b}); custPay+=e.bon*pr2b;
+        (e.kd.bon||[]).forEach(function(x){if(x.perm===r2bon){hits.push({lek:x.perm,type:'2ตัวบน(กลับ)',bet:x.price,pay:x.price*pr2b});custPay+=x.price*pr2b;}});
+      }
+      // ── 2ตัวกลาง (mid/lang, d=2) ── อิง 34
+      if(d===2 && lek===r2mid && (e.lang||e.mid)){
+        var val2m=e.lang||e.mid||0;
+        var pr2m=(getCfg('2mid')||{pay:70}).pay;
+        hits.push({lek:lek,type:'2ตัวกลาง',bet:val2m,pay:val2m*pr2m}); custPay+=val2m*pr2m;
+      }
+      // ── 2ตัวหน้า (na, d=2) ──
+      if(d===2 && lek===r2na && e.na){
+        var pr2n=(getCfg('2na')||{pay:70}).pay;
+        hits.push({lek:lek,type:'2ตัวหน้า',bet:e.na,pay:e.na*pr2n}); custPay+=e.na*pr2n;
+        (e.kd.na||[]).forEach(function(x){if(x.perm===r2na){hits.push({lek:x.perm,type:'2ตัวหน้า(กลับ)',bet:x.price,pay:x.price*pr2n});custPay+=x.price*pr2n;}});
+      }
+      // ── ลอยหลัง (d=1) อิง 4,5,6 ──
+      if(d===1 && vbon.indexOf(lek)>=0 && e.bon){
+        var prvb=(getCfg('vbon')||{pay:3}).pay;
+        hits.push({lek:lek,type:'ลอยหลัง',bet:e.bon,pay:e.bon*prvb}); custPay+=e.bon*prvb;
+      }
+      // ── ลอยล่าง (d=1) อิง 3,4 ──
+      if(d===1 && vlang.indexOf(lek)>=0 && e.lang){
+        var prvl=(getCfg('vlang')||{pay:4}).pay;
+        hits.push({lek:lek,type:'ลอยล่าง',bet:e.lang,pay:e.lang*prvl}); custPay+=e.lang*prvl;
+      }
+      // ── ปักหลักหลัง (อิง 456) ──
+      (e.paks||[]).filter(function(p){return p.type==='3bon';}).forEach(function(p){
+        var digits=r3bon.split('');
+        var posD={na:digits[0],mid:digits[1],lang:digits[2]};
+        if(lek===posD[p.pos]){
+          var prpk=(getCfg('pak-3bon')||{pay:8}).pay;
+          hits.push({lek:lek,type:'ปักหลักหลัง('+p.posLabel+')',bet:p.price,pay:p.price*prpk});
+          custPay+=p.price*prpk;
+        }
+      });
+      // ── ปักหลักล่าง (อิง 34) ──
+      (e.paks||[]).filter(function(p){return p.type==='2lang';}).forEach(function(p){
+        var digits=r2mid.split('');
+        var posD={na:digits[0],lang:digits[1]};
+        if(lek===posD[p.pos]){
+          var prpk2=(getCfg('pak-2lang')||{pay:8}).pay;
+          hits.push({lek:lek,type:'ปักหลักล่าง('+p.posLabel+')',bet:p.price,pay:p.price*prpk2});
+          custPay+=p.price*prpk2;
+        }
+      });
+    });
+
+    if(!hits.length)return;
+    grandPay+=custPay;
+    lastCheckResult[cust.id]=custPay;
+    out+='<div class="cr-cust"><div class="cr-cust-name">👤 '+cust.name+'</div>';
+    hits.forEach(function(h){
+      out+='<div class="cr-hit"><span class="cr-lek">'+h.lek+'</span>'
+        +'<span class="cr-type">'+h.type+'</span>'
+        +'<span class="cr-bet">×'+h.bet.toLocaleString()+'</span>'
+        +'<span class="cr-pay">฿'+h.pay.toLocaleString()+'</span></div>';
+    });
+    out+='<div class="cr-sub">รวมจ่าย: <b>฿'+custPay.toLocaleString()+'</b></div></div>';
+  });
+
+  var resultEl=document.getElementById('check-result-out');
+  if(!out){resultEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--lg);">😊 ไม่มีถูกรางวัลครับ</div>';return;}
+  resultEl.innerHTML='<div class="cr-grand">💰 รวมต้องจ่ายทั้งหมด: <b>฿'+grandPay.toLocaleString()+'</b></div>'+out;
+  renderCustList();
+}
+
 function doCheckResult(){
+  if(ngodInfo.type==='lao'){doCheckResult_LAO();return;}
+  // ── ไทย ──
   var first6  = getResInput('res-1st').trim();
   var r3na    = getResInput('res-3na').trim();
   var r3bon   = getResInput('res-3bon').trim();
