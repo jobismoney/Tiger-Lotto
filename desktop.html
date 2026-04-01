@@ -1555,8 +1555,7 @@ function showSlipSet(cid, idx){
   var inf=Object.assign({},ngodInfo||{ngod:'—'},{sender:s.sender||'—',receiver:cust.name,setNum:setNum,setTime:setTime});
   // build slip จาก entries ของชุดนี้อย่างเดียว
   var sorted=s.entries.slice().sort(function(a,b){return a.id-b.id;});
-  var inf2=Object.assign({},ngodInfo||{ngod:'—'},{sender:s.sender||'—',receiver:cust.name,setNum:setNum,setTime:setTime});
-  var pages=paginateEntriesDesk(sorted,inf2);
+  var pages=paginateEntriesDesk(sorted,inf);
   var html='';
   pages.forEach(function(pg,i){
     html+='<div class="slip-page-single"><div class="slip-page">'+makePageHTML(pg,i+1,pages.length,inf)+'</div></div>';
@@ -3168,8 +3167,7 @@ function buildSlipHTML(cid){
     });
   }
   var sorted=all.slice().sort(function(a,b){return a.id-b.id;});
-  var inf2=Object.assign({},ngodInfo||{ngod:'—'},{sender:s.sender||'—',receiver:cust.name,setNum:setNum,setTime:setTime});
-  var pages=paginateEntriesDesk(sorted,inf2);
+  var pages=paginateEntriesDesk(sorted,inf);
   var totalPages=pages.length;
   var grandTotal=calcCustTotal(cid);
   var allSumRows='',allHTML='';
