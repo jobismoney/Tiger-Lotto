@@ -544,6 +544,7 @@ function calcTotal(){
     var kd=e.kd||{};
     var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);
     ['bon','lang','na'].forEach(function(k){(kd[k]||[]).forEach(function(x){t+=x.price;});});
+    (e.paks||[]).forEach(function(p){t+=p.price;});
     return s+t;
   },0);
 }
@@ -777,10 +778,11 @@ function entrySummary(e){
   var kb=(kd['bon']||[]).reduce(function(s,x){return s+x.price;},0);
   var kl=(kd['lang']||[]).reduce(function(s,x){return s+x.price;},0);
   var kn=(kd['na']||[]).reduce(function(s,x){return s+x.price;},0);
-  if(d===3)return{c3:b+kb+n+kn,c2:0,c1:0,ct:t,cl:l+kl};
-  if(d===2)return{c3:0,c2:b+kb+l+kl+n+kn,c1:0,ct:t,cl:0};
-  if(d===1)return{c3:0,c2:0,c1:b+l+n,ct:0,cl:0};
-  return{c3:0,c2:0,c1:0,ct:t,cl:0};
+  var pk=(e.paks||[]).reduce(function(s,p){return s+p.price;},0);
+  if(d===3)return{c3:b+kb+n+kn,c2:0,c1:pk,ct:t,cl:l+kl};
+  if(d===2)return{c3:0,c2:b+kb+l+kl+n+kn,c1:pk,ct:t,cl:0};
+  if(d===1)return{c3:0,c2:0,c1:b+l+n+pk,ct:0,cl:0};
+  return{c3:0,c2:0,c1:pk,ct:t,cl:0};
 }
 function pageSumTotals(pEntries){
   var s={c3:0,c2:0,c1:0,ct:0,cl:0};
@@ -857,7 +859,7 @@ function makePageHTML(pEntries,pgNum,totalPages,inf){
     bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
   });
   var ps=pageSumTotals(pEntries);
-  var pt=pEntries.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});return s+t;},0);
+  var pt=pEntries.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});(e.paks||[]).forEach(function(p){t+=p.price;});return s+t;},0);
   return '<div class="slip-hd"><div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+'</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
     +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div></div>'
     +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
@@ -871,11 +873,11 @@ function buildSlip(entsToUse){
   var inf={sender:profile.name||'—',receiver:profile.agent||'—',ngod:profile.ngod||'—'};
   var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
   var pages=paginateEntries(sorted,inf);
-  var totalPages=pages.length,grandTotal=ents.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});return s+t;},0);
+  var totalPages=pages.length,grandTotal=ents.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});(e.paks||[]).forEach(function(p){t+=p.price;});return s+t;},0);
   var allSumRows='',allHTML='',grandS={c3:0,c2:0,c1:0,ct:0,cl:0};
   pages.forEach(function(pg,i){
     allHTML+='<div class="slip-page-single"><div class="slip-page">'+makePageHTML(pg,i+1,totalPages,inf)+'</div></div>';
-    var ps=pageSumTotals(pg);var pt=pg.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});return s+t;},0);
+    var ps=pageSumTotals(pg);var pt=pg.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});(e.paks||[]).forEach(function(p){t+=p.price;});return s+t;},0);
     allSumRows+=buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false);
     grandS.c3+=ps.c3;grandS.c2+=ps.c2;grandS.c1+=ps.c1;grandS.ct+=ps.ct;grandS.cl+=ps.cl;
   });
@@ -970,7 +972,10 @@ function delHist(idx){
 }
 function viewHistSlip(idx){
   var hist=getHist();var item=hist[idx];if(!item)return;
-  closeHist();showSlip(item.entries);
+  closeHist();
+  showSlip(item.entries);
+  // โชว์ปุ่มส่ง Line เสมอ แม้ดูจากแฟ้ม
+  document.getElementById('ov-share').style.display='';
 }
 
 // ══════════════════════════════════════
