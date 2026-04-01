@@ -831,7 +831,7 @@ function normalizeQRData(data){
     return {
       ngod: data.g||'',
       sender: data.s||'',
-      receiver: data.r||'',
+      receiver: data.r||data.receiver||'',
       date: data.dt||'',
       pg: data.p||1,
       setNum: data.sn||'',
@@ -3054,7 +3054,7 @@ function encodeQREntriesDesk(pEntries){
     return o;
   });
 }
-var QR_MAX_CHARS=1200;
+var QR_MAX_CHARS=700;
 function paginateEntriesDesk(sorted,inf){
   var pages=[],cur=[];
   sorted.forEach(function(e){
@@ -3066,7 +3066,7 @@ function paginateEntriesDesk(sorted,inf){
   return pages;
 }
 function encodePageDataDesk(pEntries, inf, pgNum){
-  var data={s:inf.sender||'',e:encodeQREntriesDesk(pEntries)};
+  var data={s:inf.sender||'',r:inf.receiver||'',e:encodeQREntriesDesk(pEntries)};
   return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
 }
 function renderDesktopQR(el, pEntries, inf, pgNum){

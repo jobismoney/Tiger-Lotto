@@ -815,9 +815,9 @@ function encodeQREntries(pEntries){
     return o;
   });
 }
-var QR_MAX_CHARS=1200;
+var QR_MAX_CHARS=700;
 function encodePageData(pEntries,inf,pgNum){
-  var data={s:inf.sender||'',e:encodeQREntries(pEntries)};
+  var data={s:inf.sender||'',r:inf.receiver||'',e:encodeQREntries(pEntries)};
   return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
 }
 function paginateEntries(sorted,inf){
