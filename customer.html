@@ -19,8 +19,8 @@ html,body{height:100%;overflow:hidden;}
 body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);max-width:480px;margin:0 auto;display:flex;flex-direction:column;}
 
 /* ── HEADER ── */
-.hdr{background:linear-gradient(135deg,#1a1d27,#12151f);border-bottom:2px solid var(--gold);padding:7px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.hdr-left h1{font-size:16px;font-weight:900;color:var(--gold);}
+.hdr{background:linear-gradient(135deg,#1a1d27,#12151f);border-bottom:2px solid var(--gold);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.hdr-left h1{font-size:18px;font-weight:900;color:var(--gold);}
 .hdr-left p{font-size:11px;color:var(--gray);margin-top:1px;}
 .hdr-btns{display:flex;gap:6px;}
 .hbtn{background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:10px;font-weight:700;padding:5px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:44px;}
@@ -28,15 +28,15 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 .hbtn-lbl{font-size:9px;font-weight:800;line-height:1;}
 
 /* ── LIST ── */
-.list-area{flex-shrink:0;margin:6px 10px 0;background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;max-height:28vh;}
+.list-area{flex-shrink:0;margin:6px 10px 0;background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;max-height:35vh;}
 .tbl-hd{display:grid;grid-template-columns:72px 1fr 1fr 1fr 1fr 24px;gap:2px;padding:4px 8px;background:var(--card2);border-bottom:1px solid var(--border);}
 .tbl-hd span{font-size:12px;font-weight:700;color:var(--lg);text-align:center;}
 .tbl-hd span:first-child{text-align:left;}
-.list-scroll{overflow-y:auto;max-height:calc(28vh - 50px);}
+.list-scroll{overflow-y:auto;max-height:calc(35vh - 50px);}
 .bet-row{display:grid;grid-template-columns:72px 1fr 1fr 1fr 1fr 24px;gap:2px;padding:4px 8px;border-bottom:1px solid var(--border);align-items:center;}
 .bet-row:last-child{border-bottom:none;}
 .bet-row.sub{background:rgba(167,139,250,.06);}
-.lek-cell{font-size:17px;font-weight:900;color:var(--gold);}
+.lek-cell{font-size:18px;font-weight:900;color:var(--gold);}
 .lek-cell.sub{font-size:13px;color:var(--purple);padding-left:4px;}
 .cel{text-align:center;font-size:13px;font-weight:700;color:var(--white);}
 .cel.e{color:#2a2d42;font-size:10px;}
@@ -47,27 +47,27 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 .tot-bar .val{font-size:20px;font-weight:900;color:var(--gold);}
 
 /* ── FK AREA ── */
-.fk-area{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:6px 10px 0;}
+.fk-area{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:8px 10px 0;}
 
 /* display */
-.fk-display{background:#0d0f1a;border:2px solid var(--border);border-radius:12px;padding:6px 12px;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;flex-shrink:0;}
+.fk-display{background:#0d0f1a;border:2px solid var(--border);border-radius:12px;padding:8px 14px;min-height:56px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-shrink:0;}
 #fk-text{font-family:'Sarabun',sans-serif;font-size:32px;font-weight:900;color:#555;letter-spacing:2px;flex:1;word-break:break-all;line-height:1.1;transition:font-size .1s;}
 #fk-hint{font-size:11px;color:var(--gray);text-align:right;line-height:1.6;flex-shrink:0;}
 
 /* type buttons */
-.fk-type-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:4px;flex-shrink:0;}
+.fk-type-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:6px;flex-shrink:0;}
 .fk-type-col{display:flex;flex-direction:column;gap:3px;}
-.fk-tbtn{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;padding:6px 4px;cursor:pointer;text-align:center;}
+.fk-tbtn{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:7px 4px;cursor:pointer;text-align:center;}
 .fk-tbtn.on-bon{background:rgba(96,165,250,.15);border-color:#60a5fa;color:#60a5fa;}
 .fk-tbtn.on-tod{background:rgba(244,114,182,.15);border-color:#f472b6;color:#f472b6;}
 .fk-tbtn.on-lang{background:rgba(52,211,153,.15);border-color:#34d399;color:#34d399;}
 .fk-tbtn.on-na{background:rgba(251,146,60,.15);border-color:#fb923c;color:#fb923c;}
-.fk-klb{width:100%;background:#2a2000;border:1px solid #d4a017;border-radius:6px;color:#d4a017;font-family:'Sarabun',sans-serif;font-size:10px;font-weight:800;padding:3px 2px;cursor:pointer;text-align:center;display:none;}
+.fk-klb{width:100%;background:#2a2000;border:1px solid #d4a017;border-radius:6px;color:#d4a017;font-family:'Sarabun',sans-serif;font-size:11px;font-weight:800;padding:4px 2px;cursor:pointer;text-align:center;display:none;}
 .fk-klb.on{background:#d4a017;color:#000;}
 
 /* numpad */
-.fk-numpad{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;flex-shrink:0;}
-.fk-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:11px 8px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;}
+.fk-numpad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;flex-shrink:0;}
+.fk-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:22px;font-weight:900;padding:13px 8px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;}
 .fk-btn:active{background:#2a2d3a;transform:scale(.97);}
 .fk-del{color:var(--red);}
 .fk-sep{color:var(--purple);font-size:18px;}
@@ -76,9 +76,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 .fk-zero{grid-column:span 2;}
 
 /* ── ACTION BAR ── */
-.action-bar{display:flex;gap:8px;padding:6px 10px;flex-shrink:0;}
-.btn-basket{flex:1;background:linear-gradient(135deg,#e67e22,#d35400);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:11px;cursor:pointer;}
-.btn-slip{flex:1;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:11px;cursor:pointer;}
+.action-bar{display:flex;gap:8px;padding:8px 10px;flex-shrink:0;}
+.btn-basket{flex:1;background:linear-gradient(135deg,#e67e22,#d35400);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;padding:13px;cursor:pointer;}
+.btn-slip{flex:1;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;padding:13px;cursor:pointer;}
 
 /* ── SLIP OVERLAY ── */
 .slip-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;overflow-y:auto;}
@@ -789,21 +789,39 @@ function sumTableHTML(rows){
     +'<th class="sh">1ตัว</th><th class="sh">โต๊ด</th><th class="sh">3ล่าง</th><th class="sh">รวม</th>'
     +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
-function encodePageData(pEntries,inf,pgNum){
-  var compE=pEntries.map(function(e){
-    var o={l:e.lek};if(e.bon)o.b=e.bon;if(e.tod)o.t=e.tod;if(e.lang)o.la=e.lang;if(e.na)o.n=e.na;
-    var kd={};['bon','lang','na'].forEach(function(k){if(e.kd&&e.kd[k]&&e.kd[k].length)kd[k]=e.kd[k].map(function(x){return[x.perm,x.price];});});
-    if(Object.keys(kd).length)o.k=kd;return o;
+function encodeQREntries(pEntries){
+  return pEntries.map(function(e){
+    var o={l:e.lek};
+    if(e.bon)o.b=e.bon;if(e.tod)o.t=e.tod;if(e.lang)o.la=e.lang;if(e.na)o.n=e.na;
+    var kd=e.kd||{};
+    if(kd.bon&&kd.bon.length){var as=kd.bon.every(function(x){return x.price===e.bon;});o.kb=as?1:kd.bon.map(function(x){return x.price;});}
+    if(kd.lang&&kd.lang.length){var as2=kd.lang.every(function(x){return x.price===e.lang;});o.kl=as2?1:kd.lang.map(function(x){return x.price;});}
+    if(kd.na&&kd.na.length){var as3=kd.na.every(function(x){return x.price===e.na;});o.kn=as3?1:kd.na.map(function(x){return x.price;});}
+    if(e.paks&&e.paks.length)o.pk=e.paks.map(function(p){return{tp:p.type,ps:p.pos,pr:p.price};});
+    return o;
   });
-  var data={p:pgNum,g:inf.ngod||'',s:inf.sender||'',r:inf.receiver||'',e:compE};
+}
+var QR_MAX_CHARS=1200;
+function encodePageData(pEntries,inf,pgNum){
+  var data={s:inf.sender||'',e:encodeQREntries(pEntries)};
   return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+}
+function paginateEntries(sorted,inf){
+  var pages=[],cur=[];
+  sorted.forEach(function(e){
+    var test=encodePageData(cur.concat([e]),inf,1);
+    if(cur.length>0&&test.length>QR_MAX_CHARS){pages.push(cur);cur=[e];}
+    else cur.push(e);
+  });
+  if(cur.length)pages.push(cur);
+  return pages;
 }
 function renderPageQR(pEntries,inf,pgNum){
   var el=document.getElementById('slip-qr-pg-'+pgNum);if(!el)return;el.innerHTML='';
   if(typeof QRCode==='undefined')return;
   var url=encodePageData(pEntries,inf,pgNum);
   if(!url||url.length>4500){el.innerHTML='<div style="font-size:10px;color:#f87171;text-align:right;">QR เกิน</div>';return;}
-  try{new QRCode(el,{text:url,width:220,height:220,correctLevel:QRCode.CorrectLevel.L});}catch(e){}
+  try{new QRCode(el,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.L});}catch(e){}
 }
 function makePageHTML(pEntries,pgNum,totalPages,inf){
   var bodyRows='';
@@ -840,9 +858,7 @@ function buildSlip(entsToUse){
   if(!ents.length)return null;
   var inf={sender:profile.name||'—',receiver:profile.agent||'—',ngod:profile.ngod||'—'};
   var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
-  var pages=[],pEn=[],rc=0;
-  sorted.forEach(function(e){var lc=toLines(e).length||1;if(rc>0&&rc+lc>MAX_ROWS){pages.push(pEn);pEn=[];rc=0;}pEn.push(e);rc+=lc;});
-  if(pEn.length)pages.push(pEn);
+  var pages=paginateEntries(sorted,inf);
   var totalPages=pages.length,grandTotal=ents.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});return s+t;},0);
   var allSumRows='',allHTML='',grandS={c3:0,c2:0,c1:0,ct:0,cl:0};
   pages.forEach(function(pg,i){

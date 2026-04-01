@@ -210,7 +210,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .slip-ft .fv{color:#000;font-size:22px;font-weight:900;}
 .slip-legend{font-size:11px;color:#888;padding:3px 8px;text-align:right;background:#fff;border-top:1px solid #eee;}
 .slip-qr-wrap{display:flex;justify-content:flex-end;align-items:center;padding:4px 10px 2px;background:#fff;}
-.slip-qr-wrap canvas,.slip-qr-wrap img{width:220px!important;height:220px!important;}
+.slip-qr-wrap canvas,.slip-qr-wrap img{width:160px!important;height:160px!important;}
 .slip-page-sum .slip-hd{padding:8px 12px 6px;}
 .slip-page-sum .slip-hd-row1 h2{font-size:17px;}
 .slip-page-sum .slip-hd-row2 span{font-size:12px;}
@@ -2078,32 +2078,45 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   // ─── BUILD SLIPS ───
-  function encodePageData(pEntries, inf, pgNum){
-    // เก็บแค่เลขและราคา — ข้อมูลน้อยที่สุดเพื่อให้ QR โปร่ง
-    var compEntries=pEntries.map(function(e){
+  function encodeQREntries(pEntries){
+    return pEntries.map(function(e){
       var o={l:e.lek};
-      if(e.bon)o.b=e.bon;
-      if(e.tod)o.t=e.tod;
-      if(e.lang)o.la=e.lang;
-      if(e.na)o.n=e.na;
-      // ปักหลัก
-      if(e.paks&&e.paks.length){
-        o.pk=e.paks.map(function(p){return {tp:p.type,ps:p.pos,pr:p.price};});
+      if(e.bon)  o.b=e.bon;
+      if(e.tod)  o.t=e.tod;
+      if(e.lang) o.la=e.lang;
+      if(e.na)   o.n=e.na;
+      var kd=e.kd||{};
+      if(kd.bon&&kd.bon.length){
+        var allSame=kd.bon.every(function(x){return x.price===e.bon;});
+        o.kb=allSame?1:kd.bon.map(function(x){return x.price;});
       }
-      // kd - ปักหลัก (ราคาพิเศษรายตัว)
-      var kd={};
-      ['bon','lang','na'].forEach(function(k){
-        if(e.kd&&e.kd[k]&&e.kd[k].length){kd[k]=e.kd[k].map(function(x){return [x.perm,x.price];});}
-      });
-      if(Object.keys(kd).length)o.k=kd;
+      if(kd.lang&&kd.lang.length){
+        var allSameL=kd.lang.every(function(x){return x.price===e.lang;});
+        o.kl=allSameL?1:kd.lang.map(function(x){return x.price;});
+      }
+      if(kd.na&&kd.na.length){
+        var allSameN=kd.na.every(function(x){return x.price===e.na;});
+        o.kn=allSameN?1:kd.na.map(function(x){return x.price;});
+      }
+      if(e.paks&&e.paks.length)
+        o.pk=e.paks.map(function(p){return{tp:p.type,ps:p.pos,pr:p.price};});
       return o;
     });
-    // ไม่เก็บ ngod/sender/receiver/date — desktop ใส่เองตอน import
-    // เก็บเฉพาะ field จำเป็น เพื่อให้ QR โปร่งพอ scan ได้
-    var data={p:pgNum,g:inf.ngod||'',s:inf.sender||'',r:inf.receiver||'',e:compEntries};
-    var json=JSON.stringify(data);
-    var b64=btoa(unescape(encodeURIComponent(json)));
-    return 'T999:'+b64;
+  }
+  var QR_MAX_CHARS=1200;
+  function encodePageData(pEntries,inf,pgNum){
+    var data={s:inf.sender||'',e:encodeQREntries(pEntries)};
+    return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  }
+  function paginateEntries(sorted,inf){
+    var pages=[],cur=[],curStr='';
+    sorted.forEach(function(e){
+      var test=encodePageData(cur.concat([e]),inf,1);
+      if(cur.length>0&&test.length>QR_MAX_CHARS){pages.push(cur);cur=[e];}
+      else cur.push(e);
+    });
+    if(cur.length)pages.push(cur);
+    return pages;
   }
   function renderPageQR(pEntries, inf, pgNum){
     var el=document.getElementById('slip-qr-pg-'+pgNum);
@@ -2116,7 +2129,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       return;
     }
     try{
-      new QRCode(el,{text:url,width:220,height:220,correctLevel:QRCode.CorrectLevel.L});
+      new QRCode(el,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.L});
     }catch(e){
       el.innerHTML='<div style="font-size:10px;color:#aaa;text-align:right;">QR error</div>';
     }
@@ -2319,14 +2332,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(!entries.length){toast('ยังไม่มีรายการ');return null;}
     var inf=Object.assign({},ngodInfo,{sender:custName||lastBasketName||'—',receiver:ngodInfo.sender||'—'});
     var sorted=entries.slice().sort(function(a,b){return a.id-b.id;});
-    var pages=[],pEn=[],rc=0;
-    sorted.forEach(function(e){
-      var lc=toLines(e).length;
-      var isBreak=pageBreakIds.indexOf(e.id)>=0;
-      if(rc>0&&(rc+lc>MAX_ROWS||isBreak)){pages.push(pEn);pEn=[];rc=0;}
-      pEn.push(e);rc+=lc;
-    });
-    if(pEn.length)pages.push(pEn);
+    var pages=paginateEntries(sorted,inf);
     var totalPages=pages.length;
     var grandTotal=calcTotal();
     var allSumRows='';var allHTML='';
