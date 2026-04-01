@@ -3191,7 +3191,7 @@ function buildSlipHTML(cid){
   // บรรทัดหลังลด%
   var r=settings.normal;
   function getDisc(key){return getCustDisc(cid,key);}
-  var d3=getDisc('3bon'),d2=getDisc('2bon'),d1=getDisc('vbon'),dt=getDisc('tod'),dl=getDisc('3lang');
+  var d3=getDisc('3bon'),d2=getDisc('2bon'),d1=getDisc('vbon'),dt=getDisc('tod3'),dl=getDisc('3lang');
   var netC={
     c3:Math.round(grandS.c3*(1-d3/100)),
     c2:Math.round(grandS.c2*(1-d2/100)),
@@ -3355,7 +3355,7 @@ function buildAllCustSlip(){
     var tot=calcCustTotal(c.id);
     var g={c3:0,c2:0,c1:0,ct:0,cl:0};
     entries.forEach(function(e){var es=entrySummary(e);g.c3+=es.c3;g.c2+=es.c2;g.c1+=es.c1;g.ct+=es.ct;g.cl+=es.cl;});
-    var d3=getCustDisc(c.id,'3bon'),d2=getCustDisc(c.id,'2bon'),d1=getCustDisc(c.id,'vbon'),dt=getCustDisc(c.id,'tod'),dl=getCustDisc(c.id,'3lang');
+    var d3=getCustDisc(c.id,'3bon'),d2=getCustDisc(c.id,'2bon'),d1=getCustDisc(c.id,'vbon'),dt=getCustDisc(c.id,'tod3'),dl=getCustDisc(c.id,'3lang');
     var net=Math.round(g.c3*(1-d3/100))+Math.round(g.c2*(1-d2/100))+Math.round(g.c1*(1-d1/100))+Math.round(g.ct*(1-dt/100))+Math.round(g.cl*(1-dl/100));
     var prize=(lastCheckResult&&lastCheckResult[c.id])||0;
     sumGross+=tot; sumNet+=net; sumPrize+=prize;
