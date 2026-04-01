@@ -1013,11 +1013,16 @@ function doImportMulti(dataList, totalEntries, cid){
   curCustId=cid;
   save();
   renderCustList(); renderHist(); updateSummary();
-  // mobile/tablet mode → switch ไป zone รายการ อัตโนมัติ
+  // ปิด banner ก่อนเสมอ
+  var ov=document.getElementById('imp-banner-overlay');
+  var bn=document.getElementById('imp-banner');
+  if(ov) ov.style.display='none';
+  if(bn) bn.style.display='none';
+  // mobile/tablet mode → switch ไป zone รายการ ไม่ใช่แฟ้ม
   var nav = document.getElementById('tab-nav');
   if(nav && getComputedStyle(nav).display !== 'none'){
-    var btn = document.querySelectorAll('.tab-nav-btn')[1]; // 📋 รายการ
-    switchZone(2, btn);
+    var btn = document.querySelectorAll('.tab-nav-btn')[2]; // ⌨️ คีย์
+    switchZone(3, btn);
   }
 }
 function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
@@ -1204,11 +1209,16 @@ function doImport(data, fp, log, cid){
   curCustId = cid;
   save();
   renderCustList(); renderHist(); updateSummary();
-  // mobile/tablet mode → switch ไป zone รายการ อัตโนมัติ
+  // ปิด banner
+  var ov=document.getElementById('imp-banner-overlay');
+  var bn=document.getElementById('imp-banner');
+  if(ov) ov.style.display='none';
+  if(bn) bn.style.display='none';
+  // mobile/tablet → zone คีย์
   var nav = document.getElementById('tab-nav');
   if(nav && getComputedStyle(nav).display !== 'none'){
-    var btn = document.querySelectorAll('.tab-nav-btn')[1]; // 📋 รายการ
-    switchZone(2, btn);
+    var btn = document.querySelectorAll('.tab-nav-btn')[2]; // ⌨️ คีย์
+    switchZone(3, btn);
   }
 }
 
@@ -4166,6 +4176,14 @@ function entryTotalWithRate(e){
 
 
 // ── TABLET TAB NAVIGATION ──
+// ── รับประกันว่า banner ปิดตอน load ──
+(function(){
+  var ov=document.getElementById('imp-banner-overlay');
+  var bn=document.getElementById('imp-banner');
+  if(ov) ov.style.display='none';
+  if(bn) bn.style.display='none';
+})();
+
 function switchZone(n, btn){
   var zones=[null,
     document.getElementById('zone1'),
