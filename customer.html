@@ -28,11 +28,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 .hbtn-lbl{font-size:9px;font-weight:800;line-height:1;}
 
 /* ── LIST ── */
-.list-area{flex-shrink:0;margin:6px 10px 0;background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;max-height:35vh;}
+.list-area{flex-shrink:0;margin:6px 10px 0;background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;max-height:25vh;}
 .tbl-hd{display:grid;grid-template-columns:72px 1fr 1fr 1fr 1fr 24px;gap:2px;padding:4px 8px;background:var(--card2);border-bottom:1px solid var(--border);}
 .tbl-hd span{font-size:12px;font-weight:700;color:var(--lg);text-align:center;}
 .tbl-hd span:first-child{text-align:left;}
-.list-scroll{overflow-y:auto;max-height:calc(35vh - 50px);}
+.list-scroll{overflow-y:auto;max-height:calc(25vh - 50px);}
 .bet-row{display:grid;grid-template-columns:72px 1fr 1fr 1fr 1fr 24px;gap:2px;padding:4px 8px;border-bottom:1px solid var(--border);align-items:center;}
 .bet-row:last-child{border-bottom:none;}
 .bet-row.sub{background:rgba(167,139,250,.06);}
@@ -66,8 +66,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 .fk-klb.on{background:#d4a017;color:#000;}
 
 /* numpad */
-.fk-numpad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;flex-shrink:0;}
-.fk-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:22px;font-weight:900;padding:13px 8px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;}
+.fk-numpad{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;flex-shrink:0;}
+.fk-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:10px 6px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;}
 .fk-btn:active{background:#2a2d3a;transform:scale(.97);}
 .fk-del{color:var(--red);}
 .fk-sep{color:var(--purple);font-size:18px;}
@@ -76,9 +76,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 .fk-zero{grid-column:span 2;}
 
 /* ── ACTION BAR ── */
-.action-bar{display:flex;gap:8px;padding:8px 10px;flex-shrink:0;}
-.btn-basket{flex:1;background:linear-gradient(135deg,#e67e22,#d35400);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;padding:13px;cursor:pointer;}
-.btn-slip{flex:1;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;padding:13px;cursor:pointer;}
+.action-bar{display:flex;gap:6px;padding:6px 10px 8px;flex-shrink:0;}
+.btn-basket{flex:1;background:linear-gradient(135deg,#e67e22,#d35400);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:11px;cursor:pointer;}
+.btn-slip{flex:1;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:11px;cursor:pointer;}
 
 /* ── SLIP OVERLAY ── */
 .slip-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;overflow-y:auto;}
@@ -176,9 +176,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 #_toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 22px;border-radius:12px;font-size:14px;z-index:9998;font-family:'Sarabun',sans-serif;white-space:nowrap;border:1px solid #444;display:none;}
 
 /* ── PAK OVERLAY ── */
-.pak-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;display:none;align-items:flex-end;justify-content:center;}
+.pak-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;display:none;align-items:center;justify-content:center;}
 .pak-overlay.show{display:flex;}
-.pak-sheet{background:#1a1d27;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px;border-top:2px solid var(--gold);}
+.pak-sheet{background:#1a1d27;border-radius:16px;width:90%;max-width:400px;padding:18px;border:2px solid var(--gold);}
 .pak-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .pak-title{font-size:18px;font-weight:900;color:var(--gold);}
 .pak-lek-show{font-size:28px;font-weight:900;color:var(--white);font-family:'Bebas Neue',cursive;letter-spacing:3px;}
@@ -503,22 +503,34 @@ function renderList(){
     var kn=(kd.na||[]).reduce(function(s,x){return s+x.price;},0);
     var etot=b+t+l+n+kb+kl+kn; grand+=etot;
     function fod(v){return v>0?fmt(v):'<span class="cel e">—</span>';}
-    h+='<div class="bet-row"><span class="lek-cell">'+e.lek+'</span>'
-      +'<span class="cel">'+fod(b+kb)+'</span><span class="cel">'+fod(t)+'</span>'
-      +'<span class="cel">'+fod(l+kl)+'</span><span class="cel">'+fod(n+kn)+'</span>'
-      +'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button></div>';
-    // perm rows
-    ['bon','lang','na'].forEach(function(k){
-      (kd[k]||[]).forEach(function(x){
-        var lbl=k==='bon'?'บ':k==='lang'?'ล':'น';
-        h+='<div class="bet-row sub"><span class="lek-cell sub">'+x.perm+'</span>'
-          +'<span class="cel '+(k==='bon'?'':'e')+'">'+fod(k==='bon'?x.price:0)+'</span>'
-          +'<span class="cel e">—</span>'
-          +'<span class="cel '+(k==='lang'?'':'e')+'">'+fod(k==='lang'?x.price:0)+'</span>'
-          +'<span class="cel '+(k==='na'?'':'e')+'">'+fod(k==='na'?x.price:0)+'</span>'
-          +'<span></span></div>';
+    // paks row
+    var paks=e.paks||[];
+    if(paks.length){
+      var pakDesc=paks.map(function(p){
+        var pos={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
+        var typ={"3bon":'บน','2lang':'ล่าง'}[p.type]||p.type;
+        return 'ปัก'+pos+typ;
+      }).join(', ');
+      var pakTotal=paks.reduce(function(s,p){return s+p.price;},0);
+      h+='<div class="bet-row"><span class="lek-cell">'+e.lek+'</span>'
+        +'<span class="cel" style="font-size:11px;color:#fb923c;text-align:left;grid-column:span 4;">📌 '+pakDesc+' ฿'+fmt(pakTotal)+'</span>'
+        +'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button></div>';
+    } else {
+      h+='<div class="bet-row"><span class="lek-cell">'+e.lek+'</span>'
+        +'<span class="cel">'+fod(b+kb)+'</span><span class="cel">'+fod(t)+'</span>'
+        +'<span class="cel">'+fod(l+kl)+'</span><span class="cel">'+fod(n+kn)+'</span>'
+        +'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button></div>';
+      ['bon','lang','na'].forEach(function(k){
+        (kd[k]||[]).forEach(function(x){
+          h+='<div class="bet-row sub"><span class="lek-cell sub">'+x.perm+'</span>'
+            +'<span class="cel '+(k==='bon'?'':'e')+'">'+fod(k==='bon'?x.price:0)+'</span>'
+            +'<span class="cel e">—</span>'
+            +'<span class="cel '+(k==='lang'?'':'e')+'">'+fod(k==='lang'?x.price:0)+'</span>'
+            +'<span class="cel '+(k==='na'?'':'e')+'">'+fod(k==='na'?x.price:0)+'</span>'
+            +'<span></span></div>';
+        });
       });
-    });
+    }
   });
   el.innerHTML=h;
   totEl.textContent='฿'+fmt(grand);
