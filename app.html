@@ -1561,7 +1561,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   window.addScanEntries=function(ents){
     ents.forEach(function(e){
       eid++;
-      entries.unshift({id:eid,lek:e.lek,d:e.d||e.lek.length,
+      entries.push({id:eid,lek:e.lek,d:e.d||e.lek.length,
         bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
         kd:e.kd||{},paks:e.paks||[]});
     });
