@@ -325,8 +325,11 @@ function fkCommit(){
     savedEntries.push({id:eid,lek:l,d:l.length,bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,kd:kd,paks:[]});
     added++;
   });
-  savedEntries.reverse().forEach(function(e){entries.unshift(e);});
-  if(added>0){renderList();save();var ls=document.getElementById('list-scroll');if(ls)ls.scrollTop=0;toast('✅ เพิ่ม '+added+' รายการ');}
+  savedEntries.reverse();
+  if(added>0&&window.addFKEntries){
+    addFKEntries(savedEntries);
+    toast('✅ เพิ่ม '+added+' รายการ');
+  }
   fkBuf='';fkKlb={bon:false,lang:false,na:false};fkUserOverride=false;
   fkAutoSel(d||2);fkUpdateKlbBtns();fkRender();
   var _pb3=document.getElementById('pak-open-btn');
@@ -1707,6 +1710,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var FIELD_ORDER=['bon','tod','lang','na'];
   window.FIELD_ORDER=FIELD_ORDER;
   // expose สำหรับ scan
+  window.addFKEntries=function(ents){
+    ents.forEach(function(e){
+      eid++; e.id=eid;
+      entries.unshift(e);
+    });
+    save(); renderList();
+    var ls=document.getElementById('list-scroll');
+    if(ls)ls.scrollTop=0;
+  };
   window.addScanEntries=function(ents){
     ents.forEach(function(e){
       eid++;

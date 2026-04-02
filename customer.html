@@ -832,46 +832,31 @@ function toLines(e){
     if(ps2.length)push(lek,pstr(ps2),pt2);
     var kb2=kd['bon']||[],kl2=kd['lang']||[],kn2arr=kd['na']||[];
     if(kn2arr.length){
-      var allNaP=[];if(n>0)allNaP.push(n);kn2arr.forEach(function(x){allNaP.push(x.price);});
-      var allNaSame=allNaP.every(function(p){return p===allNaP[0];});var naFull=(n>0?1:0)+kn2arr.length===2;
+      var allNaP=[];if(n>0)allNaP.push(n);
+      kn2arr.forEach(function(x){allNaP.push(x.price);});
+      var allNaSame=allNaP.every(function(p){return p===allNaP[0];});
+      var naFull=(n>0?1:0)+kn2arr.length===2;
       if(naFull&&allNaSame){push(lek,'กลับหน้า'+fmtNum(allNaP[0]),allNaP.reduce(function(s,p){return s+p;},0));}
       else{if(n>0)push(lek,'หน้า'+fmtNum(n),n);kn2arr.forEach(function(x){push(x.perm,'หน้า'+fmtNum(x.price),x.price);});}
     }
-    if(kb2.length||kl2.length){
-      getPerms(lek).forEach(function(p){
+    if(hasKb||hasKl){
+      var allPerms2=getPerms(lek);
+      allPerms2.forEach(function(p){
         var bx=null,lx=null;
-        kb2.forEach(function(x){if(x.perm===p)bx=x;});kl2.forEach(function(x){if(x.perm===p)lx=x;});
+        kb2.forEach(function(x){if(x.perm===p)bx=x;});
+        kl2.forEach(function(x){if(x.perm===p)lx=x;});
         var rowPs=[],rowT=0;
-        if(p===lek){if(b>0&&hasKb){rowPs.push('บ'+fmtNum(b));rowT+=b;}}else if(bx&&bx.price>0){rowPs.push('บ'+fmtNum(bx.price));rowT+=bx.price;}
-        if(p===lek){if(l>0&&hasKl){rowPs.push('ล'+fmtNum(l));rowT+=l;}}else if(lx&&lx.price>0){rowPs.push('ล'+fmtNum(lx.price));rowT+=lx.price;}
+        if(p===lek){
+          if(b>0&&hasKb){rowPs.push('บ'+fmtNum(b));rowT+=b;}
+          if(l>0&&hasKl){rowPs.push('ล'+fmtNum(l));rowT+=l;}
+        } else {
+          if(bx&&bx.price>0){rowPs.push('บ'+fmtNum(bx.price));rowT+=bx.price;}
+          if(lx&&lx.price>0){rowPs.push('ล'+fmtNum(lx.price));rowT+=lx.price;}
+        }
         if(rowPs.length)push(p,pstr(rowPs),rowT);
       });
     }
-  } else if(d===3){
-    var hasKb3=(kd['bon']||[]).length>0,hasKl3=(kd['lang']||[]).length>0,hasKn=(kd['na']||[]).length>0;
-    var mps=[],mtot=0;
-    if(b>0&&!hasKb3){mps.push('บ'+fmtNum(b));mtot+=b;}
-    if(t>0){mps.push('ต'+fmtNum(t));mtot+=t;}
-    if(l>0&&!hasKl3){mps.push('ล'+fmtNum(l));mtot+=l;}
-    if(mps.length)push(lek,pstr(mps),mtot);
-    if(n>0&&!hasKn)push(lek,'หน้า'+fmtNum(n),n);
-    [['bon',b],['lang',l],['na',n]].forEach(function(pair){
-      var k=pair[0],mp=pair[1],xd=kd[k]||[];if(!xd.length)return;
-      var lbl=k==='bon'?'บ':k==='lang'?'ล':'หน้า';var slbl=k==='bon'?'ช':k==='lang'?'ชล':'ชหน้า';
-      var totalP=permCount(lek);var allP=[];if(mp>0)allP.push(mp);xd.forEach(function(x){allP.push(x.price);});
-      var tot2=allP.reduce(function(s,p){return s+p;},0);var hasFull=(mp>0?1:0)+xd.length===totalP;
-      var allSame=allP.every(function(p){return p===allP[0];});
-      if(hasFull&&allSame){push(lek,slbl+fmtNum(allP[0]),tot2);}
-      else{if(mp>0)push(lek,lbl+fmtNum(mp),mp);xd.forEach(function(x){push(x.perm,lbl+fmtNum(x.price),x.price);});}
-    });
-  } else {if(t>0)push(lek,'ต'+fmtNum(t),t);}
-  // pak lines
-  (e.paks||[]).forEach(function(p){
-    var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
-    lines.push({lek:e.lek,price:'ปัก'+posLbl+' '+(p.typeLabel||p.type),total:p.price});
-  });
-  return lines;
-}
+  }
 function entrySummary(e){
   var d=e.d,b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0,kd=e.kd||{};
   var kb=(kd['bon']||[]).reduce(function(s,x){return s+x.price;},0);
