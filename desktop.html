@@ -30,6 +30,120 @@ var _globalPgNum = 0; // global counter สำหรับ QR id unique
 })();
 
 
+
+// ══════════════════════════════════════
+// LICENSE KEY SYSTEM (L3 - เจ้ามือ)
+// ══════════════════════════════════════
+var DSK_LK_STORE = 't999_lk_desk_v1';
+var DSK_LK_POS   = {M1:5,LV:6,A1:7,A2:8,M2:10,A3:11,A4:12,Y1:15,Y2:17};
+var DSK_LK_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+var _dskMyCode   = '';
+
+function dskLkRand(){ return DSK_LK_CHARS[Math.floor(Math.random()*DSK_LK_CHARS.length)]; }
+
+function dskNameToCode(name){
+  name=name||'X';
+  if(!name.trim())return 'XXXX';
+  var code='';
+  for(var i=0;i<4;i++){
+    var ch=name.charCodeAt(i%name.length);
+    code+=DSK_LK_CHARS[Math.abs(ch)%DSK_LK_CHARS.length];
+  }
+  return code;
+}
+
+function dskLkVerify(keyStr, lv){
+  if(!keyStr||keyStr.length!==19||!keyStr.startsWith('T999-')) return null;
+  if(keyStr[DSK_LK_POS.LV]!==String(lv||3)) return null;
+  var now=new Date(), valid=false;
+  [-1,0,1].forEach(function(off){
+    var d=new Date(now); d.setMonth(d.getMonth()+off);
+    var m=String(d.getMonth()+1).padStart(2,'0');
+    var y=String(d.getFullYear()).slice(-2);
+    var exp=m[0]+m[1]+y[1]+y[0];
+    var got=(keyStr[DSK_LK_POS.M1]||'')+(keyStr[DSK_LK_POS.M2]||'')+(keyStr[DSK_LK_POS.Y1]||'')+(keyStr[DSK_LK_POS.Y2]||'');
+    if(got===exp) valid=true;
+  });
+  if(!valid) return null;
+  var ac=(keyStr[DSK_LK_POS.A1]||'')+(keyStr[DSK_LK_POS.A2]||'')+(keyStr[DSK_LK_POS.A3]||'')+(keyStr[DSK_LK_POS.A4]||'');
+  return {agentCode:ac};
+}
+
+function dskLkGenKey(mm, yy, lv, agentCode){
+  var ac=(agentCode||'XXXX').split('');
+  var key=['T','9','9','9','-','X','X','X','X','-','X','X','X','X','-','X','X','X','X'];
+  for(var i=0;i<key.length;i++){
+    if(i<4||key[i]==='-') continue;
+    if(i===DSK_LK_POS.M1){key[i]=mm[0];continue;}
+    if(i===DSK_LK_POS.LV){key[i]=String(lv);continue;}
+    if(i===DSK_LK_POS.A1){key[i]=ac[0];continue;}
+    if(i===DSK_LK_POS.A2){key[i]=ac[1];continue;}
+    if(i===DSK_LK_POS.M2){key[i]=mm[1];continue;}
+    if(i===DSK_LK_POS.A3){key[i]=ac[2];continue;}
+    if(i===DSK_LK_POS.A4){key[i]=ac[3];continue;}
+    if(i===DSK_LK_POS.Y1){key[i]=yy[1];continue;}
+    if(i===DSK_LK_POS.Y2){key[i]=yy[0];continue;}
+    key[i]=dskLkRand();
+  }
+  return key.join('');
+}
+
+function lkSubmit(){
+  var val=document.getElementById('lk-inp').value.trim().toUpperCase();
+  var result=dskLkVerify(val,3);
+  if(!result){
+    document.getElementById('lk-err').textContent='❌ Key ไม่ถูกต้องหรือหมดอายุครับ';
+    return;
+  }
+  try{localStorage.setItem(DSK_LK_STORE,val);}catch(e){}
+  _dskMyCode=result.agentCode;
+  document.getElementById('lk-screen').classList.add('hide');
+  document.getElementById('lk-err').textContent='';
+  toast('✅ เข้าใช้งานแล้วครับ');
+}
+
+function dskLkInit(){
+  var now=new Date();
+  var mm=String(now.getMonth()+1).padStart(2,'0');
+  var yy=String(now.getFullYear()).slice(-2);
+  var ms=document.getElementById('dsk-gk-month');
+  var ys=document.getElementById('dsk-gk-year');
+  if(ms)ms.value=mm; if(ys)ys.value=yy;
+  try{
+    var saved=localStorage.getItem(DSK_LK_STORE)||'';
+    if(saved){
+      var res=dskLkVerify(saved,3);
+      if(res){
+        document.getElementById('lk-screen').classList.add('hide');
+        _dskMyCode=res.agentCode;
+        return;
+      }
+    }
+  }catch(e){}
+}
+
+var _dskLastKey='';
+function dskOpenGenKey(){ document.getElementById('dsk-genkey-ov').classList.add('show'); }
+function dskCloseGenKey(){ document.getElementById('dsk-genkey-ov').classList.remove('show'); }
+function dskGenKeyCreate(){
+  var name=document.getElementById('dsk-gk-name').value.trim();
+  if(!name){toast('ใส่ชื่อ Agent ก่อนครับ');return;}
+  var mm=document.getElementById('dsk-gk-month').value;
+  var yy=document.getElementById('dsk-gk-year').value;
+  var myCode=_dskMyCode||'XXXX';
+  var key=dskLkGenKey(mm,yy,2,myCode);
+  _dskLastKey=key;
+  document.getElementById('dsk-gk-key-text').textContent=key;
+  document.getElementById('dsk-gk-key-info').textContent='Agent: '+name+' · '+mm+'/20'+yy+' · L2';
+  document.getElementById('dsk-gk-result').style.display='block';
+}
+function dskGkCopy(){
+  if(!_dskLastKey)return;
+  navigator.clipboard.writeText(_dskLastKey).then(function(){toast('📋 Copy แล้วครับ');});
+}
+
+dskLkInit();
+
 // ══════════════════════════════════════
 // FK MODE — DESKTOP
 // ══════════════════════════════════════
