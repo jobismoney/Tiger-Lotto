@@ -50,9 +50,10 @@ function fkAutoSel(d){
     });
   }
   fkUpdateKlbBtns(d);
-  // pak button โชว์เฉพาะ d=1
+  // pak button โชว์เฉพาะ d=1 และไม่มี /
   var pakBtn=document.getElementById('pak-open-btn');
-  if(pakBtn) pakBtn.style.display=(d===1)?'block':'none';
+  var _hasSep=fkBuf.indexOf('/')>=0||fkBuf.indexOf('=')>=0;
+  if(pakBtn) pakBtn.style.display=(d===1&&!_hasSep)?'block':'none';
 }
 
 function fkUpdateKlbBtns(d){
@@ -213,6 +214,54 @@ function fkCommit(){
 }
 
 
+
+function normalizeQRData(data){
+  if(data.e){
+    return {
+      sender: data.s||'', receiver: data.r||'', pg: data.p||1,
+      entries: (data.e||[]).map(function(e){
+        var lekVal=e.l||e.lek||'';
+        function genPerms(l){
+          if(l.length<=1)return[l];
+          var res={};
+          for(var i=0;i<l.length;i++){var r=l.slice(0,i)+l.slice(i+1);genPerms(r).forEach(function(p){res[l[i]+p]=1;});}
+          return Object.keys(res).sort();
+        }
+        function expandFlag(flag,mainPrice){
+          if(!flag)return[];
+          var perms=genPerms(String(lekVal)).filter(function(p){return p!==String(lekVal);});
+          if(flag===1)return perms.map(function(p){return{perm:p,price:mainPrice};});
+          if(Array.isArray(flag))return perms.map(function(p,i){return{perm:p,price:flag[i]||mainPrice};});
+          return[];
+        }
+        return {
+          lek:String(lekVal), d:String(lekVal).length,
+          bon:e.b||e.bon||null, tod:e.t||e.tod||null,
+          lang:e.la||e.lang||null, na:e.n||e.na||null,
+          kd:{
+            bon:expandFlag(e.kb,e.b||e.bon||0),
+            lang:expandFlag(e.kl,e.la||e.lang||0),
+            na:expandFlag(e.kn,e.n||e.na||0)
+          },
+          paks:(e.pk||[]).map(function(p){
+            return{type:p.tp,pos:p.ps,price:p.pr,
+              typeLabel:({'3bon':'บน','2lang':'ล่าง'}[p.tp]||p.tp),
+              posLabel:({na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.ps]||p.ps)};
+          })
+        };
+      })
+    };
+  }
+  if(data.entries){
+    data.entries=data.entries.map(function(e){
+      return{lek:String(e.lek||''),d:e.d||(String(e.lek||'').length),
+        bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
+        kd:e.kd||{},paks:e.paks||[]};
+    });
+  }
+  return data;
+}
+
 // ══════════════════════════════════════
 // SCAN QR (iframe popup)
 // ══════════════════════════════════════
@@ -238,16 +287,14 @@ window.addEventListener('message',function(ev){
   imps.forEach(function(imp){
     try{
       var json=decodeURIComponent(escape(atob(imp)));
-      var data=JSON.parse(json);
-      // normalize entries
-      var ents=data.entries||data.e||[];
-      ents.forEach(function(e){
+      var raw=JSON.parse(json);
+      var data=normalizeQRData(raw);
+      (data.entries||[]).forEach(function(e){
         var lek=String(e.lek||'');if(!lek)return;
         eid++;
-        var kd=e.kd||{};
         entries.unshift({id:eid,lek:lek,d:lek.length,
           bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
-          kd:kd,paks:e.paks||[]});
+          kd:e.kd||{},paks:e.paks||[]});
         totalAdded++;
       });
     }catch(err){toast('อ่าน QR ไม่ได้: '+err.message);}
@@ -3998,9 +4045,10 @@ function fkAutoSel(d){
     });
   }
   fkUpdateKlbBtns(d);
-  // pak button โชว์เฉพาะ d=1
+  // pak button โชว์เฉพาะ d=1 และไม่มี /
   var pakBtn=document.getElementById('pak-open-btn');
-  if(pakBtn) pakBtn.style.display=(d===1)?'block':'none';
+  var _hasSep=fkBuf.indexOf('/')>=0||fkBuf.indexOf('=')>=0;
+  if(pakBtn) pakBtn.style.display=(d===1&&!_hasSep)?'block':'none';
 }
 
 function fkUpdateKlbBtns(d){
@@ -4161,6 +4209,54 @@ function fkCommit(){
 }
 
 
+
+function normalizeQRData(data){
+  if(data.e){
+    return {
+      sender: data.s||'', receiver: data.r||'', pg: data.p||1,
+      entries: (data.e||[]).map(function(e){
+        var lekVal=e.l||e.lek||'';
+        function genPerms(l){
+          if(l.length<=1)return[l];
+          var res={};
+          for(var i=0;i<l.length;i++){var r=l.slice(0,i)+l.slice(i+1);genPerms(r).forEach(function(p){res[l[i]+p]=1;});}
+          return Object.keys(res).sort();
+        }
+        function expandFlag(flag,mainPrice){
+          if(!flag)return[];
+          var perms=genPerms(String(lekVal)).filter(function(p){return p!==String(lekVal);});
+          if(flag===1)return perms.map(function(p){return{perm:p,price:mainPrice};});
+          if(Array.isArray(flag))return perms.map(function(p,i){return{perm:p,price:flag[i]||mainPrice};});
+          return[];
+        }
+        return {
+          lek:String(lekVal), d:String(lekVal).length,
+          bon:e.b||e.bon||null, tod:e.t||e.tod||null,
+          lang:e.la||e.lang||null, na:e.n||e.na||null,
+          kd:{
+            bon:expandFlag(e.kb,e.b||e.bon||0),
+            lang:expandFlag(e.kl,e.la||e.lang||0),
+            na:expandFlag(e.kn,e.n||e.na||0)
+          },
+          paks:(e.pk||[]).map(function(p){
+            return{type:p.tp,pos:p.ps,price:p.pr,
+              typeLabel:({'3bon':'บน','2lang':'ล่าง'}[p.tp]||p.tp),
+              posLabel:({na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.ps]||p.ps)};
+          })
+        };
+      })
+    };
+  }
+  if(data.entries){
+    data.entries=data.entries.map(function(e){
+      return{lek:String(e.lek||''),d:e.d||(String(e.lek||'').length),
+        bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
+        kd:e.kd||{},paks:e.paks||[]};
+    });
+  }
+  return data;
+}
+
 // ══════════════════════════════════════
 // SCAN QR (iframe popup)
 // ══════════════════════════════════════
@@ -4186,16 +4282,14 @@ window.addEventListener('message',function(ev){
   imps.forEach(function(imp){
     try{
       var json=decodeURIComponent(escape(atob(imp)));
-      var data=JSON.parse(json);
-      // normalize entries
-      var ents=data.entries||data.e||[];
-      ents.forEach(function(e){
+      var raw=JSON.parse(json);
+      var data=normalizeQRData(raw);
+      (data.entries||[]).forEach(function(e){
         var lek=String(e.lek||'');if(!lek)return;
         eid++;
-        var kd=e.kd||{};
         entries.unshift({id:eid,lek:lek,d:lek.length,
           bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
-          kd:kd,paks:e.paks||[]});
+          kd:e.kd||{},paks:e.paks||[]});
         totalAdded++;
       });
     }catch(err){toast('อ่าน QR ไม่ได้: '+err.message);}
