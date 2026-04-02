@@ -197,6 +197,19 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 .pak-btns{display:flex;gap:8px;}
 .pak-btn-cancel{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;color:var(--lg);cursor:pointer;}
 .pak-btn-add{flex:2;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;padding:12px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;color:#111;cursor:pointer;}
+
+/* ── LICENSE KEY ── */
+#lk-screen{position:fixed;inset:0;background:#0a0c14;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+#lk-screen.hide{display:none;}
+.lk-logo{font-size:48px;margin-bottom:8px;}
+.lk-title{font-size:22px;font-weight:900;color:var(--gold);font-family:'Sarabun',sans-serif;margin-bottom:4px;}
+.lk-sub{font-size:13px;color:var(--lg);font-family:'Sarabun',sans-serif;margin-bottom:20px;text-align:center;}
+.lk-inp{width:100%;max-width:320px;background:#0d0f18;border:2px solid var(--border);border-radius:12px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:22px;font-weight:900;color:var(--gold);text-align:center;letter-spacing:3px;outline:none;margin-bottom:12px;}
+.lk-inp:focus{border-color:var(--gold);}
+.lk-btn{width:100%;max-width:320px;background:linear-gradient(135deg,var(--gold),#c9a010);border:none;border-radius:12px;padding:14px;font-family:'Sarabun',sans-serif;font-size:17px;font-weight:900;color:#111;cursor:pointer;}
+.lk-err{font-size:13px;color:#f87171;font-family:'Sarabun',sans-serif;margin-top:10px;text-align:center;min-height:20px;}
+.lk-agent{font-size:14px;color:#4ade80;font-family:'Sarabun',sans-serif;margin-top:8px;text-align:center;}
+
 </style>
 </head>
 <body>
@@ -402,7 +415,89 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 
 <div id="_toast"></div>
 
+
+<!-- LICENSE KEY SCREEN -->
+<div id="lk-screen">
+  <div class="lk-logo">🐯</div>
+  <div class="lk-title">T999 ลูกค้า</div>
+  <div class="lk-sub">ใส่ License Key จาก Agent ของคุณครับ</div>
+  <input class="lk-inp" id="lk-inp" type="text" placeholder="T999-XXXX-XXXX-XXXX" maxlength="19"
+    oninput="this.value=this.value.toUpperCase()">
+  <div class="lk-agent" id="lk-agent"></div>
+  <div class="lk-err" id="lk-err"></div>
+  <button class="lk-btn" onclick="lkSubmit()" style="margin-top:12px;">✅ เข้าใช้งาน</button>
+</div>
+
 <script>
+
+// ══════════════════════════════════════
+// LICENSE KEY (L1)
+// ══════════════════════════════════════
+var LK_KEY = 't999_lk_v1';
+var LK_AGENT_KEY = 't999_agent_v1';
+var LK_POS = {M1:5, LV:6, A1:7, A2:8, M2:9, A3:10, A4:11, Y1:13, Y2:17};
+var LK_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+
+function lkGetSaved(){ try{ return localStorage.getItem(LK_KEY)||''; }catch(e){return '';} }
+function lkSave(k){ try{ localStorage.setItem(LK_KEY,k); }catch(e){} }
+function lkAgentGet(){ try{ return localStorage.getItem(LK_AGENT_KEY)||''; }catch(e){return '';} }
+function lkAgentSave(a){ try{ localStorage.setItem(LK_AGENT_KEY,a); }catch(e){} }
+
+function lkVerify(keyStr){
+  if(!keyStr||keyStr.length!==19) return null;
+  if(!keyStr.startsWith('T999-')) return null;
+  var now = new Date();
+  var mm = String(now.getMonth()+1).padStart(2,'0');
+  var yy = String(now.getFullYear()).slice(-2);
+  // ตรวจ MMYY ± 1 เดือน
+  var dates = [];
+  var d0 = new Date(now); dates.push(d0);
+  var d1 = new Date(now); d1.setMonth(d1.getMonth()-1); dates.push(d1);
+  var d2 = new Date(now); d2.setMonth(d2.getMonth()+1); dates.push(d2);
+  var valid = false;
+  dates.forEach(function(d){
+    var m = String(d.getMonth()+1).padStart(2,'0');
+    var y = String(d.getFullYear()).slice(-2);
+    var expected = m[0]+m[1]+y[1]+y[0];
+    var code = (keyStr[LK_POS.M1]||'')+(keyStr[LK_POS.M2]||'')+(keyStr[LK_POS.Y1]||'')+(keyStr[LK_POS.Y2]||'');
+    // level ต้องเป็น 1 (ลูกค้า)
+    if(code===expected && keyStr[LK_POS.LV]==='1') valid=true;
+  });
+  if(!valid) return null;
+  // extract agent code
+  var agentCode = (keyStr[LK_POS.A1]||'')+(keyStr[LK_POS.A2]||'')+(keyStr[LK_POS.A3]||'')+(keyStr[LK_POS.A4]||'');
+  return {agentCode: agentCode};
+}
+
+function lkSubmit(){
+  var val = document.getElementById('lk-inp').value.trim().toUpperCase();
+  var result = lkVerify(val);
+  if(!result){
+    document.getElementById('lk-err').textContent = '❌ Key ไม่ถูกต้องหรือหมดอายุครับ';
+    return;
+  }
+  lkSave(val);
+  lkAgentSave(result.agentCode);
+  // set agent ใน profile
+  profile.agent = result.agentCode;
+  saveProfile();
+  document.getElementById('lk-screen').classList.add('hide');
+  updateHdr();
+  toast('✅ เข้าใช้งานได้แล้วครับ');
+}
+
+function lkInit(){
+  var saved = lkGetSaved();
+  if(saved && lkVerify(saved)){
+    document.getElementById('lk-screen').classList.add('hide');
+    // sync agent
+    var agentCode = lkAgentGet();
+    if(agentCode && !profile.agent){ profile.agent=agentCode; saveProfile(); }
+  }
+  // ถ้า key หมดอายุ → แสดงหน้าใส่ key ใหม่
+}
+lkInit();
+
 // ══════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════

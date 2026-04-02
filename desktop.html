@@ -28,6 +28,214 @@ var _globalPgNum = 0; // global counter สำหรับ QR id unique
     window.location.href='index.html';
   }
 })();
+
+
+// ══════════════════════════════════════
+// FK MODE — DESKTOP
+// ══════════════════════════════════════
+var _deskFKMode = false;
+var _dFKBuf = '', _dFKSel = {bon:false,tod:false,lang:false,na:false};
+var _dFKKlb = {bon:false,lang:false,na:false};
+var _dFKUserOverride = false;
+var _dFK_DEFAULT = {1:['bon','lang'],2:['bon','lang'],3:['bon','tod'],4:['tod'],5:['tod']};
+var _dFK_COLOR = {bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
+var _dFK_LABEL = {bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
+
+function deskFKToggleMode(){
+  _deskFKMode = !_deskFKMode;
+  var fkArea = document.getElementById('fk-area-desk');
+  var lbl = document.getElementById('fk-mode-lbl');
+  var pfields = document.getElementById('pfields');
+  var kpBtns = document.getElementById('kp-action-btns');
+  if(_deskFKMode){
+    if(fkArea) fkArea.classList.add('show');
+    if(pfields) pfields.style.display='none';
+    if(lbl) lbl.textContent='⚡ FK mode';
+    _dFKBuf=''; _dFKUserOverride=false;
+    deskFKAutoSel(2); deskFKRender();
+  } else {
+    if(fkArea) fkArea.classList.remove('show');
+    if(pfields) pfields.style.display='';
+    if(lbl) lbl.textContent='⌨️ numpad';
+  }
+}
+
+function deskFKAutoSel(d){
+  d=d||2;
+  if(d>=4){
+    ['bon','tod','lang','na'].forEach(function(t){
+      _dFKSel[t]=(t==='tod');
+      var btn=document.getElementById('fkt-desk-'+t);
+      if(btn)btn.className='fk-tbtn-desk'+((_dFKSel[t])?' on-'+t:'');
+    });
+    _dFKKlb={bon:false,lang:false,na:false};
+  } else if(!_dFKUserOverride){
+    var def=_dFK_DEFAULT[d]||['bon','lang'];
+    ['bon','tod','lang','na'].forEach(function(t){
+      _dFKSel[t]=def.indexOf(t)>=0;
+      var btn=document.getElementById('fkt-desk-'+t);
+      if(btn)btn.className='fk-tbtn-desk'+((_dFKSel[t])?' on-'+t:'');
+    });
+  }
+  deskFKUpdateKlb(d);
+}
+
+function deskFKUpdateKlb(d){
+  d=d||2;
+  var lbl=d===2?'กลับ':'ชุด';
+  ['bon','lang','na'].forEach(function(t){
+    var btn=document.getElementById('fkk-desk-'+t);if(!btn)return;
+    var show=_dFKSel[t]&&(d>=2&&d<=3);
+    btn.style.display=show?'block':'none';
+    if(show){btn.textContent=lbl;btn.className='fk-klb-desk'+(_dFKKlb[t]?' on':'');}
+  });
+}
+
+function deskFKRender(){
+  var el=document.getElementById('fk-text-desk');
+  var hint=document.getElementById('fk-hint-desk');
+  if(!el)return;
+  if(!_dFKBuf){el.textContent='—';el.style.color='#555';el.style.fontSize='28px';hint.innerHTML='กดเลข<br>แล้ว =';return;}
+  el.style.color='var(--gold)';
+  el.textContent=_dFKBuf.replace(/x/gi,'×');
+  var len=_dFKBuf.length;
+  el.style.fontSize=len<=8?'28px':len<=12?'22px':'16px';
+  var types=['bon','tod','lang','na'].filter(function(t){return _dFKSel[t];});
+  var d2=_dFKBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||2;
+  var klbWord=d2===2?'ก':'ช';
+  hint.innerHTML=types.map(function(t){
+    return '<span style="color:'+_dFK_COLOR[t]+'">'+_dFK_LABEL[t]+(_dFKKlb[t]?klbWord:'')+'</span>';
+  }).join(' <span style="color:#555">×</span> ');
+}
+
+function deskFKToggle(t){
+  var d=_dFKBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
+  if(d>=4)return;
+  _dFKUserOverride=true;
+  _dFKSel[t]=!_dFKSel[t];
+  if(!_dFKSel[t])_dFKKlb[t]=false;
+  var btn=document.getElementById('fkt-desk-'+t);
+  if(btn)btn.className='fk-tbtn-desk'+((_dFKSel[t])?' on-'+t:'');
+  deskFKUpdateKlb(d); deskFKRender();
+}
+
+function deskFKToggleKlb(t){
+  if(!_dFKSel[t])return;
+  _dFKKlb[t]=!_dFKKlb[t];
+  var btn=document.getElementById('fkk-desk-'+t);
+  if(btn)btn.className='fk-klb-desk'+(_dFKKlb[t]?' on':'');
+  deskFKRender();
+}
+
+function deskFKNum(n){
+  if(_dFKBuf.indexOf('=')>=0){_dFKBuf+=n;}
+  else{
+    var parts=_dFKBuf.split('/');var last=parts[parts.length-1];
+    if(last.length>=5)return;
+    if(parts.length>1&&last.length>0&&(last.length+1)>parts[0].length){toast('เลขคนละประเภท');return;}
+    var prevLen=_dFKBuf.split('=')[0].split('/')[0].length;
+    _dFKBuf+=n;
+    var fl=_dFKBuf.split('=')[0].split('/')[0];
+    if(fl.length!==prevLen)_dFKUserOverride=false;
+    if(fl.length>=1)deskFKAutoSel(fl.length);
+  }
+  deskFKUpdateKlb(); deskFKRender();
+}
+
+function deskFKSep(){
+  if(_dFKBuf.indexOf('=')>=0)return;
+  var parts=_dFKBuf.split('/');var last=parts[parts.length-1];
+  if(!last||!last.length)return;
+  if(parts[0].length!==last.length){toast('เลขคนละประเภท');return;}
+  _dFKBuf+='/'; deskFKRender();
+}
+
+function deskFKMul(){
+  if(_dFKBuf.indexOf('=')>=0){
+    var pp=_dFKBuf.split('=')[1]||'';
+    var ps=pp.split('x');
+    if(!pp||!ps[ps.length-1])return;
+    var types=['bon','tod','lang','na'].filter(function(t){return _dFKSel[t];});
+    var d=_dFKBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
+    if(ps.length>=types.length){
+      if(d>=4)return;
+      var next=null;
+      ['bon','tod','lang','na'].forEach(function(t){if(!next&&!_dFKSel[t])next=t;});
+      if(!next)return;
+      _dFKSel[next]=true;_dFKUserOverride=true;
+      var btn=document.getElementById('fkt-desk-'+next);
+      if(btn)btn.className='fk-tbtn-desk on-'+next;
+      deskFKUpdateKlb();
+    }
+    _dFKBuf+='x'; deskFKRender();
+  }
+}
+
+function deskFKDel(){
+  if(!_dFKBuf)return;
+  var prevLen=_dFKBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length;
+  _dFKBuf=_dFKBuf.slice(0,-1);
+  if(!_dFKBuf){_dFKUserOverride=false;deskFKAutoSel(2);}
+  else{
+    var fl=_dFKBuf.split('=')[0].split('/')[0].replace(/\D/g,'');
+    if(fl.length!==prevLen)_dFKUserOverride=false;
+    if(fl.length>=1)deskFKAutoSel(fl.length);
+  }
+  deskFKUpdateKlb(); deskFKRender();
+}
+
+function deskFKEq(){
+  if(_dFKBuf.indexOf('=')<0){
+    var leks=_dFKBuf.split('/').filter(function(s){return s.replace(/\D/g,'').length>0;});
+    if(!leks.length){toast('กรอกเลขก่อนครับ');return;}
+    _dFKBuf+='='; deskFKUpdateKlb(); deskFKRender(); return;
+  }
+  deskFKCommit();
+}
+
+function deskFKCommit(){
+  if(!curCustId){toast('เลือกลูกค้าก่อนครับ');return;}
+  var parts=_dFKBuf.split('=');
+  var lekPart=parts[0]; var pricePart=parts[1]||'';
+  var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
+  var ps=pricePart.split('x').map(function(s){return parseInt(s.replace(/\D/g,''))||0;});
+  if(!leks.length){toast('ไม่มีเลขครับ');return;}
+  if(!ps[0]){toast('ใส่ราคาก่อนครับ');return;}
+  var types=['bon','tod','lang','na'].filter(function(t){return _dFKSel[t];});
+  if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
+  if(ps.length<types.length){toast('ราคายังไม่ครบครับ');return;}
+  var pm={};types.forEach(function(t,i){pm[t]=ps[i]||0;});
+  var d=leks[0].length;var added=0;
+  if(!custEntries[curCustId])custEntries[curCustId]=[];
+  if(!custEid[curCustId])custEid[curCustId]=0;
+  leks.forEach(function(l){
+    function getPermsDesk(s){
+      if(s.length<=1)return[s];
+      var res={};
+      for(var i=0;i<s.length;i++){var r=s.slice(0,i)+s.slice(i+1);getPermsDesk(r).forEach(function(p){res[s[i]+p]=1;});}
+      return Object.keys(res).sort();
+    }
+    var kd={};
+    ['bon','lang','na'].forEach(function(t){
+      if(_dFKSel[t]&&_dFKKlb[t]&&pm[t]){
+        var perms=getPermsDesk(l).filter(function(p){return p!==l;});
+        if(perms.length)kd[t]=perms.map(function(p){return{perm:p,price:pm[t]};});
+      }
+    });
+    custEid[curCustId]++;
+    custEntries[curCustId].unshift({
+      id:custEid[curCustId],lek:l,d:l.length,
+      bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,
+      kd:kd,paks:[]
+    });
+    added++;
+  });
+  save(); renderHist(); renderCustList(); updateSummary();
+  toast('✅ เพิ่ม '+added+' รายการ');
+  _dFKBuf='';_dFKKlb={bon:false,lang:false,na:false};_dFKUserOverride=false;
+  deskFKAutoSel(d||2); deskFKUpdateKlb(); deskFKRender();
+}
+
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -396,6 +604,49 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:#1e2235;border-radius:2px;}
+
+/* ── FK MODE (desktop) ── */
+.fk-area-desk{display:none;flex-direction:column;gap:5px;padding:8px;}
+.fk-area-desk.show{display:flex;}
+.fk-display-desk{background:#0d0f1a;border:2px solid var(--border);border-radius:12px;padding:8px 14px;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+#fk-text-desk{font-family:'Sarabun',sans-serif;font-size:28px;font-weight:900;color:#555;letter-spacing:2px;flex:1;word-break:break-all;line-height:1.1;}
+#fk-hint-desk{font-size:11px;color:var(--lg);text-align:right;line-height:1.6;flex-shrink:0;}
+.fk-type-row-desk{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+.fk-type-col-desk{display:flex;flex-direction:column;gap:3px;}
+.fk-tbtn-desk{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;padding:6px 4px;cursor:pointer;text-align:center;}
+.fk-tbtn-desk.on-bon{background:rgba(96,165,250,.15);border-color:#60a5fa;color:#60a5fa;}
+.fk-tbtn-desk.on-tod{background:rgba(244,114,182,.15);border-color:#f472b6;color:#f472b6;}
+.fk-tbtn-desk.on-lang{background:rgba(52,211,153,.15);border-color:#34d399;color:#34d399;}
+.fk-tbtn-desk.on-na{background:rgba(251,146,60,.15);border-color:#fb923c;color:#fb923c;}
+.fk-klb-desk{width:100%;background:#2a2000;border:1px solid #d4a017;border-radius:6px;color:#d4a017;font-family:'Sarabun',sans-serif;font-size:11px;font-weight:800;padding:3px 2px;cursor:pointer;text-align:center;display:none;}
+.fk-klb-desk.on{background:#d4a017;color:#000;}
+.fk-numpad-desk{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;}
+.fk-btn-desk{background:var(--card);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:900;padding:9px 4px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;}
+.fk-btn-desk:active{background:#2a2d3a;}
+.fk-del-desk{color:var(--red);}
+.fk-sep-desk{color:var(--purple);font-size:16px;}
+.fk-mul-desk{background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.3);color:var(--gold);font-size:14px;}
+.fk-eq-desk{background:linear-gradient(135deg,var(--green),#1a7a3e);color:#fff;font-size:15px;}
+.fk-mode-toggle{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.3);border-radius:6px;color:var(--gold);font-family:'Sarabun',sans-serif;font-size:11px;font-weight:800;padding:3px 8px;cursor:pointer;}
+
+
+
+
+/* ── LICENSE KEY SCREEN ── */
+#lk-screen{position:fixed;inset:0;background:#0a0c14;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+#lk-screen.hide{display:none;}
+.lk-logo{font-size:52px;margin-bottom:8px;}
+.lk-title{font-size:24px;font-weight:900;color:var(--gold);font-family:'Sarabun',sans-serif;margin-bottom:4px;}
+.lk-sub{font-size:13px;color:var(--lg);font-family:'Sarabun',sans-serif;margin-bottom:24px;text-align:center;line-height:1.6;}
+.lk-inp{width:100%;max-width:340px;background:#0d0f18;border:2px solid var(--border);border-radius:12px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:22px;font-weight:900;color:var(--gold);text-align:center;letter-spacing:3px;outline:none;margin-bottom:8px;}
+.lk-inp:focus{border-color:var(--gold);}
+.lk-btn{width:100%;max-width:340px;background:linear-gradient(135deg,var(--gold),#c9a010);border:none;border-radius:12px;padding:14px;font-family:'Sarabun',sans-serif;font-size:17px;font-weight:900;color:#111;cursor:pointer;margin-top:8px;}
+.lk-err{font-size:13px;color:#f87171;font-family:'Sarabun',sans-serif;margin-top:6px;text-align:center;min-height:18px;}
+/* genkey popup */
+#dsk-genkey-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9000;align-items:center;justify-content:center;}
+#dsk-genkey-ov.show{display:flex;}
+.dsk-gk-box{background:#13161f;border:1px solid var(--border);border-radius:16px;padding:20px;width:90%;max-width:400px;max-height:90vh;overflow-y:auto;}
+
 </style>
 <!-- build:20260312_160439 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -412,6 +663,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <button class="hbtn" onclick="openAnalyze()"><span class="hbtn-icon">📊</span><span class="hbtn-lbl">วิเคราะห์</span></button>
     <button class="hbtn" onclick="openSettings()"><span class="hbtn-icon">⚙️</span><span class="hbtn-lbl">ตั้งค่า</span></button>
     <button class="hbtn" onclick="showSlip()"><span class="hbtn-icon">📋</span><span class="hbtn-lbl">ดูโพย</span></button>
+    <button class="hbtn" onclick="dskOpenGenKey()"><span class="hbtn-icon">🔑</span><span class="hbtn-lbl">Key</span></button>
     <button class="hbtn gold" onclick="openNgodModal()"><span class="hbtn-icon">📅</span><span class="hbtn-lbl">งวดใหม่</span></button>
   </div>
 </div>
@@ -422,6 +674,32 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <button class="tab-nav-btn" onclick="switchZone(3,this)">⌨️ คีย์</button>
   <button class="tab-nav-btn" onclick="switchZone(4,this)">📊 สรุป</button>
 </div>
+
+  <div class="pw-title">T999</div>
+  <div class="pw-sub" id="pw-sub">ใส่รหัสผ่านครับ</div>
+  <div class="pw-dots" id="pw-dots">
+    <div class="pw-dot" id="pw-d0"></div>
+    <div class="pw-dot" id="pw-d1"></div>
+    <div class="pw-dot" id="pw-d2"></div>
+    <div class="pw-dot" id="pw-d3"></div>
+  </div>
+  <div class="pw-pad">
+    <button class="pw-btn" onclick="pwNum('1')">1</button>
+    <button class="pw-btn" onclick="pwNum('2')">2</button>
+    <button class="pw-btn" onclick="pwNum('3')">3</button>
+    <button class="pw-btn" onclick="pwNum('4')">4</button>
+    <button class="pw-btn" onclick="pwNum('5')">5</button>
+    <button class="pw-btn" onclick="pwNum('6')">6</button>
+    <button class="pw-btn" onclick="pwNum('7')">7</button>
+    <button class="pw-btn" onclick="pwNum('8')">8</button>
+    <button class="pw-btn" onclick="pwNum('9')">9</button>
+    <button class="pw-btn" onclick="pwNum('0')" style="grid-column:2;">0</button>
+    <button class="pw-btn pw-del" onclick="pwDel()">⌫</button>
+  </div>
+  <div class="pw-err" id="pw-err"></div>
+  <div class="pw-set-link" onclick="pwSetMode()" id="pw-set-link">ตั้งรหัสใหม่</div>
+</div>
+
 <div class="main" id="main-grid">
 
   <!-- ZONE 1: แฟ้มลูกค้า -->
@@ -479,6 +757,54 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     </div>
     <div class="zbody" id="kp-zone-body">
       <div class="kp-body" id="kp-inner">
+
+        <!-- FK MODE TOGGLE -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px 2px;">
+          <span style="font-size:11px;color:var(--lg);" id="fk-mode-lbl">⌨️ numpad</span>
+          <button class="fk-mode-toggle" onclick="deskFKToggleMode()">สลับ FK</button>
+        </div>
+
+        <!-- FK AREA -->
+        <div class="fk-area-desk" id="fk-area-desk">
+          <div class="fk-display-desk">
+            <div id="fk-text-desk">—</div>
+            <div id="fk-hint-desk">กดเลข<br>แล้ว =</div>
+          </div>
+          <div class="fk-type-row-desk">
+            <div class="fk-type-col-desk">
+              <button class="fk-tbtn-desk" id="fkt-desk-bon" onclick="deskFKToggle('bon')">บน</button>
+              <button class="fk-klb-desk" id="fkk-desk-bon" onclick="deskFKToggleKlb('bon')"></button>
+            </div>
+            <div class="fk-type-col-desk">
+              <button class="fk-tbtn-desk" id="fkt-desk-tod" onclick="deskFKToggle('tod')">โต๊ด</button>
+              <div style="height:24px;"></div>
+            </div>
+            <div class="fk-type-col-desk">
+              <button class="fk-tbtn-desk" id="fkt-desk-lang" onclick="deskFKToggle('lang')">ล่าง</button>
+              <button class="fk-klb-desk" id="fkk-desk-lang" onclick="deskFKToggleKlb('lang')"></button>
+            </div>
+            <div class="fk-type-col-desk">
+              <button class="fk-tbtn-desk" id="fkt-desk-na" onclick="deskFKToggle('na')">หน้า</button>
+              <button class="fk-klb-desk" id="fkk-desk-na" onclick="deskFKToggleKlb('na')"></button>
+            </div>
+          </div>
+          <div class="fk-numpad-desk">
+            <button class="fk-btn-desk" onclick="deskFKNum('1')">1</button>
+            <button class="fk-btn-desk" onclick="deskFKNum('2')">2</button>
+            <button class="fk-btn-desk" onclick="deskFKNum('3')">3</button>
+            <button class="fk-btn-desk fk-del-desk" onclick="deskFKDel()">⌫</button>
+            <button class="fk-btn-desk" onclick="deskFKNum('4')">4</button>
+            <button class="fk-btn-desk" onclick="deskFKNum('5')">5</button>
+            <button class="fk-btn-desk" onclick="deskFKNum('6')">6</button>
+            <button class="fk-btn-desk fk-sep-desk" onclick="deskFKSep()">/</button>
+            <button class="fk-btn-desk" onclick="deskFKNum('7')">7</button>
+            <button class="fk-btn-desk" onclick="deskFKNum('8')">8</button>
+            <button class="fk-btn-desk" onclick="deskFKNum('9')">9</button>
+            <button class="fk-btn-desk fk-mul-desk" onclick="deskFKMul()">×</button>
+            <button class="fk-btn-desk" style="grid-column:span 2;" onclick="deskFKNum('0')">0</button>
+            <button class="fk-btn-desk fk-eq-desk" style="grid-column:span 2;" onclick="deskFKEq()">= OK</button>
+          </div>
+        </div>
 
         <!-- เลขที่กำลังคีย์ -->
         <div class="marquee-wrap" id="marquee-wrap">
@@ -4936,5 +5262,54 @@ function closeConfirm2(){ document.getElementById('modal-confirm2').classList.re
 function confirm2Action1(){ closeConfirm2(); if(_confirm2Cb1) _confirm2Cb1(); }
 function confirm2Action2(){ closeConfirm2(); if(_confirm2Cb2) _confirm2Cb2(); }
 </script>
+
+<!-- LICENSE KEY SCREEN (L3) -->
+<div id="lk-screen">
+  <div class="lk-logo">🐯</div>
+  <div class="lk-title">T999 เจ้ามือ</div>
+  <div class="lk-sub">ใส่ License Key (L3)<br>จาก Admin ครับ</div>
+  <input class="lk-inp" id="lk-inp" type="text" placeholder="T999-XXXX-XXXX-XXXX" maxlength="19"
+    oninput="this.value=this.value.toUpperCase()">
+  <div class="lk-err" id="lk-err"></div>
+  <button class="lk-btn" onclick="lkSubmit()">✅ เข้าใช้งาน</button>
+</div>
+
+<!-- GENKEY POPUP (สร้าง L2 ให้ Agent) -->
+<div id="dsk-genkey-ov">
+  <div class="dsk-gk-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:900;color:var(--gold);">🔑 สร้าง Key ให้ Agent</div>
+      <button onclick="dskCloseGenKey()" style="background:none;border:none;color:#7a8aaa;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span style="font-size:13px;color:var(--lg);font-weight:700;width:80px;">ชื่อ Agent</span>
+        <input id="dsk-gk-name" placeholder="เช่น แมน, ป้าดา" style="flex:1;background:#0d0f18;border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;outline:none;">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span style="font-size:13px;color:var(--lg);font-weight:700;width:80px;">เดือน/ปี</span>
+        <select id="dsk-gk-month" style="flex:1;background:#0d0f18;border:1px solid var(--border);border-radius:8px;padding:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;outline:none;cursor:pointer;">
+          <option value="01">มกราคม</option><option value="02">กุมภาพันธ์</option>
+          <option value="03">มีนาคม</option><option value="04">เมษายน</option>
+          <option value="05">พฤษภาคม</option><option value="06">มิถุนายน</option>
+          <option value="07">กรกฎาคม</option><option value="08">สิงหาคม</option>
+          <option value="09">กันยายน</option><option value="10">ตุลาคม</option>
+          <option value="11">พฤศจิกายน</option><option value="12">ธันวาคม</option>
+        </select>
+        <select id="dsk-gk-year" style="width:80px;background:#0d0f18;border:1px solid var(--border);border-radius:8px;padding:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;outline:none;cursor:pointer;">
+          <option value="26">2026</option><option value="27">2027</option>
+          <option value="28">2028</option><option value="29">2029</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="dskGenKeyCreate()" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--gold),#c9a010);border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;color:#111;cursor:pointer;margin-bottom:12px;">✨ สร้าง Key</button>
+    <div id="dsk-gk-result" style="display:none;background:#0d0f18;border:1px solid var(--border);border-radius:10px;padding:14px;">
+      <div id="dsk-gk-key-text" style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:2px;text-align:center;"></div>
+      <div id="dsk-gk-key-info" style="font-size:11px;color:var(--lg);text-align:center;margin-top:4px;"></div>
+      <button onclick="dskGkCopy()" style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:8px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:800;color:#f0f2ff;cursor:pointer;margin-top:10px;">📋 Copy Key</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

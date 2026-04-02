@@ -20,6 +20,126 @@
 })();
 
 
+
+// ══════════════════════════════════════
+// LICENSE KEY SYSTEM (L2 - Agent)
+// ══════════════════════════════════════
+var LK_STORE   = 't999_lk_app_v1';
+var LK_AGENT_S = 't999_lk_agent_v1';
+var LK_POS = {M1:5,LV:6,A1:7,A2:8,M2:9,A3:10,A4:11,Y1:13,Y2:17};
+var LK_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+var _lkAgentCode = '';
+
+function lkRandChar(){ return LK_CHARS[Math.floor(Math.random()*LK_CHARS.length)]; }
+
+function lkNameToCode(name){
+  name=(name||'XXXX').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  while(name.length<4)name=name+name;
+  var code='';
+  for(var i=0;i<4;i++) code+=LK_CHARS[name.charCodeAt(i%name.length)%LK_CHARS.length];
+  return code;
+}
+
+function lkVerify(keyStr, requiredLevel){
+  if(!keyStr||keyStr.length!==19) return null;
+  if(!keyStr.startsWith('T999-')) return null;
+  var lv=requiredLevel||2;
+  if(keyStr[LK_POS.LV]!==String(lv)) return null;
+  var now=new Date(), valid=false;
+  [-1,0,1].forEach(function(offset){
+    var d=new Date(now);d.setMonth(d.getMonth()+offset);
+    var m=String(d.getMonth()+1).padStart(2,'0');
+    var y=String(d.getFullYear()).slice(-2);
+    var expected=m[0]+m[1]+y[1]+y[0];
+    var code=(keyStr[LK_POS.M1]||'')+(keyStr[LK_POS.M2]||'')+(keyStr[LK_POS.Y1]||'')+(keyStr[LK_POS.Y2]||'');
+    if(code===expected)valid=true;
+  });
+  if(!valid)return null;
+  var agentCode=(keyStr[LK_POS.A1]||'')+(keyStr[LK_POS.A2]||'')+(keyStr[LK_POS.A3]||'')+(keyStr[LK_POS.A4]||'');
+  return {agentCode:agentCode, level:lv};
+}
+
+function lkGenKey(mm, yy, lv, agentCode){
+  var ac=(agentCode||'XXXX').split('');
+  var key=['T','9','9','9','-','X','X','X','X','-','X','X','X','X','-','X','X','X','X'];
+  for(var i=0;i<key.length;i++){
+    if(i<4||key[i]==='-')continue;
+    if(i===LK_POS.M1){key[i]=mm[0];continue;}
+    if(i===LK_POS.LV){key[i]=String(lv);continue;}
+    if(i===LK_POS.A1){key[i]=ac[0];continue;}
+    if(i===LK_POS.A2){key[i]=ac[1];continue;}
+    if(i===LK_POS.M2){key[i]=mm[1];continue;}
+    if(i===LK_POS.A3){key[i]=ac[2];continue;}
+    if(i===LK_POS.A4){key[i]=ac[3];continue;}
+    if(i===LK_POS.Y1){key[i]=yy[1];continue;}
+    if(i===LK_POS.Y2){key[i]=yy[0];continue;}
+    key[i]=lkRandChar();
+  }
+  return key.join('');
+}
+
+function lkSubmit(){
+  var val=document.getElementById('lk-inp').value.trim().toUpperCase();
+  var result=lkVerify(val,2);
+  if(!result){
+    document.getElementById('lk-err').textContent='❌ Key ไม่ถูกต้องหรือหมดอายุครับ';
+    document.getElementById('lk-ok').textContent='';
+    return;
+  }
+  try{localStorage.setItem(LK_STORE,val);localStorage.setItem(LK_AGENT_S,result.agentCode);}catch(e){}
+  _lkAgentCode=result.agentCode;
+  document.getElementById('lk-screen').classList.add('hide');
+  document.getElementById('lk-err').textContent='';
+  document.getElementById('lk-ok').textContent='✅ เข้าใช้งานได้แล้วครับ';
+}
+
+function lkInit(){
+  // auto-set month/year
+  var now=new Date();
+  var mm=String(now.getMonth()+1).padStart(2,'0');
+  var yy=String(now.getFullYear()).slice(-2);
+  var ms=document.getElementById('gk-month');
+  var ys=document.getElementById('gk-year');
+  if(ms)ms.value=mm; if(ys)ys.value=yy;
+  // check saved
+  try{
+    var saved=localStorage.getItem(LK_STORE)||'';
+    var agCode=localStorage.getItem(LK_AGENT_S)||'';
+    if(saved&&lkVerify(saved,2)){
+      document.getElementById('lk-screen').classList.add('hide');
+      _lkAgentCode=agCode;
+      return;
+    }
+  }catch(e){}
+}
+
+// ── GenKey for L1 ──
+var _gkLastKey='';
+function openGenKey(){
+  document.getElementById('genkey-ov').classList.add('show');
+  document.getElementById('gk-result').style.display='none';
+}
+function closeGenKey(){ document.getElementById('genkey-ov').classList.remove('show'); }
+function genKeyCreate(){
+  var name=document.getElementById('gk-name').value.trim();
+  if(!name){toast('ใส่ชื่อลูกค้าก่อนครับ');return;}
+  var mm=document.getElementById('gk-month').value;
+  var yy=document.getElementById('gk-year').value;
+  // agent code = code ของตัวเอง (ฝังใน key L1 เพื่อให้รู้ว่ามาจาก agent ไหน)
+  var myCode=_lkAgentCode||'XXXX';
+  var key=lkGenKey(mm,yy,1,myCode);
+  _gkLastKey=key;
+  document.getElementById('gk-key-text').textContent=key;
+  document.getElementById('gk-key-info').textContent='ลูกค้า: '+name+' · '+mm+'/'+yy;
+  document.getElementById('gk-result').style.display='block';
+}
+function gkCopy(){
+  if(!_gkLastKey)return;
+  navigator.clipboard.writeText(_gkLastKey).then(function(){toast('📋 Copy แล้วครับ');});
+}
+
+lkInit();
+
 // ══════════════════════════════════════
 // FK KEYBOARD (ไทย)
 // ══════════════════════════════════════
@@ -863,6 +983,31 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 .fk-mul{background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.3);color:var(--gold);font-size:16px;}
 .fk-eq{background:linear-gradient(135deg,var(--green),#1a7a3e);color:#fff;font-size:17px;}
 
+
+/* ── LICENSE KEY SCREEN ── */
+#lk-screen{position:fixed;inset:0;background:#0a0c14;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+#lk-screen.hide{display:none;}
+.lk-logo{font-size:48px;margin-bottom:8px;}
+.lk-title{font-size:22px;font-weight:900;color:var(--gold);font-family:'Sarabun',sans-serif;margin-bottom:4px;}
+.lk-sub{font-size:13px;color:var(--lg);font-family:'Sarabun',sans-serif;margin-bottom:20px;text-align:center;line-height:1.6;}
+.lk-inp{width:100%;max-width:320px;background:#0d0f18;border:2px solid var(--border);border-radius:12px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:22px;font-weight:900;color:var(--gold);text-align:center;letter-spacing:3px;outline:none;margin-bottom:8px;}
+.lk-inp:focus{border-color:var(--gold);}
+.lk-btn{width:100%;max-width:320px;background:linear-gradient(135deg,var(--gold),#c9a010);border:none;border-radius:12px;padding:14px;font-family:'Sarabun',sans-serif;font-size:17px;font-weight:900;color:#111;cursor:pointer;margin-top:8px;}
+.lk-err{font-size:13px;color:#f87171;font-family:'Sarabun',sans-serif;margin-top:6px;text-align:center;min-height:18px;}
+.lk-ok{font-size:13px;color:#4ade80;font-family:'Sarabun',sans-serif;margin-top:6px;text-align:center;}
+/* gen key popup */
+#genkey-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9000;align-items:center;justify-content:center;}
+#genkey-ov.show{display:flex;}
+.genkey-box{background:#13161f;border:1px solid var(--border);border-radius:16px;padding:20px;width:90%;max-width:380px;}
+.genkey-title{font-size:16px;font-weight:900;color:var(--gold);margin-bottom:14px;}
+.genkey-row{display:flex;gap:8px;margin-bottom:10px;align-items:center;}
+.genkey-lbl{font-size:13px;color:var(--lg);font-weight:700;width:80px;flex-shrink:0;}
+.genkey-inp{flex:1;background:#0d0f18;border:1px solid var(--border);border-radius:8px;padding:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;outline:none;}
+.genkey-sel{flex:1;background:#0d0f18;border:1px solid var(--border);border-radius:8px;padding:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;outline:none;cursor:pointer;}
+.genkey-result{background:#0d0f18;border:1px solid var(--border);border-radius:10px;padding:12px;margin:12px 0;display:none;}
+.genkey-key{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);letter-spacing:2px;text-align:center;}
+.genkey-info{font-size:11px;color:var(--lg);text-align:center;margin-top:4px;}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -892,6 +1037,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
     <div class="hdr-btns">
       <button class="hbtn" id="guide-btn"><span class="hbtn-icon">💡</span><span class="hbtn-lbl">วิธีใช้</span></button>
+      <button class="hbtn" onclick="openGenKey()" style="background:rgba(245,197,24,.1);border-color:rgba(245,197,24,.3);"><span class="hbtn-icon">🔑</span><span class="hbtn-lbl">Key</span></button>
       <button class="hbtn" id="hist-btn"><span class="hbtn-icon">📂</span><span class="hbtn-lbl">แฟ้ม</span></button>
       <button class="hbtn gold" id="new-ngod-btn"><span class="hbtn-icon">🎯</span><span class="hbtn-lbl">+ ชุดใหม่</span></button>
     </div>
@@ -3772,6 +3918,126 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 })();
 
 
+
+// ══════════════════════════════════════
+// LICENSE KEY SYSTEM (L2 - Agent)
+// ══════════════════════════════════════
+var LK_STORE   = 't999_lk_app_v1';
+var LK_AGENT_S = 't999_lk_agent_v1';
+var LK_POS = {M1:5,LV:6,A1:7,A2:8,M2:9,A3:10,A4:11,Y1:13,Y2:17};
+var LK_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+var _lkAgentCode = '';
+
+function lkRandChar(){ return LK_CHARS[Math.floor(Math.random()*LK_CHARS.length)]; }
+
+function lkNameToCode(name){
+  name=(name||'XXXX').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  while(name.length<4)name=name+name;
+  var code='';
+  for(var i=0;i<4;i++) code+=LK_CHARS[name.charCodeAt(i%name.length)%LK_CHARS.length];
+  return code;
+}
+
+function lkVerify(keyStr, requiredLevel){
+  if(!keyStr||keyStr.length!==19) return null;
+  if(!keyStr.startsWith('T999-')) return null;
+  var lv=requiredLevel||2;
+  if(keyStr[LK_POS.LV]!==String(lv)) return null;
+  var now=new Date(), valid=false;
+  [-1,0,1].forEach(function(offset){
+    var d=new Date(now);d.setMonth(d.getMonth()+offset);
+    var m=String(d.getMonth()+1).padStart(2,'0');
+    var y=String(d.getFullYear()).slice(-2);
+    var expected=m[0]+m[1]+y[1]+y[0];
+    var code=(keyStr[LK_POS.M1]||'')+(keyStr[LK_POS.M2]||'')+(keyStr[LK_POS.Y1]||'')+(keyStr[LK_POS.Y2]||'');
+    if(code===expected)valid=true;
+  });
+  if(!valid)return null;
+  var agentCode=(keyStr[LK_POS.A1]||'')+(keyStr[LK_POS.A2]||'')+(keyStr[LK_POS.A3]||'')+(keyStr[LK_POS.A4]||'');
+  return {agentCode:agentCode, level:lv};
+}
+
+function lkGenKey(mm, yy, lv, agentCode){
+  var ac=(agentCode||'XXXX').split('');
+  var key=['T','9','9','9','-','X','X','X','X','-','X','X','X','X','-','X','X','X','X'];
+  for(var i=0;i<key.length;i++){
+    if(i<4||key[i]==='-')continue;
+    if(i===LK_POS.M1){key[i]=mm[0];continue;}
+    if(i===LK_POS.LV){key[i]=String(lv);continue;}
+    if(i===LK_POS.A1){key[i]=ac[0];continue;}
+    if(i===LK_POS.A2){key[i]=ac[1];continue;}
+    if(i===LK_POS.M2){key[i]=mm[1];continue;}
+    if(i===LK_POS.A3){key[i]=ac[2];continue;}
+    if(i===LK_POS.A4){key[i]=ac[3];continue;}
+    if(i===LK_POS.Y1){key[i]=yy[1];continue;}
+    if(i===LK_POS.Y2){key[i]=yy[0];continue;}
+    key[i]=lkRandChar();
+  }
+  return key.join('');
+}
+
+function lkSubmit(){
+  var val=document.getElementById('lk-inp').value.trim().toUpperCase();
+  var result=lkVerify(val,2);
+  if(!result){
+    document.getElementById('lk-err').textContent='❌ Key ไม่ถูกต้องหรือหมดอายุครับ';
+    document.getElementById('lk-ok').textContent='';
+    return;
+  }
+  try{localStorage.setItem(LK_STORE,val);localStorage.setItem(LK_AGENT_S,result.agentCode);}catch(e){}
+  _lkAgentCode=result.agentCode;
+  document.getElementById('lk-screen').classList.add('hide');
+  document.getElementById('lk-err').textContent='';
+  document.getElementById('lk-ok').textContent='✅ เข้าใช้งานได้แล้วครับ';
+}
+
+function lkInit(){
+  // auto-set month/year
+  var now=new Date();
+  var mm=String(now.getMonth()+1).padStart(2,'0');
+  var yy=String(now.getFullYear()).slice(-2);
+  var ms=document.getElementById('gk-month');
+  var ys=document.getElementById('gk-year');
+  if(ms)ms.value=mm; if(ys)ys.value=yy;
+  // check saved
+  try{
+    var saved=localStorage.getItem(LK_STORE)||'';
+    var agCode=localStorage.getItem(LK_AGENT_S)||'';
+    if(saved&&lkVerify(saved,2)){
+      document.getElementById('lk-screen').classList.add('hide');
+      _lkAgentCode=agCode;
+      return;
+    }
+  }catch(e){}
+}
+
+// ── GenKey for L1 ──
+var _gkLastKey='';
+function openGenKey(){
+  document.getElementById('genkey-ov').classList.add('show');
+  document.getElementById('gk-result').style.display='none';
+}
+function closeGenKey(){ document.getElementById('genkey-ov').classList.remove('show'); }
+function genKeyCreate(){
+  var name=document.getElementById('gk-name').value.trim();
+  if(!name){toast('ใส่ชื่อลูกค้าก่อนครับ');return;}
+  var mm=document.getElementById('gk-month').value;
+  var yy=document.getElementById('gk-year').value;
+  // agent code = code ของตัวเอง (ฝังใน key L1 เพื่อให้รู้ว่ามาจาก agent ไหน)
+  var myCode=_lkAgentCode||'XXXX';
+  var key=lkGenKey(mm,yy,1,myCode);
+  _gkLastKey=key;
+  document.getElementById('gk-key-text').textContent=key;
+  document.getElementById('gk-key-info').textContent='ลูกค้า: '+name+' · '+mm+'/'+yy;
+  document.getElementById('gk-result').style.display='block';
+}
+function gkCopy(){
+  if(!_gkLastKey)return;
+  navigator.clipboard.writeText(_gkLastKey).then(function(){toast('📋 Copy แล้วครับ');});
+}
+
+lkInit();
+
 // ══════════════════════════════════════
 // FK KEYBOARD (ไทย)
 // ══════════════════════════════════════
@@ -4107,6 +4373,54 @@ fkAutoSel(2); fkRender();
       <button onclick="closeScan()" style="background:none;border:none;color:#7a8aaa;font-size:20px;cursor:pointer;">✕</button>
     </div>
     <iframe id="scan-iframe" src="" style="width:100%;height:500px;border:none;background:#0f1117;"></iframe>
+  </div>
+</div>
+
+
+<!-- LICENSE KEY SCREEN -->
+<div id="lk-screen">
+  <div class="lk-logo">🐯</div>
+  <div class="lk-title">T999 Agent</div>
+  <div class="lk-sub">ใส่ License Key (L2)<br>จากเจ้ามือของคุณครับ</div>
+  <input class="lk-inp" id="lk-inp" type="text" placeholder="T999-XXXX-XXXX-XXXX" maxlength="19"
+    oninput="this.value=this.value.toUpperCase()">
+  <div class="lk-err" id="lk-err"></div>
+  <div class="lk-ok" id="lk-ok"></div>
+  <button class="lk-btn" onclick="lkSubmit()">✅ เข้าใช้งาน</button>
+</div>
+
+<!-- GENKEY POPUP -->
+<div id="genkey-ov">
+  <div class="genkey-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div class="genkey-title">🔑 สร้าง Key ให้ลูกค้า</div>
+      <button onclick="closeGenKey()" style="background:none;border:none;color:#7a8aaa;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div class="genkey-row">
+      <span class="genkey-lbl">ชื่อลูกค้า</span>
+      <input class="genkey-inp" id="gk-name" placeholder="เช่น แมน, ดา">
+    </div>
+    <div class="genkey-row">
+      <span class="genkey-lbl">เดือน/ปี</span>
+      <select class="genkey-sel" id="gk-month">
+        <option value="01">มกราคม</option><option value="02">กุมภาพันธ์</option>
+        <option value="03">มีนาคม</option><option value="04">เมษายน</option>
+        <option value="05">พฤษภาคม</option><option value="06">มิถุนายน</option>
+        <option value="07">กรกฎาคม</option><option value="08">สิงหาคม</option>
+        <option value="09">กันยายน</option><option value="10">ตุลาคม</option>
+        <option value="11">พฤศจิกายน</option><option value="12">ธันวาคม</option>
+      </select>
+      <select class="genkey-sel" id="gk-year" style="max-width:80px;">
+        <option value="26">2026</option><option value="27">2027</option>
+        <option value="28">2028</option><option value="29">2029</option>
+      </select>
+    </div>
+    <button onclick="genKeyCreate()" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--gold),#c9a010);border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;color:#111;cursor:pointer;margin-bottom:10px;">✨ สร้าง Key</button>
+    <div class="genkey-result" id="gk-result">
+      <div class="genkey-key" id="gk-key-text"></div>
+      <div class="genkey-info" id="gk-key-info"></div>
+      <button onclick="gkCopy()" style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:8px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:800;color:#f0f2ff;cursor:pointer;margin-top:8px;">📋 Copy Key</button>
+    </div>
   </div>
 </div>
 
