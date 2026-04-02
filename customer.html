@@ -211,37 +211,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 .lk-agent{font-size:14px;color:#4ade80;font-family:'Sarabun',sans-serif;margin-top:8px;text-align:center;}
 
 
-/* ── LICENSE SCREEN ── */
-#lic-screen{position:fixed;inset:0;background:#0a0c14;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
-#lic-screen.hide{display:none;}
-.lic-logo{font-size:48px;margin-bottom:8px;}
-.lic-title{font-size:24px;font-weight:900;color:var(--gold);font-family:'Sarabun',sans-serif;margin-bottom:4px;}
-.lic-sub{font-size:13px;color:var(--lg);font-family:'Sarabun',sans-serif;margin-bottom:24px;text-align:center;}
-.lic-inp{width:100%;max-width:320px;background:#1a1d27;border:2px solid var(--border);border-radius:12px;color:#f0f2ff;font-family:'Bebas Neue',sans-serif;font-size:22px;font-weight:900;padding:12px 16px;text-align:center;letter-spacing:3px;outline:none;box-sizing:border-box;}
-.lic-inp:focus{border-color:var(--gold);}
-.lic-btn{width:100%;max-width:320px;margin-top:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;color:#111;font-family:'Sarabun',sans-serif;font-size:17px;font-weight:900;padding:13px;cursor:pointer;}
-.lic-err{font-size:13px;color:#f87171;font-family:'Sarabun',sans-serif;margin-top:10px;min-height:20px;text-align:center;}
-.lic-change{font-size:12px;color:var(--lg);font-family:'Sarabun',sans-serif;margin-top:14px;cursor:pointer;text-decoration:underline;}
-
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
-
-<!-- LICENSE SCREEN -->
-<div id="lic-screen">
-  <div class="lic-logo">🐯</div>
-  <div class="lic-title">T999 ลูกค้า</div>
-  <div class="lic-sub">ใส่ License Key (L1) จาก Admin ครับ</div>
-  <input class="lic-inp" id="lic-inp" type="text" maxlength="19"
-    placeholder="T999-XXXX-XXXX-XXXX"
-    oninput="this.value=this.value.toUpperCase()"
-    onkeydown="if(event.key==='Enter')licSubmit()">
-  <button class="lic-btn" onclick="licSubmit()">✅ เข้าใช้งาน</button>
-  <div class="lic-err" id="lic-err"></div>
-  <div class="lic-change" onclick="licClear()" id="lic-change" style="display:none;">เปลี่ยน Key</div>
-</div>
 
 <div class="hdr">
   <div class="hdr-left">
@@ -463,7 +437,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 // ══════════════════════════════════════
 var LK_KEY = 't999_lk_v1';
 var LK_AGENT_KEY = 't999_agent_v1';
-var LK_POS = {M1:5,LV:6,A1:7,A2:8,M2:10,A3:11,A4:12,Y1:15,Y2:17};
+var LK_POS = {M1:5,LV:6,M2:8,Y1:12,Y2:16}; // ตรงกับ admin
 var LK_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
 
 function lkGetSaved(){ try{ return localStorage.getItem(LK_KEY)||''; }catch(e){return '';} }
@@ -486,9 +460,11 @@ function lkVerify(keyStr){
   dates.forEach(function(d){
     var m = String(d.getMonth()+1).padStart(2,'0');
     var y = String(d.getFullYear()).slice(-2);
+    // admin encode: M1+M2+Y1(สลับ)+Y2(สลับ) = mm[0]+mm[1]+yy[1]+yy[0]
     var expected = m[0]+m[1]+y[1]+y[0];
-    var code = (keyStr[LK_POS.M1]||'')+(keyStr[LK_POS.M2]||'')+(keyStr[LK_POS.Y1]||'')+(keyStr[LK_POS.Y2]||'');
-    // level ต้องเป็น 1 (ลูกค้า)
+    var M1=keyStr[LK_POS.M1]||''; var M2=keyStr[LK_POS.M2]||'';
+    var Y1=keyStr[LK_POS.Y1]||''; var Y2=keyStr[LK_POS.Y2]||'';
+    var code = M1+M2+Y1+Y2;
     if(code===expected && keyStr[LK_POS.LV]==='1') valid=true;
   });
   if(!valid) return null;
@@ -1248,70 +1224,6 @@ function updatePakBtn(){
   if(wrap)wrap.style.display=show?'block':'none';
 }
 </script>
-<script>
-// ================================================================
-// LICENSE VERIFY
-// ================================================================
-var _LIC_POS = {M1:5, LV:6, M2:8, Y1:12, Y2:16};
-var _LIC_KEY = 't999_lic_v1';
-
-function licVerify(keyStr, requiredLv){
-  if(!keyStr||keyStr.length!==19) return {ok:false,reason:'รูปแบบ key ไม่ถูกต้อง'};
-  if(keyStr.slice(0,4)!=='T999') return {ok:false,reason:'ไม่ใช่ T999 key'};
-  var lv=parseInt(keyStr[_LIC_POS.LV])||0;
-  if(requiredLv&&lv!==requiredLv) return {ok:false,reason:'Level ไม่ตรง (ต้องการ L'+requiredLv+')'};
-  var M1=keyStr[_LIC_POS.M1], M2=keyStr[_LIC_POS.M2];
-  var Y1=keyStr[_LIC_POS.Y1], Y2=keyStr[_LIC_POS.Y2];
-  var mm=M1+M2, yy=Y2+Y1;
-  var mmInt=parseInt(mm)||0, yyInt=parseInt(yy)||0;
-  if(mmInt<1||mmInt>12) return {ok:false,reason:'เดือนใน key ไม่ถูกต้อง'};
-  var now=new Date();
-  var curMM=now.getMonth()+1;
-  var curYY=parseInt(String(now.getFullYear()).slice(-2));
-  var valid=false;
-  for(var delta=-1;delta<=1;delta++){
-    var chkMM=curMM+delta, chkYY=curYY;
-    if(chkMM<1){chkMM+=12;chkYY--;}
-    if(chkMM>12){chkMM-=12;chkYY++;}
-    if(mmInt===chkMM&&yyInt===chkYY){valid=true;break;}
-  }
-  if(!valid) return {ok:false,reason:'Key หมดอายุแล้วครับ ('+mm+'/20'+yy+')'};
-  return {ok:true,lv:lv,mm:mm,yy:yy};
-}
-
-function licInit(){
-  var saved=localStorage.getItem(_LIC_KEY)||'';
-  if(saved){
-    var r=licVerify(saved,1);
-    if(r.ok){ document.getElementById('lic-screen').classList.add('hide'); return; }
-    document.getElementById('lic-inp').value=saved;
-    document.getElementById('lic-change').style.display='block';
-  }
-}
-
-function licSubmit(){
-  var key=document.getElementById('lic-inp').value.trim().toUpperCase();
-  var r=licVerify(key,1);
-  if(r.ok){
-    try{localStorage.setItem(_LIC_KEY,key);}catch(e){}
-    document.getElementById('lic-screen').classList.add('hide');
-    document.getElementById('lic-err').textContent='';
-  } else {
-    document.getElementById('lic-err').textContent='❌ '+r.reason;
-    var inp=document.getElementById('lic-inp');
-    inp.style.borderColor='#f87171';
-    setTimeout(function(){inp.style.borderColor='';},1500);
-  }
-}
-
-function licClear(){
-  try{localStorage.removeItem(_LIC_KEY);}catch(e){}
-  document.getElementById('lic-inp').value='';
-  document.getElementById('lic-change').style.display='none';
-  document.getElementById('lic-err').textContent='';
-}
-
-licInit();
-</script>
+<script></script>
 </body>
 </html>
