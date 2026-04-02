@@ -421,70 +421,6 @@ window.addEventListener('message',function(ev){
 fkAutoSel(2); fkRender();
 
 
-// ================================================================
-// LICENSE VERIFY
-// ================================================================
-var _LIC_POS = {M1:5, LV:6, M2:8, Y1:12, Y2:16};
-var _LIC_KEY = 't999_lic_v1';
-
-function licVerify(keyStr, requiredLv){
-  if(!keyStr||keyStr.length!==19) return {ok:false,reason:'รูปแบบ key ไม่ถูกต้อง'};
-  if(keyStr.slice(0,4)!=='T999') return {ok:false,reason:'ไม่ใช่ T999 key'};
-  var lv=parseInt(keyStr[_LIC_POS.LV])||0;
-  if(requiredLv&&lv!==requiredLv) return {ok:false,reason:'Level ไม่ตรง (ต้องการ L'+requiredLv+')'};
-  var M1=keyStr[_LIC_POS.M1], M2=keyStr[_LIC_POS.M2];
-  var Y1=keyStr[_LIC_POS.Y1], Y2=keyStr[_LIC_POS.Y2];
-  var mm=M1+M2, yy=Y2+Y1;
-  var mmInt=parseInt(mm)||0, yyInt=parseInt(yy)||0;
-  if(mmInt<1||mmInt>12) return {ok:false,reason:'เดือนใน key ไม่ถูกต้อง'};
-  var now=new Date();
-  var curMM=now.getMonth()+1;
-  var curYY=parseInt(String(now.getFullYear()).slice(-2));
-  var valid=false;
-  for(var delta=-1;delta<=1;delta++){
-    var chkMM=curMM+delta, chkYY=curYY;
-    if(chkMM<1){chkMM+=12;chkYY--;}
-    if(chkMM>12){chkMM-=12;chkYY++;}
-    if(mmInt===chkMM&&yyInt===chkYY){valid=true;break;}
-  }
-  if(!valid) return {ok:false,reason:'Key หมดอายุแล้วครับ ('+mm+'/20'+yy+')'};
-  return {ok:true,lv:lv,mm:mm,yy:yy};
-}
-
-function licInit(){
-  var saved=localStorage.getItem(_LIC_KEY)||'';
-  if(saved){
-    var r=licVerify(saved,2);
-    if(r.ok){ document.getElementById('lic-screen').classList.add('hide'); return; }
-    document.getElementById('lic-inp').value=saved;
-    document.getElementById('lic-change').style.display='block';
-  }
-}
-
-function licSubmit(){
-  var key=document.getElementById('lic-inp').value.trim().toUpperCase();
-  var r=licVerify(key,2);
-  if(r.ok){
-    try{localStorage.setItem(_LIC_KEY,key);}catch(e){}
-    document.getElementById('lic-screen').classList.add('hide');
-    document.getElementById('lic-err').textContent='';
-  } else {
-    document.getElementById('lic-err').textContent='❌ '+r.reason;
-    var inp=document.getElementById('lic-inp');
-    inp.style.borderColor='#f87171';
-    setTimeout(function(){inp.style.borderColor='';},1500);
-  }
-}
-
-function licClear(){
-  try{localStorage.removeItem(_LIC_KEY);}catch(e){}
-  document.getElementById('lic-inp').value='';
-  document.getElementById('lic-change').style.display='none';
-  document.getElementById('lic-err').textContent='';
-}
-
-licInit();
-
 </script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -4517,5 +4453,70 @@ fkAutoSel(2); fkRender();
   </div>
 </div>
 
+<script>
+// ================================================================
+// LICENSE VERIFY
+// ================================================================
+var _LIC_POS = {M1:5, LV:6, M2:8, Y1:12, Y2:16};
+var _LIC_KEY = 't999_lic_v1';
+
+function licVerify(keyStr, requiredLv){
+  if(!keyStr||keyStr.length!==19) return {ok:false,reason:'รูปแบบ key ไม่ถูกต้อง'};
+  if(keyStr.slice(0,4)!=='T999') return {ok:false,reason:'ไม่ใช่ T999 key'};
+  var lv=parseInt(keyStr[_LIC_POS.LV])||0;
+  if(requiredLv&&lv!==requiredLv) return {ok:false,reason:'Level ไม่ตรง (ต้องการ L'+requiredLv+')'};
+  var M1=keyStr[_LIC_POS.M1], M2=keyStr[_LIC_POS.M2];
+  var Y1=keyStr[_LIC_POS.Y1], Y2=keyStr[_LIC_POS.Y2];
+  var mm=M1+M2, yy=Y2+Y1;
+  var mmInt=parseInt(mm)||0, yyInt=parseInt(yy)||0;
+  if(mmInt<1||mmInt>12) return {ok:false,reason:'เดือนใน key ไม่ถูกต้อง'};
+  var now=new Date();
+  var curMM=now.getMonth()+1;
+  var curYY=parseInt(String(now.getFullYear()).slice(-2));
+  var valid=false;
+  for(var delta=-1;delta<=1;delta++){
+    var chkMM=curMM+delta, chkYY=curYY;
+    if(chkMM<1){chkMM+=12;chkYY--;}
+    if(chkMM>12){chkMM-=12;chkYY++;}
+    if(mmInt===chkMM&&yyInt===chkYY){valid=true;break;}
+  }
+  if(!valid) return {ok:false,reason:'Key หมดอายุแล้วครับ ('+mm+'/20'+yy+')'};
+  return {ok:true,lv:lv,mm:mm,yy:yy};
+}
+
+function licInit(){
+  var saved=localStorage.getItem(_LIC_KEY)||'';
+  if(saved){
+    var r=licVerify(saved,2);
+    if(r.ok){ document.getElementById('lic-screen').classList.add('hide'); return; }
+    document.getElementById('lic-inp').value=saved;
+    document.getElementById('lic-change').style.display='block';
+  }
+}
+
+function licSubmit(){
+  var key=document.getElementById('lic-inp').value.trim().toUpperCase();
+  var r=licVerify(key,2);
+  if(r.ok){
+    try{localStorage.setItem(_LIC_KEY,key);}catch(e){}
+    document.getElementById('lic-screen').classList.add('hide');
+    document.getElementById('lic-err').textContent='';
+  } else {
+    document.getElementById('lic-err').textContent='❌ '+r.reason;
+    var inp=document.getElementById('lic-inp');
+    inp.style.borderColor='#f87171';
+    setTimeout(function(){inp.style.borderColor='';},1500);
+  }
+}
+
+function licClear(){
+  try{localStorage.removeItem(_LIC_KEY);}catch(e){}
+  document.getElementById('lic-inp').value='';
+  document.getElementById('lic-change').style.display='none';
+  document.getElementById('lic-err').textContent='';
+}
+
+licInit();
+</script>
 </body>
 </html>
