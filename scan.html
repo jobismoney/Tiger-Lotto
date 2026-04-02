@@ -112,7 +112,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
   <div class="result-info" id="result-info"></div>
 </div>
 
-<button class="go-btn" id="go-btn">🚀 นำเข้า Desktop เลย</button>
+<button class="go-btn" id="go-btn">📥 นำเข้ารายการ</button>
 <button class="reset-btn" id="reset-btn">🔄 scan ใหม่</button>
 
 <div class="tip" id="tip-txt">💡 screenshot โพยจาก Line แล้วอัพขึ้นมาได้เลย</div>
@@ -248,6 +248,7 @@ function showBatchResult(){
   var ok = _scannedResults.filter(function(r){ return r.result && r.result.imp; });
   var fail = _scannedResults.filter(function(r){ return !r.result || !r.result.imp; });
   var totalEntries = ok.reduce(function(s,r){ return s + (r.result.cnt||0); }, 0);
+  var totalBaht = ok.reduce(function(s,r){ return s + (r.result.total||0); }, 0);
 
   if(ok.length === 0){
     setStatus('error', '❌ ไม่พบ QR ในรูปที่เลือก');
@@ -256,12 +257,13 @@ function showBatchResult(){
   }
 
   var info = '<span>สแกนสำเร็จ</span> '+ok.length+'/'+_scannedResults.length+' รูป<br>'
-    +'<span>รวมทั้งหมด</span> '+totalEntries+' รายการ';
+    +'<span>รวมทั้งหมด</span> '+totalEntries+' รายการ'
+    +(totalBaht?'  <span style="color:var(--gold);font-weight:900;">฿'+totalBaht.toLocaleString()+'</span>':'');
   if(fail.length){
     info += '<br><span style="color:#f87171;">อ่านไม่ได้</span> '+fail.map(function(r){return 'รูปที่ '+r.idx;}).join(', ');
   }
   ok.forEach(function(r){
-    info += '<br>📄 รูปที่ '+r.idx+' — '+r.result.cnt+' รายการ';
+    info += '<br>📄 รูปที่ '+r.idx+' — '+r.result.cnt+' รายการ'+(r.result.total?' ฿'+r.result.total.toLocaleString():'');
   });
 
   document.getElementById('result-info').innerHTML = info;
@@ -326,7 +328,16 @@ function parseQRResult(url){
   try{
     var data = JSON.parse(decodeURIComponent(escape(atob(imp))));
     var norm = normalizeData(data);
-    return {imp: imp, cnt: (norm.entries||[]).length, ngod: norm.ngod||'', sender: norm.sender||'', pg: norm.pg||1};
+    var ents = norm.entries||[];
+    var total = ents.reduce(function(s,e){
+      var b=e.bon||e.b||0, t=e.tod||e.t||0, l=e.lang||e.la||0, n=e.na||e.n||0;
+      var kd=e.kd||{};
+      var kb=(kd.bon||[]).reduce(function(s2,x){return s2+(x.price||0);},0);
+      var kl=(kd.lang||[]).reduce(function(s2,x){return s2+(x.price||0);},0);
+      var kn=(kd.na||[]).reduce(function(s2,x){return s2+(x.price||0);},0);
+      return s+b+t+l+n+kb+kl+kn;
+    },0);
+    return {imp: imp, cnt: ents.length, total: total, ngod: norm.ngod||'', sender: norm.sender||'', pg: norm.pg||1};
   } catch(e){ return null; }
 }
 
@@ -377,7 +388,9 @@ function handleQRResult(url){
     return;
   }
   document.getElementById('result-info').innerHTML =
-    '<span>แผ่น</span> '+result.pg+'  <span>จำนวน</span> '+result.cnt+' รายการ';
+    '<span>แผ่น</span> '+result.pg
+    +'  <span>จำนวน</span> '+result.cnt+' รายการ'
+    +(result.total?'  <span style="color:var(--gold);font-weight:900;">฿'+result.total.toLocaleString()+'</span>':'');
   document.getElementById('result-box').style.display='block';
   setStatus('success','✅ อ่าน QR สำเร็จ! พบ '+result.cnt+' รายการ');
   _qrUrl = url;
