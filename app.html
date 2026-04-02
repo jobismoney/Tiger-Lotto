@@ -289,17 +289,12 @@ window.addEventListener('message',function(ev){
       var json=decodeURIComponent(escape(atob(imp)));
       var raw=JSON.parse(json);
       var data=normalizeQRData(raw);
-      (data.entries||[]).forEach(function(e){
-        var lek=String(e.lek||'');if(!lek)return;
-        eid++;
-        entries.unshift({id:eid,lek:lek,d:lek.length,
-          bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
-          kd:e.kd||{},paks:e.paks||[]});
-        totalAdded++;
-      });
+      var ents=data.entries||[];
+      totalAdded+=ents.length;
+      if(ents.length&&window.addScanEntries) addScanEntries(ents);
     }catch(err){toast('อ่าน QR ไม่ได้: '+err.message);}
   });
-  if(totalAdded>0){save();renderList();toast('✅ นำเข้า '+totalAdded+' รายการแล้ว');}
+  if(totalAdded>0){toast('✅ นำเข้า '+totalAdded+' รายการแล้ว');}
 });
 
 // init FK
@@ -960,7 +955,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     </div>
   </div>
   <div style="display:flex;gap:6px;margin:8px 10px 0;">
-    <button onclick="APP.openPak()" id="pak-open-btn" style="display:none;flex:1;background:rgba(251,146,60,.12);border:1.5px solid rgba(251,146,60,.4);border-radius:10px;color:#fb923c;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;padding:10px 4px;cursor:pointer;">📌 ปัก</button>
+    <button onclick="var _fl=fkBuf.split('=')[0].split('/')[0];APP.setLekFromFK(_fl);APP.openPak();" id="pak-open-btn" style="display:none;flex:1;background:rgba(251,146,60,.12);border:1.5px solid rgba(251,146,60,.4);border-radius:10px;color:#fb923c;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;padding:10px 4px;cursor:pointer;">📌 ปัก</button>
     <button onclick="openScan()" style="flex:1;background:rgba(96,165,250,.1);border:1.5px solid rgba(96,165,250,.3);border-radius:10px;color:#60a5fa;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;padding:10px 4px;cursor:pointer;">📷 สแกน</button>
     <button class="basket-btn" id="basket-btn" style="margin:0;flex:2;font-size:16px;padding:10px;">📂 เก็บแฟ้ม</button>
   </div>
@@ -1562,12 +1557,28 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   // smart tab order สำหรับช่องราคา
   var FIELD_ORDER=['bon','tod','lang','na'];
   window.FIELD_ORDER=FIELD_ORDER;
+  // expose สำหรับ scan
+  window.addScanEntries=function(ents){
+    ents.forEach(function(e){
+      eid++;
+      entries.unshift({id:eid,lek:e.lek,d:e.d||e.lek.length,
+        bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
+        kd:e.kd||{},paks:e.paks||[]});
+    });
+    save(); renderList();
+    var ls=document.getElementById('list-scroll');
+    if(ls)ls.scrollTop=0;
+  };
   window.APP={
 
     // ── PAK FUNCTIONS ──
     pakType:'3bon',
     pakPos:[],
     allowedDupKeys:[],
+    setLekFromFK:function(lek){
+      curLek=lek;
+      FS=makeFS();
+    },
     openPak:function(){
       var lek=curLek;
       if(!lek){toast('กรอกเลขก่อนครับ');return;}
