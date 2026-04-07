@@ -1000,7 +1000,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 <div class="main-wrap" id="main-wrap">
   <div class="hdr">
     <div class="hdr-left">
-      <h1>🐯 TIGER 999</h1>
+      <h1>🐯 TIGER 999 🇹🇭</h1>
       <span id="hd-ngod" style="font-size:13px;font-weight:700;color:var(--lg);display:block;margin-top:-2px;"></span>
       <p id="hd-info">กรอกชื่อและงวด</p>
     </div>
@@ -1154,6 +1154,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         </div>
       </div>
 
+      <button onclick="fetchResult()" style="width:100%;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;padding:11px;cursor:pointer;margin-bottom:8px;">📡 ดึงผลรางวัลล่าสุด</button>
       <button class="check-btn" id="check-btn">🔍 ตรวจเลย</button>
     </div>
     <div id="check-results"></div>
@@ -3346,6 +3347,31 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     _checkEntries=ents;_checkNgod=ngod;_checkHistIdx=histIdx;
     resetCheckForm();
     document.getElementById('check-ov').classList.add('show');
+  }
+
+  function fetchResult(){
+    toast('📡 กำลังดึงผลรางวัล...');
+    fetch('https://lotto.api.rayriffy.com/latest')
+      .then(function(r){return r.json();})
+      .then(function(data){
+        if(data.status!=='success')throw new Error('ไม่พบข้อมูล');
+        var res=data.response;
+        var rn=res.runningNumbers||[];
+        var first6=(res.prizes.find(function(p){return p.id==='prizeFirst';})||{}).number||[];
+        var front3=(rn.find(function(x){return x.id==='runningNumberFrontThree';})||{}).number||[];
+        var back3=(rn.find(function(x){return x.id==='runningNumberBackThree';})||{}).number||[];
+        var back2=(rn.find(function(x){return x.id==='runningNumberBackTwo';})||{}).number||[];
+        function sv(id,val){var el=document.getElementById(id);if(el)el.value=val;}
+        sv('r1',first6[0]||'');
+        sv('r3f1',front3[0]||'');sv('r3f2',front3[1]||'');
+        sv('r3b1',back3[0]||'');sv('r3b2',back3[1]||'');
+        sv('r2',back2[0]||'');
+        // r2bon = 2 หลักท้ายรางวัลที่ 1
+        var f1=first6[0]||'';
+        sv('r2bon',f1.length>=2?f1.slice(-2):'');
+        sv('r2na',f1.length>=5?f1.slice(3,5):'');
+        toast('✅ ดึงผลสำเร็จ งวด '+res.date);
+      }).catch(function(err){toast('⚠️ '+err.message);});
   }
 
   function doCheck(){
