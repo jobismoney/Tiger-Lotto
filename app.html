@@ -304,6 +304,8 @@ function fkCommit(){
   if(window._appNgodOpen&&!window._appNgodOpen()){
     toast('กรุณาเปิดงวดก่อนครับ');return;
   }
+  var _st=window._fkState?window._fkState():{buf:fkBuf,sel:fkSel,klb:fkKlb};
+  var fkBuf=_st.buf, fkSel=_st.sel, fkKlb=_st.klb;
   var parts=fkBuf.split('=');
   var lekPart=parts[0];var pricePart=parts[1]||'';
   var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
@@ -333,10 +335,7 @@ function fkCommit(){
     addFKEntries(savedEntries);
     toast('✅ เพิ่ม '+added+' รายการ');
   }
-  fkBuf='';fkKlb={bon:false,lang:false,na:false};fkUserOverride=false;
-  fkAutoSel(d||2);fkUpdateKlbBtns();fkRender();
-  var _pb3=document.getElementById('pak-open-btn');
-  if(_pb3)_pb3.style.display='none';
+  if(window._fkReset) window._fkReset(d);
 }
 
 
@@ -1714,6 +1713,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   window.FIELD_ORDER=FIELD_ORDER;
   // expose สำหรับ scan
   window._appNgodOpen=function(){ return ngodOpen; };
+  window._fkState=function(){
+    return {buf:fkBuf,sel:fkSel,klb:fkKlb,userOverride:fkUserOverride};
+  };
+  window._fkReset=function(d){
+    fkBuf='';fkKlb={bon:false,lang:false,na:false};fkUserOverride=false;
+    fkAutoSel(d||2);fkUpdateKlbBtns();fkRender();
+    var pb=document.getElementById('pak-open-btn');
+    if(pb)pb.style.display='none';
+  };
   window.addFKEntries=function(ents){
     ents.forEach(function(e){
       eid++; e.id=eid;
