@@ -1741,7 +1741,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         kd:e.kd||{},paks:e.paks||[]};
     });
     var total=scanEntries.reduce(function(s,e){
-      return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);
+      var kd=e.kd||{};
+      var kb=(kd.bon||[]).reduce(function(a,x){return a+x.price;},0);
+      var kl=(kd.lang||[]).reduce(function(a,x){return a+x.price;},0);
+      var kn=(kd.na||[]).reduce(function(a,x){return a+x.price;},0);
+      var pk=(e.paks||[]).reduce(function(a,x){return a+x.price;},0);
+      return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0)+kb+kl+kn+pk;
     },0);
     hist.unshift({
       id:Date.now()+Math.random(),
@@ -3072,7 +3077,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           var realIdx=hist.indexOf(h);
           innerRows+='<div class="hist-set" style="padding-left:20px;">'
             +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(custSets.length-ci)+'</div>'
-            +'<div class="hist-set-time">⏰ '+(h.savedAt||'')+'</div></div>'
+            +'</div>'
             +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
             +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
             +'<div class="hist-set-btns">'
@@ -3148,7 +3153,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           var h=x.h,realIdx=x.i;
           innerRows+='<div class="hist-set" style="padding-left:20px;">'
             +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(cSets.length-ci)+'</div>'
-            +'<div class="hist-set-time">⏰ '+(h.savedAt||h.closedAt||'')+'</div></div>'
+            +'</div>'
             +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
             +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
             +'<div class="hist-set-btns"><button class="hist-set-btn" onclick="APP.viewHist('+realIdx+')">📋 ดู</button></div>'
