@@ -301,6 +301,9 @@ function fkEq(){
 }
 
 function fkCommit(){
+  if(window._appNgodOpen&&!window._appNgodOpen()){
+    toast('กรุณาเปิดงวดก่อนครับ');return;
+  }
   var parts=fkBuf.split('=');
   var lekPart=parts[0];var pricePart=parts[1]||'';
   var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
@@ -1710,9 +1713,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var FIELD_ORDER=['bon','tod','lang','na'];
   window.FIELD_ORDER=FIELD_ORDER;
   // expose สำหรับ scan
+  window._appNgodOpen=function(){ return ngodOpen; };
   window.addFKEntries=function(ents){
-    if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');return;}
-    if(isLocked){toast('โพยถูกล็อคแล้ว — กด "ซื้อเพิ่ม" ในหน้าดูโพย');return;}
     ents.forEach(function(e){
       eid++; e.id=eid;
       entries.unshift(e);
