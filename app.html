@@ -297,46 +297,9 @@ function fkEq(){
     if(!leks.length){toast('กรอกเลขก่อนครับ');return;}
     fkBuf+='='; fkUpdateKlbBtns(); fkRender(); return;
   }
-  fkCommit();
+  if(window.fkCommit) window.fkCommit(); else fkCommit();
 }
 
-function fkCommit(){
-  if(window._appNgodOpen&&!window._appNgodOpen()){
-    toast('กรุณาเปิดงวดก่อนครับ');return;
-  }
-  var _st=window._fkState?window._fkState():{buf:fkBuf,sel:fkSel,klb:fkKlb};
-  var fkBuf=_st.buf, fkSel=_st.sel, fkKlb=_st.klb;
-  var parts=fkBuf.split('=');
-  var lekPart=parts[0];var pricePart=parts[1]||'';
-  var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
-  var ps=pricePart.split('x').map(function(s){return parseInt(s.replace(/\D/g,''))||0;});
-  if(!leks.length){toast('ไม่มีเลขครับ');return;}
-  if(!ps[0]){toast('ใส่ราคาก่อนครับ');return;}
-  var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
-  if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
-  if(ps.length<types.length){toast('ราคายังไม่ครบครับ');return;}
-  var pm={};types.forEach(function(t,i){pm[t]=ps[i]>0?ps[i]:0;});
-  var d=leks[0].length;var added=0;
-  var savedEntries=[];
-  leks.forEach(function(l){
-    var kd={};
-    FK_KLB_TYPES.forEach(function(t){
-      if(fkSel[t]&&fkKlb[t]&&pm[t]){
-        var perms=getPerms(l).filter(function(p){return p!==l;});
-        if(perms.length)kd[t]=perms.map(function(p){return{perm:p,price:pm[t]};});
-      }
-    });
-    eid++;
-    savedEntries.push({id:eid,lek:l,d:l.length,bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,kd:kd,paks:[]});
-    added++;
-  });
-  savedEntries.reverse();
-  if(added>0&&window.addFKEntries){
-    addFKEntries(savedEntries);
-    toast('✅ เพิ่ม '+added+' รายการ');
-  }
-  if(window._fkReset) window._fkReset(d);
-}
 
 
 
@@ -1713,6 +1676,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   window.FIELD_ORDER=FIELD_ORDER;
   // expose สำหรับ scan
   window._appNgodOpen=function(){ return ngodOpen; };
+  window._getPerms=getPerms;
   window._fkState=function(){
     return {buf:fkBuf,sel:fkSel,klb:fkKlb,userOverride:fkUserOverride};
   };
@@ -1722,6 +1686,40 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var pb=document.getElementById('pak-open-btn');
     if(pb)pb.style.display='none';
   };
+  // fkCommit อยู่ใน IIFE เพื่อเข้าถึง entries/eid/ngodOpen/getPerms
+  function fkCommit(){
+    if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');return;}
+    if(isLocked){toast('โพยถูกล็อคแล้ว — กด "ซื้อเพิ่ม" ในหน้าดูโพย');return;}
+    var _st=window._fkState?window._fkState():{buf:fkBuf,sel:fkSel,klb:fkKlb};
+    var _fkBuf=_st.buf, _fkSel=_st.sel, _fkKlb=_st.klb;
+    var parts=_fkBuf.split('=');
+    var lekPart=parts[0]; var pricePart=parts[1]||'';
+    var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
+    var ps=pricePart.split('x').map(function(s){return parseInt(s.replace(/\D/g,''))||0;});
+    if(!leks.length){toast('ไม่มีเลขครับ');return;}
+    if(!ps[0]){toast('ใส่ราคาก่อนครับ');return;}
+    var types=['bon','tod','lang','na'].filter(function(t){return _fkSel[t];});
+    if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
+    if(ps.length<types.length){toast('ราคายังไม่ครบครับ');return;}
+    var pm={};types.forEach(function(t,i){pm[t]=ps[i]>0?ps[i]:0;});
+    var d=leks[0].length; var added=0;
+    leks.forEach(function(l){
+      var kd={};
+      FK_KLB_TYPES.forEach(function(t){
+        if(_fkSel[t]&&_fkKlb[t]&&pm[t]){
+          var perms=getPerms(l).filter(function(p){return p!==l;});
+          if(perms.length)kd[t]=perms.map(function(p){return{perm:p,price:pm[t]};});
+        }
+      });
+      eid++;
+      entries.unshift({id:eid,lek:l,d:l.length,bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,kd:kd,paks:[]});
+      added++;
+    });
+    if(added>0){save();renderList();var ls=document.getElementById('list-scroll');if(ls)ls.scrollTop=0;toast('✅ เพิ่ม '+added+' รายการ');}
+    if(window._fkReset) window._fkReset(d);
+  }
+  window.fkCommit=fkCommit;
+
   window.addFKEntries=function(ents){
     ents.forEach(function(e){
       eid++; e.id=eid;
@@ -2435,7 +2433,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var kdl={};
         ['bon','lang','na'].forEach(function(k){
           if(mp[k]&&npKlbState[k]&&KLB[k]&&KLB[k].indexOf(d)>=0){
-            var perms=getPerms(l).filter(function(p){return p!==l;});
+            var _gp=window._getPerms||getPerms;
+        var perms=_gp(l).filter(function(p){return p!==l;});
             if(perms.length) kdl[k]=perms.map(function(p){return{perm:p,price:mp[k]};});
           }
         });
