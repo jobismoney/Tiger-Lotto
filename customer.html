@@ -28,11 +28,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 .hbtn-lbl{font-size:9px;font-weight:800;line-height:1;}
 
 /* ── LIST ── */
-.list-area{flex-shrink:0;margin:6px 10px 0;background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;max-height:25vh;}
+.list-area{flex-shrink:0;margin:6px 10px 0;background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column;max-height:30vh;}
 .tbl-hd{display:grid;grid-template-columns:72px 1fr 1fr 1fr 1fr 24px;gap:2px;padding:4px 8px;background:var(--card2);border-bottom:1px solid var(--border);}
 .tbl-hd span{font-size:12px;font-weight:700;color:var(--lg);text-align:center;}
 .tbl-hd span:first-child{text-align:left;}
-.list-scroll{overflow-y:auto;max-height:calc(25vh - 50px);}
+.list-scroll{overflow-y:auto;flex:1;min-height:0;}
 .bet-row{display:grid;grid-template-columns:72px 1fr 1fr 1fr 1fr 24px;gap:2px;padding:4px 8px;border-bottom:1px solid var(--border);align-items:center;}
 .bet-row:last-child{border-bottom:none;}
 .bet-row.sub{background:rgba(167,139,250,.06);}
@@ -516,19 +516,27 @@ function renderList(){
         +'<span class="cel" style="font-size:11px;color:#fb923c;text-align:left;grid-column:span 4;">📌 '+pakDesc+' ฿'+fmt(pakTotal)+'</span>'
         +'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button></div>';
     } else {
+      // แสดงหลักรวม perm
       h+='<div class="bet-row"><span class="lek-cell">'+e.lek+'</span>'
         +'<span class="cel">'+fod(b+kb)+'</span><span class="cel">'+fod(t)+'</span>'
         +'<span class="cel">'+fod(l+kl)+'</span><span class="cel">'+fod(n+kn)+'</span>'
         +'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button></div>';
+      // perm rows — แสดงเฉพาะ perm ที่ราคาต่างจากหลัก
+      var permLeks={};
       ['bon','lang','na'].forEach(function(k){
         (kd[k]||[]).forEach(function(x){
-          h+='<div class="bet-row sub"><span class="lek-cell sub">'+x.perm+'</span>'
-            +'<span class="cel '+(k==='bon'?'':'e')+'">'+fod(k==='bon'?x.price:0)+'</span>'
-            +'<span class="cel e">—</span>'
-            +'<span class="cel '+(k==='lang'?'':'e')+'">'+fod(k==='lang'?x.price:0)+'</span>'
-            +'<span class="cel '+(k==='na'?'':'e')+'">'+fod(k==='na'?x.price:0)+'</span>'
-            +'<span></span></div>';
+          if(!permLeks[x.perm])permLeks[x.perm]={bon:0,lang:0,na:0};
+          permLeks[x.perm][k]+=x.price;
         });
+      });
+      Object.keys(permLeks).forEach(function(perm){
+        var pb=permLeks[perm].bon,pl=permLeks[perm].lang,pn=permLeks[perm].na;
+        h+='<div class="bet-row sub"><span class="lek-cell sub">'+perm+'</span>'
+          +'<span class="cel">'+fod(pb)+'</span>'
+          +'<span class="cel e">—</span>'
+          +'<span class="cel">'+fod(pl)+'</span>'
+          +'<span class="cel">'+fod(pn)+'</span>'
+          +'<span></span></div>';
       });
     }
   });
