@@ -367,18 +367,21 @@ window.addEventListener('message',function(ev){
   closeScan();
   var imps=ev.data.imports||(ev.data.import?[ev.data.import]:[]);
   if(!imps.length)return;
-  var totalAdded=0;
+  var totalSlips=0, totalEnts=0;
   imps.forEach(function(imp){
     try{
       var json=decodeURIComponent(escape(atob(imp)));
       var raw=JSON.parse(json);
       var data=normalizeQRData(raw);
       var ents=data.entries||[];
-      totalAdded+=ents.length;
-      if(ents.length&&window.addScanEntries) addScanEntries(ents);
+      if(!ents.length)return;
+      // แต่ละ QR = 1 basket แยกกัน
+      if(window.addScanBasket) addScanBasket(data, ents);
+      else if(window.addScanEntries) addScanEntries(ents);
+      totalSlips++; totalEnts+=ents.length;
     }catch(err){toast('อ่าน QR ไม่ได้: '+err.message);}
   });
-  if(totalAdded>0){toast('✅ นำเข้า '+totalAdded+' รายการแล้ว');}
+  if(totalEnts>0){toast('✅ นำเข้า '+totalSlips+' โพย · '+totalEnts+' รายการ');}
 });
 
 // init FK
@@ -1005,6 +1008,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       <p id="hd-info">กรอกชื่อและงวด</p>
     </div>
     <div class="hdr-btns">
+      <button class="hbtn" onclick="APP.openCheck()"><span class="hbtn-icon">🔍</span><span class="hbtn-lbl">ตรวจ</span></button>
       <button class="hbtn" id="guide-btn"><span class="hbtn-icon">💡</span><span class="hbtn-lbl">วิธีใช้</span></button>
       <button class="hbtn" onclick="openGenKey()" style="background:rgba(245,197,24,.1);border-color:rgba(245,197,24,.3);"><span class="hbtn-icon">🔑</span><span class="hbtn-lbl">Key</span></button>
       <button class="hbtn" id="hist-btn"><span class="hbtn-icon">📂</span><span class="hbtn-lbl">แฟ้ม</span></button>
@@ -1145,11 +1149,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           <input type="tel" inputmode="numeric" maxlength="3" id="r3b2" placeholder="xxx" class="check-inp-med" style="margin-top:6px" oninput="if(this.value.length===3)document.getElementById('r2').focus()">
         </div>
         <div class="check-col">
-          <div class="check-col-title">2ตัวบน</div>
-          <input type="tel" inputmode="numeric" maxlength="2" id="r2bon" placeholder="xx" class="check-inp-med" oninput="if(this.value.length===2)document.getElementById('r2na').focus()">
-          <div class="check-col-title" style="margin-top:6px;">2ตัวหน้า</div>
-          <input type="tel" inputmode="numeric" maxlength="2" id="r2na" placeholder="xx" class="check-inp-med" style="margin-top:4px;" oninput="if(this.value.length===2)document.getElementById('r2').focus()">
-          <div class="check-col-title" style="margin-top:6px;">2ตัวล่าง</div>
+          <div class="check-col-title">2ตัวล่าง</div>
           <input type="tel" inputmode="numeric" maxlength="2" id="r2" placeholder="xx" class="check-inp-med" style="margin-top:4px;" oninput="if(this.value.length===2)APP.doCheck()">
         </div>
       </div>
@@ -1598,8 +1598,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var now=new Date();
     var hh=String(now.getHours()).padStart(2,'0');
     var mm=String(now.getMinutes()).padStart(2,'0');
-    var ngodWithTime=ngod+' '+hh+':'+mm;
-    ngodInfo={sender:sender,receiver:sender,ngod:ngodWithTime,date:getToday(),basketName:'',ngodId:Date.now()};
+    ngodInfo={sender:sender,receiver:sender,ngod:ngod,date:getToday(),basketName:'',ngodId:Date.now()};
     lastBasketName='';
     ngodOpen=true;
     entries=[];eid=0;pageBreakIds=[];isLocked=false;
@@ -1728,6 +1727,37 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     save(); renderList();
     var ls=document.getElementById('list-scroll');
     if(ls)ls.scrollTop=0;
+  };
+  window.addScanBasket=function(data, ents){
+    // เก็บแต่ละ QR เป็น basket แยก ไม่รวมกับ entries ปัจจุบัน
+    var sender=data.sender||'scan';
+    var now=getNowTime();
+    var hist=getHistory();
+    var scanEid=0;
+    var scanEntries=ents.map(function(e){
+      scanEid++;
+      return {id:scanEid,lek:e.lek,d:e.d||e.lek.length,
+        bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
+        kd:e.kd||{},paks:e.paks||[]};
+    });
+    var total=scanEntries.reduce(function(s,e){
+      return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);
+    },0);
+    hist.unshift({
+      id:Date.now()+Math.random(),
+      ngodId:ngodInfo.ngodId||0,
+      ngod:ngodInfo.ngod||data.ngod||'—',
+      date:ngodInfo.date||'',
+      sender:sender,receiver:ngodInfo.sender||'',
+      entries:scanEntries,eid:scanEid,
+      pageBreakIds:[],total:total,
+      savedAt:now,isBasket:true,
+      basketName:sender,
+      setNum:hist.filter(function(x){return x.isBasket&&x.ngodId===(ngodInfo.ngodId||0);}).length+1,
+      discRates:DEFAULT_DISC,checkResult:null,checkNumbers:null
+    });
+    saveHistory(hist);
+    toast('📂 บันทึก '+sender+' เรียบร้อย');
   };
   window.addScanEntries=function(ents){
     ents.forEach(function(e){
@@ -2173,7 +2203,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'<div style="font-size:20px;font-weight:900;color:#6ee7b7;">฿'+fmt(grandNet)+'</div>'
         +'</div></div>';
       // แสดงใน confirm dialog
-      showConfirm('<div style="text-align:left;"><div style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:12px;">💰 ยอดเก็บเงิน · งวด '+ngod+'</div>'+rows+'</div>',
+      showConfirm('<div style="text-align:left;"><div style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:12px;">💰 ยอดเก็บเงิน · งวด '+ngod+'</div><div style="max-height:55vh;overflow-y:auto;">'+rows+'</div></div>',
         function(){},false,null,null,'ปิด',null,true);
     },
     toggleSent:function(idx,btn){
@@ -2803,7 +2833,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       ['bon','lang','na'].reduce(function(s,k){return s+pEntries.reduce(function(ss,e){return ss+(e.kd[k]||[]).reduce(function(sss,x){return sss+x.price;},0);},0);},0);
     return '<div class="slip-hd">'
       +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇹🇭 THAI</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
-      +(inf.savedAt?'<div style="font-size:11px;color:#555;margin-top:2px;">บันทึก '+inf.savedAt+'</div>':'')
+      
       +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
       +'</div>'
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
@@ -2897,7 +2927,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       });
       return '<div class="slip-hd">'
         +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇹🇭 THAI</h2><span class="pg">แผ่นที่ '+(i+1)+'/'+totalPages+'</span></div>'
-        +(inf.savedAt?'<div style="font-size:11px;color:#555;margin-top:2px;">บันทึก '+inf.savedAt+'</div>':'')
+        
         +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||inf.label||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
         +'</div>'
         +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
