@@ -52,6 +52,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 /* display */
 .fk-display{background:#0d0f1a;border:2px solid var(--border);border-radius:12px;padding:8px 14px;min-height:56px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-shrink:0;}
 #fk-text{font-family:'Sarabun',sans-serif;font-size:32px;font-weight:900;color:#555;letter-spacing:2px;flex:1;word-break:break-all;line-height:1.1;transition:font-size .1s;}
+.fk-cursor{display:inline-block;width:2px;height:1em;background:var(--gold);margin-left:2px;vertical-align:middle;animation:blink .8s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
 #fk-hint{font-size:11px;color:var(--gray);text-align:right;line-height:1.6;flex-shrink:0;}
 
 /* type buttons */
@@ -518,8 +520,8 @@ function renderList(){
     } else {
       // แสดงหลักรวม perm
       h+='<div class="bet-row"><span class="lek-cell">'+e.lek+'</span>'
-        +'<span class="cel">'+fod(b+kb)+'</span><span class="cel">'+fod(t)+'</span>'
-        +'<span class="cel">'+fod(l+kl)+'</span><span class="cel">'+fod(n+kn)+'</span>'
+        +'<span class="cel">'+fod(b)+'</span><span class="cel">'+fod(t)+'</span>'
+        +'<span class="cel">'+fod(l)+'</span><span class="cel">'+fod(n)+'</span>'
         +'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button></div>';
       // perm rows — แสดงเฉพาะ perm ที่ราคาต่างจากหลัก
       var permLeks={};
@@ -610,9 +612,9 @@ function fkRender(){
   var el=document.getElementById('fk-text');
   var hint=document.getElementById('fk-hint');
   if(!el)return;
-  if(!fkBuf){el.textContent='—';el.style.color='#555';el.style.fontSize='32px';hint.innerHTML='กดเลข<br>แล้ว =';return;}
+  if(!fkBuf){el.innerHTML='—<span class="fk-cursor"></span>';el.style.color='#555';el.style.fontSize='32px';hint.innerHTML='กดเลข<br>แล้ว =';return;}
   el.style.color='var(--gold)';
-  el.textContent=fkBuf.replace(/x/gi,'×');
+  el.innerHTML=fkBuf.replace(/x/gi,'×')+'<span class="fk-cursor"></span>';
   // auto-resize font
   var len=fkBuf.length;
   el.style.fontSize=len<=8?'32px':len<=12?'24px':len<=16?'18px':'14px';
