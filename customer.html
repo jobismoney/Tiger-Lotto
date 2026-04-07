@@ -978,7 +978,14 @@ function renderHistList(){
   el.innerHTML=h;
 }
 function delHist(idx){
-  var hist=getHist();hist.splice(idx,1);saveHist(hist);renderHistList();toast('ลบแล้วครับ');
+  var hist=getHist();
+  var item=hist[idx];
+  var label=item?(item.ngod||'โพย'):'โพย';
+  showConfirm('ลบโพย <b>'+label+'</b>?<br><span style="font-size:12px;color:#f87171;">ไม่สามารถกู้คืนได้</span>',
+    'ยกเลิก');
+  _cfOk=function(){
+    var h=getHist();h.splice(idx,1);saveHist(h);renderHistList();toast('ลบแล้วครับ');
+  };
 }
 function viewHistSlip(idx){
   var hist=getHist();var item=hist[idx];if(!item)return;
@@ -1024,6 +1031,7 @@ function doCheck(){
   var first6=document.getElementById('res-1st').value.trim();
   if(first6.length!==6){toast('ใส่รางวัลที่ 1 ครบ 6 หลักครับ');return;}
   var r3bon=first6.slice(-3),r3na=first6.slice(0,3),r2bon=first6.slice(-2),r2na=first6.slice(3,5);
+  var r2lang=document.getElementById('res-2lang')?document.getElementById('res-2lang').value.trim():'';
   function gv(id){var el=document.getElementById(id);return el?el.value.trim():'';}
   var r3langList=[gv('res-3lang1'),gv('res-3lang2'),gv('res-3lang3'),gv('res-3lang4')].filter(function(x){return x.length===3;});
   var todWin=getTod(r3bon),vbon=r3bon.split('');
@@ -1035,6 +1043,7 @@ function doCheck(){
     if(d===3&&r3langList.indexOf(lek)>=0&&l){hits.push({lek:lek,type:'3ตัวล่าง',bet:l,pay:l*500});grandPay+=l*500;}
     if(d===3&&todWin.indexOf(lek)>=0&&t){hits.push({lek:lek,type:'โต๊ด',bet:t,pay:t*100});grandPay+=t*100;}
     if(d===2&&lek===r2bon&&b){hits.push({lek:lek,type:'2ตัวบน',bet:b,pay:b*70});grandPay+=b*70;}
+    if(d===2&&r2lang&&lek===r2lang&&l){hits.push({lek:lek,type:'2ตัวล่าง',bet:l,pay:l*70});grandPay+=l*70;}
     if(d===2&&lek===r2na&&n){hits.push({lek:lek,type:'2ตัวหน้า',bet:n,pay:n*70});grandPay+=n*70;}
     if(d===1&&vbon.indexOf(lek)>=0&&b){hits.push({lek:lek,type:'วิ่งบน',bet:b,pay:b*3});grandPay+=b*3;}
   });
