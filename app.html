@@ -929,8 +929,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 /* ── FK AREA ── */
 .fk-area{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:8px 10px 0;}
 .fk-display{background:#0d0f1a;border:2px solid var(--border);border-radius:12px;padding:8px 14px;min-height:56px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-shrink:0;}
-.fk-cursor{display:inline-block;width:2px;height:1em;background:var(--gold);margin-left:2px;vertical-align:middle;animation:blink .8s step-end infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
 #fk-text{font-family:'Sarabun',sans-serif;font-size:32px;font-weight:900;color:#555;letter-spacing:2px;flex:1;word-break:break-all;line-height:1.1;transition:font-size .1s;}
 #fk-hint{font-size:11px;color:var(--lg);text-align:right;line-height:1.6;flex-shrink:0;}
 .fk-type-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:6px;flex-shrink:0;}
@@ -976,6 +974,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 .genkey-info{font-size:11px;color:var(--lg);text-align:center;margin-top:4px;}
 
 
+.fk-cursor{display:inline-block;width:2px;height:1em;background:var(--gold);margin-left:2px;vertical-align:middle;animation:fkblink .8s step-end infinite;}
+@keyframes fkblink{0%,100%{opacity:1;}50%{opacity:0;}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -2800,7 +2800,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var pt=(pEntries.reduce(function(s,e){return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);},0))+
       ['bon','lang','na'].reduce(function(s,k){return s+pEntries.reduce(function(ss,e){return ss+(e.kd[k]||[]).reduce(function(sss,x){return sss+x.price;},0);},0);},0);
     return '<div class="slip-hd">'
-      +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+(''+inf.ngod).replace(/ \\d{2}:\\d{2}$/,'')+' 🇹🇭 THAI</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
+      +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇹🇭 THAI</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
       +(inf.savedAt?'<div style="font-size:11px;color:#555;margin-top:2px;">บันทึก '+inf.savedAt+'</div>':'')
       +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
       +'</div>'
@@ -2894,7 +2894,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
       });
       return '<div class="slip-hd">'
-        +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+(''+inf.ngod).replace(/ \\d{2}:\\d{2}$/,'')+' 🇹🇭 THAI</h2><span class="pg">แผ่นที่ '+(i+1)+'/'+totalPages+'</span></div>'
+        +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇹🇭 THAI</h2><span class="pg">แผ่นที่ '+(i+1)+'/'+totalPages+'</span></div>'
         +(inf.savedAt?'<div style="font-size:11px;color:#555;margin-top:2px;">บันทึก '+inf.savedAt+'</div>':'')
         +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||inf.label||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
         +'</div>'
@@ -3222,7 +3222,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var ps=pageSumTotals(pgEntries);
     var pt=pgEntries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
     return '<div class="slip-hd">'
-      +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+(''+inf.ngod).replace(/ \\d{2}:\\d{2}$/,'')+' 🇹🇭 THAI</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
+      +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇹🇭 THAI</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
       +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
       +'</div>'
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
