@@ -1043,10 +1043,9 @@ function fetchResult(){
       var back3=(rn.find(function(x){return x.id==='runningNumberBackThree';})||{}).number||[];
       function sv(id,val){var el=document.getElementById(id);if(el)el.value=val;}
       sv('res-1st',first6[0]||'');
-      // 2ตัวล่าง — ดึงจาก runningNumberLastTwo
-      var last2=(rn.find(function(x){return x.id==='runningNumberLastTwo';}) ||
-                 rn.find(function(x){return x.id==='lastTwoDigits';}) || {}).number||[];
-      sv('res-2lang', last2[0]||'');
+      // 2ตัวล่าง — runningNumberBackTwo
+      var back2=(rn.find(function(x){return x.id==='runningNumberBackTwo';})||{}).number||[];
+      sv('res-2lang', back2[0]||'');
       sv('res-3lang1',front3[0]||'');sv('res-3lang2',front3[1]||'');
       sv('res-3lang3',back3[0]||'');sv('res-3lang4',back3[1]||'');
       toast('✅ ดึงผลสำเร็จ งวด '+res.date);
