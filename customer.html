@@ -283,8 +283,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 <!-- ACTION BAR -->
 <div id="pak-open-wrap" style="padding:0 10px 0;display:none;"><button onclick="openPak()" style="width:100%;background:rgba(251,146,60,.12);border:1.5px solid rgba(251,146,60,.4);border-radius:10px;color:#fb923c;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;padding:10px;cursor:pointer;margin-bottom:6px;">📌 ปักหลัก</button></div>
 <div class="action-bar">
-  <button class="btn-basket" onclick="doBasket()">📋 สร้างโพย</button>
-  <button class="btn-slip" onclick="showSlip()">📄 ดูโพย</button>
+  <button class="btn-slip" style="flex:1;font-size:17px;padding:13px;" onclick="doBasketAndShow()">📄 ดูโพย / เก็บเข้าแฟ้ม</button>
 </div>
 
 <!-- SLIP OVERLAY -->
@@ -315,6 +314,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
       <button class="hist-close-btn" onclick="closeCheck()">✕</button>
     </div>
     <input class="check-inp" id="res-1st" type="tel" inputmode="numeric" maxlength="6" placeholder="รางวัลที่ 1 (6 หลัก)">
+    <div style="margin-bottom:8px;">
+      <div class="check-sub-lbl">2 ตัวล่าง</div>
+      <input class="check-inp" id="res-2lang" type="tel" inputmode="numeric" maxlength="2" placeholder="xx" style="font-size:22px;padding:8px;letter-spacing:6px;">
+    </div>
     <div class="check-sub-grid">
       <div>
         <div class="check-sub-lbl">หน้า 3 ตัว</div>
@@ -915,6 +918,33 @@ function closeSlip(){document.getElementById('slip-ov').classList.remove('show')
 // ══════════════════════════════════════
 // BASKET & SHARE
 // ══════════════════════════════════════
+
+function doBasketAndShow(){
+  if(!entries.length){toast('ยังไม่มีรายการครับ');return;}
+  var entsToShow=JSON.parse(JSON.stringify(entries));
+  // เก็บเข้าแฟ้ม
+  var now=new Date();
+  var hist=getHist();
+  hist.unshift({
+    time:now.toISOString(),
+    timeStr:now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}),
+    dateStr:now.toLocaleDateString('th-TH'),
+    ngod:profile.ngod||'—',sender:profile.name||'—',receiver:profile.agent||'—',
+    entries:entsToShow,total:calcTotal()
+  });
+  if(hist.length>50)hist=hist.slice(0,50);
+  saveHist(hist);
+  entries=[];eid=0;save();renderList();
+  // แสดงโพย
+  showSlip(entsToShow);
+  // toast 5 วินาที
+  var el=document.getElementById('_toast');
+  el.textContent='📂 เก็บโพยเข้าแฟ้มแล้วครับ ✅';
+  el.style.display='block';
+  clearTimeout(_toastT);
+  _toastT=setTimeout(function(){el.style.display='none';},5000);
+}
+
 function doBasket(){
   if(!entries.length){toast('ยังไม่มีรายการครับ');return;}
   var now=new Date();
