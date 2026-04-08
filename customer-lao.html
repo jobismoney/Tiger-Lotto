@@ -1144,32 +1144,59 @@ function fetchLaoResult(){
   if(btn){btn.textContent='⏳ กำลังดึง...';btn.disabled=true;}
   function done(msg){if(btn){btn.textContent='📡 ดึงผลล่าสุด';btn.disabled=false;}toast(msg);}
 
-  // ดึงหน้า index ของ khaosod laolottery เพื่อหา URL งวดล่าสุด
-  fetch('https://www.khaosod.co.th/laolottery',{headers:{'Accept':'text/html'}})
-    .then(function(r){
-      if(!r.ok)throw new Error('HTTP '+r.status);
-      return r.text();
-    })
+  fetch('https://thethaiger.com/th/check-lottery/laos-lottery/',{headers:{'Accept':'text/html','User-Agent':'Mozilla/5.0'}})
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
     .then(function(html){
-      // หา news_XXXXXX URL งวดล่าสุด
-      var m=html.match(/href="(https:\/\/www\.khaosod\.co\.th\/laolottery\/news_\d+)"/);
+      var m=html.match(/href="(https:\/\/thethaiger\.com\/th\/news\/\d+\/?)"/);
       if(!m)throw new Error('ไม่พบลิงก์งวดล่าสุด');
       return fetch(m[1],{headers:{'Accept':'text/html'}});
     })
     .then(function(r){return r.text();})
     .then(function(html){
-      // parse เลข 6 ตัว: "รางวัลเลข 6 ตัว: XXXXXX"
-      var m6=html.match(/รางวัลเลข\s*6\s*ตัว[:\s]*(\d{6})/);
+      // parse เลข 6 ตัวล่าสุด
+      var m6=html.match(/เลข\s*6\s*ตัว\s*[:\s]*(\d{6})/);
       if(!m6)throw new Error('ยังไม่มีผล 6 ตัว');
-      // parse วันที่จาก title
-      var mDate=html.match(/งวดวันที่\s*([\d\/]+)/)||html.match(/งวด\s*([^<"]+?\d{2}\/\d{2}\/\d{2})/);
-      var dateStr=mDate?mDate[1].trim():'';
       var result=m6[1];
+
+      // parse ตารางย้อนหลัง — หา pattern: วันที่ | 6ตัว | ...
+      // thethaiger ใช้ตาราง HTML: <td>8/4/69</td><td>198977</td>...
+      var arr=getLaoResults();
+      var added=0;
+      var rows=html.match(/<tr[^>]*>([\s\S]*?)<\/tr>/g)||[];
+      rows.forEach(function(row){
+        var cells=row.match(/<td[^>]*>([\s\S]*?)<\/td>/g)||[];
+        if(cells.length<2)return;
+        var dateCell=cells[0].replace(/<[^>]+>/g,'').trim();
+        var sixCell=cells[1].replace(/<[^>]+>/g,'').trim();
+        if(!/^\d{1,2}\/\d{1,2}\/\d{2}$/.test(dateCell))return;
+        if(!/^\d{6}$/.test(sixCell))return;
+        // ไม่เพิ่มซ้ำ
+        var exists=arr.some(function(r){return r.result===sixCell;});
+        if(!exists){
+          arr.push({
+            result:sixCell,
+            title:'หวยลาว '+dateCell,
+            date:dateCell,
+            time:''
+          });
+          added++;
+        }
+      });
+
+      // sort ใหม่ตามลำดับ (ล่าสุดก่อน)
+      arr.sort(function(a,b){
+        // parse date dd/mm/yy
+        function toNum(d){var p=d.split('/');return parseInt(p[2])*10000+parseInt(p[1])*100+parseInt(p[0]);}
+        return toNum(b.date)-toNum(a.date);
+      });
+      if(arr.length>30)arr=arr.slice(0,30);
+      try{localStorage.setItem(LAO_RESULT_KEY,JSON.stringify(arr));}catch(e){}
+
+      // ใส่ผลล่าสุด
       document.getElementById('res-1st').value=result;
       autoFillLao();
-      saveLaoResult(result,'หวยลาว '+(dateStr||'งวดล่าสุด'));
       renderLaoHistory();
-      done('✅ ผลล่าสุด: '+result+(dateStr?' ('+dateStr+')':''));
+      done('✅ ผลล่าสุด: '+result+(added?' (+'+added+' งวดย้อนหลัง)':''));
     })
     .catch(function(err){done('⚠️ '+err.message);});
 }
