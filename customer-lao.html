@@ -385,6 +385,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
     <button class="check-fetch-btn" onclick="fetchLaoResult()" id="fetch-btn">📡 ดึงผลล่าสุด (MThai)</button>
     <button class="check-go-btn" onclick="doCheck()">🔍 ตรวจเลย</button>
     <div id="check-result-out"></div>
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;">
+      <div style="font-size:13px;font-weight:700;color:var(--lg);margin-bottom:8px;">📅 ประวัติผลรางวัล</div>
+      <div id="lao-result-hist"></div>
+    </div>
   </div>
 </div>
 
@@ -1133,28 +1137,28 @@ function viewHistSlip(idx){
 function openGuide(){document.getElementById('guide-ov').classList.add('show');}
 function closeGuide(){document.getElementById('guide-ov').classList.remove('show');}
 
-function openCheck(){document.getElementById('check-ov').classList.add('show');}
+function openCheck(){document.getElementById('check-ov').classList.add('show');renderLaoHistory();}
 function closeCheck(){document.getElementById('check-ov').classList.remove('show');}
 function fetchLaoResult(){
   var btn=document.getElementById('fetch-btn');
   if(btn){btn.textContent='⏳ กำลังดึง...';btn.disabled=true;}
   function done(msg){if(btn){btn.textContent='📡 ดึงผลล่าสุด (MThai)';btn.disabled=false;}toast(msg);}
-  // Step 1: fetch list page เพื่อหา URL งวดล่าสุด
-  fetch('https://corsproxy.io/?url='+encodeURIComponent('https://lotto.mthai.com/lao'))
-    .then(function(r){return r.text();})
-    .then(function(html){
-      var m=html.match(/\/lottery\/lao\/(\d+)\.html/);
-      if(!m)throw new Error('ไม่พบลิงก์งวดล่าสุด');
-      var latestUrl='https://lotto.mthai.com/lottery/lao/'+m[1]+'.html';
-      return fetch('https://corsproxy.io/?url='+encodeURIComponent(latestUrl));
-    })
-    .then(function(r){return r.text();})
-    .then(function(html){
-      var m6=html.match(/<strong>(\d{6})<\/strong>/);
-      if(!m6)throw new Error('ยังไม่มีผล หรือดึงข้อมูลไม่ได้');
+  // ใช้ WordPress REST API ของ MThai โดยตรง
+  fetch('https://lotto.mthai.com/wp-json/wp/v2/posts?categories=27&per_page=1&_fields=title,link,content')
+    .then(function(r){return r.json();})
+    .then(function(posts){
+      if(!posts||!posts.length)throw new Error('ไม่พบข้อมูล');
+      var content=posts[0].content.rendered||'';
+      var title=posts[0].title.rendered||'';
+      // parse เลข 6 ตัว จาก content
+      var m6=content.match(/(\d{6})/);
+      if(!m6)throw new Error('ยังไม่มีผลรางวัล');
       var result=m6[1];
       document.getElementById('res-1st').value=result;
       autoFillLao();
+      // บันทึกประวัติผล
+      saveLaoResult(result, title);
+      renderLaoHistory();
       done('✅ ผลล่าสุด: '+result);
     })
     .catch(function(err){done('⚠️ '+err.message);});
@@ -1179,6 +1183,49 @@ function fetchResult(){
       sv('res-3lang3',back3[0]||'');sv('res-3lang4',back3[1]||'');
       toast('✅ ดึงผลสำเร็จ งวด '+res.date);
     }).catch(function(err){toast('⚠️ '+err.message);});
+}
+var LAO_RESULT_KEY='t999_lao_results_v1';
+function getLaoResults(){try{return JSON.parse(localStorage.getItem(LAO_RESULT_KEY)||'[]');}catch(e){return[];}}
+function saveLaoResult(result6, title){
+  var arr=getLaoResults();
+  // ไม่เพิ่มซ้ำ
+  if(arr.length&&arr[0].result===result6)return;
+  var now=new Date();
+  arr.unshift({
+    result:result6,
+    title:title.replace(/<[^>]+>/g,''),
+    date:now.toLocaleDateString('th-TH'),
+    time:now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})
+  });
+  if(arr.length>30)arr=arr.slice(0,30);
+  try{localStorage.setItem(LAO_RESULT_KEY,JSON.stringify(arr));}catch(e){}
+}
+function renderLaoHistory(){
+  var el=document.getElementById('lao-result-hist');if(!el)return;
+  var arr=getLaoResults();
+  if(!arr.length){el.innerHTML='<div style="text-align:center;color:var(--gray);padding:10px;font-size:13px;">ยังไม่มีประวัติผล</div>';return;}
+  var h='';
+  arr.forEach(function(r){
+    var v=r.result;
+    var r3=v.slice(3),r2m=v.slice(2,4),r2b=v.slice(4),r2n=v.slice(0,2);
+    h+='<div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-bottom:6px;cursor:pointer;" onclick="loadLaoResult(\''+v+'\')">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'
+      +'<span style="font-size:11px;color:var(--lg);">'+r.title+'</span>'
+      +'<span style="font-size:11px;color:var(--gray);">'+r.date+'</span>'
+      +'</div>'
+      +'<div style="display:flex;gap:12px;align-items:center;">'
+      +'<span style="font-size:22px;font-weight:900;color:var(--gold);letter-spacing:3px;">'+v+'</span>'
+      +'<div style="font-size:11px;color:var(--lg);line-height:1.7;">'
+      +'3ตัว: <b style="color:#f5c518;">'+r3+'</b> | 2กลาง: <b style="color:#34d399;">'+r2m+'</b><br>'
+      +'2บน: <b style="color:#60a5fa;">'+r2b+'</b> | 2หน้า: <b style="color:#fb923c;">'+r2n+'</b>'
+      +'</div></div></div>';
+  });
+  el.innerHTML=h;
+}
+function loadLaoResult(v){
+  document.getElementById('res-1st').value=v;
+  autoFillLao();
+  toast('โหลดผล '+v+' แล้วครับ');
 }
 function autoFillLao(){
   var v=document.getElementById('res-1st').value.trim();
