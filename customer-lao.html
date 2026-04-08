@@ -863,7 +863,7 @@ function toLines(e){
     var hasKb3=(e.kd&&(e.kd['bon']||[]).length>0);
     var ps3=[],pt3=0;
     if(b>0&&!hasKb3){ps3.push('บ'+fmtNum(b));pt3+=b;}
-    if(t>0){ps3.push('ต'+fmtNum(t));pt3+=t;}
+    if(t>0&&!hasKb3){ps3.push('ต'+fmtNum(t));pt3+=t;}
     if(l>0){ps3.push('ล'+fmtNum(l));pt3+=l;}
     if(ps3.length)push(lek,pstr(ps3),pt3);
     if(hasKb3){
@@ -876,13 +876,13 @@ function toLines(e){
       if(hasFull3&&allSame3){push(lek,'ชบ'+fmtNum(allP3[0]),tot3);}
       else{if(b>0)push(lek,'บ'+fmtNum(b),b);kb3arr.forEach(function(x){push(x.perm,'บ'+fmtNum(x.price),x.price);});}
       if(t>0)push(lek,'ต'+fmtNum(t),t);
-      if(l>0)push(lek,'ล'+fmtNum(l),l);
+      if(l>0&&pt3===0)push(lek,'ล'+fmtNum(l),l);
     }
   } else if(d===4){
     var hasKb4=(e.kd&&e.kd['bon']||[]).length>0;
     var ps4=[],pt4=0;
     if(b>0&&!hasKb4){ps4.push('บ'+fmtNum(b));pt4+=b;}
-    if(t>0){ps4.push('ต'+fmtNum(t));pt4+=t;}
+    if(t>0&&!hasKb4){ps4.push('ต'+fmtNum(t));pt4+=t;}
     if(ps4.length)push(lek,pstr(ps4),pt4);
     if(hasKb4){
       var kb4=e.kd['bon'];
