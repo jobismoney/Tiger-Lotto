@@ -898,16 +898,15 @@ function makePageHTML(pEntries,pgNum,totalPages,inf){
   var bodyRows='';
   pEntries.forEach(function(e){
     var ls=toLines(e);if(!ls.length)return;
-    // แสดงทุก line แยกกัน ไม่มีปีกกา แต่ละบรรทัดมีราคาของตัวเอง
     ls.forEach(function(line){
-      bodyRows+='<tr><td class="td-lek">'+line.lek+'</td><td class="td-eq">=</td><td class="td-price">'+line.price+'</td><td class="td-brace-empty"></td><td class="td-total">'+fmtNum(line.total)+'</td></tr>';
+      bodyRows+='<tr><td class="td-lek">'+line.lek+'</td><td class="td-eq">=</td><td class="td-price">'+line.price+'</td></tr>';
     });
-    bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
+    bodyRows+='<tr class="row-sep"><td colspan="3"></td></tr>';
   });
   var pt=pEntries.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);(e.paks||[]).forEach(function(p){t+=p.price;});return s+t;},0);
   return '<div class="slip-hd"><div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇱🇦 ຫວຍລາວພັດທະນາ</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
     +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div></div>'
-    +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
+    +'<table class="ptbl" style="table-layout:fixed;width:100%"><colgroup><col style="width:56px"><col style="width:14px"><col></colgroup><tbody>'+bodyRows+'</tbody></table>'
     +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmtNum(pt)+'</span></div>'
     +'<div class="slip-qr-wrap" id="slip-qr-pg-'+pgNum+'"></div>'+LEGEND;
 }
