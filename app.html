@@ -74,6 +74,9 @@ function lkSubmit(){
 }
 
 function lkInit(){
+  // check saved key — เรียกหลัง DOM พร้อมเท่านั้น
+  var screen=document.getElementById('lk-screen');
+  if(!screen) return; // DOM ยังไม่พร้อม
   // auto-set month/year
   var now=new Date();
   var mm=String(now.getMonth()+1).padStart(2,'0');
@@ -81,12 +84,11 @@ function lkInit(){
   var ms=document.getElementById('gk-month');
   var ys=document.getElementById('gk-year');
   if(ms)ms.value=mm; if(ys)ys.value=yy;
-  // check saved
   try{
     var saved=localStorage.getItem(LK_STORE)||'';
     var agCode=localStorage.getItem(LK_AGENT_S)||'';
     if(saved&&lkVerify(saved,2)){
-      document.getElementById('lk-screen').classList.add('hide');
+      screen.classList.add('hide');
       _lkAgentCode=agCode;
       return;
     }
@@ -2141,6 +2143,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       openCheckOverlay(mergedEntries,ngod,i);
     },
     closeNgodFromCheck:function(){doCloseNgodFromCheck();},
+    openCheck:function(){
+      var ov=document.getElementById('check-ov');
+      if(ov)ov.classList.add('show');
+      // set งวด label
+      var lbl=document.getElementById('check-ngod-lbl2');
+      if(lbl)lbl.textContent=ngodInfo.ngod||'—';
+    },
     doCheck:function(){doCheck();},
     showCollectSummary:function(ngod){
       var hist=getHistory();
