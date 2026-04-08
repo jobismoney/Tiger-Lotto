@@ -382,6 +382,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
         <div id="disp-2bon" style="font-size:26px;font-weight:900;color:#60a5fa;letter-spacing:4px;min-height:36px;">—</div>
       </div>
     </div>
+    <button class="check-fetch-btn" onclick="fetchLaoResult()" id="fetch-btn">📡 ดึงผลล่าสุด (MThai)</button>
     <button class="check-go-btn" onclick="doCheck()">🔍 ตรวจเลย</button>
     <div id="check-result-out"></div>
   </div>
@@ -1134,6 +1135,39 @@ function closeGuide(){document.getElementById('guide-ov').classList.remove('show
 
 function openCheck(){document.getElementById('check-ov').classList.add('show');}
 function closeCheck(){document.getElementById('check-ov').classList.remove('show');}
+function fetchLaoResult(){
+  var btn=document.getElementById('fetch-btn');
+  if(btn){btn.textContent='⏳ กำลังดึง...';btn.disabled=true;}
+  function done(msg){if(btn){btn.textContent='📡 ดึงผลล่าสุด (MThai)';btn.disabled=false;}toast(msg);}
+  // Step 1: fetch list page เพื่อหา URL งวดล่าสุด
+  fetch('https://api.allorigins.win/get?url='+encodeURIComponent('https://lotto.mthai.com/lao'))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var html=data.contents||'';
+      // หา link งวดล่าสุด pattern: /lottery/lao/XXXXX.html
+      var m=html.match(/\/lottery\/lao\/(\d+)\.html/);
+      if(!m)throw new Error('ไม่พบลิงก์งวดล่าสุด');
+      var latestUrl='https://lotto.mthai.com/lottery/lao/'+m[1]+'.html';
+      // Step 2: fetch หน้างวดนั้น
+      return fetch('https://api.allorigins.win/get?url='+encodeURIComponent(latestUrl));
+    })
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var html=data.contents||'';
+      // หา เลข 6 ตัว pattern
+      var m6=html.match(/เลข\s*6\s*ตัว[\s\S]*?<\/h3>[\s\S]*?<strong>(\d{6})<\/strong>/);
+      if(!m6){
+        // ลองหาแบบอื่น
+        m6=html.match(/<strong>(\d{6})<\/strong>/);
+      }
+      if(!m6)throw new Error('ยังไม่มีผล หรือดึงข้อมูลไม่ได้');
+      var result=m6[1];
+      document.getElementById('res-1st').value=result;
+      autoFillLao();
+      done('✅ ผลล่าสุด: '+result);
+    })
+    .catch(function(err){done('⚠️ '+err.message);});
+}
 function fetchResult(){
   toast('📡 กำลังดึงผลรางวัล...');
   fetch('https://lotto.api.rayriffy.com/latest')
