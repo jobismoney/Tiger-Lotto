@@ -836,21 +836,20 @@ function toLines(e){
     // ถ้ามีกลับ — render แยกทีละ perm (รวม lek หลัก)
     if(hasKb2||hasKl2||hasKn2){
       allPerms2.forEach(function(p){
-        var bx=kb2.find?kb2.find(function(x){return x.perm===p;}):null;
-        if(!bx)kb2.forEach(function(x){if(x.perm===p)bx=x;});
+        var bx=null;kb2.forEach(function(x){if(x.perm===p)bx=x;});
         var lx=null;kl2.forEach(function(x){if(x.perm===p)lx=x;});
         var nx=null;kn2.forEach(function(x){if(x.perm===p)nx=x;});
         var rps=[],rt=0;
         var bp=(p===lek)?b:(bx?bx.price:0);
         var lp=(p===lek)?l:(lx?lx.price:0);
         var np=(p===lek)?n:(nx?nx.price:0);
-        var tp=(p===lek)?t:0;
         if(bp>0){rps.push('บ'+fmtNum(bp));rt+=bp;}
-        if(tp>0){rps.push('ต'+fmtNum(tp));rt+=tp;}
         if(lp>0){rps.push('ล'+fmtNum(lp));rt+=lp;}
         if(np>0){rps.push('น'+fmtNum(np));rt+=np;}
         if(rps.length)push(p,rps.join('*'),rt);
       });
+      // โต๊ดแยกบรรทัด
+      if(t>0)push(lek,'ต'+fmtNum(t),t);
     } else {
       // ไม่มีกลับ — แถวเดียว
       var ps2=[],pt2=0;
