@@ -5,10 +5,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="T999 ລູກຄ້າ">
+<meta name="apple-mobile-web-app-title" content="T999 ลูกค้า">
 <meta name="theme-color" content="#0f1117">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 — ລູກຄ້າ ລາວ</title>
+<title>T999 — ลูกค้า ลาว</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -236,9 +236,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 <!-- HEADER -->
 
 <div id="lic-screen">
-  <div class="lic-logo">🐯 🇱🇦</div>
-  <div class="lic-title">T999 ລູກຄ້າ</div>
-  <div class="lic-sub">ໃສ່ License Key ຈາກ Agent ຂອງທ່ານ</div>
+  <div class="lic-logo">🐯 🇹🇭</div>
+  <div class="lic-title">T999 ลูกค้า</div>
+  <div class="lic-sub">ใส่ License Key จาก Agent ของคุณครับ</div>
   <input class="lic-inp" id="lic-inp" type="text" maxlength="19"
     placeholder="T999-XXXX-XXXX-XXXX"
     oninput="this.value=this.value.toUpperCase()"
@@ -249,7 +249,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 
 <div class="hdr">
   <div class="hdr-left">
-    <h1>🐯 T999 ລູກຄ້າ 🇱🇦</h1>
+    <h1>🐯 T999 ลูกค้า 🇱🇦</h1>
     <p id="hd-info">ตั้งค่าก่อนใช้งาน</p>
   </div>
   <div class="hdr-btns">
@@ -264,10 +264,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 <div class="list-area">
   <div class="tbl-hd">
     <span>เลข</span>
-    <span style="color:#60a5fa">ຫລັງ</span>
-    <span style="color:#f472b6">ໂຕດ</span>
-    <span style="color:#34d399">ກາງ</span>
-    <span style="color:#fb923c">ໜ້າ</span>
+    <span style="color:#60a5fa">บน/4ตัว</span>
+    <span style="color:#f472b6">โต๊ด</span>
+    <span style="color:#34d399">กลาง/ล่าง</span>
+    <span style="color:#fb923c">หน้า/ลอย</span>
     <span></span>
   </div>
   <div class="list-scroll" id="list-scroll">
@@ -289,20 +289,20 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
   <!-- type buttons -->
   <div class="fk-type-row">
     <div class="fk-type-col">
-      <button class="fk-tbtn" id="fkt-bon" onclick="fkToggle('bon')">ຫລັງ</button>
-      <button class="fk-klb" id="fkk-bon" onclick="fkToggleKlb('bon')"></button>
-    </div>
-    <div class="fk-type-col">
-      <button class="fk-tbtn" id="fkt-tod" onclick="fkToggle('tod')">ໂຕດ</button>
+      <button class="fk-tbtn" id="fkt-bon" onclick="fkToggle('bon')">บน/4ตัว</button>
       <div style="height:28px;"></div>
     </div>
     <div class="fk-type-col">
-      <button class="fk-tbtn" id="fkt-lang" onclick="fkToggle('lang')">ກາງ</button>
-      <button class="fk-klb" id="fkk-lang" onclick="fkToggleKlb('lang')"></button>
+      <button class="fk-tbtn" id="fkt-tod" onclick="fkToggle('tod')">โต๊ด</button>
+      <div style="height:28px;"></div>
     </div>
     <div class="fk-type-col">
-      <button class="fk-tbtn" id="fkt-na" onclick="fkToggle('na')">ໜ້າ</button>
-      <button class="fk-klb" id="fkk-na" onclick="fkToggleKlb('na')"></button>
+      <button class="fk-tbtn" id="fkt-lang" onclick="fkToggle('lang')">กลาง/ล่าง</button>
+      <div style="height:28px;"></div>
+    </div>
+    <div class="fk-type-col">
+      <button class="fk-tbtn" id="fkt-na" onclick="fkToggle('na')">หน้า/ลอย</button>
+      <button class="fk-klb" id="fkk-na" onclick="fkToggleKlb('na')" style="display:none;"></button>
     </div>
   </div>
   <!-- numpad -->
@@ -354,27 +354,13 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 <div class="check-ov" id="check-ov">
   <div class="check-inner">
     <div class="hist-hd">
-      <span>🔍 ตรวจรางวัล</span>
+      <span>🔍 ตรวจรางวัล 🇱🇦 ลาว</span>
       <button class="hist-close-btn" onclick="closeCheck()">✕</button>
     </div>
-    <input class="check-inp" id="res-1st" type="tel" inputmode="numeric" maxlength="6" placeholder="รางวัลที่ 1 (6 หลัก)">
-    <div style="margin-bottom:8px;">
-      <div class="check-sub-lbl">2 ตัวล่าง</div>
-      <input class="check-inp" id="res-2lang" type="tel" inputmode="numeric" maxlength="2" placeholder="xx" style="font-size:22px;padding:8px;letter-spacing:6px;">
+    <input class="check-inp" id="res-1st" type="tel" inputmode="numeric" maxlength="6" placeholder="ผลรางวัล 6 หลัก (เช่น 123456)">
+    <div style="font-size:11px;color:var(--lg);margin:-6px 0 10px;padding:0 4px;">
+      ระบบจะคำนวณ: 4ตัว=3456 · 3ตัว=456 · 2บน=56 · 2กลาง/ล่าง=34 · 2หน้า=12 · ลอยหลัง=4,5,6 · ลอยล่าง=3,4
     </div>
-    <div class="check-sub-grid">
-      <div>
-        <div class="check-sub-lbl">หน้า 3 ตัว</div>
-        <input class="check-sub-inp" id="res-3lang1" type="tel" maxlength="3" placeholder="xxx">
-        <input class="check-sub-inp" id="res-3lang2" type="tel" maxlength="3" placeholder="xxx">
-      </div>
-      <div>
-        <div class="check-sub-lbl">ท้าย 3 ตัว</div>
-        <input class="check-sub-inp" id="res-3lang3" type="tel" maxlength="3" placeholder="xxx">
-        <input class="check-sub-inp" id="res-3lang4" type="tel" maxlength="3" placeholder="xxx">
-      </div>
-    </div>
-    <button class="check-fetch-btn" onclick="fetchResult()">📡 ดึงผลรางวัลล่าสุด</button>
     <button class="check-go-btn" onclick="doCheck()">🔍 ตรวจเลย</button>
     <div id="check-result-out"></div>
   </div>
@@ -422,8 +408,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
     </div>
     <div class="pak-sec">ประเภท</div>
     <div class="pak-type-row" id="pak-type-tabs">
-      <div class="pak-ttab on" data-type="3bon" onclick="selPakType(this)">3ตัวบน</div>
-      <div class="pak-ttab" data-type="2lang" onclick="selPakType(this)">2ตัวล่าง</div>
+      <div class="pak-ttab on" data-type="bon" onclick="selPakType(this)">ปักหลักหลัง</div>
+      <div class="pak-ttab" data-type="lang" onclick="selPakType(this)">ปักหลักล่าง</div>
     </div>
     <div class="pak-sec">ตำแหน่ง</div>
     <div class="pak-pos-row" id="pak-pos-grid">
@@ -453,14 +439,40 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 
 <script>
 // ══════════════════════════════════════
-// CONSTANTS
+// CONSTANTS — หวยลาว
+// เลขออก 6 หลัก เช่น 1 2 3 4 5 6
+// 4ตัวหลัง = 3456, 3ตัวหลัง = 456
+// 2บน = 56, 2กลาง/ล่าง = 34, 2หน้า = 12
+// ลอยหลัง = 4,5,6 (จ่าย 8 / ปักหลัก 3)
+// ลอยล่าง = 3,4 (จ่าย 8 / ปักหลัก 4)
+// โต๊ด 3ตัว=100, 4ตัว=20, 5ตัว=10
 // ══════════════════════════════════════
-var RULES     = {1:['bon','lang'],2:['bon','tod','lang','na'],3:['bon','tod','lang','na'],4:['tod'],5:['tod']};
-var KLB       = {bon:[2,3,4],lang:[2,3],na:[2,3]};
-var FK_DEFAULT= {1:['bon','lang'],2:['bon','lang','na'],3:['bon','tod'],4:['bon','tod'],5:['tod']};
-var FK_KLB_TYPES = ['bon','lang','na'];
+// RULES: d=ความยาวเลข → ประเภทที่อนุญาต
+// bon = บน(3ตัว)/4ตัว, tod = โต๊ด, lang = กลาง/ล่าง, na = หน้า/ลอย
+var RULES     = {1:['bon','na'],2:['bon','tod','lang','na'],3:['bon','tod','lang'],4:['bon','tod'],5:['tod']};
+var KLB       = {}; // หวยลาวไม่มี กลับ/ชุด
+var FK_DEFAULT= {1:['bon','na'],2:['bon','lang'],3:['bon','tod'],4:['bon','tod'],5:['tod']};
+var FK_KLB_TYPES = [];
 var FK_COLOR  = {bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
-var FK_LABEL  = {bon:'ຫລັງ',tod:'ໂຕດ',lang:'ກາງ',na:'ໜ້າ'};
+var FK_LABEL  = {bon:'บน/4ตัว',tod:'โต๊ด',lang:'กลาง/ล่าง',na:'หน้า/ลอย'};
+
+// อัตราจ่าย
+var PAY_RATES = {
+  bon4: 4000,  // 4 ตัวหลัง
+  bon3: 550,   // 3 ตัวหลัง
+  bon2: 70,    // 2 ตัวบน (หลัง)
+  lang2: 70,   // 2 ตัวกลาง/ล่าง
+  na2: 70,     // 2 ตัวหน้า
+  loy_bon: 8,  // ลอยหลัง
+  loy_lang: 8, // ลอยล่าง
+  pak_bon: 3,  // ปักหลักหลัง
+  pak_lang: 4, // ปักหลักล่าง
+  tod5: 10,    // โต๊ด 5 ตัว
+  tod4: 20,    // โต๊ด 4 ตัว
+  tod3: 100,   // โต๊ด 3 ตัว
+  tod2: 10,    // โต๊ด 2 ตัว
+};
+
 var MAX_ROWS  = 20;
 
 var STORE_KEY   = 't999_cust_lao_v1';
@@ -610,14 +622,7 @@ function calcTotal(){
 // FK KEYBOARD
 // ══════════════════════════════════════
 function fkAutoSel(d){
-  if(d>=4){
-    ['bon','tod','lang','na'].forEach(function(t){
-      fkSel[t]=(t==='tod');
-      var btn=document.getElementById('fkt-'+t);
-      if(btn)btn.className='fk-tbtn'+(fkSel[t]?' on-'+t:'');
-    });
-    fkKlb={bon:false,lang:false,na:false};
-  } else if(!fkUserOverride){
+  if(!fkUserOverride){
     var def=FK_DEFAULT[d]||['bon','lang'];
     ['bon','tod','lang','na'].forEach(function(t){
       fkSel[t]=def.indexOf(t)>=0;
@@ -628,19 +633,14 @@ function fkAutoSel(d){
   fkUpdateKlbBtns(d);
 }
 function fkUpdateKlbBtns(d){
-  if(!d&&fkBuf){var fl=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');d=fl.length||2;}
-  d=d||2;
-  var lbl=d===2?'กลับ':'ชุด';
+  // หวยลาวไม่มีปุ่มกลับ/ชุด — ซ่อนทั้งหมด
   FK_KLB_TYPES.forEach(function(t){
-    var btn=document.getElementById('fkk-'+t);if(!btn)return;
-    var show=fkSel[t];
-    btn.style.display=show?'block':'none';
-    if(show){btn.textContent=lbl;btn.className='fk-klb'+(fkKlb[t]?' on':'');}
+    var btn=document.getElementById('fkk-'+t);if(btn)btn.style.display='none';
   });
 }
 function fkToggle(t){
   var d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
-  if(d>=4)return;
+  if(d>=5)return; // หวยลาวสูงสุด 5 ตัว (5ตัวโต๊ด)
   fkUserOverride=true;
   fkSel[t]=!fkSel[t];
   if(!fkSel[t])fkKlb[t]=false;
@@ -704,7 +704,7 @@ function fkMul(){
     var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
     var d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
     if(ps.length>=types.length){
-      if(d>=4)return;
+      if(d>=5)return;
       var allOrder=['bon','tod','lang','na'];
       var next=null;
       for(var i=0;i<allOrder.length;i++){if(!fkSel[allOrder[i]]){next=allOrder[i];break;}}
@@ -754,15 +754,8 @@ function fkCommit(){
   if(zeroTypes.length){toast('ราคายังไม่ครบ: '+zeroTypes.map(function(t){return FK_LABEL[t];}).join(', '));return;}
   var d=leks[0].length;var added=0;
   leks.forEach(function(l){
-    var kd={};
-    FK_KLB_TYPES.forEach(function(t){
-      if(fkSel[t]&&fkKlb[t]&&pm[t]){
-        var perms=getPerms(l).filter(function(p){return p!==l;});
-        if(perms.length)kd[t]=perms.map(function(p){return{perm:p,price:pm[t]};});
-      }
-    });
     eid++;
-    entries.unshift({id:eid,lek:l,d:l.length,bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,kd:kd,paks:[]});
+    entries.unshift({id:eid,lek:l,d:l.length,bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,kd:{},paks:[]});
     added++;
   });
   if(added>0){renderList();save();document.getElementById('list-scroll').scrollTop=0;toast('✅ เพิ่ม '+added+' รายการ');}
@@ -773,71 +766,54 @@ function fkCommit(){
 // ══════════════════════════════════════
 // SLIP
 // ══════════════════════════════════════
-var LEGEND='<div class="slip-legend">บ=บน  ล=ล่าง  ต=โต๊ด  หน้า=หน้า  ช=ชุด  ก=กลับ</div>';
+var LEGEND='<div class="slip-legend">บ=บน/4ตัว  ล=กลาง/ล่าง  ต=โต๊ด  น=หน้า/ลอย  ปัก=ปักหลัก</div>';
 function fmtNum(n){return parseInt(n||0).toLocaleString();}
 function toLines(e){
-  var d=e.d,b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0,lines=[],lek=e.lek,kd=e.kd||{};
+  var d=e.d,b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0,lines=[],lek=e.lek;
   function push(num,pr,tot){lines.push({lek:num,price:pr,total:tot});}
   function pstr(ps){return ps.join('*');}
-  if(d===1){var ps=[];if(b>0)ps.push('บ'+fmtNum(b));if(l>0)ps.push('ล'+fmtNum(l));if(ps.length)push(lek,pstr(ps),b+l);}
-  else if(d===2){
-    var hasKb=(kd['bon']||[]).length>0,hasKl=(kd['lang']||[]).length>0,hasKn2=(kd['na']||[]).length>0;
+  if(d===1){
+    var ps=[];
+    if(b>0)ps.push('ลอยหลัง'+fmtNum(b));
+    if(l>0)ps.push('ลอยล่าง'+fmtNum(l));
+    if(n>0)ps.push('ปักน'+fmtNum(n));
+    if(ps.length)push(lek,pstr(ps),b+l+n);
+  } else if(d===2){
     var ps2=[],pt2=0;
-    if(b>0&&!hasKb){ps2.push('บ'+fmtNum(b));pt2+=b;}
+    if(b>0){ps2.push('บ'+fmtNum(b));pt2+=b;}
     if(t>0){ps2.push('ต'+fmtNum(t));pt2+=t;}
-    if(l>0&&!hasKl){ps2.push('ล'+fmtNum(l));pt2+=l;}
-    if(n>0&&!hasKn2){ps2.push('หน้า'+fmtNum(n));pt2+=n;}
+    if(l>0){ps2.push('ล'+fmtNum(l));pt2+=l;}
+    if(n>0){ps2.push('น'+fmtNum(n));pt2+=n;}
     if(ps2.length)push(lek,pstr(ps2),pt2);
-    var kb2=kd['bon']||[],kl2=kd['lang']||[],kn2arr=kd['na']||[];
-    if(kn2arr.length){
-      var allNaP=[];if(n>0)allNaP.push(n);kn2arr.forEach(function(x){allNaP.push(x.price);});
-      var allNaSame=allNaP.every(function(p){return p===allNaP[0];});var naFull=(n>0?1:0)+kn2arr.length===2;
-      if(naFull&&allNaSame){push(lek,'กลับหน้า'+fmtNum(allNaP[0]),allNaP.reduce(function(s,p){return s+p;},0));}
-      else{if(n>0)push(lek,'หน้า'+fmtNum(n),n);kn2arr.forEach(function(x){push(x.perm,'หน้า'+fmtNum(x.price),x.price);});}
-    }
-    if(kb2.length||kl2.length){
-      getPerms(lek).forEach(function(p){
-        var bx=null,lx=null;
-        kb2.forEach(function(x){if(x.perm===p)bx=x;});kl2.forEach(function(x){if(x.perm===p)lx=x;});
-        var rowPs=[],rowT=0;
-        if(p===lek){if(b>0&&hasKb){rowPs.push('บ'+fmtNum(b));rowT+=b;}}else if(bx&&bx.price>0){rowPs.push('บ'+fmtNum(bx.price));rowT+=bx.price;}
-        if(p===lek){if(l>0&&hasKl){rowPs.push('ล'+fmtNum(l));rowT+=l;}}else if(lx&&lx.price>0){rowPs.push('ล'+fmtNum(lx.price));rowT+=lx.price;}
-        if(rowPs.length)push(p,pstr(rowPs),rowT);
-      });
-    }
   } else if(d===3){
-    var hasKb3=(kd['bon']||[]).length>0,hasKl3=(kd['lang']||[]).length>0,hasKn=(kd['na']||[]).length>0;
-    var mps=[],mtot=0;
-    if(b>0&&!hasKb3){mps.push('บ'+fmtNum(b));mtot+=b;}
-    if(t>0){mps.push('ต'+fmtNum(t));mtot+=t;}
-    if(l>0&&!hasKl3){mps.push('ล'+fmtNum(l));mtot+=l;}
-    if(mps.length)push(lek,pstr(mps),mtot);
-    if(n>0&&!hasKn)push(lek,'หน้า'+fmtNum(n),n);
-    [['bon',b],['lang',l],['na',n]].forEach(function(pair){
-      var k=pair[0],mp=pair[1],xd=kd[k]||[];if(!xd.length)return;
-      var lbl=k==='bon'?'บ':k==='lang'?'ล':'หน้า';var slbl=k==='bon'?'ช':k==='lang'?'ชล':'ชหน้า';
-      var totalP=permCount(lek);var allP=[];if(mp>0)allP.push(mp);xd.forEach(function(x){allP.push(x.price);});
-      var tot2=allP.reduce(function(s,p){return s+p;},0);var hasFull=(mp>0?1:0)+xd.length===totalP;
-      var allSame=allP.every(function(p){return p===allP[0];});
-      if(hasFull&&allSame){push(lek,slbl+fmtNum(allP[0]),tot2);}
-      else{if(mp>0)push(lek,lbl+fmtNum(mp),mp);xd.forEach(function(x){push(x.perm,lbl+fmtNum(x.price),x.price);});}
-    });
-  } else {if(t>0)push(lek,'ต'+fmtNum(t),t);}
+    var ps3=[],pt3=0;
+    if(b>0){ps3.push('บ'+fmtNum(b));pt3+=b;}
+    if(t>0){ps3.push('ต'+fmtNum(t));pt3+=t;}
+    if(l>0){ps3.push('ล'+fmtNum(l));pt3+=l;}
+    if(ps3.length)push(lek,pstr(ps3),pt3);
+  } else if(d===4){
+    var ps4=[],pt4=0;
+    if(b>0){ps4.push('4ตัว'+fmtNum(b));pt4+=b;}
+    if(t>0){ps4.push('4โต๊ด'+fmtNum(t));pt4+=t;}
+    if(ps4.length)push(lek,pstr(ps4),pt4);
+  } else {
+    if(t>0)push(lek,'5โต๊ด'+fmtNum(t),t);
+  }
   // pak lines
   (e.paks||[]).forEach(function(p){
     var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
-    lines.push({lek:e.lek,price:'ปัก'+posLbl+' '+(p.typeLabel||p.type),total:p.price});
+    var typLbl=p.type==='bon'?'ปักหลักหลัง':'ปักหลักล่าง';
+    lines.push({lek:e.lek,price:typLbl+'('+posLbl+')',total:p.price});
   });
   return lines;
 }
 function entrySummary(e){
-  var d=e.d,b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0,kd=e.kd||{};
-  var kb=(kd['bon']||[]).reduce(function(s,x){return s+x.price;},0);
-  var kl=(kd['lang']||[]).reduce(function(s,x){return s+x.price;},0);
-  var kn=(kd['na']||[]).reduce(function(s,x){return s+x.price;},0);
+  var d=e.d,b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0;
   var pk=(e.paks||[]).reduce(function(s,p){return s+p.price;},0);
-  if(d===3)return{c3:b+kb+n+kn,c2:0,c1:pk,ct:t,cl:l+kl};
-  if(d===2)return{c3:0,c2:b+kb+l+kl+n+kn,c1:pk,ct:t,cl:0};
+  // c3=3-4ตัว, c2=2ตัว, c1=1ตัว/ลอย, ct=โต๊ด, cl=กลาง/ล่าง
+  if(d===4)return{c3:b,c2:0,c1:pk,ct:t,cl:0};
+  if(d===3)return{c3:b,c2:0,c1:pk,ct:t,cl:l};
+  if(d===2)return{c3:0,c2:b+l+n,c1:pk,ct:t,cl:0};
   if(d===1)return{c3:0,c2:0,c1:b+l+n+pk,ct:0,cl:0};
   return{c3:0,c2:0,c1:pk,ct:t,cl:0};
 }
@@ -1099,10 +1075,15 @@ function fetchResult(){
       toast('✅ ดึงผลสำเร็จ งวด '+res.date);
     }).catch(function(err){toast('⚠️ '+err.message);});
 }
-function getTod(lek){
-  if(lek.length!==3)return[];
+function getLaoTod(lek){
+  // หาทุก permutation ของเลข (เหมือนไทย)
+  if(lek.length<2)return[];
   var d=lek.split(''),s=new Set();
-  [0,1,2].forEach(function(a){[0,1,2].forEach(function(b){[0,1,2].forEach(function(c){if(a!==b&&b!==c&&a!==c)s.add(d[a]+d[b]+d[c]);});});});
+  function perm(arr,cur){
+    if(!arr.length){s.add(cur);return;}
+    arr.forEach(function(x,i){perm(arr.slice(0,i).concat(arr.slice(i+1)),cur+x);});
+  }
+  perm(d,'');
   return Array.from(s);
 }
 function doCheck(){
@@ -1110,24 +1091,77 @@ function doCheck(){
   var allEnts=entries.slice();hist.forEach(function(h){allEnts=allEnts.concat(h.entries||[]);});
   if(!allEnts.length){toast('ไม่มีรายการตรวจ');return;}
   var first6=document.getElementById('res-1st').value.trim();
-  if(first6.length!==6){toast('ใส่รางวัลที่ 1 ครบ 6 หลักครับ');return;}
-  var r3bon=first6.slice(-3),r3na=first6.slice(0,3),r2bon=first6.slice(-2),r2na=first6.slice(3,5);
-  var r2lang=document.getElementById('res-2lang')?document.getElementById('res-2lang').value.trim():'';
-  function gv(id){var el=document.getElementById(id);return el?el.value.trim():'';}
-  var r3langList=[gv('res-3lang1'),gv('res-3lang2'),gv('res-3lang3'),gv('res-3lang4')].filter(function(x){return x.length===3;});
-  var todWin=getTod(r3bon),vbon=r3bon.split('');
+  if(first6.length!==6){toast('ใส่ผลรางวัล 6 หลักครับ');return;}
+
+  // คำนวณเลขที่ออกแต่ละประเภท
+  var r4  = first6.slice(2);       // 3456 (4 ตัวหลัง)
+  var r3  = first6.slice(3);       // 456  (3 ตัวหลัง)
+  var r2bon  = first6.slice(4);    // 56   (2 ตัวบน)
+  var r2mid  = first6.slice(2,4);  // 34   (2 ตัวกลาง/ล่าง)
+  var r2na   = first6.slice(0,2);  // 12   (2 ตัวหน้า)
+  var loy_bon_digits = r3.split('');    // [4,5,6] ลอยหลัง
+  var loy_lang_digits = first6.slice(2,4).split(''); // [3,4] ลอยล่าง
+
+  var todWin3=getLaoTod(r3);  // permutation 3 ตัวหลัง
+  var todWin4=getLaoTod(r4);  // permutation 4 ตัวหลัง
   var hits=[],grandPay=0;
+
   allEnts.forEach(function(e){
-    var lek=e.lek,d=parseInt(e.d)||lek.length,b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0;
-    if(d===3&&lek===r3bon&&b){hits.push({lek:lek,type:'3ตัวบน',bet:b,pay:b*500});grandPay+=b*500;}
-    if(d===3&&lek===r3na&&n){hits.push({lek:lek,type:'3ตัวหน้า',bet:n,pay:n*500});grandPay+=n*500;}
-    if(d===3&&r3langList.indexOf(lek)>=0&&l){hits.push({lek:lek,type:'3ตัวล่าง',bet:l,pay:l*500});grandPay+=l*500;}
-    if(d===3&&todWin.indexOf(lek)>=0&&t){hits.push({lek:lek,type:'โต๊ด',bet:t,pay:t*100});grandPay+=t*100;}
-    if(d===2&&lek===r2bon&&b){hits.push({lek:lek,type:'2ตัวบน',bet:b,pay:b*70});grandPay+=b*70;}
-    if(d===2&&r2lang&&lek===r2lang&&l){hits.push({lek:lek,type:'2ตัวล่าง',bet:l,pay:l*70});grandPay+=l*70;}
-    if(d===2&&lek===r2na&&n){hits.push({lek:lek,type:'2ตัวหน้า',bet:n,pay:n*70});grandPay+=n*70;}
-    if(d===1&&vbon.indexOf(lek)>=0&&b){hits.push({lek:lek,type:'วิ่งบน',bet:b,pay:b*3});grandPay+=b*3;}
+    var lek=e.lek,d=parseInt(e.d)||lek.length;
+    var b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0;
+
+    // 4 ตัวหลัง (d=4, bon)
+    if(d===4&&lek===r4&&b){hits.push({lek:lek,type:'4ตัวหลัง',bet:b,pay:b*PAY_RATES.bon4});grandPay+=b*PAY_RATES.bon4;}
+    // 4 ตัวโต๊ด
+    if(d===4&&todWin4.indexOf(lek)>=0&&t){hits.push({lek:lek,type:'4ตัวโต๊ด',bet:t,pay:t*PAY_RATES.tod4});grandPay+=t*PAY_RATES.tod4;}
+
+    // 3 ตัวหลัง (d=3, bon)
+    if(d===3&&lek===r3&&b){hits.push({lek:lek,type:'3ตัวหลัง',bet:b,pay:b*PAY_RATES.bon3});grandPay+=b*PAY_RATES.bon3;}
+    // 3 ตัวโต๊ด
+    if(d===3&&todWin3.indexOf(lek)>=0&&t){hits.push({lek:lek,type:'3ตัวโต๊ด',bet:t,pay:t*PAY_RATES.tod3});grandPay+=t*PAY_RATES.tod3;}
+    // 3 ตัวกลาง/ล่าง — ลาวไม่มี 3ตัวล่าง แยกต่างหาก (ไม่มีในหวยลาว)
+
+    // 2 ตัวบน (d=2, bon)
+    if(d===2&&lek===r2bon&&b){hits.push({lek:lek,type:'2ตัวบน',bet:b,pay:b*PAY_RATES.bon2});grandPay+=b*PAY_RATES.bon2;}
+    // 2 ตัวกลาง/ล่าง (d=2, lang)
+    if(d===2&&lek===r2mid&&l){hits.push({lek:lek,type:'2ตัวกลาง/ล่าง',bet:l,pay:l*PAY_RATES.lang2});grandPay+=l*PAY_RATES.lang2;}
+    // 2 ตัวหน้า (d=2, na)
+    if(d===2&&lek===r2na&&n){hits.push({lek:lek,type:'2ตัวหน้า',bet:n,pay:n*PAY_RATES.na2});grandPay+=n*PAY_RATES.na2;}
+    // 2 ตัวโต๊ด (d=2, tod) — จ่าย 10
+    if(d===2&&t){
+      var tod2perms=getLaoTod(lek);
+      if(tod2perms.indexOf(r2bon)>=0||tod2perms.indexOf(r2mid)>=0){
+        hits.push({lek:lek,type:'2ตัวโต๊ด',bet:t,pay:t*PAY_RATES.tod2});grandPay+=t*PAY_RATES.tod2;
+      }
+    }
+    // 5 ตัวโต๊ด (d=5)
+    if(d===5&&t){
+      var tod5perms=getLaoTod(first6.slice(1)); // 5 ตัวหลัง = 23456
+      if(tod5perms.indexOf(lek)>=0){hits.push({lek:lek,type:'5ตัวโต๊ด',bet:t,pay:t*PAY_RATES.tod5});grandPay+=t*PAY_RATES.tod5;}
+    }
+
+    // ลอยหลัง (d=1, bon=ลอย / na=ปักหลัก)
+    if(d===1){
+      if(b&&loy_bon_digits.indexOf(lek)>=0){hits.push({lek:lek,type:'ลอยหลัง',bet:b,pay:b*PAY_RATES.loy_bon});grandPay+=b*PAY_RATES.loy_bon;}
+      // ลอยล่าง (d=1, lang=ลอย)
+      if(l&&loy_lang_digits.indexOf(lek)>=0){hits.push({lek:lek,type:'ลอยล่าง',bet:l,pay:l*PAY_RATES.loy_lang});grandPay+=l*PAY_RATES.loy_lang;}
+      // ปักหลักหลัง (d=1, na ใน context หน้า/ลอย → ปักหลัก)
+      // ปักหลักจัดเก็บใน paks
+    }
+    // ปักหลัก
+    (e.paks||[]).forEach(function(p){
+      if(p.type==='bon'){
+        // ปักหลักหลัง: ตำแหน่ง na=4, mid=5, lang=6
+        var posMap={na:loy_bon_digits[0],mid:loy_bon_digits[1],lang:loy_bon_digits[2]};
+        if(posMap[p.pos]&&p.lek===posMap[p.pos]){hits.push({lek:p.lek,type:'ปักหลักหลัง('+{na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]+')',bet:p.price,pay:p.price*PAY_RATES.pak_bon});grandPay+=p.price*PAY_RATES.pak_bon;}
+      } else if(p.type==='lang'){
+        // ปักหลักล่าง: ตำแหน่ง na=3, lang=4
+        var posMapL={na:loy_lang_digits[0],lang:loy_lang_digits[1]};
+        if(posMapL[p.pos]&&p.lek===posMapL[p.pos]){hits.push({lek:p.lek,type:'ปักหลักล่าง('+{na:'หน้า',lang:'หลัง'}[p.pos]+')',bet:p.price,pay:p.price*PAY_RATES.pak_lang});grandPay+=p.price*PAY_RATES.pak_lang;}
+      }
+    });
   });
+
   var el=document.getElementById('check-result-out');
   if(!hits.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--lg);">😔 ไม่ถูกรางวัลครับ</div>';return;}
   var h='<div class="check-result-total"><span class="lbl">🎉 รวมถูกรางวัล</span><span class="val">฿'+fmt(grandPay)+'</span></div>';
@@ -1158,7 +1192,7 @@ function toast(msg){
 // ══════════════════════════════════════
 // PAK (ปักหลัก)
 // ══════════════════════════════════════
-var pakType='3bon', pakPos=[];
+var pakType='bon', pakPos=[];
 
 function openPak(){
   var lek=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');
@@ -1176,7 +1210,8 @@ function selPakType(el){
   document.querySelectorAll('#pak-type-tabs .pak-ttab').forEach(function(t){t.classList.remove('on');});
   el.classList.add('on');
   pakType=el.dataset.type;
-  if(pakType!=='3bon'){pakPos=pakPos.filter(function(p){return p!=='mid';});document.getElementById('pak-mid-btn').classList.remove('on');}
+  // ปักหลักล่าง (lang) ไม่มีกลาง
+  if(pakType!=='bon'){pakPos=pakPos.filter(function(p){return p!=='mid';});document.getElementById('pak-mid-btn').classList.remove('on');}
   updatePakUI();
 }
 function selPakPos(el){
@@ -1189,12 +1224,14 @@ function selPakPos(el){
 function updatePakUI(){
   var lek=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'')||'?';
   var midBtn=document.getElementById('pak-mid-btn');
-  if(pakType==='3bon'){
+  if(pakType==='bon'){
+    // ปักหลักหลัง: หน้า=4, กลาง=5, หลัง=6 (ของ 3ตัวหลัง 456)
     midBtn.style.display='';
     document.getElementById('pak-ex-na').textContent=lek+'_ _';
     document.getElementById('pak-ex-mid').textContent='_ '+lek+' _';
     document.getElementById('pak-ex-lang').textContent='_ _'+lek;
   } else {
+    // ปักหลักล่าง: หน้า=3, หลัง=4 (ของ 2ตัวกลาง/ล่าง 34) — ไม่มีกลาง
     midBtn.style.display='none';
     document.getElementById('pak-ex-na').textContent=lek+'_';
     document.getElementById('pak-ex-lang').textContent='_'+lek;
@@ -1206,7 +1243,7 @@ function addPak(){
   var lek=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');
   if(!lek){toast('กรอกเลขก่อนครับ');return;}
   if(!pakPos.length){toast('เลือกตำแหน่งด้วยครับ');return;}
-  var typeLabels={'3bon':'บน','2lang':'ล่าง'};
+  var typeLabels={bon:'ปักหลักหลัง',lang:'ปักหลักล่าง'};
   var paks=pakPos.map(function(pos){return{type:pakType,pos:pos,price:price,typeLabel:typeLabels[pakType],posLabel:{na:'หน้า',mid:'กลาง',lang:'หลัง'}[pos]};});
   eid++;
   entries.unshift({id:eid,lek:lek,d:1,bon:null,tod:null,lang:null,na:null,kd:{},paks:paks});
@@ -1228,7 +1265,7 @@ function updatePakBtn(){
 <script>
 (function(){
   var POS={M1:5,LV:6,M2:8,Y1:12,Y2:16};
-  var KEY='t999_lic_cust_lao_v1';
+  var KEY='t999_lic_cust_v1';
   function verify(k){
     if(!k||k.length!==19||k.slice(0,4)!=='T999') return false;
     if(k[POS.LV]!=='1') return false;
@@ -1271,9 +1308,9 @@ function updatePakBtn(){
     </div>
 
     <div class="g-hero-cus">
-      <div class="icon">🐯 🇱🇦</div>
-      <div class="title">T999 ລູກຄ້າ</div>
-      <div class="sub">ລະບົບຫວຍລາວ</div>
+      <div class="icon">🐯 🇹🇭</div>
+      <div class="title">T999 ลูกค้า</div>
+      <div class="sub">ระบบแทงหวยออนไลน์ผ่านมือถือ</div>
     </div>
 
     <div class="g-sec">
@@ -1283,14 +1320,22 @@ function updatePakBtn(){
     </div>
 
     <div class="g-sec">
+      <div class="g-sec-title">🇱🇦 ประเภทหวยลาว (เลขออก 6 หลัก เช่น 1 2 3 4 5 6)</div>
+      <div class="g-step"><div class="g-step-num">4ตัว</div><div class="g-step-txt"><b style="color:#f5c518;">3456</b> = 4 ตัวหลัง จ่าย <b>4,000</b></div></div>
+      <div class="g-step"><div class="g-step-num">3ตัว</div><div class="g-step-txt"><b style="color:#f5c518;">456</b> = 3 ตัวหลัง จ่าย <b>550</b> | โต๊ด 3ตัว จ่าย <b>100</b></div></div>
+      <div class="g-step"><div class="g-step-num">2ตัว</div><div class="g-step-txt"><b style="color:#60a5fa;">56</b>=บน 70 | <b style="color:#34d399;">34</b>=กลาง/ล่าง 70 | <b style="color:#fb923c;">12</b>=หน้า 70</div></div>
+      <div class="g-step"><div class="g-step-num">ลอย</div><div class="g-step-txt">ลอยหลัง (4,5,6) จ่าย <b>8</b> | ลอยล่าง (3,4) จ่าย <b>8</b></div></div>
+      <div class="g-step"><div class="g-step-num">ปัก</div><div class="g-step-txt">ปักหลักหลัง จ่าย <b>3</b> | ปักหลักล่าง จ่าย <b>4</b></div></div>
+    </div>
+
+    <div class="g-sec">
       <div class="g-sec-title">✏️ วิธีคีย์เลข (FK Keyboard)</div>
       <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">กดตัวเลข 1–5 หลัก → ระบบเลือกประเภทให้อัตโนมัติ</div></div>
-      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">กด <b style="color:#f5c518;">บน / โต๊ด / ล่าง / หน้า</b> เพื่อเปิด-ปิดประเภท</div></div>
+      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">กด <b style="color:#f5c518;">บน/4ตัว / โต๊ด / กลาง/ล่าง / หน้า/ลอย</b> เพื่อเปิด-ปิดประเภท</div></div>
       <div class="g-step"><div class="g-step-num">3</div><div class="g-step-txt">กด <b style="color:#f5c518;">= OK</b> → ใส่ราคา → กด <b style="color:#f5c518;">= OK</b> อีกครั้งเพื่อบันทึก</div></div>
-      <div class="g-step"><div class="g-step-num">4</div><div class="g-step-txt">หลายประเภท: กด <b style="color:#f5c518;">×</b> คั่นราคา เช่น <b>100×50</b> = บน 100 ล่าง 50</div></div>
+      <div class="g-step"><div class="g-step-num">4</div><div class="g-step-txt">หลายประเภท: กด <b style="color:#f5c518;">×</b> คั่นราคา เช่น <b>100×50</b> = บน 100 กลาง/ล่าง 50</div></div>
       <div class="g-step"><div class="g-step-num">5</div><div class="g-step-txt">กด <b style="color:#a78bfa;">/</b> คั่นเลขหลายตัว เช่น <b>12/21</b> เพิ่มพร้อมกัน 2 เลข</div></div>
-      <div class="g-step"><div class="g-step-num">6</div><div class="g-step-txt">ปุ่ม <b style="color:#d4a017;">กลับ</b> (2 หลัก) / <b style="color:#d4a017;">ชุด</b> (3 หลัก) = เพิ่มเลขกลับอัตโนมัติ</div></div>
-      <div class="g-tip">📌 เลข 1 หลัก → ปุ่ม ปักหลัก จะโผล่ขึ้นมาอัตโนมัติ</div>
+      <div class="g-tip">📌 เลข 1 หลัก → ปุ่ม ปักหลัก จะโผล่ขึ้นมาอัตโนมัติ สำหรับลอยหลัง/ลอยล่าง</div>
     </div>
 
     <div class="g-sec">
@@ -1302,7 +1347,7 @@ function updatePakBtn(){
 
     <div class="g-sec">
       <div class="g-sec-title">🔍 ตรวจรางวัล</div>
-      <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">กดปุ่ม 🔍 ตรวจ ในหัว → กด <b>📡 ดึงผลรางวัลล่าสุด</b></div></div>
+      <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">กดปุ่ม 🔍 ตรวจ ในหัว → ใส่ผลรางวัล 6 หลัก</div></div>
       <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">กด <b style="color:#f5c518;">🔍 ตรวจเลย</b> → ระบบแสดงรายการที่ถูกรางวัลทันที</div></div>
     </div>
 
