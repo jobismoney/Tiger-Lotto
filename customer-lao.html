@@ -828,12 +828,8 @@ function toLines(e){
       var allP2=[];if(b>0)allP2.push(b);kb2.forEach(function(x){allP2.push(x.price);});
       var allSame2=allP2.every(function(p){return p===allP2[0];});
       var tot2=allP2.reduce(function(s,p){return s+p;},0);
-      if(allSame2){
-        push(lek,'กลับบน'+fmtNum(allP2[0])+'×2',tot2);
-      } else {
-        if(b>0)push(lek,'บ'+fmtNum(b),b);
-        kb2.forEach(function(x){push(x.perm,'บ'+fmtNum(x.price),x.price);});
-      }
+      if(allSame2){push(lek,'กบ'+fmtNum(allP2[0]),tot2);}
+      else{if(b>0)push(lek,'บ'+fmtNum(b),b);kb2.forEach(function(x){push(x.perm,'บ'+fmtNum(x.price),x.price);});}
       if(t>0)push(lek,'ต'+fmtNum(t),t);
       if(l>0)push(lek,'ล'+fmtNum(l),l);
       if(n>0)push(lek,'น'+fmtNum(n),n);
@@ -845,20 +841,15 @@ function toLines(e){
     if(t>0){ps3.push('ต'+fmtNum(t));pt3+=t;}
     if(l>0){ps3.push('ล'+fmtNum(l));pt3+=l;}
     if(ps3.length)push(lek,pstr(ps3),pt3);
-    // ชุด 3 ตัว
     if(hasKb3){
-      var kb3=e.kd['bon'];
-      var allP3=[];if(b>0)allP3.push(b);kb3.forEach(function(x){allP3.push(x.price);});
+      var kb3arr=e.kd['bon'];
+      var allP3=[];if(b>0)allP3.push(b);kb3arr.forEach(function(x){allP3.push(x.price);});
       var allSame3=allP3.every(function(p){return p===allP3[0];});
       var tot3=allP3.reduce(function(s,p){return s+p;},0);
       var totalPerms3=permCount(lek);
-      var hasFull3=(b>0?1:0)+kb3.length===totalPerms3;
-      if(hasFull3&&allSame3){
-        push(lek,'ช3ตัว'+fmtNum(allP3[0])+'×'+totalPerms3,tot3);
-      } else {
-        if(b>0)push(lek,'บ'+fmtNum(b),b);
-        kb3.forEach(function(x){push(x.perm,'บ'+fmtNum(x.price),x.price);});
-      }
+      var hasFull3=(b>0?1:0)+kb3arr.length===totalPerms3;
+      if(hasFull3&&allSame3){push(lek,'ชบ'+fmtNum(allP3[0]),tot3);}
+      else{if(b>0)push(lek,'บ'+fmtNum(b),b);kb3arr.forEach(function(x){push(x.perm,'บ'+fmtNum(x.price),x.price);});}
       if(t>0)push(lek,'ต'+fmtNum(t),t);
       if(l>0)push(lek,'ล'+fmtNum(l),l);
     }
@@ -876,12 +867,8 @@ function toLines(e){
       var tot4=allP4.reduce(function(s,p){return s+p;},0);
       var totalPerms4=permCount(lek);
       var hasFull4=(b>0?1:0)+kb4.length===totalPerms4;
-      if(hasFull4&&allSame4){
-        push(lek,'ช4ตัว'+fmtNum(allP4[0])+'×'+totalPerms4,tot4);
-      } else {
-        if(b>0)push(lek,'4ตัว'+fmtNum(b),b);
-        kb4.forEach(function(x){push(x.perm,'4ตัว'+fmtNum(x.price),x.price);});
-      }
+      if(hasFull4&&allSame4){push(lek,'ช4'+fmtNum(allP4[0]),tot4);}
+      else{if(b>0)push(lek,'4ตัว'+fmtNum(b),b);kb4.forEach(function(x){push(x.perm,'4ตัว'+fmtNum(x.price),x.price);});}
       if(t>0)push(lek,'4โต๊ด'+fmtNum(t),t);
     }
   } else {
