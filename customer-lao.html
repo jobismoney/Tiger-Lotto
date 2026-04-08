@@ -264,10 +264,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 <div class="list-area">
   <div class="tbl-hd">
     <span>เลข</span>
-    <span style="color:#60a5fa">บน/4ตัว</span>
+    <span style="color:#60a5fa">บน/หลัง</span>
     <span style="color:#f472b6">โต๊ด</span>
     <span style="color:#34d399">กลาง/ล่าง</span>
-    <span style="color:#fb923c">หน้า/ลอย</span>
+    <span style="color:#fb923c">หน้า</span>
     <span></span>
   </div>
   <div class="list-scroll" id="list-scroll">
@@ -289,8 +289,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
   <!-- type buttons -->
   <div class="fk-type-row">
     <div class="fk-type-col">
-      <button class="fk-tbtn" id="fkt-bon" onclick="fkToggle('bon')">บน/4ตัว</button>
-      <div style="height:28px;"></div>
+      <button class="fk-tbtn" id="fkt-bon" onclick="fkToggle('bon')">บน/หลัง</button>
+      <button class="fk-klb" id="fkk-bon" onclick="fkToggleKlb('bon')"></button>
     </div>
     <div class="fk-type-col">
       <button class="fk-tbtn" id="fkt-tod" onclick="fkToggle('tod')">โต๊ด</button>
@@ -298,11 +298,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
     </div>
     <div class="fk-type-col">
       <button class="fk-tbtn" id="fkt-lang" onclick="fkToggle('lang')">กลาง/ล่าง</button>
-      <div style="height:28px;"></div>
+      <button class="fk-klb" id="fkk-lang" onclick="fkToggleKlb('lang')"></button>
     </div>
     <div class="fk-type-col">
-      <button class="fk-tbtn" id="fkt-na" onclick="fkToggle('na')">หน้า/ลอย</button>
-      <button class="fk-klb" id="fkk-na" onclick="fkToggleKlb('na')" style="display:none;"></button>
+      <button class="fk-tbtn" id="fkt-na" onclick="fkToggle('na')">หน้า</button>
+      <button class="fk-klb" id="fkk-na" onclick="fkToggleKlb('na')"></button>
     </div>
   </div>
   <!-- numpad -->
@@ -359,7 +359,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
     </div>
     <input class="check-inp" id="res-1st" type="tel" inputmode="numeric" maxlength="6" placeholder="ผลรางวัล 6 หลัก (เช่น 123456)">
     <div style="font-size:11px;color:var(--lg);margin:-6px 0 10px;padding:0 4px;">
-      ระบบจะคำนวณ: 4ตัว=3456 · 3ตัว=456 · 2บน=56 · 2กลาง/ล่าง=34 · 2หน้า=12 · ลอยหลัง=4,5,6 · ลอยล่าง=3,4
+      ระบบจะคำนวณ: 4ตัว=3456 · 3ตัว=456 · 2บน/หลัง=56 · 2กลาง/ล่าง=34 · 2หน้า=12 · ลอยหลัง=4,5,6 · ลอยล่าง=3,4
     </div>
     <button class="check-go-btn" onclick="doCheck()">🔍 ตรวจเลย</button>
     <div id="check-result-out"></div>
@@ -450,11 +450,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 // RULES: d=ความยาวเลข → ประเภทที่อนุญาต
 // bon = บน(3ตัว)/4ตัว, tod = โต๊ด, lang = กลาง/ล่าง, na = หน้า/ลอย
 var RULES     = {1:['bon','na'],2:['bon','tod','lang','na'],3:['bon','tod','lang'],4:['bon','tod'],5:['tod']};
-var KLB       = {}; // หวยลาวไม่มี กลับ/ชุด
 var FK_DEFAULT= {1:['bon','na'],2:['bon','lang'],3:['bon','tod'],4:['bon','tod'],5:['tod']};
-var FK_KLB_TYPES = [];
 var FK_COLOR  = {bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
-var FK_LABEL  = {bon:'บน/4ตัว',tod:'โต๊ด',lang:'กลาง/ล่าง',na:'หน้า/ลอย'};
+var FK_LABEL  = {bon:'บน/หลัง',tod:'โต๊ด',lang:'กลาง/ล่าง',na:'หน้า'};
+var FK_KLB_TYPES = ['bon','lang','na'];
+var KLB       = {bon:[2,3],lang:[2,3],na:[2,3]};
 
 // อัตราจ่าย
 var PAY_RATES = {
@@ -463,10 +463,10 @@ var PAY_RATES = {
   bon2: 70,    // 2 ตัวบน (หลัง)
   lang2: 70,   // 2 ตัวกลาง/ล่าง
   na2: 70,     // 2 ตัวหน้า
-  loy_bon: 8,  // ลอยหลัง
-  loy_lang: 8, // ลอยล่าง
-  pak_bon: 3,  // ปักหลักหลัง
-  pak_lang: 4, // ปักหลักล่าง
+  loy_bon: 3,  // ลอยหลัง (4,5,6) จ่าย 3
+  loy_lang: 4, // ลอยล่าง (3,4) จ่าย 4
+  pak_bon: 8,  // ปักหลักหลัง จ่าย 8
+  pak_lang: 8, // ปักหลักล่าง จ่าย 8
   tod5: 10,    // โต๊ด 5 ตัว
   tod4: 20,    // โต๊ด 4 ตัว
   tod3: 100,   // โต๊ด 3 ตัว
@@ -633,9 +633,14 @@ function fkAutoSel(d){
   fkUpdateKlbBtns(d);
 }
 function fkUpdateKlbBtns(d){
-  // หวยลาวไม่มีปุ่มกลับ/ชุด — ซ่อนทั้งหมด
+  if(!d&&fkBuf){var fl=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');d=fl.length||2;}
+  d=d||2;
+  var lbl=d===2?'กลับ':'ชุด';
   FK_KLB_TYPES.forEach(function(t){
-    var btn=document.getElementById('fkk-'+t);if(btn)btn.style.display='none';
+    var btn=document.getElementById('fkk-'+t);if(!btn)return;
+    var show=fkSel[t];
+    btn.style.display=show?'block':'none';
+    if(show){btn.textContent=lbl;btn.className='fk-klb'+(fkKlb[t]?' on':'');}
   });
 }
 function fkToggle(t){
@@ -754,8 +759,15 @@ function fkCommit(){
   if(zeroTypes.length){toast('ราคายังไม่ครบ: '+zeroTypes.map(function(t){return FK_LABEL[t];}).join(', '));return;}
   var d=leks[0].length;var added=0;
   leks.forEach(function(l){
+    var kd={};
+    FK_KLB_TYPES.forEach(function(t){
+      if(fkSel[t]&&fkKlb[t]&&pm[t]){
+        var perms=getPerms(l).filter(function(p){return p!==l;});
+        if(perms.length)kd[t]=perms.map(function(p){return{perm:p,price:pm[t]};});
+      }
+    });
     eid++;
-    entries.unshift({id:eid,lek:l,d:l.length,bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,kd:{},paks:[]});
+    entries.unshift({id:eid,lek:l,d:l.length,bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,kd:kd,paks:[]});
     added++;
   });
   if(added>0){renderList();save();document.getElementById('list-scroll').scrollTop=0;toast('✅ เพิ่ม '+added+' รายการ');}
@@ -766,7 +778,7 @@ function fkCommit(){
 // ══════════════════════════════════════
 // SLIP
 // ══════════════════════════════════════
-var LEGEND='<div class="slip-legend">บ=บน/4ตัว  ล=กลาง/ล่าง  ต=โต๊ด  น=หน้า/ลอย  ปัก=ปักหลัก</div>';
+var LEGEND='<div class="slip-legend">บ=บน/หลัง  ล=กลาง/ล่าง  ต=โต๊ด  น=หน้า  ช=ชุด  ก=กลับ  ปัก=ปักหลัก</div>';
 function fmtNum(n){return parseInt(n||0).toLocaleString();}
 function toLines(e){
   var d=e.d,b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0,lines=[],lek=e.lek;
@@ -1324,18 +1336,18 @@ function updatePakBtn(){
       <div class="g-step"><div class="g-step-num">4ตัว</div><div class="g-step-txt"><b style="color:#f5c518;">3456</b> = 4 ตัวหลัง จ่าย <b>4,000</b></div></div>
       <div class="g-step"><div class="g-step-num">3ตัว</div><div class="g-step-txt"><b style="color:#f5c518;">456</b> = 3 ตัวหลัง จ่าย <b>550</b> | โต๊ด 3ตัว จ่าย <b>100</b></div></div>
       <div class="g-step"><div class="g-step-num">2ตัว</div><div class="g-step-txt"><b style="color:#60a5fa;">56</b>=บน 70 | <b style="color:#34d399;">34</b>=กลาง/ล่าง 70 | <b style="color:#fb923c;">12</b>=หน้า 70</div></div>
-      <div class="g-step"><div class="g-step-num">ลอย</div><div class="g-step-txt">ลอยหลัง (4,5,6) จ่าย <b>8</b> | ลอยล่าง (3,4) จ่าย <b>8</b></div></div>
-      <div class="g-step"><div class="g-step-num">ปัก</div><div class="g-step-txt">ปักหลักหลัง จ่าย <b>3</b> | ปักหลักล่าง จ่าย <b>4</b></div></div>
+      <div class="g-step"><div class="g-step-num">ลอย</div><div class="g-step-txt">ลอยหลัง (4,5,6) จ่าย <b>3</b> | ลอยล่าง (3,4) จ่าย <b>4</b></div></div>
+      <div class="g-step"><div class="g-step-num">ปัก</div><div class="g-step-txt">ปักหลักหลัง จ่าย <b>8</b> | ปักหลักล่าง จ่าย <b>8</b></div></div>
     </div>
 
     <div class="g-sec">
       <div class="g-sec-title">✏️ วิธีคีย์เลข (FK Keyboard)</div>
       <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">กดตัวเลข 1–5 หลัก → ระบบเลือกประเภทให้อัตโนมัติ</div></div>
-      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">กด <b style="color:#f5c518;">บน/4ตัว / โต๊ด / กลาง/ล่าง / หน้า/ลอย</b> เพื่อเปิด-ปิดประเภท</div></div>
+      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">กด <b style="color:#f5c518;">บน/หลัง / โต๊ด / กลาง/ล่าง / หน้า</b> เพื่อเปิด-ปิดประเภท</div></div>
       <div class="g-step"><div class="g-step-num">3</div><div class="g-step-txt">กด <b style="color:#f5c518;">= OK</b> → ใส่ราคา → กด <b style="color:#f5c518;">= OK</b> อีกครั้งเพื่อบันทึก</div></div>
-      <div class="g-step"><div class="g-step-num">4</div><div class="g-step-txt">หลายประเภท: กด <b style="color:#f5c518;">×</b> คั่นราคา เช่น <b>100×50</b> = บน 100 กลาง/ล่าง 50</div></div>
+      <div class="g-step"><div class="g-step-num">4</div><div class="g-step-txt">หลายประเภท: กด <b style="color:#f5c518;">×</b> คั่นราคา เช่น <b>100×50</b> = บน/หลัง 100 กลาง/ล่าง 50</div></div>
       <div class="g-step"><div class="g-step-num">5</div><div class="g-step-txt">กด <b style="color:#a78bfa;">/</b> คั่นเลขหลายตัว เช่น <b>12/21</b> เพิ่มพร้อมกัน 2 เลข</div></div>
-      <div class="g-tip">📌 เลข 1 หลัก → ปุ่ม ปักหลัก จะโผล่ขึ้นมาอัตโนมัติ สำหรับลอยหลัง/ลอยล่าง</div>
+      <div class="g-step"><div class="g-step-num">6</div><div class="g-step-txt">ปุ่ม <b style="color:#d4a017;">กลับ</b> (2 หลัก) / <b style="color:#d4a017;">ชุด</b> (3 หลัก) = เพิ่มเลขกลับอัตโนมัติ</div></div>
     </div>
 
     <div class="g-sec">
