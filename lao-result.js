@@ -1,8 +1,6 @@
-// api/lao-result.js
-// Vercel Serverless Function — ดึงผลหวยลาวจาก thethaiger
-// deploy ที่ tiger999.online/api/lao-result
+// api/lao-result.js — Vercel Serverless Function (CommonJS)
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // CORS — อนุญาต tiger999.online เท่านั้น
   res.setHeader('Access-Control-Allow-Origin', 'https://tiger999.online');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
