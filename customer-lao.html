@@ -826,23 +826,39 @@ function toLines(e){
     if(ps.length)push(lek,pstr(ps),b+l+n);
   } else if(d===2){
     var hasKb2=(e.kd&&(e.kd['bon']||[]).length>0);
-    var ps2=[],pt2=0;
-    if(b>0&&!hasKb2){ps2.push('บ'+fmtNum(b));pt2+=b;}
-    if(t>0){ps2.push('ต'+fmtNum(t));pt2+=t;}
-    if(l>0){ps2.push('ล'+fmtNum(l));pt2+=l;}
-    if(n>0){ps2.push('น'+fmtNum(n));pt2+=n;}
-    if(ps2.length)push(lek,pstr(ps2),pt2);
-    // กลับ 2 ตัว
-    if(hasKb2){
-      var kb2=e.kd['bon'];
-      var allP2=[];if(b>0)allP2.push(b);kb2.forEach(function(x){allP2.push(x.price);});
-      var allSame2=allP2.every(function(p){return p===allP2[0];});
-      var tot2=allP2.reduce(function(s,p){return s+p;},0);
-      if(allSame2){push(lek,'กบ'+fmtNum(allP2[0]),tot2);}
-      else{if(b>0)push(lek,'บ'+fmtNum(b),b);kb2.forEach(function(x){push(x.perm,'บ'+fmtNum(x.price),x.price);});}
-      if(t>0)push(lek,'ต'+fmtNum(t),t);
-      if(l>0)push(lek,'ล'+fmtNum(l),l);
-      if(n>0)push(lek,'น'+fmtNum(n),n);
+    var hasKl2=(e.kd&&(e.kd['lang']||[]).length>0);
+    var hasKn2=(e.kd&&(e.kd['na']||[]).length>0);
+    var kb2=hasKb2?e.kd['bon']:[];
+    var kl2=hasKl2?e.kd['lang']:[];
+    var kn2=hasKn2?e.kd['na']:[];
+    // รวมทุก perm โดยใช้ getPerms วน
+    var allPerms2=getPerms(lek);
+    // ถ้ามีกลับ — render แยกทีละ perm (รวม lek หลัก)
+    if(hasKb2||hasKl2||hasKn2){
+      allPerms2.forEach(function(p){
+        var bx=kb2.find?kb2.find(function(x){return x.perm===p;}):null;
+        if(!bx)kb2.forEach(function(x){if(x.perm===p)bx=x;});
+        var lx=null;kl2.forEach(function(x){if(x.perm===p)lx=x;});
+        var nx=null;kn2.forEach(function(x){if(x.perm===p)nx=x;});
+        var rps=[],rt=0;
+        var bp=(p===lek)?b:(bx?bx.price:0);
+        var lp=(p===lek)?l:(lx?lx.price:0);
+        var np=(p===lek)?n:(nx?nx.price:0);
+        var tp=(p===lek)?t:0;
+        if(bp>0){rps.push('บ'+fmtNum(bp));rt+=bp;}
+        if(tp>0){rps.push('ต'+fmtNum(tp));rt+=tp;}
+        if(lp>0){rps.push('ล'+fmtNum(lp));rt+=lp;}
+        if(np>0){rps.push('น'+fmtNum(np));rt+=np;}
+        if(rps.length)push(p,rps.join('*'),rt);
+      });
+    } else {
+      // ไม่มีกลับ — แถวเดียว
+      var ps2=[],pt2=0;
+      if(b>0){ps2.push('บ'+fmtNum(b));pt2+=b;}
+      if(t>0){ps2.push('ต'+fmtNum(t));pt2+=t;}
+      if(l>0){ps2.push('ล'+fmtNum(l));pt2+=l;}
+      if(n>0){ps2.push('น'+fmtNum(n));pt2+=n;}
+      if(ps2.length)push(lek,ps2.join('*'),pt2);
     }
   } else if(d===3){
     var hasKb3=(e.kd&&(e.kd['bon']||[]).length>0);
