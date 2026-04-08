@@ -480,6 +480,32 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .lic-err{font-size:13px;color:#f87171;font-family:'Sarabun',sans-serif;margin-top:10px;min-height:20px;text-align:center;}
 .lic-change{font-size:12px;color:var(--lg);font-family:'Sarabun',sans-serif;margin-top:14px;cursor:pointer;text-decoration:underline;}
 
+
+/* ── DESK FK ── */
+.desk-fk-area{display:none;padding:8px 6px 0;}
+.desk-fk-area.show{display:block;}
+.desk-fk-display{background:#0d0f1a;border:2px solid var(--border);border-radius:10px;padding:6px 12px;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+#dfk-text{font-family:'Sarabun',sans-serif;font-size:26px;font-weight:900;color:#555;letter-spacing:2px;flex:1;word-break:break-all;line-height:1.1;}
+#dfk-hint{font-size:10px;color:var(--lg);text-align:right;line-height:1.5;flex-shrink:0;}
+.desk-fk-types{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:5px;}
+.desk-fk-col{display:flex;flex-direction:column;gap:2px;}
+.dfk-tbtn{background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:13px;font-weight:900;padding:5px 2px;cursor:pointer;text-align:center;}
+.dfk-tbtn.on-bon{background:rgba(96,165,250,.15);border-color:#60a5fa;color:#60a5fa;}
+.dfk-tbtn.on-tod{background:rgba(244,114,182,.15);border-color:#f472b6;color:#f472b6;}
+.dfk-tbtn.on-lang{background:rgba(52,211,153,.15);border-color:#34d399;color:#34d399;}
+.dfk-tbtn.on-na{background:rgba(251,146,60,.15);border-color:#fb923c;color:#fb923c;}
+.dfk-klb{width:100%;background:#2a2000;border:1px solid #d4a017;border-radius:5px;color:#d4a017;font-family:'Sarabun',sans-serif;font-size:10px;font-weight:800;padding:2px;cursor:pointer;text-align:center;display:none;}
+.dfk-klb.on{background:#d4a017;color:#000;}
+.desk-fk-pad{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
+.dfk-btn{background:var(--card);border:1px solid var(--border);border-radius:6px;color:#fff;font-family:'Sarabun',sans-serif;font-size:17px;font-weight:900;padding:8px 4px;cursor:pointer;text-align:center;}
+.dfk-btn:active{background:#2a2d3a;}
+.dfk-del{color:var(--red);}
+.dfk-sep{color:var(--purple);font-size:15px;}
+.dfk-mul{background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.3);color:var(--gold);font-size:13px;}
+.dfk-eq{background:linear-gradient(135deg,var(--green),#1a7a3e);color:#fff;font-size:14px;}
+.dfk-cursor{display:inline-block;width:2px;height:1em;background:var(--gold);margin-left:2px;vertical-align:middle;animation:dfkblink .8s step-end infinite;}
+@keyframes dfkblink{0%,100%{opacity:1;}50%{opacity:0;}}
+
 </style>
 <!-- build:20260312_160439 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -574,9 +600,41 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <div class="zone z2" id="zone2">
     <div class="zhdr">
       <span class="ztitle">⌨️ คีย์เลข — <span id="kp-cust-name" style="color:var(--gold);font-size:17px;font-weight:900;">—</span></span>
-      <button class="float-toggle" onclick="toggleFloat()" title="ลอย/ฝัง">⤢</button>
+      <div style="display:flex;gap:6px;">
+        <button onclick="deskFKToggleMode()" id="dfk-toggle-btn" style="background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.3);border-radius:6px;color:var(--gold);font-family:'Sarabun',sans-serif;font-size:11px;font-weight:800;padding:3px 8px;cursor:pointer;">⚡ FK</button>
+        <button class="float-toggle" onclick="toggleFloat()" title="ลอย/ฝัง">⤢</button>
+      </div>
     </div>
     <div class="zbody" id="kp-zone-body">
+      <!-- FK AREA -->
+      <div class="desk-fk-area" id="desk-fk-area">
+        <div class="desk-fk-display">
+          <div id="dfk-text">—<span class="dfk-cursor"></span></div>
+          <div id="dfk-hint">กดเลข<br>แล้ว =</div>
+        </div>
+        <div class="desk-fk-types">
+          <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-bon" onclick="deskFKToggle('bon')">บน</button><button class="dfk-klb" id="dfkk-bon" onclick="deskFKToggleKlb('bon')"></button></div>
+          <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-tod" onclick="deskFKToggle('tod')">โต๊ด</button><div style="height:22px;"></div></div>
+          <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-lang" onclick="deskFKToggle('lang')">ล่าง</button><button class="dfk-klb" id="dfkk-lang" onclick="deskFKToggleKlb('lang')"></button></div>
+          <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-na" onclick="deskFKToggle('na')">หน้า</button><button class="dfk-klb" id="dfkk-na" onclick="deskFKToggleKlb('na')"></button></div>
+        </div>
+        <div class="desk-fk-pad">
+          <button class="dfk-btn" onclick="deskFKNum('1')">1</button>
+          <button class="dfk-btn" onclick="deskFKNum('2')">2</button>
+          <button class="dfk-btn" onclick="deskFKNum('3')">3</button>
+          <button class="dfk-btn dfk-del" onclick="deskFKDel()">⌫</button>
+          <button class="dfk-btn" onclick="deskFKNum('4')">4</button>
+          <button class="dfk-btn" onclick="deskFKNum('5')">5</button>
+          <button class="dfk-btn" onclick="deskFKNum('6')">6</button>
+          <button class="dfk-btn dfk-sep" onclick="deskFKSep()">/</button>
+          <button class="dfk-btn" onclick="deskFKNum('7')">7</button>
+          <button class="dfk-btn" onclick="deskFKNum('8')">8</button>
+          <button class="dfk-btn" onclick="deskFKNum('9')">9</button>
+          <button class="dfk-btn dfk-mul" onclick="deskFKMul()">×</button>
+          <button class="dfk-btn" style="grid-column:span 2;" onclick="deskFKNum('0')">0</button>
+          <button class="dfk-btn dfk-eq" style="grid-column:span 2;" onclick="deskFKEq()">= OK</button>
+        </div>
+      </div>
       <div class="kp-body" id="kp-inner">
 
         <!-- เลขที่กำลังคีย์ -->
