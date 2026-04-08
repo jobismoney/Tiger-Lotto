@@ -481,11 +481,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 // ══════════════════════════════════════
 // RULES: d=ความยาวเลข → ประเภทที่อนุญาต
 // bon = บน(3ตัว)/4ตัว, tod = โต๊ด, lang = กลาง/ล่าง, na = หน้า/ลอย
-var RULES     = {1:['bon','na'],2:['bon','tod','lang','na'],3:['bon','tod','lang'],4:['bon','tod'],5:['tod']};
-var FK_DEFAULT= {1:['bon','na'],2:['bon','lang'],3:['bon','tod'],4:['bon','tod'],5:['tod']};
+var RULES     = {1:['bon','lang'],2:['bon','tod','lang','na'],3:['bon','tod','lang'],4:['bon','tod'],5:['tod']};
+var FK_DEFAULT= {1:['bon','lang'],2:['bon','lang'],3:['bon','tod'],4:['bon','tod'],5:['tod']};
 var FK_COLOR  = {bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
 var FK_LABEL  = {bon:'บน/หลัง',tod:'โต๊ด',lang:'กลาง/ล่าง',na:'หน้า'};
-var FK_KLB_TYPES = ['bon'];
+var FK_KLB_TYPES = ['bon','lang','na']; // 2ตัวกลับได้ทุกตัวยกเว้นโต๊ด
 var KLB       = {bon:[2,3],lang:[2,3],na:[2,3]};
 
 // อัตราจ่าย
@@ -654,6 +654,14 @@ function fkAutoSel(d){
       if(btn)btn.className='fk-tbtn'+(fkSel[t]?' on-'+t:'');
     });
   }
+  // d===1: ปิด tod และ na เสมอ ไม่ว่า user จะกดอะไร
+  if(d===1){
+    ['tod','na'].forEach(function(t){
+      fkSel[t]=false;fkKlb[t]=false;
+      var btn=document.getElementById('fkt-'+t);
+      if(btn)btn.className='fk-tbtn';
+    });
+  }
   fkUpdateKlbBtns(d);
 }
 function fkUpdateKlbBtns(d){
@@ -662,20 +670,22 @@ function fkUpdateKlbBtns(d){
   var lbl=d===2?'กลับ':'ชุด';
   FK_KLB_TYPES.forEach(function(t){
     var btn=document.getElementById('fkk-'+t);if(!btn)return;
-    var show=fkSel[t]&&d>=2; // ซ่อนชุดเมื่อ d===1
+    // ซ่อนเมื่อ: d===1, หรือ t==='tod', หรือ d>=3 && t!=='bon'
+    var show=fkSel[t]&&d>=2&&t!=='tod'&&(d<=2||t==='bon');
     btn.style.display=show?'block':'none';
     if(show){btn.textContent=lbl;btn.className='fk-klb'+(fkKlb[t]?' on':'');}
   });
 }
 function fkToggle(t){
   var d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
-  if(d>=5)return; // หวยลาวสูงสุด 5 ตัว (5ตัวโต๊ด)
+  if(d>=5)return;
+  if(d===1&&(t==='tod'||t==='na'))return; // 1ตัวไม่มีโต๊ด/หน้า
   fkUserOverride=true;
   fkSel[t]=!fkSel[t];
   if(!fkSel[t])fkKlb[t]=false;
   var btn=document.getElementById('fkt-'+t);
   if(btn)btn.className='fk-tbtn'+(fkSel[t]?' on-'+t:'');
-  fkUpdateKlbBtns(); fkRender();
+  fkUpdateKlbBtns(d); fkRender();
 }
 function fkToggleKlb(t){
   if(!fkSel[t])return;
