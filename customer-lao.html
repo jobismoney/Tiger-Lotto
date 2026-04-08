@@ -1142,24 +1142,34 @@ function closeCheck(){document.getElementById('check-ov').classList.remove('show
 function fetchLaoResult(){
   var btn=document.getElementById('fetch-btn');
   if(btn){btn.textContent='⏳ กำลังดึง...';btn.disabled=true;}
-  function done(msg){if(btn){btn.textContent='📡 ดึงผลล่าสุด (MThai)';btn.disabled=false;}toast(msg);}
-  // ใช้ WordPress REST API ของ MThai โดยตรง
-  fetch('https://lotto.mthai.com/wp-json/wp/v2/posts?categories=27&per_page=1&_fields=title,link,content')
-    .then(function(r){return r.json();})
-    .then(function(posts){
-      if(!posts||!posts.length)throw new Error('ไม่พบข้อมูล');
-      var content=posts[0].content.rendered||'';
-      var title=posts[0].title.rendered||'';
-      // parse เลข 6 ตัว จาก content
-      var m6=content.match(/(\d{6})/);
-      if(!m6)throw new Error('ยังไม่มีผลรางวัล');
+  function done(msg){if(btn){btn.textContent='📡 ดึงผลล่าสุด';btn.disabled=false;}toast(msg);}
+
+  // ดึงหน้า index ของ khaosod laolottery เพื่อหา URL งวดล่าสุด
+  fetch('https://www.khaosod.co.th/laolottery',{headers:{'Accept':'text/html'}})
+    .then(function(r){
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return r.text();
+    })
+    .then(function(html){
+      // หา news_XXXXXX URL งวดล่าสุด
+      var m=html.match(/href="(https:\/\/www\.khaosod\.co\.th\/laolottery\/news_\d+)"/);
+      if(!m)throw new Error('ไม่พบลิงก์งวดล่าสุด');
+      return fetch(m[1],{headers:{'Accept':'text/html'}});
+    })
+    .then(function(r){return r.text();})
+    .then(function(html){
+      // parse เลข 6 ตัว: "รางวัลเลข 6 ตัว: XXXXXX"
+      var m6=html.match(/รางวัลเลข\s*6\s*ตัว[:\s]*(\d{6})/);
+      if(!m6)throw new Error('ยังไม่มีผล 6 ตัว');
+      // parse วันที่จาก title
+      var mDate=html.match(/งวดวันที่\s*([\d\/]+)/)||html.match(/งวด\s*([^<"]+?\d{2}\/\d{2}\/\d{2})/);
+      var dateStr=mDate?mDate[1].trim():'';
       var result=m6[1];
       document.getElementById('res-1st').value=result;
       autoFillLao();
-      // บันทึกประวัติผล
-      saveLaoResult(result, title);
+      saveLaoResult(result,'หวยลาว '+(dateStr||'งวดล่าสุด'));
       renderLaoHistory();
-      done('✅ ผลล่าสุด: '+result);
+      done('✅ ผลล่าสุด: '+result+(dateStr?' ('+dateStr+')':''));
     })
     .catch(function(err){done('⚠️ '+err.message);});
 }
