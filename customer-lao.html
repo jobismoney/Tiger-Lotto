@@ -829,7 +829,7 @@ function toLines(e){
   (e.paks||[]).forEach(function(p){
     var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
     var typLbl=p.type==='bon'?'ปักหลัง':'ปักล่าง';
-    lines.push({lek:e.lek, price:typLbl+'('+posLbl+')', total:p.price});
+    lines.push({lek:e.lek, price:typLbl+'('+posLbl+') '+fmtNum(p.price), total:p.price});
   });
   return lines;
 }
