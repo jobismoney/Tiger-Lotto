@@ -485,7 +485,7 @@ var RULES     = {1:['bon','na'],2:['bon','tod','lang','na'],3:['bon','tod','lang
 var FK_DEFAULT= {1:['bon','na'],2:['bon','lang'],3:['bon','tod'],4:['bon','tod'],5:['tod']};
 var FK_COLOR  = {bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
 var FK_LABEL  = {bon:'บน/หลัง',tod:'โต๊ด',lang:'กลาง/ล่าง',na:'หน้า'};
-var FK_KLB_TYPES = ['bon','lang','na'];
+var FK_KLB_TYPES = ['bon'];
 var KLB       = {bon:[2,3],lang:[2,3],na:[2,3]};
 
 // อัตราจ่าย
@@ -828,10 +828,27 @@ function toLines(e){
     if(l>0){ps3.push('ล'+fmtNum(l));pt3+=l;}
     if(ps3.length)push(lek,pstr(ps3),pt3);
   } else if(d===4){
+    var hasKb4=(e.kd&&e.kd['bon']||[]).length>0;
     var ps4=[],pt4=0;
-    if(b>0){ps4.push('4ตัว'+fmtNum(b));pt4+=b;}
+    if(b>0&&!hasKb4){ps4.push('4ตัว'+fmtNum(b));pt4+=b;}
     if(t>0){ps4.push('4โต๊ด'+fmtNum(t));pt4+=t;}
     if(ps4.length)push(lek,pstr(ps4),pt4);
+    // ชุด 4 ตัว — แสดง perm ทุกตัว
+    if(hasKb4){
+      var kb4=e.kd['bon'];
+      var allP4=[];if(b>0)allP4.push(b);kb4.forEach(function(x){allP4.push(x.price);});
+      var allSame4=allP4.every(function(p){return p===allP4[0];});
+      var tot4=allP4.reduce(function(s,p){return s+p;},0);
+      var totalPerms4=permCount(lek);
+      var hasFull4=(b>0?1:0)+kb4.length===totalPerms4;
+      if(hasFull4&&allSame4){
+        push(lek,'ช4ตัว'+fmtNum(allP4[0])+'×'+totalPerms4,tot4);
+      } else {
+        if(b>0)push(lek,'4ตัว'+fmtNum(b),b);
+        kb4.forEach(function(x){push(x.perm,'4ตัว'+fmtNum(x.price),x.price);});
+      }
+      if(t>0)push(lek,'4โต๊ด'+fmtNum(t),t);
+    }
   } else {
     if(t>0)push(lek,'5โต๊ด'+fmtNum(t),t);
   }
