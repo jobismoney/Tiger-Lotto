@@ -662,7 +662,7 @@ function fkUpdateKlbBtns(d){
   var lbl=d===2?'กลับ':'ชุด';
   FK_KLB_TYPES.forEach(function(t){
     var btn=document.getElementById('fkk-'+t);if(!btn)return;
-    var show=fkSel[t];
+    var show=fkSel[t]&&d>=2; // ซ่อนชุดเมื่อ d===1
     btn.style.display=show?'block':'none';
     if(show){btn.textContent=lbl;btn.className='fk-klb'+(fkKlb[t]?' on':'');}
   });
