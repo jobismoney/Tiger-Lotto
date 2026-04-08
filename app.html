@@ -975,7 +975,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
 <!-- WELCOME SCREEN -->
 <div class="welcome-screen" id="welcome-screen">
-  <div class="welcome-icon">🐯</div>
+  <div class="welcome-icon">🐯 🇹🇭</div>
   <div class="welcome-title">TIGER 999</div>
   <div class="welcome-sub">ระบบบันทึกและคำนวณเลขหวย<br>กรุณาเปิดงวดก่อนเข้าใช้งานครับ</div>
   <button class="welcome-btn" id="open-ngod-btn">🎯 เปิดงวดใหม่</button>
@@ -4155,38 +4155,34 @@ fkAutoSel(2); fkRender();
 
       <!-- วิธีคีย์เลข -->
       <div class="g-section">
-        <div class="g-title">✏️ วิธีคีย์เลข</div>
-        <div class="g-card-row">
-          <div class="g-card">
-            <div class="g-card-icon">⌨️</div>
-            <div class="g-card-head">กรอกทีละเลข</div>
-            <div class="g-card-body">พิมพ์เลข → เลือกประเภท → ใส่ราคา → กด <b>✓ OK</b></div>
-          </div>
-          <div class="g-card">
-            <div class="g-card-icon">⚡</div>
-            <div class="g-card-head">พิมพ์เลขด่วน</div>
-            <div class="g-card-body">กรอกหลายเลขก่อน → ใส่ราคาทีเดียว เร็วกว่าเยอะ กด Enter เพื่อเพิ่มเลข</div>
-          </div>
-        </div>
+        <div class="g-title">✏️ วิธีคีย์เลข (FK Keyboard)</div>
         <div class="g-steps-wrap">
           <div class="g-step2">
             <div class="g-step2-num">1</div>
-            <div class="g-step2-body">พิมพ์เลข 1–5 หลัก → กด <b>Enter</b> หรือ <b>+ เพิ่ม</b> เพิ่มลงลิสต์</div>
+            <div class="g-step2-body">กดตัวเลข 1–5 หลัก → แสดงในช่องบนสุด (ระบบเลือกประเภทให้อัตโนมัติ)</div>
           </div>
           <div class="g-step2">
             <div class="g-step2-num">2</div>
-            <div class="g-step2-body">กด <b>ถัดไป →</b> ไปหน้าใส่ราคา</div>
+            <div class="g-step2-body">กด <b>บน / โต๊ด / ล่าง / หน้า</b> เพื่อเปิด-ปิดประเภทที่ต้องการ</div>
           </div>
           <div class="g-step2">
             <div class="g-step2-num">3</div>
-            <div class="g-step2-body">กด <b>10 / 20 / 50 / 100</b> ระบบเลื่อนช่องถัดไปอัตโนมัติ หรือพิมพ์ราคาเอง → กด Enter</div>
+            <div class="g-step2-body">กด <b>= OK</b> → กดราคา → กด <b>= OK</b> อีกครั้งเพื่อบันทึก</div>
           </div>
           <div class="g-step2">
             <div class="g-step2-num">4</div>
-            <div class="g-step2-body">กดปุ่ม <span class="g-badge-inline gold">กลับ</span> (2 หลัก) หรือ <span class="g-badge-inline gold">ชุด</span> (3 หลัก) เพื่อซื้อทุกตัวสลับ</div>
+            <div class="g-step2-body">หลายประเภท: กด <b>×</b> คั่นระหว่างราคา เช่น <b>100×50</b> = บน 100 ล่าง 50</div>
+          </div>
+          <div class="g-step2">
+            <div class="g-step2-num">5</div>
+            <div class="g-step2-body">กด <b>/</b> คั่นเลขหลายตัว เช่น <b>12/21</b> → เพิ่มพร้อมกัน 2 เลข</div>
+          </div>
+          <div class="g-step2">
+            <div class="g-step2-num">6</div>
+            <div class="g-step2-body">ปุ่ม <span class="g-badge-inline gold">กลับ</span> (2 หลัก) / <span class="g-badge-inline gold">ชุด</span> (3 หลัก) = เพิ่มเลขกลับทุกตัวอัตโนมัติ</div>
           </div>
         </div>
-        <div class="g-tip2">⌨️ กด <kbd>-</kbd> เพื่อเปิด/ปิด กลับ-ชุด • กด <kbd>Enter</kbd> เลื่อนช่องถัดไป</div>
+        <div class="g-tip2">📌 เลข 1 หลัก → ปุ่ม <b>ปักหลัก</b> จะโผล่ขึ้นมาอัตโนมัติ</div>
       </div>
 
       <!-- ประเภทการแทง -->
@@ -4446,7 +4442,7 @@ fkAutoSel(2); fkRender();
 <!-- LICENSE KEY SCREEN -->
 <div id="lk-screen">
   <div class="lk-logo">🐯</div>
-  <div class="lk-title">T999 Agent</div>
+  <div class="lk-title">T999 Agent 🇹🇭</div>
   <div class="lk-sub">ใส่ License Key (L2)<br>จากเจ้ามือของคุณครับ</div>
   <input class="lk-inp" id="lk-inp" type="text" placeholder="T999-XXXX-XXXX-XXXX" maxlength="19"
     oninput="this.value=this.value.toUpperCase()">
