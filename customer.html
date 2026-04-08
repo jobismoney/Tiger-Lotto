@@ -199,11 +199,54 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 .pak-btns{display:flex;gap:8px;}
 .pak-btn-cancel{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;color:var(--lg);cursor:pointer;}
 .pak-btn-add{flex:2;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;padding:12px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:900;color:#111;cursor:pointer;}
+
+#lic-screen{position:fixed;inset:0;background:#0a0c14;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+#lic-screen.hide{display:none;}
+.lic-logo{font-size:48px;margin-bottom:8px;text-align:center;}
+.lic-title{font-size:22px;font-weight:900;color:var(--gold);font-family:'Sarabun',sans-serif;margin-bottom:4px;}
+.lic-sub{font-size:13px;color:var(--lg);font-family:'Sarabun',sans-serif;margin-bottom:24px;text-align:center;line-height:1.6;}
+.lic-inp{width:100%;max-width:320px;background:#1a1d27;border:2px solid var(--border);border-radius:12px;color:#f0f2ff;font-family:'Bebas Neue',sans-serif;font-size:22px;padding:12px 16px;text-align:center;letter-spacing:3px;outline:none;box-sizing:border-box;}
+.lic-inp:focus{border-color:var(--gold);}
+.lic-btn{width:100%;max-width:320px;margin-top:12px;background:linear-gradient(135deg,#f5c518,#c9a010);border:none;border-radius:12px;color:#111;font-family:'Sarabun',sans-serif;font-size:17px;font-weight:900;padding:13px;cursor:pointer;}
+.lic-err{font-size:13px;color:#f87171;font-family:'Sarabun',sans-serif;margin-top:10px;min-height:20px;text-align:center;}
+
+
+/* ── GUIDE ── */
+.guide-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:600;overflow-y:auto;}
+.guide-ov.show{display:block;}
+.guide-inner{max-width:480px;margin:0 auto;padding:14px 14px 60px;}
+.guide-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;position:sticky;top:0;background:rgba(10,12,18,.97);padding:10px 0;z-index:10;border-bottom:1px solid #252840;}
+.guide-hd span{font-size:18px;font-weight:900;color:#f5c518;font-family:'Sarabun',sans-serif;}
+.guide-close-btn{background:none;border:1px solid #444;border-radius:8px;color:#aaa;font-size:18px;padding:4px 10px;cursor:pointer;}
+.g-sec{background:#13161f;border:1px solid #252840;border-radius:14px;padding:16px;margin-bottom:12px;}
+.g-sec-title{font-size:15px;font-weight:900;color:#f5c518;margin-bottom:10px;font-family:'Sarabun',sans-serif;}
+.g-step{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start;}
+.g-step-num{background:#f5c518;color:#111;font-weight:900;font-size:13px;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.g-step-txt{font-size:13px;color:#c8cde8;line-height:1.6;font-family:'Sarabun',sans-serif;}
+.g-tip{background:rgba(245,197,24,.07);border:1px solid rgba(245,197,24,.15);border-radius:8px;padding:8px 12px;font-size:12px;color:#9ca3af;margin-top:8px;font-family:'Sarabun',sans-serif;}
+.g-hero-cus{text-align:center;padding:20px 0 10px;}
+.g-hero-cus .icon{font-size:56px;}
+.g-hero-cus .title{font-size:22px;font-weight:900;color:#f5c518;font-family:'Sarabun',sans-serif;margin-top:6px;}
+.g-hero-cus .sub{font-size:13px;color:#9ca3af;margin-top:4px;font-family:'Sarabun',sans-serif;}
+
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
+
+<div id="lic-screen">
+  <div class="lic-logo">🐯 🇹🇭</div>
+  <div class="lic-title">T999 ลูกค้า</div>
+  <div class="lic-sub">ใส่ License Key จาก Agent ของคุณครับ</div>
+  <input class="lic-inp" id="lic-inp" type="text" maxlength="19"
+    placeholder="T999-XXXX-XXXX-XXXX"
+    oninput="this.value=this.value.toUpperCase()"
+    onkeydown="if(event.key==='Enter')licSubmit()">
+  <button class="lic-btn" onclick="licSubmit()">✅ เข้าใช้งาน</button>
+  <div class="lic-err" id="lic-err"></div>
+</div>
+
 <div class="hdr">
   <div class="hdr-left">
     <h1>🐯 T999 ลูกค้า 🇹🇭</h1>
@@ -213,6 +256,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
     <button class="hbtn" onclick="openHist()"><span class="hbtn-icon">📂</span><span class="hbtn-lbl">แฟ้ม</span></button>
     <button class="hbtn" onclick="openCheck()"><span class="hbtn-icon">🔍</span><span class="hbtn-lbl">ตรวจ</span></button>
     <button class="hbtn" onclick="openSetup()"><span class="hbtn-icon">⚙️</span><span class="hbtn-lbl">ตั้งค่า</span></button>
+    <button class="hbtn" onclick="openGuide()"><span class="hbtn-icon">💡</span><span class="hbtn-lbl">วิธีใช้</span></button>
   </div>
 </div>
 
@@ -1028,6 +1072,10 @@ function viewHistSlip(idx){
 // ══════════════════════════════════════
 // CHECK
 // ══════════════════════════════════════
+
+function openGuide(){document.getElementById('guide-ov').classList.add('show');}
+function closeGuide(){document.getElementById('guide-ov').classList.remove('show');}
+
 function openCheck(){document.getElementById('check-ov').classList.add('show');}
 function closeCheck(){document.getElementById('check-ov').classList.remove('show');}
 function fetchResult(){
@@ -1177,5 +1225,94 @@ function updatePakBtn(){
   if(wrap)wrap.style.display=show?'block':'none';
 }
 </script>
+<script>
+(function(){
+  var POS={M1:5,LV:6,M2:8,Y1:12,Y2:16};
+  var KEY='t999_lic_cust_v1';
+  function verify(k){
+    if(!k||k.length!==19||k.slice(0,4)!=='T999') return false;
+    if(k[POS.LV]!=='1') return false;
+    var mm=k[POS.M1]+k[POS.M2], yy=k[POS.Y2]+k[POS.Y1];
+    var mmI=parseInt(mm)||0, yyI=parseInt(yy)||0;
+    if(mmI<1||mmI>12) return false;
+    var now=new Date(), curMM=now.getMonth()+1, curYY=parseInt(String(now.getFullYear()).slice(-2));
+    for(var d=-1;d<=1;d++){
+      var cMM=curMM+d, cYY=curYY;
+      if(cMM<1){cMM+=12;cYY--;} if(cMM>12){cMM-=12;cYY++;}
+      if(mmI===cMM&&yyI===cYY) return true;
+    }
+    return false;
+  }
+  var saved=localStorage.getItem(KEY)||'';
+  if(saved&&verify(saved)){
+    document.getElementById('lic-screen').classList.add('hide');
+  }
+  window.licSubmit=function(){
+    var k=document.getElementById('lic-inp').value.trim().toUpperCase();
+    if(verify(k)){
+      localStorage.setItem(KEY,k);
+      document.getElementById('lic-screen').classList.add('hide');
+      document.getElementById('lic-err').textContent='';
+    } else {
+      var msg='❌ Key ไม่ถูกต้องหรือหมดอายุครับ';
+      if(k.length===19&&k[POS.LV]!=='1') msg='❌ ต้องใช้ Key L1 (ลูกค้า)';
+      document.getElementById('lic-err').textContent=msg;
+    }
+  };
+})();
+</script>
+
+<!-- GUIDE OVERLAY -->
+<div class="guide-ov" id="guide-ov">
+  <div class="guide-inner">
+    <div class="guide-hd">
+      <span>💡 วิธีใช้ T999 ลูกค้า</span>
+      <button class="guide-close-btn" onclick="closeGuide()">✕</button>
+    </div>
+
+    <div class="g-hero-cus">
+      <div class="icon">🐯 🇹🇭</div>
+      <div class="title">T999 ลูกค้า</div>
+      <div class="sub">ระบบแทงหวยออนไลน์ผ่านมือถือ</div>
+    </div>
+
+    <div class="g-sec">
+      <div class="g-sec-title">🚀 เริ่มต้นใช้งาน</div>
+      <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">รับ License Key (L1) จาก Agent แล้วใส่ครั้งแรก ระบบจำให้อัตโนมัติ</div></div>
+      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">ตั้งค่าชื่อและงวดที่ปุ่ม ⚙️ ตั้งค่า ก่อนเริ่มแทง</div></div>
+    </div>
+
+    <div class="g-sec">
+      <div class="g-sec-title">✏️ วิธีคีย์เลข (FK Keyboard)</div>
+      <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">กดตัวเลข 1–5 หลัก → ระบบเลือกประเภทให้อัตโนมัติ</div></div>
+      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">กด <b style="color:#f5c518;">บน / โต๊ด / ล่าง / หน้า</b> เพื่อเปิด-ปิดประเภท</div></div>
+      <div class="g-step"><div class="g-step-num">3</div><div class="g-step-txt">กด <b style="color:#f5c518;">= OK</b> → ใส่ราคา → กด <b style="color:#f5c518;">= OK</b> อีกครั้งเพื่อบันทึก</div></div>
+      <div class="g-step"><div class="g-step-num">4</div><div class="g-step-txt">หลายประเภท: กด <b style="color:#f5c518;">×</b> คั่นราคา เช่น <b>100×50</b> = บน 100 ล่าง 50</div></div>
+      <div class="g-step"><div class="g-step-num">5</div><div class="g-step-txt">กด <b style="color:#a78bfa;">/</b> คั่นเลขหลายตัว เช่น <b>12/21</b> เพิ่มพร้อมกัน 2 เลข</div></div>
+      <div class="g-step"><div class="g-step-num">6</div><div class="g-step-txt">ปุ่ม <b style="color:#d4a017;">กลับ</b> (2 หลัก) / <b style="color:#d4a017;">ชุด</b> (3 หลัก) = เพิ่มเลขกลับอัตโนมัติ</div></div>
+      <div class="g-tip">📌 เลข 1 หลัก → ปุ่ม ปักหลัก จะโผล่ขึ้นมาอัตโนมัติ</div>
+    </div>
+
+    <div class="g-sec">
+      <div class="g-sec-title">📄 สร้างโพยและส่ง Agent</div>
+      <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">กด <b style="color:#f5c518;">📄 ดูโพย / เก็บเข้าแฟ้ม</b> → ระบบเก็บรายการและแสดงโพย</div></div>
+      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">กด <b style="color:#06c755;">📤 ส่งโพยให้เอเย่นต์</b> เพื่อแชร์ภาพโพยผ่าน Line</div></div>
+      <div class="g-tip">⚠️ เมื่อเก็บโพยแล้วจะล้างรายการอัตโนมัติ พร้อมคีย์ชุดใหม่ได้เลย</div>
+    </div>
+
+    <div class="g-sec">
+      <div class="g-sec-title">🔍 ตรวจรางวัล</div>
+      <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">กดปุ่ม 🔍 ตรวจ ในหัว → กด <b>📡 ดึงผลรางวัลล่าสุด</b></div></div>
+      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">กด <b style="color:#f5c518;">🔍 ตรวจเลย</b> → ระบบแสดงรายการที่ถูกรางวัลทันที</div></div>
+    </div>
+
+    <div class="g-sec">
+      <div class="g-sec-title">📂 แฟ้มโพย</div>
+      <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">กด 📂 แฟ้ม เพื่อดูโพยที่เก็บไว้ทั้งหมด</div></div>
+      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">กด 🗑️ เพื่อลบโพย — ระบบจะขอยืนยันก่อนลบเสมอ</div></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
