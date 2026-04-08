@@ -856,10 +856,9 @@ function toLines(e){
   } else if(d===4){
     var hasKb4=(e.kd&&e.kd['bon']||[]).length>0;
     var ps4=[],pt4=0;
-    if(b>0&&!hasKb4){ps4.push('4ตัว'+fmtNum(b));pt4+=b;}
-    if(t>0){ps4.push('4โต๊ด'+fmtNum(t));pt4+=t;}
+    if(b>0&&!hasKb4){ps4.push('บ'+fmtNum(b));pt4+=b;}
+    if(t>0){ps4.push('ต'+fmtNum(t));pt4+=t;}
     if(ps4.length)push(lek,pstr(ps4),pt4);
-    // ชุด 4 ตัว — แสดง perm ทุกตัว
     if(hasKb4){
       var kb4=e.kd['bon'];
       var allP4=[];if(b>0)allP4.push(b);kb4.forEach(function(x){allP4.push(x.price);});
@@ -867,9 +866,9 @@ function toLines(e){
       var tot4=allP4.reduce(function(s,p){return s+p;},0);
       var totalPerms4=permCount(lek);
       var hasFull4=(b>0?1:0)+kb4.length===totalPerms4;
-      if(hasFull4&&allSame4){push(lek,'ช4'+fmtNum(allP4[0]),tot4);}
-      else{if(b>0)push(lek,'4ตัว'+fmtNum(b),b);kb4.forEach(function(x){push(x.perm,'4ตัว'+fmtNum(x.price),x.price);});}
-      if(t>0)push(lek,'4โต๊ด'+fmtNum(t),t);
+      if(hasFull4&&allSame4){push(lek,'ชบ'+fmtNum(allP4[0]),tot4);}
+      else{if(b>0)push(lek,'บ'+fmtNum(b),b);kb4.forEach(function(x){push(x.perm,'บ'+fmtNum(x.price),x.price);});}
+      if(t>0)push(lek,'ต'+fmtNum(t),t);
     }
   } else {
     if(t>0)push(lek,'5โต๊ด'+fmtNum(t),t);
