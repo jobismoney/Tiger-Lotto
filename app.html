@@ -5,22 +5,6 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="mobile-web-app-capable" content="yes">
 <script>
-(function(){
-  var key=localStorage.getItem('t999_key');
-  var code=localStorage.getItem('t999_code');
-  if(!key||!code){window.location.href='index.html';return;}
-  var now=new Date(),validList=[];
-  for(var m=-1;m<=0;m++){
-    var d=new Date(now.getFullYear(),now.getMonth()+m,1);
-    var mm=String(d.getMonth()+1).padStart(2,'0');
-    var yy=String(d.getFullYear()).slice(-2);
-    validList.push(mm+yy[1]+yy[0]);
-  }
-  if(validList.indexOf(code)===-1){localStorage.removeItem('t999_key');localStorage.removeItem('t999_code');window.location.href='index.html';}
-})();
-
-
-
 // ══════════════════════════════════════
 // LICENSE KEY SYSTEM (L2 - Agent)
 // ══════════════════════════════════════
@@ -1503,9 +1487,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   // ─── BASKET (เก็บเข้าโพย) ───
   function getNowTime(){
     var n=new Date();
-    var h=n.getHours().toString().padStart(2,'0');
-    var m=n.getMinutes().toString().padStart(2,'0');
-    return h+':'+m+' น.';
+    return n.toLocaleDateString('th-TH');
   }
 
   function doBasket(){
@@ -1596,8 +1578,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var ngod=document.getElementById('m-ngod').value.trim();
     if(!ngod){toast('กรุณาใส่งวดครับ');return;}
     var now=new Date();
-    var hh=String(now.getHours()).padStart(2,'0');
-    var mm=String(now.getMinutes()).padStart(2,'0');
     ngodInfo={sender:sender,receiver:sender,ngod:ngod,date:getToday(),basketName:'',ngodId:Date.now()};
     lastBasketName='';
     ngodOpen=true;
