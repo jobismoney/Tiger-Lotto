@@ -109,11 +109,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 .td-total{font-size:14px;font-weight:900;color:#111;text-align:left;padding-left:4px;}
 .sum-tbl-wrap{border-top:1.5px solid #000;}
 .sum-tbl{width:100%;border-collapse:collapse;}
-.sh{background:#fff;color:#000;font-size:12px;font-weight:800;padding:4px 2px;text-align:center;border-bottom:1px solid #000;}
-.sh-no{width:26px;}
-.sc{font-size:13px;font-weight:700;color:#111;text-align:center;padding:5px 2px;border-bottom:1px solid #f0f0f0;}
-.sc-no{color:#888;font-size:12px;}
-.sf td{background:#eee;font-weight:900;font-size:13px;color:#111;border-top:2px solid #bbb;padding:5px 2px;text-align:center;}
+.sh{background:#fff;color:#000;font-size:11px;font-weight:800;padding:5px 3px;text-align:center;border-bottom:1px solid #000;}
+.sh-no{width:30px;}
+.sc{font-size:12px;font-weight:700;color:#111;text-align:center;padding:6px 3px;border-bottom:1px solid #f0f0f0;}
+.sc-no{color:#888;font-size:11px;}
+.sf td{background:#eee;font-weight:900;font-size:12px;color:#111;border-top:2px solid #bbb;padding:6px 3px;text-align:center;}
 .slip-ft{background:#fff;padding:6px 14px;display:flex;justify-content:space-between;align-items:center;border-top:1.5px solid #000;}
 .slip-ft .fl{color:#000;font-size:14px;font-weight:800;}
 .slip-ft .fv{color:#000;font-size:22px;font-weight:900;}
@@ -236,7 +236,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 <!-- HEADER -->
 
 <div id="lic-screen">
-  <div class="lic-logo">🐯 🇹🇭</div>
+  <div class="lic-logo">🐯 🇱🇦</div>
   <div class="lic-title">T999 ลูกค้า</div>
   <div class="lic-sub">ใส่ License Key จาก Agent ของคุณครับ</div>
   <input class="lic-inp" id="lic-inp" type="text" maxlength="19"
@@ -357,9 +357,23 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
       <span>🔍 ตรวจรางวัล 🇱🇦 ลาว</span>
       <button class="hist-close-btn" onclick="closeCheck()">✕</button>
     </div>
-    <input class="check-inp" id="res-1st" type="tel" inputmode="numeric" maxlength="6" placeholder="ผลรางวัล 6 หลัก (เช่น 123456)">
-    <div style="font-size:11px;color:var(--lg);margin:-6px 0 10px;padding:0 4px;">
-      ระบบจะคำนวณ: 4ตัว=3456 · 3ตัว=456 · 2บน/หลัง=56 · 2กลาง/ล่าง=34 · 2หน้า=12 · ลอยหลัง=4,5,6 · ลอยล่าง=3,4
+    <div style="margin-bottom:10px;">
+      <div class="check-sub-lbl">เลข 6 ตัว (ผลรางวัลเต็ม)</div>
+      <input class="check-inp" id="res-1st" type="tel" inputmode="numeric" maxlength="6" placeholder="0 2 3 7 9 4" oninput="autoFillLao()">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div style="text-align:center;">
+        <div class="check-sub-lbl">3 ตัวบน</div>
+        <div id="disp-3bon" style="font-size:26px;font-weight:900;color:#f5c518;letter-spacing:4px;min-height:36px;">—</div>
+      </div>
+      <div style="text-align:center;">
+        <div class="check-sub-lbl">2 ตัวล่าง</div>
+        <div id="disp-2lang" style="font-size:26px;font-weight:900;color:#34d399;letter-spacing:4px;min-height:36px;">—</div>
+      </div>
+      <div style="text-align:center;">
+        <div class="check-sub-lbl">2 ตัวบน</div>
+        <div id="disp-2bon" style="font-size:26px;font-weight:900;color:#60a5fa;letter-spacing:4px;min-height:36px;">—</div>
+      </div>
     </div>
     <button class="check-go-btn" onclick="doCheck()">🔍 ตรวจเลย</button>
     <div id="check-result-out"></div>
@@ -822,16 +836,15 @@ function toLines(e){
 function entrySummary(e){
   var d=e.d,b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0;
   var pk=(e.paks||[]).reduce(function(s,p){return s+p.price;},0);
-  // c3=3-4ตัว, c2=2ตัว, c1=1ตัว/ลอย, ct=โต๊ด, cl=กลาง/ล่าง
-  if(d===4)return{c3:b,c2:0,c1:pk,ct:t,cl:0};
-  if(d===3)return{c3:b,c2:0,c1:pk,ct:t,cl:l};
-  if(d===2)return{c3:0,c2:b+l+n,c1:pk,ct:t,cl:0};
-  if(d===1)return{c3:0,c2:0,c1:b+l+n+pk,ct:0,cl:0};
-  return{c3:0,c2:0,c1:pk,ct:t,cl:0};
+  if(d===4)return{c3:b,c2:0,c1:pk,ct:t};
+  if(d===3)return{c3:b,c2:0,c1:pk,ct:t};
+  if(d===2)return{c3:0,c2:b+l+n,c1:pk,ct:t};
+  if(d===1)return{c3:0,c2:0,c1:b+l+n+pk,ct:0};
+  return{c3:0,c2:0,c1:pk,ct:t};
 }
 function pageSumTotals(pEntries){
-  var s={c3:0,c2:0,c1:0,ct:0,cl:0};
-  pEntries.forEach(function(e){var es=entrySummary(e);s.c3+=es.c3;s.c2+=es.c2;s.c1+=es.c1;s.ct+=es.ct;s.cl+=es.cl;});
+  var s={c3:0,c2:0,c1:0,ct:0};
+  pEntries.forEach(function(e){var es=entrySummary(e);s.c3+=es.c3;s.c2+=es.c2;s.c1+=es.c1;s.ct+=es.ct;});
   return s;
 }
 function buildSumRow(s,label,total,isFoot){
@@ -839,13 +852,12 @@ function buildSumRow(s,label,total,isFoot){
   return '<tr class="'+(isFoot?'sf':'')+'"><td class="sc sc-no">'+label+'</td>'
     +'<td class="sc">'+cv(s.c3)+'</td><td class="sc">'+cv(s.c2)+'</td>'
     +'<td class="sc">'+cv(s.c1)+'</td><td class="sc">'+cv(s.ct)+'</td>'
-    +'<td class="sc">'+cv(s.cl)+'</td>'
     +'<td class="sc" style="font-weight:900;color:#111;">'+fmtNum(total)+'</td></tr>';
 }
 function sumTableHTML(rows){
   return '<div class="sum-tbl-wrap"><table class="sum-tbl"><thead><tr>'
     +'<th class="sh sh-no">แผ่น</th><th class="sh">3ตัว</th><th class="sh">2ตัว</th>'
-    +'<th class="sh">1ตัว</th><th class="sh">โต๊ด</th><th class="sh">3ล่าง</th><th class="sh">รวม</th>'
+    +'<th class="sh">1ตัว</th><th class="sh">โต๊ด</th><th class="sh">รวม</th>'
     +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function encodeQREntries(pEntries){
@@ -905,7 +917,7 @@ function makePageHTML(pEntries,pgNum,totalPages,inf){
   });
   var ps=pageSumTotals(pEntries);
   var pt=pEntries.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});(e.paks||[]).forEach(function(p){t+=p.price;});return s+t;},0);
-  return '<div class="slip-hd"><div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇱🇦 LAO</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
+  return '<div class="slip-hd"><div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇱🇦 ຫວຍລາວພັດທະນາ</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
     +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div></div>'
     +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
     +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
@@ -919,12 +931,12 @@ function buildSlip(entsToUse){
   var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
   var pages=paginateEntries(sorted,inf);
   var totalPages=pages.length,grandTotal=ents.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});(e.paks||[]).forEach(function(p){t+=p.price;});return s+t;},0);
-  var allSumRows='',allHTML='',grandS={c3:0,c2:0,c1:0,ct:0,cl:0};
+  var allSumRows='',allHTML='',grandS={c3:0,c2:0,c1:0,ct:0};
   pages.forEach(function(pg,i){
     allHTML+='<div class="slip-page-single"><div class="slip-page">'+makePageHTML(pg,i+1,totalPages,inf)+'</div></div>';
     var ps=pageSumTotals(pg);var pt=pg.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});(e.paks||[]).forEach(function(p){t+=p.price;});return s+t;},0);
     allSumRows+=buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false);
-    grandS.c3+=ps.c3;grandS.c2+=ps.c2;grandS.c1+=ps.c1;grandS.ct+=ps.ct;grandS.cl+=ps.cl;
+    grandS.c3+=ps.c3;grandS.c2+=ps.c2;grandS.c1+=ps.c1;grandS.ct+=ps.ct;
   });
   allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
   var sumHTML='<div class="slip-hd"><div class="slip-hd-row1"><h2>📊 สรุป · '+inf.ngod+'</h2><span class="pg">'+totalPages+' แผ่น</span></div>'
@@ -1086,6 +1098,15 @@ function fetchResult(){
       sv('res-3lang3',back3[0]||'');sv('res-3lang4',back3[1]||'');
       toast('✅ ดึงผลสำเร็จ งวด '+res.date);
     }).catch(function(err){toast('⚠️ '+err.message);});
+}
+function autoFillLao(){
+  var v=document.getElementById('res-1st').value.trim();
+  var d3=v.length>=6?v.slice(3):'—';
+  var d2l=v.length>=6?v.slice(2,4):'—';
+  var d2b=v.length>=6?v.slice(4):'—';
+  document.getElementById('disp-3bon').textContent=d3;
+  document.getElementById('disp-2lang').textContent=d2l;
+  document.getElementById('disp-2bon').textContent=d2b;
 }
 function getLaoTod(lek){
   // หาทุก permutation ของเลข (เหมือนไทย)
@@ -1320,7 +1341,7 @@ function updatePakBtn(){
     </div>
 
     <div class="g-hero-cus">
-      <div class="icon">🐯 🇹🇭</div>
+      <div class="icon">🐯 🇱🇦</div>
       <div class="title">T999 ลูกค้า</div>
       <div class="sub">ระบบแทงหวยออนไลน์ผ่านมือถือ</div>
     </div>
