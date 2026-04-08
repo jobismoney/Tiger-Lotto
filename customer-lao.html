@@ -882,7 +882,7 @@ function encodeQREntries(pEntries){
     return o;
   });
 }
-var QR_MAX_CHARS=800;
+var QR_MAX_CHARS=2000;
 function encodePageData(pEntries,inf,pgNum){
   var data={s:inf.sender||'',r:inf.receiver||'',e:encodeQREntries(pEntries)};
   return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
@@ -901,7 +901,7 @@ function renderPageQR(pEntries,inf,pgNum){
   var el=document.getElementById('slip-qr-pg-'+pgNum);if(!el)return;el.innerHTML='';
   if(typeof QRCode==='undefined')return;
   var url=encodePageData(pEntries,inf,pgNum);
-  if(!url||url.length>4500){el.innerHTML='<div style="font-size:10px;color:#f87171;text-align:right;">QR เกิน</div>';return;}
+  if(!url||url.length>10000){el.innerHTML='<div style="font-size:10px;color:#f87171;text-align:right;">QR เกิน</div>';return;}
   try{new QRCode(el,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.L});}catch(e){}
 }
 function makePageHTML(pEntries,pgNum,totalPages,inf){
