@@ -494,7 +494,7 @@ var RULES={
   5:['tod']
 };
 var FK_DEFAULT={1:['bon','lang'],2:['bon','lang'],3:['bon','tod'],4:['bon','tod'],5:['tod']};
-var FK_KLB_TYPES=['bon'];
+var FK_KLB_TYPES=['bon','lang','na']; // กลับได้: บน, ล่าง, หน้า (เหมือน customer-lao)
 var PAY_RATES={
   bon4:4000,bon3:550,bon2:70,bon2na:70,bon2mid:70,
   loy_bon:3,loy_lang:4,pak_bon:8,pak_lang:8,
@@ -578,7 +578,7 @@ function fkAutoSel(d){
 function fkUpdateKlbBtns(d){
   if(!d&&fkBuf){var fl=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');d=fl.length||2;}
   d=d||2;
-  var lbl=d===2?'ກລັບ':'ชุด';
+  var lbl=d===2?'กลับ':'ชุด';
   FK_KLB_TYPES.forEach(function(t){
     var btn=document.getElementById('fkk-'+t);if(!btn)return;
     var show=fkSel[t]&&d>=2&&t!=='tod'&&(d<=2||t==='bon');
@@ -614,7 +614,7 @@ function fkRender(){
   el.style.fontSize=len<=8?'32px':len<=12?'24px':len<=16?'18px':'14px';
   var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
   var d2=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||2;
-  var klbWord=d2===2?'ກ':'ຊ';
+  var klbWord=d2===2?'ก':'ช';
   hint.innerHTML=types.map(function(t){return'<span style="color:'+FK_COLOR[t]+'">'+FK_LABEL[t]+(fkKlb[t]?klbWord:'')+'</span>';}).join(' <span style="color:#555">x</span> ');
 }
 function fkNum(n){
