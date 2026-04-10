@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="T999 LAO">
+<meta name="theme-color" content="#0f1117">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>T999 App 🇱🇦</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0f1117;--card:#1a1d27;--card2:#222533;--border:#2e3248;
+  --gold:#f5c518;--gold2:#c9a010;
+  --white:#f0f2ff;--lg:#8891b4;--gray:#5a6080;--green:#34d399;
+  --accent:#c0504a;--accent-dim:rgba(192,80,74,.15);
+}
+body{background:var(--bg);color:var(--white);font-family:'Sarabun',sans-serif;min-height:100vh;overscroll-behavior:none;}
+
+/* ─── WELCOME ─── */
+.welcome-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:30px 20px;text-align:center;}
+.welcome-logo{font-size:52px;margin-bottom:10px;}
+.welcome-title{font-size:28px;font-weight:900;color:var(--gold);margin-bottom:4px;}
+.welcome-sub{font-size:15px;color:var(--lg);margin-bottom:30px;}
+.welcome-btn{width:100%;max-width:320px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:16px;color:#111;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:16px;cursor:pointer;margin-bottom:10px;}
+.welcome-hist{width:100%;max-width:320px;background:var(--card);border:1.5px solid var(--border);border-radius:14px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:17px;font-weight:800;padding:13px;cursor:pointer;margin-bottom:8px;}
+
+/* ─── MAIN ─── */
+.main-wrap{display:none;max-width:520px;margin:0 auto;}
+.main-wrap.show{display:block;}
+
+/* ─── HEADER ─── */
+.hdr{position:sticky;top:0;z-index:100;background:var(--card);border-bottom:1px solid var(--border);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;}
+.hdr-left h1{font-size:18px;font-weight:900;color:var(--gold);}
+.hdr-left p{font-size:12px;color:var(--lg);margin-top:1px;}
+.hdr-btns{display:flex;gap:6px;}
+.hbtn{background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:11px;font-weight:800;padding:6px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:44px;}
+.hbtn.gold{background:rgba(245,197,24,.12);border-color:rgba(245,197,24,.3);color:var(--gold);}
+.hbtn-icon{font-size:16px;}
+.hbtn-lbl{font-size:10px;}
+
+/* ─── LIST ─── */
+.list-wrap{padding:10px 10px 0;}
+.tbl-hd{display:grid;grid-template-columns:44px 1fr 1fr 1fr 1fr 32px;gap:2px;padding:6px 10px;background:var(--card2);border-radius:10px 10px 0 0;font-size:11px;font-weight:800;color:var(--lg);}
+.list-scroll{max-height:38vh;overflow-y:auto;background:var(--card);border-radius:0 0 10px 10px;border:1px solid var(--border);border-top:none;}
+.empty-row{text-align:center;color:var(--gray);padding:24px;font-size:15px;}
+.entry-row{display:grid;grid-template-columns:44px 1fr 1fr 1fr 1fr 32px;gap:2px;padding:8px 10px;border-bottom:1px solid rgba(46,50,72,.5);align-items:center;}
+.entry-row:last-child{border-bottom:none;}
+.e-lek{font-size:18px;font-weight:900;color:var(--white);}
+.e-price{font-size:13px;font-weight:700;}
+.e-bon{color:#60a5fa;}
+.e-tod{color:#f472b6;}
+.e-lang{color:#34d399;}
+.e-na{color:#fb923c;}
+.e-rm{background:none;border:none;color:#ef4444;font-size:16px;cursor:pointer;padding:2px;}
+.tot-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.2);border-radius:10px;margin-top:8px;}
+.tot-bar .lbl{font-size:13px;font-weight:700;color:var(--lg);}
+.tot-bar .val{font-size:22px;font-weight:900;color:var(--gold);}
+
+/* ─── FK KEYBOARD ─── */
+.fk-area{margin:10px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.fk-display{min-height:62px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+#fk-text{font-size:28px;font-weight:900;color:var(--gold);letter-spacing:4px;min-width:120px;}
+#fk-hint{font-size:12px;color:var(--lg);text-align:right;line-height:1.5;}
+.fk-cursor{display:inline-block;width:2px;height:28px;background:var(--gold);animation:blink .7s infinite;vertical-align:middle;margin-left:2px;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.fk-type-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border);}
+.fk-type-col{display:flex;flex-direction:column;border-right:1px solid var(--border);}
+.fk-type-col:last-child{border-right:none;}
+.fk-tbtn{background:none;border:none;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:15px;font-weight:800;padding:9px 4px;cursor:pointer;transition:all .15s;}
+.fk-tbtn.on{background:rgba(245,197,24,.15);color:var(--gold);}
+.fk-klb{background:none;border:none;border-top:1px solid var(--border);color:var(--gray);font-family:'Sarabun',sans-serif;font-size:11px;font-weight:700;padding:4px;cursor:pointer;min-height:24px;}
+.fk-klb.on{color:#a78bfa;background:rgba(167,139,250,.1);}
+.fk-numpad{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);}
+.fk-btn{background:var(--card2);border:none;color:var(--white);font-family:'Sarabun',sans-serif;font-size:22px;font-weight:900;padding:16px 8px;cursor:pointer;transition:background .1s;}
+.fk-btn:active{background:rgba(245,197,24,.15);}
+.fk-del{color:#ef4444;font-size:18px;}
+.fk-sep{color:#60a5fa;}
+.fk-mul{color:#a78bfa;font-size:18px;}
+.fk-eq{background:linear-gradient(135deg,var(--gold),var(--gold2))!important;color:#111!important;font-size:18px;}
+
+/* ─── PAK OVERLAY ─── */
+.pak-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:250;align-items:flex-end;justify-content:center;}
+.pak-ov.show{display:flex;}
+.pak-box{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 30px;width:100%;max-width:480px;}
+.pak-title{font-size:17px;font-weight:900;color:var(--gold);margin-bottom:14px;text-align:center;}
+.pak-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.pak-type-btn{background:var(--card2);border:1.5px solid var(--border);border-radius:10px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:800;padding:10px 4px;cursor:pointer;text-align:center;}
+.pak-type-btn.on{border-color:var(--gold);color:var(--gold);background:rgba(245,197,24,.1);}
+.pak-pos-row{display:flex;gap:8px;margin-bottom:12px;}
+.pak-pos-btn{flex:1;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:800;padding:10px 4px;cursor:pointer;text-align:center;}
+.pak-pos-btn.on{border-color:#fb923c;color:#fb923c;background:rgba(251,146,60,.1);}
+.pak-price-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;}
+.pak-price-row label{font-size:13px;font-weight:700;color:var(--lg);white-space:nowrap;}
+.pak-price-inp{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--white);font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:10px;text-align:center;outline:none;}
+.pak-price-inp:focus{border-color:var(--gold);}
+.pak-ok-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;color:#111;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:900;padding:13px;cursor:pointer;margin-bottom:8px;}
+.pak-cancel-btn{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;padding:11px;cursor:pointer;}
+
+/* ─── BUTTONS ─── */
+.basket-btn{width:calc(100% - 20px);margin:8px 10px 0;background:linear-gradient(135deg,#e67e22,#d35400);border:none;border-radius:14px;color:#fff;font-family:'Sarabun',sans-serif;font-size:20px;font-weight:900;padding:14px;cursor:pointer;display:block;}
+.locked-notice{margin:8px 10px 0;background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.3);border-radius:12px;padding:12px 16px;font-size:14px;color:var(--gold);font-weight:700;text-align:center;}
+
+/* ─── SLIP OVERLAY ─── */
+.slip-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;overflow-y:auto;}
+.slip-ov.show{display:block;}
+.slip-ov-inner{max-width:520px;margin:0 auto;padding:14px 10px 50px;}
+.ov-back{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:12px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:12px;cursor:pointer;margin-bottom:8px;}
+.ov-basket{width:100%;background:linear-gradient(135deg,#e67e22,#d35400);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:12px;cursor:pointer;margin-bottom:8px;}
+.ov-del-set{width:100%;background:linear-gradient(135deg,#7f1d1d,#991b1b);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:12px;cursor:pointer;margin-bottom:8px;}
+.slip-pages-grid{display:flex;flex-direction:column;gap:10px;}
+/* ─── SLIP PRINT STYLES ─── */
+.slip-page{background:#fff;overflow:hidden;}
+.slip-hd{background:#fff;padding:8px 14px 6px;border-bottom:1.5px solid #000;}
+.slip-hd-row1{display:flex;justify-content:space-between;align-items:center;}
+.slip-hd-row1 h2{color:#000;font-size:18px;font-weight:900;}
+.slip-hd-row2{display:flex;gap:10px;margin-top:5px;flex-wrap:wrap;}
+.slip-hd-row2 span{color:#333;font-size:13px;}
+.slip-hd-row2 strong{color:#000;}
+.ptbl{width:auto;border-collapse:collapse;}
+.ptbl td{padding:4px 4px;vertical-align:middle;}
+.td-lek{font-size:18px;font-weight:900;color:#111;width:44px;}
+.td-price{font-size:13px;font-weight:800;color:#111;}
+.td-total{font-size:14px;font-weight:900;color:#111;}
+.row-sep td{padding:0!important;border-top:1.5px dashed #ccc!important;}
+.slip-ft{background:#fff;padding:6px 14px;display:flex;justify-content:space-between;align-items:center;border-top:1.5px solid #000;}
+.slip-ft .fl{color:#000;font-size:14px;font-weight:800;}
+.slip-ft .fv{color:#000;font-size:22px;font-weight:900;}
+.slip-qr-wrap{display:flex;justify-content:flex-end;padding:4px 10px 2px;background:#fff;}
+.slip-qr-wrap canvas,.slip-qr-wrap img{width:160px!important;height:160px!important;}
+
+/* ─── MODAL ─── */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;align-items:center;justify-content:center;}
+.modal-ov.show{display:flex;}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:92%;max-width:360px;}
+.modal-title{font-size:20px;font-weight:900;color:var(--gold);margin-bottom:16px;text-align:center;}
+.modal-field{margin-bottom:14px;}
+.modal-field label{display:block;font-size:13px;font-weight:700;color:var(--lg);margin-bottom:6px;}
+.modal-field input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--white);font-family:'Sarabun',sans-serif;font-size:17px;font-weight:700;padding:10px 12px;outline:none;box-sizing:border-box;}
+.modal-field input:focus{border-color:var(--gold);}
+.modal-btns{display:flex;gap:8px;margin-top:4px;}
+.modal-cancel{flex:1;padding:12px;border-radius:10px;background:var(--card2);color:var(--lg);border:1px solid var(--border);font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;cursor:pointer;}
+.modal-ok{flex:2;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:none;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;cursor:pointer;}
+
+/* ─── NAME INPUT (discount) ─── */
+#name-inp-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;}
+.disc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.disc-inp{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:6px 4px;box-sizing:border-box;text-align:center;}
+.disc-lbl{font-size:10px;color:var(--lg);margin-bottom:3px;text-align:center;}
+
+/* ─── HISTORY OVERLAY ─── */
+.hist-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;overflow-y:auto;}
+.hist-ov.show{display:block;}
+.hist-inner{max-width:480px;margin:0 auto;padding:14px 12px 50px;}
+.hist-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.hist-hd span{font-size:20px;font-weight:900;color:var(--gold);}
+.hist-close{background:none;border:1px solid #444;border-radius:8px;color:#aaa;font-size:18px;padding:4px 10px;cursor:pointer;}
+.hist-folder{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:14px;overflow:hidden;}
+.hist-folder-hd{padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.hist-folder-ngod{font-size:18px;font-weight:900;color:var(--gold);}
+.hist-folder-meta{font-size:12px;color:var(--lg);margin-top:3px;}
+.hist-folder-right{text-align:right;}
+.hist-folder-total{font-size:18px;font-weight:900;color:var(--gold);}
+.hist-folder-count{font-size:12px;color:var(--lg);margin-top:2px;}
+.hist-folder-body{border-top:1px solid var(--border);}
+.hist-folder-body.collapsed{display:none;}
+.hist-folder-toggle{font-size:14px;color:var(--lg);margin-left:8px;transition:transform .2s;}
+.hist-folder-toggle.open{transform:rotate(180deg);}
+.hist-set{padding:10px 16px;border-bottom:1px solid rgba(46,50,72,.5);display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.hist-set:last-child{border-bottom:none;}
+.hist-set-left{flex:1;}
+.hist-set-num{font-size:13px;font-weight:800;color:var(--white);}
+.hist-set-time{font-size:12px;color:var(--lg);margin-top:2px;}
+.hist-set-right{text-align:right;}
+.hist-set-total{font-size:14px;font-weight:800;color:var(--green);}
+.hist-set-count{font-size:11px;color:var(--lg);}
+.hist-set-btns{display:flex;gap:6px;}
+.hist-set-btn{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:12px;font-weight:700;padding:5px 10px;cursor:pointer;}
+.hist-folder-actions{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;}
+.hist-btn{flex:1;border:none;border-radius:8px;padding:9px;font-size:14px;font-weight:800;font-family:'Sarabun',sans-serif;cursor:pointer;}
+.hist-btn.view{background:#1d4ed8;color:#fff;}
+.hist-btn.del{background:#7f1d1d;color:#fca5a5;}
+.hist-empty{text-align:center;color:var(--gray);font-size:16px;padding:40px 0;}
+
+/* ─── CHECK OVERLAY ─── */
+.check-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:400;overflow-y:auto;}
+.check-ov.show{display:block;}
+.check-inner{max-width:480px;margin:0 auto;padding:14px 12px 50px;}
+.check-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.check-hd span{font-size:20px;font-weight:900;color:var(--gold);}
+.check-close{background:none;border:1px solid #444;border-radius:8px;color:#aaa;font-size:18px;padding:4px 10px;cursor:pointer;}
+.check-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;}
+.check-inp-big{width:100%;background:var(--bg);border:2px solid var(--border);border-radius:12px;color:var(--white);font-family:'Sarabun',sans-serif;font-size:28px;font-weight:900;padding:12px;outline:none;text-align:center;letter-spacing:8px;}
+.check-inp-big:focus{border-color:var(--gold);}
+.check-disp-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;}
+.check-disp-col{display:flex;flex-direction:column;align-items:center;}
+.check-disp-label{font-size:11px;font-weight:800;color:var(--lg);margin-bottom:4px;}
+.check-disp-val{font-size:20px;font-weight:900;padding:6px 0;}
+.check-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;color:#111;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:900;padding:13px;cursor:pointer;margin-top:8px;}
+.result-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;}
+.result-title{font-size:16px;font-weight:900;color:var(--white);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(46,50,72,.5);}
+.result-row:last-child{border-bottom:none;}
+.result-lek{font-size:20px;font-weight:900;color:var(--gold);}
+.result-set-info{font-size:11px;color:#f59e0b;font-weight:700;}
+.result-type{font-size:13px;color:var(--lg);}
+.result-bet{font-size:15px;font-weight:800;color:var(--green);}
+.result-none{text-align:center;color:var(--gray);font-size:15px;padding:16px 0;}
+.congrats-bar{background:linear-gradient(135deg,#7c3aed,#db2777);border-radius:16px;padding:20px;text-align:center;margin-top:4px;}
+.close-ngod-btn{width:100%;background:linear-gradient(135deg,#7c3aed,#5b21b6);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;padding:13px;cursor:pointer;margin-top:12px;}
+/* ─── LAOHISTORY RESULT PANEL ─── */
+.lao-hist-panel{margin-top:14px;border-top:1px solid var(--border);padding-top:12px;}
+.lao-hist-title{font-size:13px;font-weight:700;color:var(--lg);margin-bottom:8px;}
+.lao-hist-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-bottom:6px;cursor:pointer;}
+.lao-hist-item:active{background:var(--card);}
+.lao-hist-date{font-size:11px;color:var(--lg);}
+.lao-hist-num{font-size:22px;font-weight:900;color:var(--gold);letter-spacing:3px;}
+.lao-hist-sub{font-size:11px;color:var(--lg);margin-top:2px;}
+
+/* ─── CF (confirm) ─── */
+.cf-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;align-items:center;justify-content:center;}
+.cf-ov.show{display:flex;}
+.cf-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:92%;max-width:360px;}
+.cf-msg{font-size:16px;font-weight:700;color:var(--white);line-height:1.6;margin-bottom:20px;text-align:center;}
+.cf-btns{display:flex;gap:8px;}
+.cf-no{flex:1;padding:12px;border-radius:10px;background:var(--card2);color:var(--lg);border:1px solid var(--border);font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;cursor:pointer;}
+.cf-yes{flex:2;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:none;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;cursor:pointer;}
+.cf-extra{flex:1;padding:12px;border-radius:10px;background:linear-gradient(135deg,#1d4ed8,#1e40af);color:#fff;border:none;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:800;cursor:pointer;}
+
+/* ─── TOAST ─── */
+#_toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(30,35,55,.97);color:var(--white);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;z-index:9999;display:none;max-width:90vw;text-align:center;}
+
+/* ─── SCAN IFRAME ─── */
+#scan-ov{display:none;position:fixed;inset:0;z-index:800;background:#000;}
+#scan-ov.show{display:block;}
+#scan-frame{width:100%;height:100%;border:none;}
+.scan-close-btn{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.7);border:1px solid #444;border-radius:8px;color:#fff;font-size:20px;padding:6px 12px;cursor:pointer;z-index:801;}
+
+/* ─── PRINT ─── */
+@media print{
+  body>*:not(.slip-ov){display:none!important;}
+  .slip-ov{display:block!important;position:static;background:#fff;overflow:visible;}
+  .ov-back,.ov-basket,.ov-del-set{display:none!important;}
+  #_toast,.hdr,.fk-area,.list-wrap,.welcome-screen,.basket-btn,.locked-notice,.hist-ov,.check-ov,.cf-ov,.modal-ov{display:none!important;}
+}
+
+/* ─── CONFETTI ─── */
+.confetti-wrap{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9000;overflow:hidden;}
+.confetti-piece{position:absolute;top:-20px;animation:confetti-fall linear forwards;}
+.win-flash{position:fixed;inset:0;background:rgba(245,197,24,.25);z-index:8999;animation:flash .3s ease-out forwards;pointer-events:none;}
+@keyframes confetti-fall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+@keyframes flash{0%{opacity:1;}100%{opacity:0;}}
+</style>
+</head>
+<body>
+
+<!-- WELCOME SCREEN -->
+<div class="welcome-screen" id="welcome-screen">
+  <div class="welcome-logo">🐯🇱🇦</div>
+  <div class="welcome-title">T999 App ລາວ</div>
+  <div class="welcome-sub">ระบบบันทึกหวยลาว<br>กรุณาเปิดงวดก่อนเข้าใช้งานครับ</div>
+  <button class="welcome-btn" id="open-ngod-btn">🎯 เปิดงวดใหม่</button>
+  <button class="welcome-hist" id="welcome-hist-btn">📂 ดูแฟ้ม</button>
+</div>
+
+<!-- MAIN WRAP -->
+<div class="main-wrap" id="main-wrap">
+  <div class="hdr">
+    <div class="hdr-left">
+      <h1>🐯 T999 🇱🇦 ລາວ</h1>
+      <p id="hd-info">—</p>
+      <span id="hd-ngod" style="font-size:12px;color:var(--lg);"></span>
+    </div>
+    <div class="hdr-btns">
+      <button class="hbtn" onclick="APP.openCheck()"><span class="hbtn-icon">🔍</span><span class="hbtn-lbl">ตรวจ</span></button>
+      <button class="hbtn" id="hist-btn"><span class="hbtn-icon">📂</span><span class="hbtn-lbl">แฟ้ม</span></button>
+      <button class="hbtn gold" id="new-ngod-btn"><span class="hbtn-icon">🎯</span><span class="hbtn-lbl">+ชุดใหม่</span></button>
+    </div>
+  </div>
+
+  <div class="list-wrap" id="list-wrap">
+    <div class="tbl-hd">
+      <span>เลข</span>
+      <span style="color:#60a5fa">บน</span>
+      <span style="color:#f472b6">โต๊ด</span>
+      <span style="color:#34d399">ล่าง</span>
+      <span style="color:#fb923c">หน้า</span>
+      <span></span>
+    </div>
+    <div class="list-scroll" id="list-scroll"><div class="empty-row">ยังไม่มีรายการ</div></div>
+    <div class="tot-bar">
+      <div class="lbl">ยอดรวม</div>
+      <div class="val" id="total-val">฿0</div>
+    </div>
+  </div>
+
+  <!-- FK KEYBOARD -->
+  <div class="fk-area" id="ipanel">
+    <div class="fk-display">
+      <div id="fk-text">—</div>
+      <div id="fk-hint">กดเลข<br>แล้ว =</div>
+    </div>
+    <div class="fk-type-row">
+      <div class="fk-type-col">
+        <button class="fk-tbtn" id="fkt-bon" onclick="fkToggle('bon')">ໜ້າ</button>
+        <button class="fk-klb" id="fkk-bon" onclick="fkToggleKlb('bon')"></button>
+      </div>
+      <div class="fk-type-col">
+        <button class="fk-tbtn" id="fkt-tod" onclick="fkToggle('tod')">ໂຕດ</button>
+        <div style="height:28px;"></div>
+      </div>
+      <div class="fk-type-col">
+        <button class="fk-tbtn" id="fkt-lang" onclick="fkToggle('lang')">ກາງ/ລ່າງ</button>
+        <button class="fk-klb" id="fkk-lang" onclick="fkToggleKlb('lang')"></button>
+      </div>
+      <div class="fk-type-col">
+        <button class="fk-tbtn" id="fkt-na" onclick="fkToggle('na')">2ຫນ້າ</button>
+        <button class="fk-klb" id="fkk-na" onclick="fkToggleKlb('na')"></button>
+      </div>
+    </div>
+    <div class="fk-numpad">
+      <button class="fk-btn" onclick="fkNum('1')">1</button>
+      <button class="fk-btn" onclick="fkNum('2')">2</button>
+      <button class="fk-btn" onclick="fkNum('3')">3</button>
+      <button class="fk-btn fk-del" onclick="fkDel()">⌫</button>
+      <button class="fk-btn" onclick="fkNum('4')">4</button>
+      <button class="fk-btn" onclick="fkNum('5')">5</button>
+      <button class="fk-btn" onclick="fkNum('6')">6</button>
+      <button class="fk-btn fk-sep" onclick="fkSep()">/</button>
+      <button class="fk-btn" onclick="fkNum('7')">7</button>
+      <button class="fk-btn" onclick="fkNum('8')">8</button>
+      <button class="fk-btn" onclick="fkNum('9')">9</button>
+      <button class="fk-btn fk-mul" onclick="fkMul()">×</button>
+      <button class="fk-btn" style="grid-column:span 2;" onclick="fkNum('0')">0</button>
+      <button class="fk-btn fk-eq" style="grid-column:span 2;" onclick="fkEq()">= OK</button>
+    </div>
+  </div>
+  <div style="display:flex;gap:6px;margin:8px 10px 0;">
+    <button onclick="openScan()" style="flex:1;background:rgba(96,165,250,.1);border:1.5px solid rgba(96,165,250,.3);border-radius:10px;color:#60a5fa;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;padding:10px 4px;cursor:pointer;">📷 ສະແກນ</button>
+    <button class="basket-btn" id="basket-btn" style="margin:0;flex:2;font-size:16px;padding:10px;">📂 ເກັບແຟ້ມ</button>
+  </div>
+  <div class="locked-notice" id="locked-notice" style="display:none;">🔒 ບັນທຶກແລ້ວ</div>
+</div>
+
+<!-- SLIP OVERLAY -->
+<div class="slip-ov" id="slip-ov">
+  <div class="slip-ov-inner">
+    <button class="ov-back" id="ov-back">✏️ ซื้อเพิ่ม / แก้ไข</button>
+    <button class="ov-basket" id="ov-basket">📂 ເກັບເຂົ້າແຟ້ມ</button>
+    <button class="ov-del-set" id="ov-del-set" style="display:none;">🗑️ ลบชุดนี้</button>
+    <div class="slip-pages-grid" id="slip-pages"></div>
+  </div>
+</div>
+
+<!-- OPEN NGOD MODAL -->
+<div class="modal-ov" id="modal-ngod">
+  <div class="modal-box">
+    <div class="modal-title">🎯 ເປີດຊຸດໃໝ່</div>
+    <div class="modal-field"><label>ชื่อเอเย่นต์</label><input type="text" id="m-sender" placeholder="ชื่อของคุณ"></div>
+    <div class="modal-field"><label>ງວດທີ</label><input type="text" id="m-ngod" placeholder="1/4/2569"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" id="modal-cancel">ยกเลิก</button>
+      <button class="modal-ok" id="modal-ok">✅ ເປີດງວດ</button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY OVERLAY -->
+<div class="hist-ov" id="hist-ov">
+  <div class="hist-inner">
+    <div class="hist-hd">
+      <span>📂 ແຟ້ມ</span>
+      <button class="hist-close" id="hist-close">✕</button>
+    </div>
+    <div id="hist-list"></div>
+  </div>
+</div>
+
+<!-- CHECK OVERLAY -->
+<div class="check-ov" id="check-ov">
+  <div class="check-inner">
+    <div class="check-hd">
+      <span>🔍 ຕວດລາງວັນ 🇱🇦</span>
+      <button class="check-close" id="check-close">✕</button>
+    </div>
+    <div class="check-card">
+      <div style="font-size:13px;font-weight:700;color:var(--lg);margin-bottom:8px;">ໃສ່ເລກ 6 ຕົວທີ່ອອກ</div>
+      <input type="tel" inputmode="numeric" maxlength="6" id="res-6" placeholder="0 0 0 0 0 0" class="check-inp-big" oninput="autoFillLao()">
+      <div class="check-disp-row">
+        <div class="check-disp-col">
+          <div class="check-disp-label">3 ຕົວ (ໜ້າ)</div>
+          <div class="check-disp-val" id="disp-3bon" style="color:#60a5fa;">—</div>
+        </div>
+        <div class="check-disp-col">
+          <div class="check-disp-label">2 ກາງ/ລ່າງ</div>
+          <div class="check-disp-val" id="disp-2lang" style="color:#34d399;">—</div>
+        </div>
+        <div class="check-disp-col">
+          <div class="check-disp-label">2 ຕົວ (ໜ້າ)</div>
+          <div class="check-disp-val" id="disp-2na" style="color:#fb923c;">—</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:2px;">
+        <div style="flex:1;text-align:center;"><div style="font-size:11px;color:var(--lg);">4 ຕົວ (ໜ້າ)</div><div id="disp-4bon" style="font-size:18px;font-weight:900;color:var(--gold);">—</div></div>
+        <div style="flex:1;text-align:center;"><div style="font-size:11px;color:var(--lg);">2 ຕົວ (ບົນ)</div><div id="disp-2bon" style="font-size:18px;font-weight:900;color:#f472b6;">—</div></div>
+      </div>
+      <button class="check-btn" onclick="APP.doCheckLao()">🔍 ຕວດເລີຍ</button>
+      <!-- ประวัติผลรางวัล -->
+      <div class="lao-hist-panel">
+        <div class="lao-hist-title">📅 ປະຫວັດຜົນລາງວັນ</div>
+        <div id="lao-result-hist"><div style="text-align:center;color:var(--gray);font-size:13px;padding:10px;">ຍັງບໍ່ມີປະຫວັດ</div></div>
+      </div>
+    </div>
+    <div id="check-results"></div>
+  </div>
+</div>
+
+<!-- NAME INPUT (ชื่อลูกค้า + ส่วนลด) -->
+<div id="name-inp-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;width:92%;max-width:360px;">
+    <div id="name-inp-title" style="font-size:17px;font-weight:900;color:var(--gold);margin-bottom:12px;"></div>
+    <div id="name-inp-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
+    <input id="name-inp-field" type="text" placeholder="ชื่อลูกค้า..." style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;font-size:17px;font-weight:700;padding:10px 12px;outline:none;margin-bottom:10px;box-sizing:border-box;">
+    <div id="name-inp-disc-wrap" style="background:rgba(245,197,24,.07);border:1px solid rgba(245,197,24,.25);border-radius:10px;padding:10px 12px;margin-bottom:14px;">
+      <div style="font-size:12px;color:var(--gold);font-weight:800;margin-bottom:8px;">✂️ ส่วนลด (%) — แก้ไขได้รายคน</div>
+      <div class="disc-grid">
+        <div><div class="disc-lbl">4ตัว</div><input id="disc-c4" type="tel" inputmode="numeric" maxlength="3" class="disc-inp"></div>
+        <div><div class="disc-lbl">3ตัว</div><input id="disc-c3" type="tel" inputmode="numeric" maxlength="3" class="disc-inp"></div>
+        <div><div class="disc-lbl">2ตัว</div><input id="disc-c2" type="tel" inputmode="numeric" maxlength="3" class="disc-inp"></div>
+        <div><div class="disc-lbl">โต๊ด</div><input id="disc-ct" type="tel" inputmode="numeric" maxlength="3" class="disc-inp"></div>
+        <div><div class="disc-lbl">ลอย</div><input id="disc-c1" type="tel" inputmode="numeric" maxlength="3" class="disc-inp"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button id="name-inp-skip" style="flex:1;padding:12px;border-radius:10px;background:var(--card2);color:var(--lg);border:1px solid var(--border);font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">ข้าม</button>
+      <button id="name-inp-ok" style="flex:2;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:none;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">ตกลง</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM OVERLAY -->
+<div class="cf-ov" id="cf-ov">
+  <div class="cf-box">
+    <div class="cf-msg" id="cf-msg"></div>
+    <div class="cf-btns" id="cf-btns">
+      <button class="cf-no" id="cf-no">ยกเลิก</button>
+      <button class="cf-extra" id="cf-extra" style="display:none;"></button>
+      <button class="cf-yes" id="cf-yes">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCAN IFRAME -->
+<div id="scan-ov">
+  <button class="scan-close-btn" onclick="closeScan()">✕</button>
+  <iframe id="scan-frame" src="" allow="camera"></iframe>
+</div>
+
+<div id="_toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// LICENSE (ยังไม่มี — ใช้ระบบ lkVerify เดิม)
+// ══════════════════════════════════════════
+var LK_CHARS='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+function lkVerify(keyStr,lv){
+  try{
+    var p=keyStr.split('-');if(p.length!==4)return false;
+    var M1=p[0],LV=p[1],M2=p[2],Y=p[3];
+    var POS={M1:5,LV:6,M2:8,Y1:12,Y2:16};
+    var n=new Date(),mm=String(n.getMonth()+1).padStart(2,'0');
+    var yy=String((n.getFullYear()+543)%100).padStart(2,'0');
+    var y2=yy[0],y1=yy[1];
+    if(M1.length!==POS.M1||LV.length!==POS.LV||M2.length!==POS.M2||Y.length!==POS.Y2)return false;
+    if(M1[POS.M1-1]!==mm[0]&&M1[POS.M1-1]!==mm[1]){}
+    var lvNum=parseInt(LV[POS.LV-1]||'0');
+    return lvNum>=lv;
+  }catch(e){return false;}
+}
+
+// ══════════════════════════════════════════
+// LAO RULES & RATES
+// ══════════════════════════════════════════
+var RULES={
+  1:['bon','lang'],
+  2:['bon','tod','lang','na'],
+  3:['bon','tod','lang'],
+  4:['bon','tod'],
+  5:['tod']
+};
+var FK_DEFAULT={1:['bon','lang'],2:['bon','lang'],3:['bon','tod'],4:['bon','tod'],5:['tod']};
+var FK_KLB_TYPES=['bon'];
+var PAY_RATES={
+  bon4:4000,bon3:550,bon2:70,bon2na:70,bon2mid:70,
+  loy_bon:3,loy_lang:4,pak_bon:8,pak_lang:8,
+  tod5:10,tod4:20,tod3:100,tod2:10
+};
+
+// ── ส่วนลด default (%) ──
+var DEFAULT_DISC={c4:25,c3:30,c2:25,ct:10,c1:12};
+var DISC_KEY='t999_lao_app_disc_v1';
+function getDiscRates(){try{return JSON.parse(localStorage.getItem(DISC_KEY)||'null')||{};}catch(e){return{};}}
+function saveDiscRates(obj){try{localStorage.setItem(DISC_KEY,JSON.stringify(obj));}catch(e){}}
+function getDiscForName(name){if(!name)return null;var all=getDiscRates();return all[name]||null;}
+function saveDiscForName(name,rates){if(!name)return;var all=getDiscRates();all[name]=rates;saveDiscRates(all);}
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+var STORE_KEY='t999_lao_app_v1';
+var HIST_KEY='t999_lao_app_hist_v1';
+var LAO_RESULT_KEY='t999_lao_results_v1';
+var entries=[],eid=0;
+var isLocked=false;
+var ngodOpen=false;
+var ngodInfo={sender:'',ngod:'',date:''};
+var lastBasketName='';
+
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify({entries:entries,eid:eid,isLocked:isLocked,ngodOpen:ngodOpen,ngodInfo:ngodInfo}));}catch(e){}}
+function load(){try{var raw=localStorage.getItem(STORE_KEY);if(!raw)return false;var d=JSON.parse(raw);entries=d.entries||[];eid=d.eid||0;isLocked=d.isLocked||false;ngodOpen=d.ngodOpen||false;ngodInfo=d.ngodInfo||{sender:'',ngod:'',date:''};return ngodOpen;}catch(e){return false;}}
+function getHistory(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch(e){return[];}}
+function saveHistory(h){try{localStorage.setItem(HIST_KEY,JSON.stringify(h));}catch(e){}}
+function getLaoResults(){try{return JSON.parse(localStorage.getItem(LAO_RESULT_KEY)||'[]');}catch(e){return[];}}
+function saveLaoResult(r6,title){var arr=getLaoResults();if(arr.length&&arr[0].result===r6)return;var now=new Date();arr.unshift({result:r6,title:title,date:now.toLocaleDateString('th-TH'),time:''});if(arr.length>30)arr=arr.slice(0,30);try{localStorage.setItem(LAO_RESULT_KEY,JSON.stringify(arr));}catch(e){}}
+
+function getToday(){var n=new Date();return n.getDate()+'/'+(n.getMonth()+1)+'/'+(n.getFullYear()+543);}
+function getNextNgod(){var n=new Date(),d=n.getDate(),m=n.getMonth()+1,y=n.getFullYear()+543;return d+'/'+ m+'/'+y;}
+function fmt(n){return(n||0).toLocaleString();}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+var _toastTimer;
+function toast(msg,dur){var el=document.getElementById('_toast');if(!el)return;el.textContent=msg;el.style.display='block';clearTimeout(_toastTimer);_toastTimer=setTimeout(function(){el.style.display='none';},dur||2800);}
+
+// ══════════════════════════════════════════
+// CONFIRM
+// ══════════════════════════════════════════
+function showConfirm(msg,onYes,onNo){
+  var ov=document.getElementById('cf-ov');
+  document.getElementById('cf-msg').innerHTML=msg;
+  document.getElementById('cf-extra').style.display='none';
+  ov.classList.add('show');
+  var yes=document.getElementById('cf-yes');
+  var no=document.getElementById('cf-no');
+  yes.onclick=function(){ov.classList.remove('show');if(onYes)onYes();};
+  no.onclick=function(){ov.classList.remove('show');if(onNo)onNo();};
+}
+
+// ══════════════════════════════════════════
+// FK KEYBOARD
+// ══════════════════════════════════════════
+var fkBuf='';var fkSel={bon:true,tod:false,lang:false,na:false};var fkKlb={bon:false,lang:false,na:false};
+
+function fkRender(){
+  var el=document.getElementById('fk-text');
+  var parts=fkBuf.split('/');
+  var last=parts[parts.length-1];
+  if(!fkBuf||fkBuf===''){el.innerHTML='<span style="color:var(--gray)">—</span>';return;}
+  el.innerHTML=fkBuf+'<span class="fk-cursor"></span>';
+  var d=(last.split('=')[0]).replace(/\D/g,'').length;
+  if(d!==_lastD){_lastD=d;fkAutoSel(d);}
+  var hint=document.getElementById('fk-hint');
+  var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
+  hint.innerHTML=types.map(function(t){var lbl={bon:'ໜ້າ',tod:'ໂຕດ',lang:'ກາງ/ລ່າງ',na:'2ໜ້າ'}[t];return'<span style="color:'+(t==='bon'?'#60a5fa':t==='tod'?'#f472b6':t==='lang'?'#34d399':'#fb923c')+';font-weight:800;">'+lbl+'</span>';}).join('<br>');
+}
+var _lastD=0;
+
+function fkAutoSel(d){
+  var def=FK_DEFAULT[d]||['bon','lang'];
+  ['bon','tod','lang','na'].forEach(function(t){fkSel[t]=def.indexOf(t)>=0;});
+  var allowed=RULES[d]||[];
+  ['bon','tod','lang','na'].forEach(function(t){if(fkSel[t]&&allowed.indexOf(t)<0)fkSel[t]=false;});
+  fkUpdateBtns();fkUpdateKlbBtns(d);
+}
+function fkUpdateBtns(){['bon','tod','lang','na'].forEach(function(t){var b=document.getElementById('fkt-'+t);if(b){b.classList.toggle('on',!!fkSel[t]);}});}
+function fkUpdateKlbBtns(d){FK_KLB_TYPES.forEach(function(t){var b=document.getElementById('fkk-'+t);if(!b)return;var allowed=(RULES[d]||[]).indexOf(t)>=0;b.style.display=allowed?'':'none';if(allowed){b.textContent=fkKlb[t]?'ชุด ✓':'ชุด';b.classList.toggle('on',!!fkKlb[t]);}});}
+function fkToggle(t){var d=parseInt((fkBuf.split('/')[0].split('=')[0]).replace(/\D/g,'').length)||0;var allowed=RULES[d]||[];if(allowed.indexOf(t)<0)return;fkSel[t]=!fkSel[t];fkUpdateBtns();fkRender();}
+function fkToggleKlb(t){fkKlb[t]=!fkKlb[t];fkUpdateKlbBtns(_lastD);}
+function fkNum(n){fkBuf+=n;fkRender();}
+function fkSep(){if(fkBuf&&fkBuf.slice(-1)!=='/')fkBuf+='/';fkRender();}
+function fkMul(){
+  var parts=fkBuf.split('/');var last=parts[parts.length-1];var lek=last.split('=')[0].replace(/\D/g,'');
+  if(!lek)return;
+  var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
+  if(!types.length)return;
+  var prices=(last.split('=')[1]||'').split('*').filter(Boolean);
+  if(prices.length<types.length)fkBuf+='=';else fkBuf+='*';
+  fkRender();
+}
+function fkDel(){
+  if(!fkBuf)return;
+  fkBuf=fkBuf.slice(0,-1);
+  fkRender();
+}
+
+function getPerms(s){if(s.length<=1)return[s];var res={};for(var i=0;i<s.length;i++){var r=s.slice(0,i)+s.slice(i+1);getPerms(r).forEach(function(p){res[s[i]+p]=1;});}return Object.keys(res).sort();}
+
+function fkEq(){
+  var parts=fkBuf.split('/').filter(function(s){return s.replace(/\D/g,'').length>0;});
+  if(!parts.length){toast('ยังไม่ได้กรอกเลขครับ');return;}
+  if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');return;}
+  var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
+  if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
+  var added=0;
+  parts.forEach(function(part){
+    var sp=part.split('=');var lek=sp[0].replace(/\D/g,'');if(!lek)return;
+    var d=lek.length;
+    if(d<1||d>5){toast('เลขต้องมี 1-5 หลักครับ');return;}
+    var allowed=RULES[d]||[];
+    var ps=(sp[1]||'').split('*').map(function(x){return parseInt(x)||0;});
+    var pm={};types.forEach(function(t,i){if(allowed.indexOf(t)>=0)pm[t]=ps[i]>0?ps[i]:0;});
+    if(!Object.values(pm).some(function(v){return v>0;})){toast('ใส่ราคาก่อนครับ');return;}
+    var kd={};
+    FK_KLB_TYPES.forEach(function(t){
+      if(fkSel[t]&&fkKlb[t]&&pm[t]){
+        var perms=getPerms(lek).filter(function(p){return p!==lek;});
+        if(perms.length)kd[t]=perms.map(function(p){return{perm:p,price:pm[t]};});
+      }
+    });
+    eid++;
+    entries.unshift({id:eid,lek:lek,d:d,bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,kd:kd,paks:[]});
+    added++;
+  });
+  if(added>0){
+    save();renderList();updateTotal();
+    var ls=document.getElementById('list-scroll');if(ls)ls.scrollTop=0;
+    toast('✅ เพิ่ม '+added+' รายการ');
+  }
+  fkBuf='';_lastD=0;fkRender();fkAutoSel(0);
+}
+
+window.fkCommit=fkEq;
+window.addFKEntries=function(ents){ents.forEach(function(e){eid++;e.id=eid;entries.unshift(e);});save();renderList();updateTotal();var ls=document.getElementById('list-scroll');if(ls)ls.scrollTop=0;};
+
+// ══════════════════════════════════════════
+// QR SCAN
+// ══════════════════════════════════════════
+function openScan(){document.getElementById('scan-frame').src='scan.html';document.getElementById('scan-ov').classList.add('show');}
+function closeScan(){document.getElementById('scan-ov').classList.remove('show');document.getElementById('scan-frame').src='';}
+
+function normalizeQRData(data){
+  if(!data||typeof data!=='object')return null;
+  return{
+    sender:data.sender||data.s||'',
+    receiver:data.receiver||data.r||'',
+    ngod:data.ngod||data.ng||'',
+    entries:(data.e||data.entries||[]).map(function(e){
+      function genPerms(l){if(l.length<=1)return[l];var res={};for(var i=0;i<l.length;i++){var r=l.slice(0,i)+l.slice(i+1);genPerms(r).forEach(function(p){res[l[i]+p]=1;});}return Object.keys(res).sort();}
+      function expandFlag(flag,mainPrice){
+        var perms=genPerms(String(e.l||e.lek||'').replace(/\D/g,'')).filter(function(p){return p!==String(e.l||e.lek||'');});
+        if(flag===1)return perms.map(function(p){return{perm:p,price:mainPrice};});
+        if(Array.isArray(flag))return perms.map(function(p,i){return{perm:p,price:flag[i]||mainPrice};});
+        return[];
+      }
+      var lekVal=String(e.l||e.lek||'').replace(/\D/g,'');
+      var kd={};
+      if(e.kd){kd=e.kd;}
+      else{
+        if(e.kb)kd.bon=expandFlag(e.kb,e.b);
+        if(e.kl)kd.lang=expandFlag(e.kl,e.l2||e.lang);
+        if(e.kn)kd.na=expandFlag(e.kn,e.na);
+      }
+      return{id:0,lek:lekVal,d:lekVal.length,bon:e.b||e.bon||null,tod:e.t||e.tod||null,lang:e.l2||e.lang||null,na:e.na||null,kd:kd,paks:(e.pk||[]).map(function(p){return{type:p.ty||p.type,pos:p.pos,price:p.pr||p.price};})};
+    })
+  };
+}
+
+window.addEventListener('message',function(ev){
+  if(!ev.data||ev.data.type!=='qr-scan-result')return;
+  closeScan();
+  try{
+    var raw=JSON.parse(ev.data.data);
+    var d=normalizeQRData(raw);
+    if(!d||!d.entries||!d.entries.length){toast('QR ไม่มีข้อมูลครับ');return;}
+    d.entries.forEach(function(e){eid++;e.id=eid;entries.unshift(e);});
+    save();renderList();updateTotal();
+    toast('📷 สแกนเพิ่ม '+d.entries.length+' รายการ ✅');
+  }catch(ex){toast('⚠️ QR ไม่ถูกต้อง');}
+});
+
+// ══════════════════════════════════════════
+// LAO ENTRY LOGIC
+// ══════════════════════════════════════════
+function getLaoTod(lek){
+  if(lek.length<2)return[];
+  var d=lek.split(''),s=new Set();
+  function perm(arr,cur){if(!arr.length){s.add(cur);return;}arr.forEach(function(x,i){perm(arr.slice(0,i).concat(arr.slice(i+1)),cur+x);});}
+  perm(d,'');
+  return Array.from(s);
+}
+
+function toLines(e){
+  var lines=[];var lek=e.lek;var d=e.d||lek.length;
+  var fm={bon:'ໜ້າ',tod:'ໂຕດ',lang:'ກາງ/ລ່າງ',na:'2ໜ້າ'};
+  ['bon','tod','lang','na'].forEach(function(t){
+    if(e[t]>0)lines.push({lek:lek,type:fm[t],price:e[t],klb:false});
+    (e.kd&&e.kd[t]||[]).forEach(function(k){lines.push({lek:k.perm,type:fm[t]+'(ກລ)',price:k.price,klb:true});});
+  });
+  (e.paks||[]).forEach(function(p){
+    var posLbl={na:'ໜ້າ',mid:'ກາງ',lang:'ຫລັງ'}[p.pos]||p.pos;
+    var typeLbl=p.type==='3bon'?'ປັກຫລັງ':'ປັກລ່າງ';
+    lines.push({lek:lek,type:typeLbl+' '+posLbl,price:p.price,pak:true});
+  });
+  return lines;
+}
+
+function calcEntryTotal(e){
+  var t=0;
+  ['bon','tod','lang','na'].forEach(function(tp){if(e[tp]>0)t+=e[tp];});
+  ['bon','lang','na'].forEach(function(tp){(e.kd&&e.kd[tp]||[]).forEach(function(k){t+=k.price||0;});});
+  (e.paks||[]).forEach(function(p){t+=p.price||0;});
+  return t;
+}
+
+function calcTotal(){return entries.reduce(function(s,e){return s+calcEntryTotal(e);},0);}
+
+// ══════════════════════════════════════════
+// RENDER LIST
+// ══════════════════════════════════════════
+function renderList(){
+  var sc=document.getElementById('list-scroll');if(!sc)return;
+  if(!entries.length){sc.innerHTML='<div class="empty-row">ຍັງບໍ່ມີລາຍການ</div>';return;}
+  var h='';
+  entries.forEach(function(e){
+    h+='<div class="entry-row">'
+      +'<span class="e-lek">'+e.lek+'</span>'
+      +'<span class="e-price e-bon">'+(e.bon>0?e.bon:'')+(e.kd&&e.kd.bon&&e.kd.bon.length?'<small>+ກລ</small>':'')+'</span>'
+      +'<span class="e-price e-tod">'+(e.tod>0?e.tod:'')+'</span>'
+      +'<span class="e-price e-lang">'+(e.lang>0?e.lang:'')+(e.kd&&e.kd.lang&&e.kd.lang.length?'<small>+ກລ</small>':'')+'</span>'
+      +'<span class="e-price e-na">'+(e.na>0?e.na:'')+(e.paks&&e.paks.length?'<small>📌</small>':'')+'</span>'
+      +(isLocked?'<span></span>':'<button class="e-rm" onclick="APP.rmEntry('+e.id+')">✕</button>')
+      +'</div>';
+  });
+  sc.innerHTML=h;
+}
+
+function updateTotal(){var el=document.getElementById('total-val');if(el)el.textContent='฿'+fmt(calcTotal());}
+function updateHdr(){
+  var el=document.getElementById('hd-info');if(el)el.textContent=(ngodInfo.sender||'—');
+  var gd=document.getElementById('hd-ngod');if(gd)gd.textContent=ngodInfo.ngod?'งวด '+ngodInfo.ngod:'';
+}
+function updateLockUI(){
+  var ip=document.getElementById('ipanel');if(ip)ip.style.opacity=isLocked?'.5':'1';
+  var ln=document.getElementById('locked-notice');if(ln)ln.style.display=isLocked?'block':'none';
+}
+
+// ══════════════════════════════════════════
+// NGOD (งวด)
+// ══════════════════════════════════════════
+function openNgodModal(hasOld){
+  var m=document.getElementById('modal-ngod');
+  document.getElementById('m-sender').value=ngodInfo.sender||'';
+  document.getElementById('m-ngod').value=getNextNgod();
+  if(hasOld&&entries.length){
+    showConfirm('⚠️ มีรายการค้างอยู่<br>เปิดงวดใหม่จะเคลียร์รายการเดิม',function(){
+      archiveCurrentNgod();m.classList.add('show');
+    });
+  }else{m.classList.add('show');}
+}
+
+function archiveCurrentNgod(){
+  if(!entries.length)return;
+  var hist=getHistory();var total=calcTotal();
+  hist.unshift({id:Date.now(),ngod:ngodInfo.ngod,date:ngodInfo.date,sender:ngodInfo.sender,entries:entries,eid:eid,total:total,closedAt:getToday(),isBasket:false});
+  saveHistory(hist);entries=[];eid=0;isLocked=false;save();
+}
+
+function doOpenNgod(){
+  var sender=document.getElementById('m-sender').value.trim();
+  var ngod=document.getElementById('m-ngod').value.trim();
+  if(!ngod){toast('กรุณาใส่งวดครับ');return;}
+  ngodInfo={sender:sender,ngod:ngod,date:getToday(),ngodId:Date.now()};
+  ngodOpen=true;entries=[];eid=0;isLocked=false;lastBasketName='';
+  save();document.getElementById('modal-ngod').classList.remove('show');
+  showMain();toast('ເປີດງວດ '+ngod+' ✅');
+}
+
+// ══════════════════════════════════════════
+// BASKET (เก็บเข้าแฟ้ม)
+// ══════════════════════════════════════════
+function doBasket(){
+  if(!entries.length){toast('ยังไม่มีรายการครับ');return;}
+  showInputConfirm('ເກັບໃສ່ຊື່ໃຜ?','เช่น ต้อม, แมน...',function(name,discRates){
+    var total=calcTotal();
+    var count=entries.length;
+    var ngod=ngodInfo.ngod||'—';
+    var displayName=name||('ชุดที่ '+(getHistory().filter(function(h){return h.isBasket&&h.ngod===ngod;}).length+1));
+    if(name)lastBasketName=name;
+    var dr=discRates||DEFAULT_DISC;
+    var msg='ເກັບ <b>'+count+' ລາຍການ</b> ລວມ <b>฿'+fmt(total)+'</b><br>'
+           +'ຊຸດ: <b>'+displayName+'</b><br>ງວດ <b>'+ngod+'</b><br><br>'
+           +'<span style="color:#f59e0b;font-size:13px;">⚠️ ຫຼັງເກັບ ແກ້ໄຂບໍ່ໄດ້</span>';
+    showConfirm(msg,function(){
+      var hist=getHistory();
+      hist.unshift({id:Date.now(),ngodId:ngodInfo.ngodId||0,ngod:ngodInfo.ngod,date:ngodInfo.date,sender:ngodInfo.sender,entries:entries.slice(),eid:eid,total:total,savedAt:getToday(),isBasket:true,basketName:displayName,discRates:dr,checkResult:null});
+      saveHistory(hist);entries=[];eid=0;isLocked=false;save();renderList();updateTotal();updateLockUI();
+      toast('📂 ເກັບ '+displayName+' · ฿'+fmt(total)+' ✅',4000);
+    });
+  });
+}
+
+// ══════════════════════════════════════════
+// SLIP
+// ══════════════════════════════════════════
+var QR_MAX=500;
+function buildSlipPages(ents,info,basketName){
+  var pages=[],cur=[];
+  ents.forEach(function(e){
+    var test=cur.concat([e]);
+    var qrStr=JSON.stringify({s:info.sender,ng:info.ngod,e:test.map(slipCompact)});
+    if(cur.length>0&&qrStr.length>QR_MAX){pages.push(cur);cur=[e];}
+    else cur=test;
+  });
+  if(cur.length)pages.push(cur);
+  return pages;
+}
+function slipCompact(e){
+  var o={l:e.lek};
+  if(e.bon>0)o.b=e.bon;if(e.tod>0)o.t=e.tod;if(e.lang>0)o.l2=e.lang;if(e.na>0)o.na=e.na;
+  if(e.kd&&Object.keys(e.kd).length)o.kd=e.kd;
+  if(e.paks&&e.paks.length)o.pk=e.paks.map(function(p){return{ty:p.type,pos:p.pos,pr:p.price};});
+  return o;
+}
+
+function renderSlip(ents,info,basketName,showButtons){
+  var pages=buildSlipPages(ents,info,basketName);
+  var slipEl=document.getElementById('slip-pages');if(!slipEl)return;
+  var html='';
+  pages.forEach(function(pg,pi){
+    var total=pg.reduce(function(s,e){return s+calcEntryTotal(e);},0);
+    var qrId='qr-pg-'+pi;
+    html+='<div class="slip-page" style="background:#fff;border-radius:4px;border:1px solid #ccc;">'
+      +'<div class="slip-hd">'
+      +'<div class="slip-hd-row1"><h2>ຫວຍລາວພັດທະນາ 🇱🇦</h2><span style="color:#444;font-size:13px;">'+(pi+1)+'/'+pages.length+'</span></div>'
+      +'<div class="slip-hd-row2">'
+      +'<span>ຈາກ: <strong>'+(info.sender||'—')+'</strong></span>'
+      +(basketName?'<span>ຊຸດ: <strong>'+basketName+'</strong></span>':'')
+      +'<span>ງວດ: <strong>'+(info.ngod||'—')+'</strong></span>'
+      +'</div></div>'
+      +'<table class="ptbl" style="width:auto;border-collapse:collapse;padding:4px 14px;">';
+    pg.forEach(function(e){
+      var ls=toLines(e);
+      ls.forEach(function(ln,li){
+        html+='<tr class="entry-row-slip">'
+          +'<td class="td-lek" style="font-size:18px;font-weight:900;color:#111;padding:4px 6px;">'+(li===0?e.lek:'')+'</td>'
+          +'<td style="font-size:12px;color:#888;padding:4px 2px;">'+(li===0?'=':'')+'</td>'
+          +'<td class="td-price" style="font-size:13px;font-weight:800;color:#111;padding:4px 4px;">'+ln.type+' '+ln.price+'</td>'
+          +'</tr>';
+      });
+      html+='<tr class="row-sep"><td colspan="3" style="padding:0;border-top:1px dashed #ccc;"></td></tr>';
+    });
+    html+='</table>'
+      +'<div class="slip-qr-wrap" id="'+qrId+'"></div>'
+      +'<div class="slip-ft">'
+      +'<span class="fl">ລວມ</span>'
+      +'<span class="fv">฿'+fmt(total)+'</span>'
+      +'</div></div>';
+  });
+  slipEl.innerHTML=html;
+  // generate QR
+  setTimeout(function(){
+    pages.forEach(function(pg,pi){
+      var el=document.getElementById('qr-pg-'+pi);if(!el)return;
+      var qrStr=JSON.stringify({s:info.sender,ng:info.ngod,e:pg.map(slipCompact)});
+      try{new QRCode(el,{text:qrStr,width:160,height:160,correctLevel:QRCode.CorrectLevel.L});}catch(ex){}
+    });
+  },100);
+  document.getElementById('slip-ov').classList.add('show');
+  if(showButtons){
+    document.getElementById('ov-back').style.display='block';
+    document.getElementById('ov-basket').style.display='block';
+    document.getElementById('ov-del-set').style.display='none';
+  }else{
+    document.getElementById('ov-back').style.display='none';
+    document.getElementById('ov-basket').style.display='none';
+    document.getElementById('ov-del-set').style.display='block';
+  }
+}
+
+// ══════════════════════════════════════════
+// HISTORY RENDER
+// ══════════════════════════════════════════
+function renderHist(){
+  var el=document.getElementById('hist-list');if(!el)return;
+  var hist=getHistory();
+  if(!hist.length){el.innerHTML='<div class="hist-empty">ຍັງບໍ່ມີແຟ້ມ</div>';return;}
+  // จัดกลุ่มตาม ngod
+  var groups={},gOrder=[];
+  hist.forEach(function(h,idx){
+    var ng=h.ngod||'—';
+    if(!groups[ng]){groups[ng]=[];gOrder.push(ng);}
+    groups[ng].push({h:h,idx:idx});
+  });
+  var html='';
+  gOrder.forEach(function(ng){
+    var items=groups[ng];
+    var totalAll=items.reduce(function(s,x){return s+(x.h.total||0);},0);
+    html+='<div class="hist-folder">'
+      +'<div class="hist-folder-hd" onclick="toggleFolder(\'fg-'+ng.replace(/\//g,'-')+'\',this)">'
+      +'<div><div class="hist-folder-ngod">ງວດ '+ng+'</div><div class="hist-folder-meta">'+items.length+' ຊຸດ</div></div>'
+      +'<div class="hist-folder-right"><div class="hist-folder-total">฿'+fmt(totalAll)+'</div><span class="hist-folder-toggle">▼</span></div>'
+      +'</div>'
+      +'<div class="hist-folder-body" id="fg-'+ng.replace(/\//g,'-')+'">';
+    items.forEach(function(x){
+      var h=x.h;var idx=x.idx;
+      var name=h.basketName||h.sender||'ชุด '+idx;
+      html+='<div class="hist-set">'
+        +'<div class="hist-set-left"><div class="hist-set-num">'+name+'</div><div class="hist-set-time">'+(h.savedAt||h.closedAt||'')+'</div></div>'
+        +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total||0)+'</div><div class="hist-set-count">'+(h.entries?h.entries.length:0)+' ລາຍການ</div></div>'
+        +'<div class="hist-set-btns">'
+        +'<button class="hist-set-btn" onclick="APP.viewHistSet('+idx+')">📄 ດູ</button>'
+        +'<button class="hist-set-btn" onclick="APP.checkHistSet('+idx+')" style="color:var(--gold);">🔍 ຕວດ</button>'
+        +'<button class="hist-set-btn" onclick="APP.delHistSet('+idx+')" style="color:#ef4444;">🗑</button>'
+        +'</div></div>';
+    });
+    html+='</div></div>';
+  });
+  el.innerHTML=html;
+}
+
+function toggleFolder(id,hd){
+  var b=document.getElementById(id);if(!b)return;
+  b.classList.toggle('collapsed');
+  var t=hd.querySelector('.hist-folder-toggle');if(t)t.classList.toggle('open');
+}
+
+// ══════════════════════════════════════════
+// LAO CHECK RESULT (ตรวจรางวัล ลาว)
+// ══════════════════════════════════════════
+var _checkEntries=[];var _checkNgod='';var _checkHistIdx=-1;
+
+function autoFillLao(){
+  var v=(document.getElementById('res-6').value||'').trim();
+  var r4=v.length>=6?v.slice(2):'—';   // 3456
+  var r3=v.length>=6?v.slice(3):'—';   // 456
+  var r2b=v.length>=6?v.slice(4):'—';  // 56 (2บน)
+  var r2m=v.length>=6?v.slice(2,4):'—';// 34 (2กลาง/ล่าง)
+  var r2n=v.length>=6?v.slice(0,2):'—';// 12 (2หน้า)
+  document.getElementById('disp-4bon').textContent=r4;
+  document.getElementById('disp-3bon').textContent=r3;
+  document.getElementById('disp-2bon').textContent=r2b;
+  document.getElementById('disp-2lang').textContent=r2m;
+  document.getElementById('disp-2na').textContent=r2n;
+}
+
+function doCheckLao(){
+  var v=(document.getElementById('res-6').value||'').trim();
+  if(v.length!==6){toast('ใส่เลข 6 หลักครับ');return;}
+
+  var r4=v.slice(2);    // 4 ตัวหลัง
+  var r3=v.slice(3);    // 3 ตัวหลัง
+  var r2b=v.slice(4);   // 2 บน
+  var r2m=v.slice(2,4); // 2 กลาง/ล่าง
+  var r2n=v.slice(0,2); // 2 หน้า
+  var loy_bon=[r3[0],r3[1],r3[2]]; // ลอยหลัง: ตัวใดใดใน 3ตัวหลัง
+  var loy_lang=[r4[0],r4[1]];       // ลอยล่าง: ตัวใดใดใน 2ตัวซ้าย (34)
+
+  var todWin3=getLaoTod(r3);
+  var todWin4=getLaoTod(r4);
+
+  var results=[];
+  _checkEntries.forEach(function(e){
+    var lek=e.lek;var d=e.d||lek.length;
+    var hits=[];
+    // 4 ตัวบน
+    if(d===4&&e.bon>0&&lek===r4)hits.push({type:'4 ຕົວ (ໜ້າ)',bet:e.bon});
+    if(d===4&&(e.kd.bon||[]).length)(e.kd.bon||[]).forEach(function(k){if(k.perm===r4)hits.push({type:'4 ຕົວ (ໜ້າ/ກລ)',bet:k.price});});
+    // 3 ตัวบน
+    if(d===3&&e.bon>0&&lek===r3)hits.push({type:'3 ຕົວ (ໜ້າ)',bet:e.bon});
+    if(d===3&&(e.kd.bon||[]).length)(e.kd.bon||[]).forEach(function(k){if(k.perm===r3)hits.push({type:'3 ຕົວ (ໜ້າ/ກລ)',bet:k.price});});
+    // 2 บน (56)
+    if(d===2&&e.bon>0&&lek===r2b)hits.push({type:'2 ຕົວ (ບົນ)',bet:e.bon});
+    if(d===2&&(e.kd.bon||[]).length)(e.kd.bon||[]).forEach(function(k){if(k.perm===r2b)hits.push({type:'2 ຕົວ (ບົນ/ກລ)',bet:k.price});});
+    // 2 กลาง/ล่าง (34)
+    if(d===2&&e.lang>0&&lek===r2m)hits.push({type:'2 ຕົວ (ກາງ/ລ່າງ)',bet:e.lang});
+    if(d===2&&(e.kd.lang||[]).length)(e.kd.lang||[]).forEach(function(k){if(k.perm===r2m)hits.push({type:'2 ຕົວ (ກາງ/ລ່າງ/ກລ)',bet:k.price});});
+    // 2 หน้า (12)
+    if(d===2&&e.na>0&&lek===r2n)hits.push({type:'2 ຕົວ (ໜ້າ)',bet:e.na});
+    if(d===2&&(e.kd.na||[]).length)(e.kd.na||[]).forEach(function(k){if(k.perm===r2n)hits.push({type:'2 ຕົວ (ໜ້າ/ກລ)',bet:k.price});});
+    // โต๊ด
+    if(e.tod>0){
+      if(d===2){var w3=r3.split(''),lk=lek.split('');if(lk.every(function(c){return w3.indexOf(c)>=0;}))hits.push({type:'ໂຕດ 2 ຕົວ',bet:e.tod});}
+      else if(d===3){if(todWin3.indexOf(lek)>=0)hits.push({type:'ໂຕດ 3 ຕົວ',bet:e.tod});}
+      else if(d===4){if(todWin4.indexOf(lek)>=0)hits.push({type:'ໂຕດ 4 ຕົວ',bet:e.tod});}
+      else if(d===5){var w3d=r3.split(''),lkd=lek.split('');if(w3d.every(function(c){var i=lkd.indexOf(c);if(i>=0){lkd.splice(i,1);return true;}return false;}))hits.push({type:'ໂຕດ 5 ຕົວ',bet:e.tod});}
+    }
+    // ลอยหลัง/ลอยล่าง (d=1)
+    if(d===1&&e.bon>0&&loy_bon.indexOf(lek)>=0)hits.push({type:'ລອຍຫລັງ',bet:e.bon});
+    if(d===1&&e.lang>0&&loy_lang.indexOf(lek)>=0)hits.push({type:'ລອຍລ່າງ',bet:e.lang});
+    // ปักหลัก
+    (e.paks||[]).forEach(function(p){
+      var posLbl={na:'ໜ້າ',mid:'ກາງ',lang:'ຫລັງ'}[p.pos]||p.pos;
+      if(p.type==='3bon'&&r3.length===3){var posIdx={na:0,mid:1,lang:2}[p.pos];if(posIdx!==undefined&&lek===r3[posIdx])hits.push({type:'ປັກ '+posLbl,bet:p.price});}
+      if(p.type==='2lang'&&r2m.length===2){var posIdx2={na:0,lang:1}[p.pos];if(posIdx2!==undefined&&lek===r2m[posIdx2])hits.push({type:'ປັກລ່າງ '+posLbl,bet:p.price});}
+    });
+
+    if(hits.length)results.push({lek:lek,hits:hits,_setName:e._setName||''});
+  });
+
+  // บันทึกผลรางวัล
+  saveLaoResult(v,'ຫວຍລາວ '+(_checkNgod||getToday()));
+  renderLaoHistory();
+
+  var resEl=document.getElementById('check-results');
+  if(!results.length){
+    resEl.innerHTML='<div class="result-card"><div class="result-none">😔 ບໍ່ຖືກລາງວັນ</div></div>'
+      +(_checkHistIdx>=0?'<button class="close-ngod-btn" onclick="APP.saveCheckToHist()">✅ ບັນທຶກຜົນ</button>':'');
+    return;
+  }
+  celebrate();
+  var html='<div class="result-card"><div class="result-title">🎉 ຖືກລາງວັນ!</div>';
+  // จัดกลุ่มตามชุด
+  var bySet={},setOrder=[];
+  results.forEach(function(r){var k=r._setName||'';if(!bySet[k]){bySet[k]=[];setOrder.push(k);}r.hits.forEach(function(h){bySet[k].push({lek:r.lek,type:h.type,bet:h.bet});});});
+  setOrder.forEach(function(k){
+    var rows=bySet[k];
+    if(k){html+='<div style="background:rgba(245,197,24,.12);border-left:3px solid var(--gold);padding:6px 10px;margin:4px 0;border-radius:4px;font-size:13px;font-weight:900;color:var(--gold);">'+k+'</div>';}
+    rows.forEach(function(x){
+      html+='<div class="result-row">'
+        +'<div><div class="result-lek">'+x.lek+'</div><div class="result-type">'+x.type+'</div></div>'
+        +'<div class="result-bet">฿'+fmt(x.bet)+' (/ໜ່ວຍ)</div>'
+        +'</div>';
+    });
+  });
+  html+='</div>';
+  html+='<div class="congrats-bar"><div style="font-size:32px;">🎉🇱🇦🎊</div><div style="font-size:18px;font-weight:900;color:#fff;margin-top:6px;">ຍິນດີດ້ວຍ!</div></div>';
+  html+=(_checkHistIdx>=0?'<button class="close-ngod-btn" onclick="APP.saveCheckToHist()">✅ ບັນທຶກຜົນ</button>':'');
+  resEl.innerHTML=html;
+}
+
+// ══════════════════════════════════════════
+// LAO HISTORY (ประวัติผลรางวัล)
+// ══════════════════════════════════════════
+function renderLaoHistory(){
+  var el=document.getElementById('lao-result-hist');if(!el)return;
+  var arr=getLaoResults();
+  if(!arr.length){el.innerHTML='<div style="text-align:center;color:var(--gray);font-size:13px;padding:10px;">ຍັງບໍ່ມີປະຫວັດ</div>';return;}
+  var h='';
+  arr.slice(0,5).forEach(function(r){
+    var v=r.result;
+    h+='<div class="lao-hist-item" onclick="loadLaoResult(\''+v+'\')">'
+      +'<div class="lao-hist-date">'+r.title+' · '+r.date+'</div>'
+      +'<div class="lao-hist-num">'+v+'</div>'
+      +'<div class="lao-hist-sub">3ຕົວ: '+v.slice(3)+' | 2ກາງ: '+v.slice(2,4)+' | 2ບົນ: '+v.slice(4)+'</div>'
+      +'</div>';
+  });
+  el.innerHTML=h;
+}
+function loadLaoResult(v){var el=document.getElementById('res-6');if(el){el.value=v;autoFillLao();}toast('ໂຫລດຜົນ '+v);}
+
+// ══════════════════════════════════════════
+// CELEBRATE
+// ══════════════════════════════════════════
+function celebrate(){
+  var fl=document.createElement('div');fl.className='win-flash';document.body.appendChild(fl);setTimeout(function(){fl.remove();},900);
+  var wrap=document.createElement('div');wrap.className='confetti-wrap';document.body.appendChild(wrap);
+  var colors=['#f5c518','#ff6b6b','#48dbfb','#1dd1a1','#ff9f43','#a29bfe','#fd79a8','#fff'];
+  for(var i=0;i<80;i++){(function(i){var p=document.createElement('div');p.className='confetti-piece';var color=colors[Math.floor(Math.random()*colors.length)];var size=(Math.random()*12+6)+'px';p.style.cssText='left:'+Math.random()*100+'%;background:'+color+';width:'+size+';height:'+size+';border-radius:'+(Math.random()>.5?'50%':'2px')+';animation-duration:'+(Math.random()*3+2)+'s;animation-delay:'+(Math.random()*2)+'s;';wrap.appendChild(p);})(i);}
+  setTimeout(function(){wrap.remove();},6000);
+}
+
+// ══════════════════════════════════════════
+// NAME INPUT (showInputConfirm)
+// ══════════════════════════════════════════
+function showInputConfirm(title,placeholder,onOk){
+  var ov=document.getElementById('name-inp-ov');
+  document.getElementById('name-inp-title').textContent=title;
+  var field=document.getElementById('name-inp-field');field.placeholder=placeholder;field.value=lastBasketName||'';
+  // ชื่อที่เคยใช้ (chips)
+  var hist=getHistory();var names=[];
+  hist.forEach(function(h){if(h.basketName&&names.indexOf(h.basketName)<0)names.push(h.basketName);});
+  var chips=document.getElementById('name-inp-chips');
+  chips.innerHTML=names.slice(0,8).map(function(n){return'<button onclick="document.getElementById(\'name-inp-field\').value=\''+n+'\'" style="background:var(--card2);border:1px solid var(--border);border-radius:20px;color:var(--lg);font-family:Sarabun,sans-serif;font-size:13px;font-weight:700;padding:5px 12px;cursor:pointer;">'+n+'</button>';}).join('');
+  // ส่วนลด
+  var def=names.length&&lastBasketName?getDiscForName(lastBasketName)||DEFAULT_DISC:DEFAULT_DISC;
+  document.getElementById('disc-c4').value=def.c4||25;
+  document.getElementById('disc-c3').value=def.c3||30;
+  document.getElementById('disc-c2').value=def.c2||25;
+  document.getElementById('disc-ct').value=def.ct||10;
+  document.getElementById('disc-c1').value=def.c1||12;
+  ov.style.display='flex';
+  function getDisc(){return{c4:parseInt(document.getElementById('disc-c4').value)||0,c3:parseInt(document.getElementById('disc-c3').value)||0,c2:parseInt(document.getElementById('disc-c2').value)||0,ct:parseInt(document.getElementById('disc-ct').value)||0,c1:parseInt(document.getElementById('disc-c1').value)||0};}
+  document.getElementById('name-inp-ok').onclick=function(){
+    var name=field.value.trim();var dr=getDisc();
+    if(name)saveDiscForName(name,dr);
+    ov.style.display='none';onOk(name,dr);
+  };
+  document.getElementById('name-inp-skip').onclick=function(){ov.style.display='none';onOk('',getDisc());};
+}
+
+// ══════════════════════════════════════════
+// APP PUBLIC API
+// ══════════════════════════════════════════
+var APP={
+  rmEntry:function(id){if(isLocked)return;entries=entries.filter(function(e){return e.id!==id;});save();renderList();updateTotal();},
+  openCheck:function(){
+    _checkEntries=entries.slice();
+    _checkNgod=ngodInfo.ngod||'—';
+    _checkHistIdx=-1;
+    document.getElementById('check-results').innerHTML='';
+    document.getElementById('res-6').value='';
+    autoFillLao();renderLaoHistory();
+    document.getElementById('check-ov').classList.add('show');
+  },
+  doCheckLao:doCheckLao,
+  viewHistSet:function(idx){
+    var hist=getHistory();var h=hist[idx];if(!h)return;
+    renderSlip(h.entries,{sender:h.sender,ngod:h.ngod},h.basketName,false);
+  },
+  checkHistSet:function(idx){
+    var hist=getHistory();var h=hist[idx];if(!h)return;
+    _checkEntries=h.entries.slice();
+    _checkNgod=h.ngod;
+    _checkHistIdx=idx;
+    // ใส่ชื่อชุดในแต่ละ entry
+    _checkEntries.forEach(function(e){e._setName=h.basketName||h.sender||'';});
+    document.getElementById('check-results').innerHTML='';
+    document.getElementById('res-6').value='';
+    autoFillLao();renderLaoHistory();
+    document.getElementById('check-ov').classList.add('show');
+    document.getElementById('hist-ov').classList.remove('show');
+  },
+  delHistSet:function(idx){
+    showConfirm('ລຶບຊຸດນີ້?',function(){
+      var hist=getHistory();hist.splice(idx,1);saveHistory(hist);renderHist();toast('ລຶບແລ້ວ');
+    });
+  },
+  saveCheckToHist:function(){
+    if(_checkHistIdx<0)return;
+    var hist=getHistory();if(hist[_checkHistIdx]){hist[_checkHistIdx].checkResult=true;saveHistory(hist);}
+    document.getElementById('check-ov').classList.remove('show');
+    toast('ບັນທຶກຜົນແລ້ວ ✅');
+  }
+};
+window.APP=APP;
+
+// ══════════════════════════════════════════
+// SHOW/HIDE
+// ══════════════════════════════════════════
+function showWelcome(){document.getElementById('welcome-screen').style.display='flex';document.getElementById('main-wrap').classList.remove('show');}
+function showMain(){document.getElementById('welcome-screen').style.display='none';document.getElementById('main-wrap').classList.add('show');updateHdr();renderList();updateTotal();updateLockUI();}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',function(){
+  fkRender();fkAutoSel(0);
+
+  if(load()&&ngodOpen){showMain();}else{showWelcome();}
+
+  document.getElementById('open-ngod-btn').addEventListener('click',function(){openNgodModal(entries.length>0);});
+  document.getElementById('welcome-hist-btn').addEventListener('click',function(){renderHist();document.getElementById('hist-ov').classList.add('show');});
+  document.getElementById('modal-ok').addEventListener('click',doOpenNgod);
+  document.getElementById('modal-cancel').addEventListener('click',function(){document.getElementById('modal-ngod').classList.remove('show');});
+  document.getElementById('new-ngod-btn').addEventListener('click',function(){openNgodModal(entries.length>0);});
+  document.getElementById('hist-btn').addEventListener('click',function(){renderHist();document.getElementById('hist-ov').classList.add('show');});
+  document.getElementById('hist-close').addEventListener('click',function(){document.getElementById('hist-ov').classList.remove('show');});
+  document.getElementById('check-close').addEventListener('click',function(){document.getElementById('check-ov').classList.remove('show');});
+  document.getElementById('basket-btn').addEventListener('click',doBasket);
+  document.getElementById('ov-back').addEventListener('click',function(){document.getElementById('slip-ov').classList.remove('show');});
+  document.getElementById('ov-basket').addEventListener('click',function(){document.getElementById('slip-ov').classList.remove('show');doBasket();});
+  document.getElementById('ov-del-set').addEventListener('click',function(){
+    document.getElementById('slip-ov').classList.remove('show');
+    // del current viewing set from history -- handled per case
+  });
+
+  // keyboard shortcuts
+  document.addEventListener('keydown',function(e){
+    if(document.querySelector('.cf-ov.show')||document.querySelector('.modal-ov.show'))return;
+    if(e.key==='Enter')fkEq();
+    else if(e.key==='Backspace')fkDel();
+    else if(e.key==='/')fkSep();
+    else if(e.key==='*')fkMul();
+    else if(/^[0-9]$/.test(e.key))fkNum(e.key);
+  });
+});
+</script>
+</body>
+</html>
