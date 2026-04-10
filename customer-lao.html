@@ -821,7 +821,7 @@ function toLines(e){
     var hasKb3=(kd['bon']||[]).length>0;
     var mps=[],mtot=0;
     if(b>0&&!hasKb3){mps.push('บ'+fmtNum(b));mtot+=b;}
-    if(t>0){mps.push('ต'+fmtNum(t));mtot+=t;}
+    if(t>0&&!hasKb3){mps.push('ต'+fmtNum(t));mtot+=t;}
     if(mps.length)push(lek,pstr(mps),mtot);
     if(hasKb3){
       var kb3=kd['bon'],allP3=[];if(b>0)allP3.push(b);kb3.forEach(function(x){allP3.push(x.price);});
@@ -837,7 +837,7 @@ function toLines(e){
     var hasKb4=(kd['bon']||[]).length>0;
     var mps4=[],mtot4=0;
     if(b>0&&!hasKb4){mps4.push('บ'+fmtNum(b));mtot4+=b;}
-    if(t>0){mps4.push('ต'+fmtNum(t));mtot4+=t;}
+    if(t>0&&!hasKb4){mps4.push('ต'+fmtNum(t));mtot4+=t;}
     if(mps4.length)push(lek,pstr(mps4),mtot4);
     if(hasKb4){
       var kb4=kd['bon'],allP4=[];if(b>0)allP4.push(b);kb4.forEach(function(x){allP4.push(x.price);});
@@ -926,7 +926,7 @@ function makePageHTML(pEntries,pgNum,totalPages,inf){
     var eTot=ls.reduce(function(s,x){return s+x.total;},0);
     ls.forEach(function(line,li){
       bodyRows+='<tr>'
-        +'<td class="td-lek">'+(li===0?line.lek:'')+'</td>'
+        +'<td class="td-lek">'+line.lek+'</td>'
         +'<td class="td-eq">'+(li===0?'=':'')+'</td>'
         +'<td class="td-price">'+line.price+'</td>'
         +'<td class="td-total">'+(li===ls.length-1?fmtNum(eTot):'')+'</td>'
