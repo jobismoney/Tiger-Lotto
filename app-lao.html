@@ -355,6 +355,7 @@ body{background:var(--bg);color:var(--white);font-family:'Sarabun',sans-serif;mi
   <div class="slip-ov-inner">
     <button class="ov-back" id="ov-back">✏️ ซื้อเพิ่ม / แก้ไข</button>
     <button class="ov-basket" id="ov-basket">📂 เก็บเข้าแฟ้ม</button>
+    <button id="ov-share-line" style="display:none;width:100%;background:linear-gradient(135deg,#06c755,#04a543);border:none;border-radius:12px;color:#fff;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;padding:12px;cursor:pointer;margin-bottom:8px;">📤 แชร์ผ่าน Line</button>
     <button class="ov-del-set" id="ov-del-set" style="display:none;">🗑️ ลบชุดนี้</button>
     <div class="slip-pages-grid" id="slip-pages"></div>
   </div>
@@ -1054,6 +1055,21 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,basketName){
     +'<div class="slip-qr-wrap" id="slip-qr-pg-'+pgNum+'"></div>'
     +LEGEND;
 }
+function shareLineSlip(ents,info,basketName){
+  var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
+  var total=sorted.reduce(function(s,e){return s+calcEntryTotal(e);},0);
+  var msg='🐯 T999 หวยลาวพัฒนา 🇱🇦\n';
+  msg+='จาก: '+(info.sender||'—')+(basketName?' · ชุด: '+basketName:'')+'\n';
+  msg+='งวด: '+(info.ngod||'—')+'\n\n';
+  sorted.forEach(function(e){
+    var ls=toLines(e);
+    if(ls.length){msg+=e.lek+' = '+ls.map(function(l){return l.price;}).join(', ')+'\n';}
+  });
+  msg+='\nยอดรวม: ฿'+fmtNum(total);
+  var url='https://line.me/R/msg/text/?'+encodeURIComponent(msg);
+  window.open(url,'_blank');
+}
+
 function renderSlip(ents,info,basketName,showButtons){
   var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
   var pages=paginateEntries(sorted,info);
@@ -1073,6 +1089,8 @@ function renderSlip(ents,info,basketName,showButtons){
   document.getElementById('slip-ov').classList.add('show');
   document.getElementById('ov-back').style.display=showButtons?'block':'none';
   document.getElementById('ov-basket').style.display=showButtons?'block':'none';
+  document.getElementById('ov-share-line').style.display='block';
+  document.getElementById('ov-share-line').onclick=function(){shareLineSlip(ents,info,basketName);};
   document.getElementById('ov-del-set').style.display=showButtons?'none':'block';
 }
 
