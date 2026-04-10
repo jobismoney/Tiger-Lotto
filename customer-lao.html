@@ -610,14 +610,7 @@ function calcTotal(){
 // FK KEYBOARD
 // ══════════════════════════════════════
 function fkAutoSel(d){
-  if(d>=4){
-    ['bon','tod','lang','na'].forEach(function(t){
-      fkSel[t]=(t==='tod');
-      var btn=document.getElementById('fkt-'+t);
-      if(btn)btn.className='fk-tbtn'+(fkSel[t]?' on-'+t:'');
-    });
-    fkKlb={bon:false,lang:false,na:false};
-  } else if(!fkUserOverride){
+  if(!fkUserOverride){
     var def=FK_DEFAULT[d]||['bon','lang'];
     ['bon','tod','lang','na'].forEach(function(t){
       fkSel[t]=def.indexOf(t)>=0;
@@ -625,23 +618,33 @@ function fkAutoSel(d){
       if(btn)btn.className='fk-tbtn'+(fkSel[t]?' on-'+t:'');
     });
   }
+  // d=1: ซ่อน tod, na
+  if(d===1){['tod','na'].forEach(function(t){fkSel[t]=false;var btn=document.getElementById('fkt-'+t);if(btn)btn.className='fk-tbtn';});}
+  // d=3,4,5: ซ่อน lang (ล่าง)
+  if(d>=3){fkSel['lang']=false;fkSel['na']=false;var bl=document.getElementById('fkt-lang');if(bl)bl.className='fk-tbtn';var bn=document.getElementById('fkt-na');if(bn)bn.className='fk-tbtn';}
   fkUpdateKlbBtns(d);
 }
 function fkUpdateKlbBtns(d){
   if(!d&&fkBuf){var fl=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');d=fl.length||2;}
   d=d||2;
+  // d=1: ไม่มีชุด/กลับ
   if(d===1){FK_KLB_TYPES.forEach(function(t){var btn=document.getElementById('fkk-'+t);if(btn)btn.style.display='none';});return;}
+  // d=3: มีชุดแค่บน (ไม่มีล่าง)
+  // d=4: มีชุดแค่บน
+  // d=2: มีกลับ บน+ล่าง
   var lbl=d===2?'กลับ':'ชุด';
   FK_KLB_TYPES.forEach(function(t){
     var btn=document.getElementById('fkk-'+t);if(!btn)return;
-    var show=fkSel[t];
+    // d>=3: แสดงเฉพาะ bon เท่านั้น
+    var show=fkSel[t]&&(d===2||(d>=3&&t==='bon'));
     btn.style.display=show?'block':'none';
     if(show){btn.textContent=lbl;btn.className='fk-klb'+(fkKlb[t]?' on':'');}
   });
 }
 function fkToggle(t){
   var d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
-  if(d>=4)return;
+  if(d===1&&(t==='tod'||t==='na'))return;
+  if(d>=3&&(t==='lang'||t==='na'))return; // ลาว d>=3 ไม่มีล่าง/หน้า
   fkUserOverride=true;
   fkSel[t]=!fkSel[t];
   if(!fkSel[t])fkKlb[t]=false;
