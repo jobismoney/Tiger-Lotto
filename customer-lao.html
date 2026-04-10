@@ -423,8 +423,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
     </div>
     <div class="pak-sec">ประเภท</div>
     <div class="pak-type-row" id="pak-type-tabs">
-      <div class="pak-ttab on" data-type="3bon" onclick="selPakType(this)">3ตัวบน</div>
-      <div class="pak-ttab" data-type="2lang" onclick="selPakType(this)">2ตัวล่าง</div>
+      <div class="pak-ttab on" data-type="3bon" onclick="selPakType(this)">บน</div>
+      <div class="pak-ttab" data-type="2lang" onclick="selPakType(this)">ล่าง</div>
     </div>
     <div class="pak-sec">ตำแหน่ง</div>
     <div class="pak-pos-row" id="pak-pos-grid">
@@ -551,15 +551,16 @@ function renderList(){
     var kb=(kd.bon||[]).reduce(function(s,x){return s+x.price;},0);
     var kl=(kd.lang||[]).reduce(function(s,x){return s+x.price;},0);
     var kn=(kd.na||[]).reduce(function(s,x){return s+x.price;},0);
-    var etot=b+t+l+n+kb+kl+kn; grand+=etot;
+    var pakTot=(e.paks||[]).reduce(function(s,p){return s+p.price;},0);
+    var etot=b+t+l+n+kb+kl+kn+pakTot; grand+=etot;
     function fod(v){return v>0?fmt(v):'<span class="cel e">—</span>';}
     // paks row
     var paks=e.paks||[];
     if(paks.length){
       var pakDesc=paks.map(function(p){
-        var pos={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
-        var typ={"3bon":'บน','2lang':'ล่าง'}[p.type]||p.type;
-        return 'ปัก'+pos+typ;
+        var posLbl=p.type==='bon'?{na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]:{na:'สิบ',lang:'หน่วย'}[p.pos];
+        var typLbl=p.type==='bon'?'บน':'ล่าง';
+        return 'ปัก'+(posLbl||p.pos)+typLbl;
       }).join(', ');
       var pakTotal=paks.reduce(function(s,p){return s+p.price;},0);
       h+='<div class="bet-row"><span class="lek-cell">'+e.lek+'</span>'
@@ -1225,7 +1226,11 @@ function selPakType(el){
   document.querySelectorAll('#pak-type-tabs .pak-ttab').forEach(function(t){t.classList.remove('on');});
   el.classList.add('on');
   pakType=el.dataset.type;
-  if(pakType!=='3bon'){pakPos=pakPos.filter(function(p){return p!=='mid';});document.getElementById('pak-mid-btn').classList.remove('on');}
+  // ล่าง: ไม่มีร้อย ไม่มีสิบ(mid) — เหลือแค่ สิบ(na→สิบ) หน่วย(lang)
+  if(pakType!=='3bon'){
+    pakPos=pakPos.filter(function(p){return p!=='mid'&&p!=='na';});
+    document.getElementById('pak-mid-btn').classList.remove('on');
+  }
   updatePakUI();
 }
 function selPakPos(el){
@@ -1237,16 +1242,24 @@ function selPakPos(el){
 }
 function updatePakUI(){
   var lek=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'')||'?';
+  var naBtn=document.querySelector('[data-pos="na"]');
   var midBtn=document.getElementById('pak-mid-btn');
   if(pakType==='3bon'){
+    // บน: ร้อย สิบ หน่วย
+    if(naBtn)naBtn.style.display='';
     midBtn.style.display='';
+    document.querySelector('.pak-pbtn[data-pos="na"] .pak-pbtn-lbl').textContent='ร้อย';
     document.getElementById('pak-ex-na').textContent=lek+'_ _';
     document.getElementById('pak-ex-mid').textContent='_ '+lek+' _';
     document.getElementById('pak-ex-lang').textContent='_ _'+lek;
   } else {
+    // ล่าง: สิบ หน่วย (ร้อยหาย)
+    if(naBtn)naBtn.style.display='none';
     midBtn.style.display='none';
-    document.getElementById('pak-ex-na').textContent=lek+'_';
     document.getElementById('pak-ex-lang').textContent='_'+lek;
+    // re-label na→สิบ แต่ซ่อนอยู่ ใช้ lang=หน่วย เท่านั้น
+    // 2ตัวล่าง: na=สิบ, lang=หน่วย แต่ซ่อน na
+    document.getElementById('pak-ex-na').textContent=lek+'_';
   }
 }
 function addPak(){
@@ -1255,8 +1268,14 @@ function addPak(){
   var lek=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');
   if(!lek){toast('กรอกเลขก่อนครับ');return;}
   if(!pakPos.length){toast('เลือกตำแหน่งด้วยครับ');return;}
-  var typeLabels={'3bon':'บน','2lang':'ล่าง'};
-  var paks=pakPos.map(function(pos){return{type:pakType,pos:pos,price:price,typeLabel:typeLabels[pakType],posLabel:{na:'หน้า',mid:'กลาง',lang:'หลัง'}[pos]};});
+  var typeLabels={'3bon':'bon','2lang':'lang'};
+  var paks=pakPos.map(function(pos){
+    var posLblBon={na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[pos]||pos;
+    var posLblLang={na:'สิบ',lang:'หน่วย'}[pos]||pos;
+    return{type:pakType==='3bon'?'bon':'lang',pos:pos,price:price,
+      typeLabel:pakType==='3bon'?'บน':'ล่าง',
+      posLabel:pakType==='3bon'?posLblBon:posLblLang};
+  });
   eid++;
   entries.unshift({id:eid,lek:lek,d:1,bon:null,tod:null,lang:null,na:null,kd:{},paks:paks});
   renderList();save();
