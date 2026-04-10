@@ -1173,8 +1173,8 @@ function doCheck(){
   });
   var el=document.getElementById('check-result-out');
   if(!hits.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--lg);">😔 ไม่ถูกรางวัลครับ</div>';return;}
-  var h='<div class="check-result-total"><span class="lbl">🎉 รวมถูกรางวัล</span><span class="val">฿'+fmt(grandPay)+'</span></div>';
-  hits.forEach(function(hit){h+='<div class="check-hit"><div><div class="lek">'+hit.lek+'</div><div class="type">'+hit.type+' ×'+fmt(hit.bet)+'</div></div><div class="pay">฿'+fmt(hit.pay)+'</div></div>';});
+  var h='<div class="check-result-total"><span class="lbl">🎉 ถูกรางวัล</span><span class="val">'+hits.length+' รายการ</span></div>';
+  hits.forEach(function(hit){h+='<div class="check-hit"><div class="lek">'+hit.lek+'</div><div class="type">'+hit.type+'</div></div>';});
   el.innerHTML=h;
 }
 
