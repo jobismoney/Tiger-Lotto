@@ -778,11 +778,10 @@ function getLaoTod(lek){
   return Array.from(s);
 }
 
-// ── SLIP: ใช้ logic เดียวกับ customer-lao ──
-var LEGEND='<div style="font-size:10px;color:#888;padding:2px 8px;text-align:right;background:#fff;border-top:1px solid #eee;">บ=บน/หลัง  ล=กลาง/ล่าง  ต=โต๊ด  น=หน้า  ช=ชุด  ก=กลับ</div>';
+// ── SLIP — ก๊อปปี้จาก customer-lao.html โดยตรง ──
+var LEGEND='<div class="slip-legend">บ=บน/หลัง  ล=กลาง/ล่าง  ต=โต๊ด  น=หน้า  ช=ชุด  ก=กลับ  ปัก=ปักหลัก</div>';
 function fmtNum(n){return parseInt(n||0).toLocaleString();}
 function permCount(s){return getPerms(s).length;}
-
 function toLines(e){
   var d=e.d,b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0,lines=[],lek=e.lek;
   function push(num,pr,tot){lines.push({lek:num,price:pr,total:tot});}
@@ -836,7 +835,8 @@ function toLines(e){
       var allP3=[];if(b>0)allP3.push(b);kb3arr.forEach(function(x){allP3.push(x.price);});
       var allSame3=allP3.every(function(p){return p===allP3[0];});
       var tot3=allP3.reduce(function(s,p){return s+p;},0);
-      var hasFull3=(b>0?1:0)+kb3arr.length===permCount(lek);
+      var totalPerms3=permCount(lek);
+      var hasFull3=(b>0?1:0)+kb3arr.length===totalPerms3;
       if(hasFull3&&allSame3){push(lek,'ชบ'+fmtNum(allP3[0]),tot3);}
       else{if(b>0)push(lek,'บ'+fmtNum(b),b);kb3arr.forEach(function(x){push(x.perm,'บ'+fmtNum(x.price),x.price);});}
       if(t>0)push(lek,'ต'+fmtNum(t),t);
@@ -853,7 +853,8 @@ function toLines(e){
       var allP4=[];if(b>0)allP4.push(b);kb4.forEach(function(x){allP4.push(x.price);});
       var allSame4=allP4.every(function(p){return p===allP4[0];});
       var tot4=allP4.reduce(function(s,p){return s+p;},0);
-      var hasFull4=(b>0?1:0)+kb4.length===permCount(lek);
+      var totalPerms4=permCount(lek);
+      var hasFull4=(b>0?1:0)+kb4.length===totalPerms4;
       if(hasFull4&&allSame4){push(lek,'ชบ'+fmtNum(allP4[0]),tot4);}
       else{if(b>0)push(lek,'บ'+fmtNum(b),b);kb4.forEach(function(x){push(x.perm,'บ'+fmtNum(x.price),x.price);});}
       if(t>0)push(lek,'ต'+fmtNum(t),t);
@@ -868,7 +869,6 @@ function toLines(e){
   });
   return lines;
 }
-
 function calcEntryTotal(e){
   var kd=e.kd||{};
   var kb=(kd['bon']||[]).reduce(function(s,x){return s+x.price;},0);
@@ -876,80 +876,92 @@ function calcEntryTotal(e){
   var kn=(kd['na']||[]).reduce(function(s,x){return s+x.price;},0);
   return (e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0)+kb+kl+kn+(e.paks||[]).reduce(function(s,p){return s+p.price;},0);
 }
-
-function calcTotal(){return entries.reduce(function(s,e){return s+calcEntryTotal(e);},0);}
-
-// ══════════════════════════════════════════
-// RENDER LIST
-// ══════════════════════════════════════════
-function renderList(){
-  var el=document.getElementById('list-scroll');
-  var totEl=document.getElementById('total-val');
-  if(!entries.length){
-    el.innerHTML='<div class="empty-row">ยังไม่มีรายการ</div>';
-    if(totEl)totEl.textContent='฿0'; return;
-  }
-  var h='',grand=0;
-  entries.forEach(function(e){
+function encodeQREntries(pEntries){
+  return pEntries.map(function(e){
+    var o={l:e.lek};
+    if(e.bon)o.b=e.bon;if(e.tod)o.t=e.tod;if(e.lang)o.la=e.lang;if(e.na)o.n=e.na;
     var kd=e.kd||{};
-    var b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0;
-    var kb=(kd.bon||[]).reduce(function(s,x){return s+x.price;},0);
-    var kl=(kd.lang||[]).reduce(function(s,x){return s+x.price;},0);
-    var kn=(kd.na||[]).reduce(function(s,x){return s+x.price;},0);
-    var etot=b+t+l+n+kb+kl+kn+(e.paks||[]).reduce(function(s,p){return s+p.price;},0);
-    grand+=etot;
-    function fod(v){return v>0?fmt(v):'<span class="cel e">—</span>';}
-    var paks=e.paks||[];
-    if(paks.length){
-      var pakDesc=paks.map(function(p){
-        var pos={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
-        var typ={bon:'บน','2lang':'ล่าง'}[p.type]||p.type;
-        return 'ปัก'+pos+typ;
-      }).join(', ');
-      var pakTotal=paks.reduce(function(s,p){return s+p.price;},0);
-      h+='<div class="bet-row"><span class="lek-cell">'+e.lek+'</span>'
-        +'<span class="cel" style="font-size:11px;color:#fb923c;text-align:left;grid-column:span 4;">📌 '+pakDesc+' ฿'+fmt(pakTotal)+'</span>'
-        +'<button class="rm-btn" onclick="APP.rmEntry('+e.id+')">✕</button></div>';
-    } else {
-      h+='<div class="bet-row"><span class="lek-cell">'+e.lek+'</span>'
-        +'<span class="cel">'+fod(b)+'</span><span class="cel">'+fod(t)+'</span>'
-        +'<span class="cel">'+fod(l)+'</span><span class="cel">'+fod(n)+'</span>'
-        +'<button class="rm-btn" onclick="APP.rmEntry('+e.id+')">✕</button></div>';
-      // perm rows — แสดง perm กลับใต้แถวหลัก
-      var permLeks={};
-      ['bon','lang','na'].forEach(function(k){
-        (kd[k]||[]).forEach(function(x){
-          if(!permLeks[x.perm])permLeks[x.perm]={bon:0,lang:0,na:0};
-          permLeks[x.perm][k]+=x.price;
-        });
-      });
-      Object.keys(permLeks).forEach(function(perm){
-        var pb=permLeks[perm].bon,pl=permLeks[perm].lang,pn=permLeks[perm].na;
-        h+='<div class="bet-row sub"><span class="lek-cell sub">'+perm+'</span>'
-          +'<span class="cel">'+fod(pb)+'</span>'
-          +'<span class="cel e">—</span>'
-          +'<span class="cel">'+fod(pl)+'</span>'
-          +'<span class="cel">'+fod(pn)+'</span>'
-          +'<span></span></div>';
-      });
-    }
+    if(kd.bon&&kd.bon.length){var as=kd.bon.every(function(x){return x.price===e.bon;});o.kb=as?1:kd.bon.map(function(x){return x.price;});}
+    if(kd.lang&&kd.lang.length){var as2=kd.lang.every(function(x){return x.price===e.lang;});o.kl=as2?1:kd.lang.map(function(x){return x.price;});}
+    if(kd.na&&kd.na.length){var as3=kd.na.every(function(x){return x.price===e.na;});o.kn=as3?1:kd.na.map(function(x){return x.price;});}
+    if(e.paks&&e.paks.length)o.pk=e.paks.map(function(p){return{tp:p.type,ps:p.pos,pr:p.price};});
+    return o;
   });
-  el.innerHTML=h;
-  if(totEl)totEl.textContent='฿'+fmt(grand);
 }
-
-function updateTotal(){var el=document.getElementById('total-val');if(el)el.textContent='฿'+fmt(calcTotal());}
-function updateHdr(){
-  var el=document.getElementById('hd-info');if(el)el.textContent=(ngodInfo.sender||'—');
-  var gd=document.getElementById('hd-ngod');if(gd)gd.textContent=ngodInfo.ngod?'งวด '+ngodInfo.ngod:'';
+var QR_MAX_CHARS=500;
+function encodePageData(pEntries,inf){
+  var data={s:inf.sender||'',r:inf.receiver||inf.sender||'',e:encodeQREntries(pEntries)};
+  return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
 }
-function updateLockUI(){
-  var ip=document.getElementById('ipanel');if(ip)ip.style.opacity=isLocked?'.5':'1';
-  var ln=document.getElementById('locked-notice');if(ln)ln.style.display=isLocked?'block':'none';
+function paginateEntries(sorted,inf){
+  var pages=[],cur=[];
+  sorted.forEach(function(e){
+    var test=encodePageData(cur.concat([e]),inf);
+    if(cur.length>0&&test.length>QR_MAX_CHARS){pages.push(cur);cur=[e];}
+    else cur.push(e);
+  });
+  if(cur.length)pages.push(cur);
+  return pages;
+}
+function makePageHTML(pEntries,pgNum,totalPages,inf,basketName){
+  var bodyRows='';
+  pEntries.forEach(function(e){
+    var ls=toLines(e);if(!ls.length)return;
+    ls.forEach(function(line){
+      bodyRows+='<tr><td class="td-lek">'+line.lek+'</td><td class="td-eq">=</td><td class="td-price">'+line.price+'</td></tr>';
+    });
+    bodyRows+='<tr class="row-sep"><td colspan="3"></td></tr>';
+  });
+  var pt=pEntries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
+  return '<div class="slip-hd"><div class="slip-hd-row1"><h2>🐯 T999 · '+inf.ngod+' 🇱🇦 หวยลาวพัฒนา</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
+    +'<div class="slip-hd-row2"><span>จาก: <strong>'+(inf.sender||'—')+'</strong></span>'
+    +(basketName?'<span>ชุด: <strong>'+basketName+'</strong></span>':'')+'</div></div>'
+    +'<table class="ptbl" style="table-layout:fixed;width:100%"><colgroup><col style="width:56px"><col style="width:14px"><col></colgroup><tbody>'+bodyRows+'</tbody></table>'
+    +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmtNum(pt)+'</span></div>'
+    +'<div class="slip-qr-wrap" id="slip-qr-pg-'+pgNum+'"></div>'+LEGEND;
+}
+function shareLineSlip(ents,info,basketName){
+  var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
+  var total=sorted.reduce(function(s,e){return s+calcEntryTotal(e);},0);
+  var msg='🐯 T999 หวยลาวพัฒนา 🇱🇦\n';
+  msg+='จาก: '+(info.sender||'—')+(basketName?' · ชุด: '+basketName:'')+'\n';
+  msg+='งวด: '+(info.ngod||'—')+'\n\n';
+  sorted.forEach(function(e){
+    var ls=toLines(e);
+    if(ls.length){msg+=ls[0].lek+' = '+ls.map(function(l){return l.price;}).join(', ')+'\n';}
+  });
+  msg+='\nยอดรวม: ฿'+fmtNum(total);
+  window.open('https://line.me/R/msg/text/?'+encodeURIComponent(msg),'_blank');
+}
+function renderSlip(ents,info,basketName,showButtons){
+  var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
+  var pages=paginateEntries(sorted,info);
+  var slipEl=document.getElementById('slip-pages');if(!slipEl)return;
+  var html='';
+  pages.forEach(function(pg,pi){
+    html+='<div class="slip-page-single"><div class="slip-page">'+makePageHTML(pg,pi+1,pages.length,info,basketName)+'</div></div>';
+  });
+  slipEl.innerHTML=html;
+  setTimeout(function(){
+    pages.forEach(function(pg,pi){
+      var el=document.getElementById('slip-qr-pg-'+(pi+1));if(!el)return;
+      var url=encodePageData(pg,info);
+      try{new QRCode(el,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.L});}catch(ex){}
+    });
+  },100);
+  document.getElementById('slip-ov').classList.add('show');
+  document.getElementById('ov-back').style.display=showButtons?'block':'none';
+  document.getElementById('ov-basket').style.display=showButtons?'block':'none';
+  var sl=document.getElementById('ov-share-line');
+  if(sl){sl.style.display='block';sl.onclick=function(){shareLineSlip(ents,info,basketName);};}
+  document.getElementById('ov-del-set').style.display=showButtons?'none':'block';
 }
 
 // ══════════════════════════════════════════
-// NGOD (งวด)
+// HISTORY RENDER
+// ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// NGOD
 // ══════════════════════════════════════════
 function openNgodModal(hasOld){
   var m=document.getElementById('modal-ngod');
@@ -961,14 +973,12 @@ function openNgodModal(hasOld){
     });
   }else{m.classList.add('show');}
 }
-
 function archiveCurrentNgod(){
   if(!entries.length)return;
   var hist=getHistory();var total=calcTotal();
   hist.unshift({id:Date.now(),ngod:ngodInfo.ngod,date:ngodInfo.date,sender:ngodInfo.sender,entries:entries,eid:eid,total:total,closedAt:getToday(),isBasket:false});
   saveHistory(hist);entries=[];eid=0;isLocked=false;save();
 }
-
 function doOpenNgod(){
   var sender=document.getElementById('m-sender').value.trim();
   var ngod=document.getElementById('m-ngod').value.trim();
@@ -980,7 +990,7 @@ function doOpenNgod(){
 }
 
 // ══════════════════════════════════════════
-// BASKET (เก็บเข้าแฟ้ม)
+// BASKET
 // ══════════════════════════════════════════
 function doBasket(){
   if(!entries.length){toast('ยังไม่มีรายการครับ');return;}
@@ -1003,100 +1013,6 @@ function doBasket(){
   });
 }
 
-// ══════════════════════════════════════════
-// SLIP — ใช้ format เดียวกับ customer-lao
-// ══════════════════════════════════════════
-var QR_MAX_CHARS=500;
-function encodeQREntries(pEntries){
-  return pEntries.map(function(e){
-    var o={l:e.lek};
-    if(e.bon)o.b=e.bon;if(e.tod)o.t=e.tod;if(e.lang)o.la=e.lang;if(e.na)o.n=e.na;
-    var kd=e.kd||{};
-    if(kd.bon&&kd.bon.length){var as=kd.bon.every(function(x){return x.price===e.bon;});o.kb=as?1:kd.bon.map(function(x){return x.price;});}
-    if(kd.lang&&kd.lang.length){var as2=kd.lang.every(function(x){return x.price===e.lang;});o.kl=as2?1:kd.lang.map(function(x){return x.price;});}
-    if(kd.na&&kd.na.length){var as3=kd.na.every(function(x){return x.price===e.na;});o.kn=as3?1:kd.na.map(function(x){return x.price;});}
-    if(e.paks&&e.paks.length)o.pk=e.paks.map(function(p){return{tp:p.type,ps:p.pos,pr:p.price};});
-    return o;
-  });
-}
-function encodePageData(pEntries,inf){
-  var data={s:inf.sender||'',r:inf.receiver||inf.sender||'',e:encodeQREntries(pEntries)};
-  return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-}
-function paginateEntries(sorted,inf){
-  var pages=[],cur=[];
-  sorted.forEach(function(e){
-    var test=encodePageData(cur.concat([e]),inf);
-    if(cur.length>0&&test.length>QR_MAX_CHARS){pages.push(cur);cur=[e];}
-    else cur.push(e);
-  });
-  if(cur.length)pages.push(cur);
-  return pages;
-}
-function makePageHTML(pEntries,pgNum,totalPages,inf,basketName){
-  var bodyRows='';
-  pEntries.forEach(function(e){
-    var ls=toLines(e);if(!ls.length)return;
-    ls.forEach(function(line,li){
-      bodyRows+='<tr><td class="td-lek">'+(li===0?line.lek:'')+'</td>'
-        +'<td style="font-size:12px;color:#888;padding:4px 2px;">'+(li===0?'=':'')+'</td>'
-        +'<td class="td-price">'+line.price+'</td></tr>';
-    });
-    bodyRows+='<tr class="row-sep"><td colspan="3"></td></tr>';
-  });
-  var pt=pEntries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
-  return '<div class="slip-hd">'
-    +'<div class="slip-hd-row1"><h2>🐯 T999 · หวยลาวพัฒนา 🇱🇦</h2><span class="pg">'+pgNum+'/'+totalPages+'</span></div>'
-    +'<div class="slip-hd-row2"><span>จาก: <strong>'+(inf.sender||'—')+'</strong></span>'
-    +(basketName?'<span>ชุด: <strong>'+basketName+'</strong></span>':'')
-    +'<span>งวด: <strong>'+(inf.ngod||'—')+'</strong></span></div></div>'
-    +'<table class="ptbl" style="table-layout:fixed;width:100%;"><colgroup><col style="width:56px"><col style="width:14px"><col></colgroup><tbody>'+bodyRows+'</tbody></table>'
-    +'<div class="slip-ft"><span class="fl">ยอดรวม</span><span class="fv">฿'+fmtNum(pt)+'</span></div>'
-    +'<div class="slip-qr-wrap" id="slip-qr-pg-'+pgNum+'"></div>'
-    +LEGEND;
-}
-function shareLineSlip(ents,info,basketName){
-  var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
-  var total=sorted.reduce(function(s,e){return s+calcEntryTotal(e);},0);
-  var msg='🐯 T999 หวยลาวพัฒนา 🇱🇦\n';
-  msg+='จาก: '+(info.sender||'—')+(basketName?' · ชุด: '+basketName:'')+'\n';
-  msg+='งวด: '+(info.ngod||'—')+'\n\n';
-  sorted.forEach(function(e){
-    var ls=toLines(e);
-    if(ls.length){msg+=e.lek+' = '+ls.map(function(l){return l.price;}).join(', ')+'\n';}
-  });
-  msg+='\nยอดรวม: ฿'+fmtNum(total);
-  var url='https://line.me/R/msg/text/?'+encodeURIComponent(msg);
-  window.open(url,'_blank');
-}
-
-function renderSlip(ents,info,basketName,showButtons){
-  var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
-  var pages=paginateEntries(sorted,info);
-  var slipEl=document.getElementById('slip-pages');if(!slipEl)return;
-  var html='';
-  pages.forEach(function(pg,pi){
-    html+='<div class="slip-page-single"><div class="slip-page">'+makePageHTML(pg,pi+1,pages.length,info,basketName)+'</div></div>';
-  });
-  slipEl.innerHTML=html;
-  setTimeout(function(){
-    pages.forEach(function(pg,pi){
-      var el=document.getElementById('slip-qr-pg-'+(pi+1));if(!el)return;
-      var url=encodePageData(pg,info);
-      try{new QRCode(el,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.L});}catch(ex){}
-    });
-  },100);
-  document.getElementById('slip-ov').classList.add('show');
-  document.getElementById('ov-back').style.display=showButtons?'block':'none';
-  document.getElementById('ov-basket').style.display=showButtons?'block':'none';
-  document.getElementById('ov-share-line').style.display='block';
-  document.getElementById('ov-share-line').onclick=function(){shareLineSlip(ents,info,basketName);};
-  document.getElementById('ov-del-set').style.display=showButtons?'none':'block';
-}
-
-// ══════════════════════════════════════════
-// HISTORY RENDER
-// ══════════════════════════════════════════
 function renderHist(){
   var el=document.getElementById('hist-list');if(!el)return;
   var hist=getHistory();
