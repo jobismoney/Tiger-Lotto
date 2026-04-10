@@ -125,9 +125,9 @@ function gkCopy(){
 // FK KEYBOARD (ไทย)
 // ══════════════════════════════════════
 var FK_DEFAULT_THAI = {1:['bon','lang'],2:['bon','lang'],3:['bon','tod'],4:['tod'],5:['tod']};
-var FK_KLB_TYPES    = ['bon','lang','na'];
+var FK_KLB_TYPES    = ['bon','lang'];
 var FK_COLOR        = {bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
-var FK_LABEL        = {bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
+var FK_LABEL        = {bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'}; // na ซ่อนใน LAO
 
 var fkBuf = '', fkSel = {bon:false,tod:false,lang:false,na:false};
 var fkKlb = {bon:false,lang:false,na:false};
@@ -136,7 +136,7 @@ var fkUserOverride = false;
 function fkAutoSel(d){
   d=d||2;
   if(d>=4){
-    ['bon','tod','lang','na'].forEach(function(t){
+    ['bon','tod','lang'].forEach(function(t){
       fkSel[t]=(t==='tod');
       var btn=document.getElementById('fkt-'+t);
       if(btn)btn.className='fk-tbtn'+(fkSel[t]?' on-'+t:'');
@@ -144,7 +144,7 @@ function fkAutoSel(d){
     fkKlb={bon:false,lang:false,na:false};
   } else if(!fkUserOverride){
     var def=FK_DEFAULT_THAI[d]||['bon','lang'];
-    ['bon','tod','lang','na'].forEach(function(t){
+    ['bon','tod','lang'].forEach(function(t){
       fkSel[t]=def.indexOf(t)>=0;
       var btn=document.getElementById('fkt-'+t);
       if(btn)btn.className='fk-tbtn'+(fkSel[t]?' on-'+t:'');
@@ -196,7 +196,7 @@ function fkRender(){
   el.innerHTML=fkBuf.replace(/x/gi,'×')+'<span class="fk-cursor"></span>';
   var len=fkBuf.length;
   el.style.fontSize=len<=8?'32px':len<=12?'24px':len<=16?'18px':'14px';
-  var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
+  var types=['bon','tod','lang'].filter(function(t){return fkSel[t];});
   var d2=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||2;
   var klbWord=d2===2?'ก':'ช';
   hint.innerHTML=types.map(function(t){
@@ -239,11 +239,11 @@ function fkMul(){
     var pp=fkBuf.split('=')[1]||'';
     var ps=pp.split('x');
     if(!pp||!ps[ps.length-1])return;
-    var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
+    var types=['bon','tod','lang'].filter(function(t){return fkSel[t];});
     var d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
     if(ps.length>=types.length){
       if(d>=4)return;
-      var allOrder=['bon','tod','lang','na'];
+      var allOrder=['bon','tod','lang'];
       var next=null;
       for(var i=0;i<allOrder.length;i++){if(!fkSel[allOrder[i]]){next=allOrder[i];break;}}
       if(!next)return;
@@ -1007,7 +1007,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       <span style="color:#60a5fa">บน</span>
       <span style="color:#f472b6">โต๊ด</span>
       <span style="color:#34d399">ล่าง</span>
-      <span style="color:#fb923c">หน้า</span>
       <span></span>
     </div>
     <div class="list-scroll" id="list-scroll"><div class="empty-row">ยังไม่มีรายการ</div></div>
@@ -1037,8 +1036,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         <button class="fk-klb" id="fkk-lang" onclick="fkToggleKlb('lang')"></button>
       </div>
       <div class="fk-type-col">
-        <button class="fk-tbtn" id="fkt-na" onclick="fkToggle('na')">หน้า</button>
-        <button class="fk-klb" id="fkk-na" onclick="fkToggleKlb('na')"></button>
+        <button class="fk-tbtn" id="fkt-na" onclick="fkToggle('na')" style="display:none"></button>
+        <button class="fk-klb" id="fkk-na" onclick="fkToggleKlb('na')" style="display:none"></button>
       </div>
     </div>
     <div class="fk-numpad">
@@ -1191,9 +1190,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
 <script>
 (function(){
-  var RULES={1:['bon','lang'],2:['bon','tod','lang'],3:['bon','tod','lang','na'],4:['tod'],5:['tod']};
+  var RULES={1:['bon','lang','pak'],2:['bon','tod','lang'],3:['bon','tod'],4:['bon','tod'],5:['tod']};
   var KLB={bon:[2,3],lang:[2,3],na:[2,3]};
-  var FM={bon:{l:'บน',c:'lbl-bon'},tod:{l:'โต๊ด',c:'lbl-tod'},lang:{l:'ล่าง',c:'lbl-lang'},na:{l:'หน้า',c:'lbl-na'}};
+  var FM={bon:{l:'บน',c:'lbl-bon'},tod:{l:'โต๊ด',c:'lbl-tod'},lang:{l:'ล่าง',c:'lbl-lang'}};
   var MAX_ROWS=20;
   var STORE_KEY='lotto_v2_current';
   var HIST_KEY='lotto_v2_history';
@@ -1611,7 +1610,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function renderPGrid(al){
     var pg=document.getElementById('pgrid');
     if(!pg) return;
-    var h='';['bon','tod','lang','na'].forEach(function(k){h+=buildBlock(k,al);});
+    var h='';['bon','tod','lang'].forEach(function(k){h+=buildBlock(k,al);});
     pg.innerHTML=h;
   }
 
@@ -1651,7 +1650,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   // smart tab order สำหรับช่องราคา
-  var FIELD_ORDER=['bon','tod','lang','na'];
+  var FIELD_ORDER=['bon','tod','lang'];
   window.FIELD_ORDER=FIELD_ORDER;
   // expose สำหรับ scan
   window._appNgodOpen=function(){ return ngodOpen; };
@@ -1678,7 +1677,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var ps=pricePart.split('x').map(function(s){return parseInt(s.replace(/\D/g,''))||0;});
     if(!leks.length){toast('ไม่มีเลขครับ');return;}
     if(!ps[0]){toast('ใส่ราคาก่อนครับ');return;}
-    var types=['bon','tod','lang','na'].filter(function(t){return _fkSel[t];});
+    var types=['bon','tod','lang'].filter(function(t){return _fkSel[t];});
     if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
     if(ps.length<types.length){toast('ราคายังไม่ครบครับ');return;}
     var pm={};types.forEach(function(t,i){pm[t]=ps[i]>0?ps[i]:0;});
@@ -1982,7 +1981,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(e&&e.type==='keydown'){
         if(e.key==='Enter'||e.keyCode===13){
           e.preventDefault();
-          var FO2=window.FIELD_ORDER||['bon','tod','lang','na'];
+          var FO2=window.FIELD_ORDER||['bon','tod','lang'];
           var idx2=FO2.indexOf(k);
           for(var j=idx2+1;j<FO2.length;j++){
             var nxt=document.getElementById('fi-'+FO2[j]);
@@ -1993,7 +1992,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         return;
       }
       var raw=el.value;
-      var FO=window.FIELD_ORDER||['bon','tod','lang','na'];
+      var FO=window.FIELD_ORDER||['bon','tod','lang'];
       function goNext(){
         var idx=FO.indexOf(k);
         for(var i=idx+1;i<FO.length;i++){
@@ -2344,11 +2343,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var npKlbState={bon:false,lang:false,na:false};
 
   function npReset(){
-    ['bon','tod','lang','na'].forEach(function(k){
+    ['bon','tod','lang'].forEach(function(k){
       var inp=document.getElementById('np-'+k);
       if(inp){inp.value='';inp.classList.remove('has');}
     });
-    ['bon','lang','na'].forEach(function(k){
+    ['bon','lang'].forEach(function(k){
       npKlbState[k]=false;
       var btn=document.getElementById('npk-'+k);
       if(btn){btn.classList.remove('on');}
@@ -2374,7 +2373,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function npUpdateForLek(d){
     // 4-5 หลัก: เฉพาะโต๊ด, 0 หลัก = ยังไม่มีเลข ทุกช่องใช้ได้
     var isTodOnly=d>=4;
-    ['bon','tod','lang','na'].forEach(function(k){
+    ['bon','tod','lang'].forEach(function(k){
       var inp=document.getElementById('np-'+k);
       if(!inp) return;
       if(isTodOnly){
@@ -2389,7 +2388,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(pakBtn) pakBtn.style.display=(d===1&&curLek.indexOf('/')<0)?'block':'none';
     // กลับ/ชุด label
     var lbl=d===2?'กลับ':'ชุด';
-    ['bon','lang','na'].forEach(function(k){
+    ['bon','lang'].forEach(function(k){
       var btn=document.getElementById('npk-'+k);
       if(btn&&!btn.disabled) btn.textContent=lbl;
     });
@@ -2413,7 +2412,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var d=firstLen;
     // อ่านราคาจาก NP grid
     var mp={},hasAny=false;
-    ['bon','tod','lang','na'].forEach(function(k){
+    ['bon','tod','lang'].forEach(function(k){
       var inp=document.getElementById('np-'+k);
       var v=inp&&!inp.disabled?parseInt(inp.value)||0:0;
       mp[k]=v>0?v:null;
@@ -2422,7 +2421,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(!hasAny){toast('กรุณาใส่ราคาอย่างน้อย 1 ช่อง');return;}
     // กลับ/ชุด
     var kd={};
-    ['bon','lang','na'].forEach(function(k){
+    ['bon','lang'].forEach(function(k){
       if(mp[k]&&npKlbState[k]&&KLB[k]&&KLB[k].indexOf(d)>=0){
         // ใส่ราคาเดิมให้ทุก perm (เจ้ามือมักใช้ราคาเดิม)
       }
@@ -2454,7 +2453,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         if(isDupL&&APP.allowedDupKeys.indexOf(l)<0){toast('เลข '+l+' ซ้ำ ข้ามไป');return;}
         // kd จาก npKlbState
         var kdl={};
-        ['bon','lang','na'].forEach(function(k){
+        ['bon','lang'].forEach(function(k){
           if(mp[k]&&npKlbState[k]&&KLB[k]&&KLB[k].indexOf(d)>=0){
             var _gp=window._getPerms||getPerms;
         var perms=_gp(l).filter(function(p){return p!==l;});
@@ -2491,7 +2490,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function calcTotal(){
     return entries.reduce(function(s,e){
       var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);
-      ['bon','lang','na'].forEach(function(k){(e.kd[k]||[]).forEach(function(x){t+=x.price;});});
+      ['bon','lang'].forEach(function(k){(e.kd[k]||[]).forEach(function(x){t+=x.price;});});
       (e.paks||[]).forEach(function(p){t+=p.price;});
       return s+t;
     },0);
@@ -2528,7 +2527,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +cellV(e.bon)+cellV(e.tod)+cellV(e.lang)+cellV(e.na)
         +'<button class="rm-btn" onclick="removeEntry('+e.id+')"'+rmDisabled+'>✕</button></div>';
       var klbRows=[];
-      ['bon','lang','na'].forEach(function(k){(e.kd[k]||[]).forEach(function(x){klbRows.push({perm:x.perm,k:k,price:x.price});});});
+      ['bon','lang'].forEach(function(k){(e.kd[k]||[]).forEach(function(x){klbRows.push({perm:x.perm,k:k,price:x.price});});});
       var permMap={};
       klbRows.forEach(function(r){if(!permMap[r.perm])permMap[r.perm]={bon:null,lang:null,na:null};permMap[r.perm][r.k]=r.price;});
       Object.keys(permMap).sort().forEach(function(perm){
@@ -2819,18 +2818,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmtNum(pt)+'</span></div>'
       +'<div class="slip-qr-wrap" id="slip-qr-pg-'+pgNum+'"></div>'+LEGEND;
   }
-  function buildSlip(entsToUse){
-    var ents=entsToUse||entries;
-    if(!ents.length)return null;
-    var inf={sender:profile.name||'—',receiver:profile.agent||'—',ngod:profile.ngod||'—'};
-    var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
-    var pages=paginateEntries(sorted,inf);
-    var totalPages=pages.length,grandTotal=ents.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});(e.paks||[]).forEach(function(p){t+=p.price;});return s+t;},0);
-    var allSumRows='',allHTML='',grandS={c4:0,c3:0,c2:0,c1:0,ct:0,cna:0};
-    // buildSlip ลาว — ไม่ใช้ (ใช้ buildAllSlips แทน)
-    return null;
-  }
-
   function buildAllSlips(custName){
     if(!entries.length){toast('ยังไม่มีรายการ');return null;}
     var inf=Object.assign({},ngodInfo,{sender:custName||lastBasketName||'—',receiver:ngodInfo.sender||'—'});
@@ -2846,7 +2833,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var ps=pageSumTotals(pg);
       var pt=pg.reduce(function(s,e){
         var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);
-        ['bon','lang','na'].forEach(function(k){(e.kd[k]||[]).forEach(function(x){t+=x.price;});});
+        ['bon','lang'].forEach(function(k){(e.kd[k]||[]).forEach(function(x){t+=x.price;});});
         return s+t;
       },0);
       allSumRows+=buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false);
@@ -3183,7 +3170,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function calcEntryTotal(e){
     var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);
-    ['bon','lang','na'].forEach(function(k){(e.kd[k]||[]).forEach(function(x){t+=x.price;});});
+    ['bon','lang'].forEach(function(k){(e.kd[k]||[]).forEach(function(x){t+=x.price;});});
     (e.paks||[]).forEach(function(p){t+=p.price;});
     return t;
   }
