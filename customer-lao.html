@@ -902,35 +902,29 @@ function toLines(e){
 }
 function entrySummary(e){
   var d=e.d,b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0;
-  var kd=e.kd||{};
-  var kb=(kd['bon']||[]).reduce(function(s,x){return s+x.price;},0);
-  var kl=(kd['lang']||[]).reduce(function(s,x){return s+x.price;},0);
-  var kn=(kd['na']||[]).reduce(function(s,x){return s+x.price;},0);
   var pk=(e.paks||[]).reduce(function(s,p){return s+p.price;},0);
-  if(d===4)return{c4:b+kb,c3:0,c2:0,c1:pk,ct:t,cna:0};
-  if(d===3)return{c4:0,c3:b+kb,c2:0,c1:pk,ct:t,cna:0};
-  if(d===2)return{c4:0,c3:0,c2:b+kb+l+kl,c1:pk,ct:t,cna:n+kn};
-  if(d===1)return{c4:0,c3:0,c2:0,c1:b+l+pk,ct:0,cna:0};
-  return{c4:0,c3:0,c2:0,c1:pk,ct:t,cna:0};
+  if(d===4)return{c3:b,c2:0,c1:pk,ct:t};
+  if(d===3)return{c3:b,c2:0,c1:pk,ct:t};
+  if(d===2)return{c3:0,c2:b+l+n,c1:pk,ct:t};
+  if(d===1)return{c3:0,c2:0,c1:b+l+n+pk,ct:0};
+  return{c3:0,c2:0,c1:pk,ct:t};
 }
 function pageSumTotals(pEntries){
-  var s={c4:0,c3:0,c2:0,c1:0,ct:0,cna:0};
-  pEntries.forEach(function(e){var es=entrySummary(e);s.c4+=es.c4;s.c3+=es.c3;s.c2+=es.c2;s.c1+=es.c1;s.ct+=es.ct;s.cna+=es.cna;});
+  var s={c3:0,c2:0,c1:0,ct:0};
+  pEntries.forEach(function(e){var es=entrySummary(e);s.c3+=es.c3;s.c2+=es.c2;s.c1+=es.c1;s.ct+=es.ct;});
   return s;
 }
 function buildSumRow(s,label,total,isFoot){
   function cv(v){return v>0?fmtNum(v):(isFoot?'-':'<span style="color:#ccc">-</span>');}
   return '<tr class="'+(isFoot?'sf':'')+'"><td class="sc sc-no">'+label+'</td>'
-    +'<td class="sc">'+cv(s.c4)+'</td><td class="sc">'+cv(s.c3)+'</td>'
-    +'<td class="sc">'+cv(s.c2)+'</td><td class="sc">'+cv(s.c1)+'</td>'
-    +'<td class="sc">'+cv(s.ct)+'</td><td class="sc">'+cv(s.cna)+'</td>'
+    +'<td class="sc">'+cv(s.c3)+'</td><td class="sc">'+cv(s.c2)+'</td>'
+    +'<td class="sc">'+cv(s.c1)+'</td><td class="sc">'+cv(s.ct)+'</td>'
     +'<td class="sc" style="font-weight:900;color:#111;">'+fmtNum(total)+'</td></tr>';
 }
 function sumTableHTML(rows){
   return '<div class="sum-tbl-wrap"><table class="sum-tbl"><thead><tr>'
-    +'<th class="sh sh-no">แผ่น</th><th class="sh">4ตัว</th><th class="sh">3ตัว</th>'
-    +'<th class="sh">2ตัว</th><th class="sh">1ตัว</th><th class="sh">โต๊ด</th>'
-    +'<th class="sh">หน้า</th><th class="sh">รวม</th>'
+    +'<th class="sh sh-no">แผ่น</th><th class="sh">3ตัว</th><th class="sh">2ตัว</th>'
+    +'<th class="sh">1ตัว</th><th class="sh">โต๊ด</th><th class="sh">รวม</th>'
     +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function encodeQREntries(pEntries){
@@ -997,13 +991,13 @@ function buildSlip(entsToUse){
   var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
   var pages=paginateEntries(sorted,inf);
   var totalPages=pages.length,grandTotal=ents.reduce(function(s,e){return s+calcEntryTotal(e);},0);
-  var allSumRows='',allHTML='',grandS={c4:0,c3:0,c2:0,c1:0,ct:0,cna:0};
+  var allSumRows='',allHTML='',grandS={c3:0,c2:0,c1:0,ct:0,cl:0};
   pages.forEach(function(pg,i){
     allHTML+='<div class="slip-page-single"><div class="slip-page">'+makePageHTML(pg,i+1,totalPages,inf)+'</div></div>';
     var ps=pageSumTotals(pg);
     var pt=pg.reduce(function(s,e){return s+calcEntryTotal(e);},0);
     allSumRows+=buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false);
-    grandS.c4+=ps.c4;grandS.c3+=ps.c3;grandS.c2+=ps.c2;grandS.c1+=ps.c1;grandS.ct+=ps.ct;grandS.cna+=ps.cna;
+    grandS.c3+=ps.c3;grandS.c2+=ps.c2;grandS.c1+=ps.c1;grandS.ct+=ps.ct;
   });
   allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
   var sumHTML='<div class="slip-hd"><div class="slip-hd-row1"><h2>📊 สรุป · '+inf.ngod+'</h2><span class="pg">'+totalPages+' แผ่น</span></div>'
