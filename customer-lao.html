@@ -924,27 +924,26 @@ function makePageHTML(pEntries,pgNum,totalPages,inf){
   pEntries.forEach(function(e){
     var ls=toLines(e);if(!ls.length)return;
     var eTot=ls.reduce(function(s,x){return s+x.total;},0);
-    if(ls.length===1){
-      ls.forEach(function(line){bodyRows+='<tr><td class="td-lek">'+line.lek+'</td><td class="td-eq">=</td><td class="td-price">'+line.price+'</td><td class="td-brace-empty"></td><td class="td-total">'+fmtNum(line.total)+'</td></tr>';});
-    } else {
-      var nn=ls.length,midIdx=Math.floor((nn-1)/2);
-      for(var li=0;li<nn;li++){
-        var isFirst=li===0,isLast=li===nn-1,isMid=li===midIdx;
-        var bs='width:12px;padding:0;';
-        if(isFirst&&isLast)bs+='border-right:1.5px solid #999;border-top:1.5px solid #999;border-bottom:1.5px solid #999;border-radius:0 4px 4px 0;';
-        else if(isFirst)bs+='border-right:1.5px solid #999;border-top:1.5px solid #999;border-radius:0 4px 0 0;';
-        else if(isLast)bs+='border-right:1.5px solid #999;border-bottom:1.5px solid #999;border-radius:0 0 4px 0;';
-        else bs+='border-right:1.5px solid #999;';
-        bodyRows+='<tr><td class="td-lek">'+ls[li].lek+'</td><td class="td-eq">=</td><td class="td-price">'+ls[li].price+'</td><td style="'+bs+'"></td>'+(isMid?'<td class="td-total" rowspan="'+nn+'" style="vertical-align:middle;text-align:right;width:50px;">'+fmtNum(eTot)+'</td>':'')+'</tr>';
-      }
-    }
-    bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
+    ls.forEach(function(line,li){
+      bodyRows+='<tr>'
+        +'<td class="td-lek">'+(li===0?line.lek:'')+'</td>'
+        +'<td class="td-eq">'+(li===0?'=':'')+'</td>'
+        +'<td class="td-price">'+line.price+'</td>'
+        +'<td class="td-total">'+(li===ls.length-1?fmtNum(eTot):'')+'</td>'
+        +'</tr>';
+    });
+    bodyRows+='<tr class="row-sep"><td colspan="4"></td></tr>';
   });
   var ps=pageSumTotals(pEntries);
-  var pt=pEntries.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});(e.paks||[]).forEach(function(p){t+=p.price;});return s+t;},0);
+  var pt=pEntries.reduce(function(s,e){
+    var t=(e.bon||0)+(e.tod||0)+(e.lang||0);
+    ['bon','lang'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});
+    (e.paks||[]).forEach(function(p){t+=p.price;});
+    return s+t;
+  },0);
   return '<div class="slip-hd"><div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇱🇦 LAO</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
     +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div></div>'
-    +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
+    +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:120px"><col style="width:55px"></colgroup><tbody>'+bodyRows+'</tbody></table>'
     +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
     +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmtNum(pt)+'</span></div>'
     +'<div class="slip-qr-wrap" id="slip-qr-pg-'+pgNum+'"></div>'+LEGEND;
