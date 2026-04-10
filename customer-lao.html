@@ -705,13 +705,13 @@ function fkMul(){
     var pp=fkBuf.split('=')[1]||'';
     var ps=pp.split('x');
     if(!pp||!ps[ps.length-1])return;
-    var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
     var d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
+    var allowed=RULES[d]||[];
+    var types=allowed.filter(function(t){return fkSel[t];});
     if(ps.length>=types.length){
-      if(d>=4)return;
-      var allOrder=['bon','tod','lang','na'];
+      // หา next type ที่ allowed และยังไม่ได้เลือก
       var next=null;
-      for(var i=0;i<allOrder.length;i++){if(!fkSel[allOrder[i]]){next=allOrder[i];break;}}
+      for(var i=0;i<allowed.length;i++){if(!fkSel[allowed[i]]){next=allowed[i];break;}}
       if(!next)return;
       fkSel[next]=true;fkUserOverride=true;
       var btn=document.getElementById('fkt-'+next);
@@ -979,7 +979,7 @@ function buildSlip(entsToUse){
 
 var _lastSlipResult=null;
 function showSlip(entsToUse){
-  if(!entries.length&&!entsToUse){toast('ยังไม่มีรายการครับ');return;}
+  if(!entsToUse||!entsToUse.length){toast('ยังไม่มีรายการครับ');return;}
   var result=buildSlip(entsToUse);if(!result)return;
   _lastSlipResult=result;
   document.getElementById('slip-pages').innerHTML=result.html;
