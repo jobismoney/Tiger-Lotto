@@ -797,22 +797,15 @@ function toLines(e){
     });
     return lines;
   }
-  // d=2: บน/ล่าง/โต๊ด + กลับ
+  // d=2: บน/ล่าง/โต๊ด + กลับ (ลาวไม่มีหน้า)
   else if(d===2){
-    var hasKb=(kd['bon']||[]).length>0,hasKl=(kd['lang']||[]).length>0,hasKn2=(kd['na']||[]).length>0;
+    var hasKb=(kd['bon']||[]).length>0,hasKl=(kd['lang']||[]).length>0;
     var ps2=[],pt2=0;
     if(b>0&&!hasKb){ps2.push('บ'+fmtNum(b));pt2+=b;}
     if(t>0){ps2.push('ต'+fmtNum(t));pt2+=t;}
     if(l>0&&!hasKl){ps2.push('ล'+fmtNum(l));pt2+=l;}
-    if(n>0&&!hasKn2){ps2.push('หน้า'+fmtNum(n));pt2+=n;}
     if(ps2.length)push(lek,pstr(ps2),pt2);
-    var kb2=kd['bon']||[],kl2=kd['lang']||[],kn2arr=kd['na']||[];
-    if(kn2arr.length){
-      var allNaP=[];if(n>0)allNaP.push(n);kn2arr.forEach(function(x){allNaP.push(x.price);});
-      var allNaSame=allNaP.every(function(p){return p===allNaP[0];});var naFull=(n>0?1:0)+kn2arr.length===2;
-      if(naFull&&allNaSame){push(lek,'กลับหน้า'+fmtNum(allNaP[0]),allNaP.reduce(function(s,p){return s+p;},0));}
-      else{if(n>0)push(lek,'หน้า'+fmtNum(n),n);kn2arr.forEach(function(x){push(x.perm,'หน้า'+fmtNum(x.price),x.price);});}
-    }
+    var kb2=kd['bon']||[],kl2=kd['lang']||[];
     if(kb2.length||kl2.length){
       getPerms(lek).forEach(function(p){
         var bx=null,lx=null;
@@ -1249,17 +1242,17 @@ function updatePakUI(){
     if(naBtn)naBtn.style.display='';
     midBtn.style.display='';
     document.querySelector('.pak-pbtn[data-pos="na"] .pak-pbtn-lbl').textContent='ร้อย';
+    document.querySelector('#pak-mid-btn .pak-pbtn-lbl').textContent='สิบ';
     document.getElementById('pak-ex-na').textContent=lek+'_ _';
     document.getElementById('pak-ex-mid').textContent='_ '+lek+' _';
     document.getElementById('pak-ex-lang').textContent='_ _'+lek;
   } else {
-    // ล่าง: สิบ หน่วย (ร้อยหาย)
+    // ล่าง: สิบ(mid) หน่วย(lang) — ซ่อนแค่ ร้อย(na)
     if(naBtn)naBtn.style.display='none';
-    midBtn.style.display='none';
+    midBtn.style.display='';
+    document.querySelector('#pak-mid-btn .pak-pbtn-lbl').textContent='สิบ';
+    document.getElementById('pak-ex-mid').textContent=lek+'_';
     document.getElementById('pak-ex-lang').textContent='_'+lek;
-    // re-label na→สิบ แต่ซ่อนอยู่ ใช้ lang=หน่วย เท่านั้น
-    // 2ตัวล่าง: na=สิบ, lang=หน่วย แต่ซ่อน na
-    document.getElementById('pak-ex-na').textContent=lek+'_';
   }
 }
 function addPak(){
