@@ -602,49 +602,46 @@ function fkDel(){
 function getPerms(s){if(s.length<=1)return[s];var res={};for(var i=0;i<s.length;i++){var r=s.slice(0,i)+s.slice(i+1);getPerms(r).forEach(function(p){res[s[i]+p]=1;});}return Object.keys(res).sort();}
 
 function fkEq(){
-  var parts=fkBuf.split('/').filter(function(s){return s.replace(/\D/g,'').length>0;});
-  if(!parts.length){toast('ยังไม่ได้กรอกเลขครับ');return;}
+  if(fkBuf.indexOf('=')<0){
+    var leks=fkBuf.split('/').filter(function(s){return s.replace(/\D/g,'').length>0;});
+    if(!leks.length){toast('กรอกเลขก่อนครับ');return;}
+    fkBuf+='='; fkRender(); return;
+  }
+  fkCommit();
+}
+function fkCommit(){
+  var parts=fkBuf.split('=');
+  var lekPart=parts[0]; var pricePart=parts[1]||'';
+  var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
+  var ps=pricePart.split('x').map(function(s){return parseInt(s.replace(/\D/g,''))||0;});
+  if(!leks.length){toast('ไม่มีเลขครับ');return;}
+  if(!ps[0]){toast('ใส่ราคาก่อนครับ');return;}
   if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');return;}
   var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
   if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
-
-  // ตรวจสอบว่ามีราคาหรือยัง — ดูจาก part แรก
-  var firstPart=parts[0];
-  var hasSep=firstPart.indexOf('=')>=0;
-  if(!hasSep){
-    // ยังไม่มี = เลย → เติม = ให้แล้วรอ user กรอกราคา
-    fkBuf+='=';fkRender();return;
-  }
-
-  var added=0;
-  parts.forEach(function(part){
-    var sp=part.split('=');var lek=sp[0].replace(/\D/g,'');if(!lek)return;
-    var d=lek.length;
-    if(d<1||d>5)return;
+  var pm={};types.forEach(function(t,i){pm[t]=ps[i]>0?ps[i]:(ps[0]||0);});
+  var d=leks[0].length; var added=0;
+  leks.forEach(function(l){
     var allowed=RULES[d]||[];
-    var ps=(sp[1]||'').split('*').map(function(x){return parseInt(x)||0;});
-    if(!ps[0]||ps[0]<=0){toast('ใส่ราคาก่อนครับ');return;}
-    var pm={};
-    var validTypes=types.filter(function(t){return allowed.indexOf(t)>=0;});
-    validTypes.forEach(function(t,i){pm[t]=ps[i]>0?ps[i]:(ps[0]||0);});
-    if(!Object.keys(pm).some(function(t){return pm[t]>0;}))return;
     var kd={};
     FK_KLB_TYPES.forEach(function(t){
-      if(fkSel[t]&&fkKlb[t]&&pm[t]){
-        var perms=getPerms(lek).filter(function(p){return p!==lek;});
+      if(fkSel[t]&&fkKlb[t]&&pm[t]&&allowed.indexOf(t)>=0){
+        var perms=getPerms(l).filter(function(p){return p!==l;});
         if(perms.length)kd[t]=perms.map(function(p){return{perm:p,price:pm[t]};});
       }
     });
+    var finalPm={};
+    types.forEach(function(t){if((RULES[d]||[]).indexOf(t)>=0&&pm[t]>0)finalPm[t]=pm[t];});
     eid++;
-    entries.unshift({id:eid,lek:lek,d:d,bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,kd:kd,paks:[]});
+    entries.unshift({id:eid,lek:l,d:l.length,bon:finalPm.bon||null,tod:finalPm.tod||null,lang:finalPm.lang||null,na:finalPm.na||null,kd:kd,paks:[]});
     added++;
   });
   if(added>0){
     save();renderList();updateTotal();
     var ls=document.getElementById('list-scroll');if(ls)ls.scrollTop=0;
     toast('✅ เพิ่ม '+added+' รายการ');
-    fkBuf='';_lastD=0;fkRender();fkAutoSel(0);
   }
+  fkBuf='';_lastD=0;fkRender();fkAutoSel(0);
 }
 
 window.fkCommit=fkEq;
