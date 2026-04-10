@@ -1038,7 +1038,7 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,basketName){
   pEntries.forEach(function(e){
     var ls=toLines(e);if(!ls.length)return;
     ls.forEach(function(line,li){
-      bodyRows+='<tr><td class="td-lek">'+(li===0?e.lek:'')+'</td>'
+      bodyRows+='<tr><td class="td-lek">'+(li===0?line.lek:'')+'</td>'
         +'<td style="font-size:12px;color:#888;padding:4px 2px;">'+(li===0?'=':'')+'</td>'
         +'<td class="td-price">'+line.price+'</td></tr>';
     });
