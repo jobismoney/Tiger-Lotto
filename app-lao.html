@@ -262,7 +262,7 @@ body{background:var(--bg);color:var(--white);font-family:'Sarabun',sans-serif;mi
 <!-- WELCOME SCREEN -->
 <div class="welcome-screen" id="welcome-screen">
   <div class="welcome-logo">🐯🇱🇦</div>
-  <div class="welcome-title">T999 App ລາວ</div>
+  <div class="welcome-title">T999 App ลาว</div>
   <div class="welcome-sub">ระบบบันทึกหวยลาว<br>กรุณาเปิดงวดก่อนเข้าใช้งานครับ</div>
   <button class="welcome-btn" id="open-ngod-btn">🎯 เปิดงวดใหม่</button>
   <button class="welcome-hist" id="welcome-hist-btn">📂 ดูแฟ้ม</button>
@@ -341,17 +341,17 @@ body{background:var(--bg);color:var(--white);font-family:'Sarabun',sans-serif;mi
     </div>
   </div>
   <div style="display:flex;gap:6px;margin:8px 10px 0;">
-    <button onclick="openScan()" style="flex:1;background:rgba(96,165,250,.1);border:1.5px solid rgba(96,165,250,.3);border-radius:10px;color:#60a5fa;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;padding:10px 4px;cursor:pointer;">📷 ສະແກນ</button>
-    <button class="basket-btn" id="basket-btn" style="margin:0;flex:2;font-size:16px;padding:10px;">📂 ເກັບແຟ້ມ</button>
+    <button onclick="openScan()" style="flex:1;background:rgba(96,165,250,.1);border:1.5px solid rgba(96,165,250,.3);border-radius:10px;color:#60a5fa;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;padding:10px 4px;cursor:pointer;">📷 สแกน</button>
+    <button class="basket-btn" id="basket-btn" style="margin:0;flex:2;font-size:16px;padding:10px;">📂 เก็บแฟ้ม</button>
   </div>
-  <div class="locked-notice" id="locked-notice" style="display:none;">🔒 ບັນທຶກແລ້ວ</div>
+  <div class="locked-notice" id="locked-notice" style="display:none;">🔒 บันทึกแล้ว</div>
 </div>
 
 <!-- SLIP OVERLAY -->
 <div class="slip-ov" id="slip-ov">
   <div class="slip-ov-inner">
     <button class="ov-back" id="ov-back">✏️ ซื้อเพิ่ม / แก้ไข</button>
-    <button class="ov-basket" id="ov-basket">📂 ເກັບເຂົ້າແຟ້ມ</button>
+    <button class="ov-basket" id="ov-basket">📂 เก็บเข้าแฟ้ม</button>
     <button class="ov-del-set" id="ov-del-set" style="display:none;">🗑️ ลบชุดนี้</button>
     <div class="slip-pages-grid" id="slip-pages"></div>
   </div>
@@ -360,12 +360,12 @@ body{background:var(--bg);color:var(--white);font-family:'Sarabun',sans-serif;mi
 <!-- OPEN NGOD MODAL -->
 <div class="modal-ov" id="modal-ngod">
   <div class="modal-box">
-    <div class="modal-title">🎯 ເປີດຊຸດໃໝ່</div>
+    <div class="modal-title">🎯 ເປີດชุดใหม่</div>
     <div class="modal-field"><label>ชื่อเอเย่นต์</label><input type="text" id="m-sender" placeholder="ชื่อของคุณ"></div>
-    <div class="modal-field"><label>ງວດທີ</label><input type="text" id="m-ngod" placeholder="1/4/2569"></div>
+    <div class="modal-field"><label>งวดที่</label><input type="text" id="m-ngod" placeholder="1/4/2569"></div>
     <div class="modal-btns">
       <button class="modal-cancel" id="modal-cancel">ยกเลิก</button>
-      <button class="modal-ok" id="modal-ok">✅ ເປີດງວດ</button>
+      <button class="modal-ok" id="modal-ok">✅ เปิดงวด</button>
     </div>
   </div>
 </div>
@@ -374,7 +374,7 @@ body{background:var(--bg);color:var(--white);font-family:'Sarabun',sans-serif;mi
 <div class="hist-ov" id="hist-ov">
   <div class="hist-inner">
     <div class="hist-hd">
-      <span>📂 ແຟ້ມ</span>
+      <span>📂 แฟ้ม</span>
       <button class="hist-close" id="hist-close">✕</button>
     </div>
     <div id="hist-list"></div>
@@ -385,11 +385,11 @@ body{background:var(--bg);color:var(--white);font-family:'Sarabun',sans-serif;mi
 <div class="check-ov" id="check-ov">
   <div class="check-inner">
     <div class="check-hd">
-      <span>🔍 ຕວດລາງວັນ 🇱🇦</span>
+      <span>🔍 ตรวจรางวัล 🇱🇦</span>
       <button class="check-close" id="check-close">✕</button>
     </div>
     <div class="check-card">
-      <div style="font-size:13px;font-weight:700;color:var(--lg);margin-bottom:8px;">ໃສ່ເລກ 6 ຕົວທີ່ອອກ</div>
+      <div style="font-size:13px;font-weight:700;color:var(--lg);margin-bottom:8px;">ใส่เลข 6 ตัวที่ออก</div>
       <input type="tel" inputmode="numeric" maxlength="6" id="res-6" placeholder="0 0 0 0 0 0" class="check-inp-big" oninput="autoFillLao()">
       <div class="check-disp-row">
         <div class="check-disp-col">
@@ -409,11 +409,11 @@ body{background:var(--bg);color:var(--white);font-family:'Sarabun',sans-serif;mi
         <div style="flex:1;text-align:center;"><div style="font-size:11px;color:var(--lg);">4 ຕົວ (ໜ້າ)</div><div id="disp-4bon" style="font-size:18px;font-weight:900;color:var(--gold);">—</div></div>
         <div style="flex:1;text-align:center;"><div style="font-size:11px;color:var(--lg);">2 ຕົວ (ບົນ)</div><div id="disp-2bon" style="font-size:18px;font-weight:900;color:#f472b6;">—</div></div>
       </div>
-      <button class="check-btn" onclick="APP.doCheckLao()">🔍 ຕວດເລີຍ</button>
+      <button class="check-btn" onclick="APP.doCheckLao()">🔍 ตรวจเลย</button>
       <!-- ประวัติผลรางวัล -->
       <div class="lao-hist-panel">
-        <div class="lao-hist-title">📅 ປະຫວັດຜົນລາງວັນ</div>
-        <div id="lao-result-hist"><div style="text-align:center;color:var(--gray);font-size:13px;padding:10px;">ຍັງບໍ່ມີປະຫວັດ</div></div>
+        <div class="lao-hist-title">📅 ประวัติผลรางวัล</div>
+        <div id="lao-result-hist"><div style="text-align:center;color:var(--gray);font-size:13px;padding:10px;">ยังไม่มีประวัติ</div></div>
       </div>
     </div>
     <div id="check-results"></div>
@@ -578,7 +578,7 @@ function fkAutoSel(d){
 function fkUpdateKlbBtns(d){
   if(!d&&fkBuf){var fl=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');d=fl.length||2;}
   d=d||2;
-  var lbl=d===2?'ກລັບ':'ຊຸດ';
+  var lbl=d===2?'ກລັບ':'ชุด';
   FK_KLB_TYPES.forEach(function(t){
     var btn=document.getElementById('fkk-'+t);if(!btn)return;
     var show=fkSel[t]&&d>=2&&t!=='tod'&&(d<=2||t==='bon');
@@ -774,27 +774,103 @@ function getLaoTod(lek){
   return Array.from(s);
 }
 
+// ── SLIP: ใช้ logic เดียวกับ customer-lao ──
+var LEGEND='<div style="font-size:10px;color:#888;padding:2px 8px;text-align:right;background:#fff;border-top:1px solid #eee;">บ=บน/หลัง  ล=กลาง/ล่าง  ต=โต๊ด  น=หน้า  ช=ชุด  ก=กลับ</div>';
+function fmtNum(n){return parseInt(n||0).toLocaleString();}
+function permCount(s){return getPerms(s).length;}
+
 function toLines(e){
-  var lines=[];var lek=e.lek;var d=e.d||lek.length;
-  var fm={bon:'ໜ້າ',tod:'ໂຕດ',lang:'ກາງ/ລ່າງ',na:'2ໜ້າ'};
-  ['bon','tod','lang','na'].forEach(function(t){
-    if(e[t]>0)lines.push({lek:lek,type:fm[t],price:e[t],klb:false});
-    (e.kd&&e.kd[t]||[]).forEach(function(k){lines.push({lek:k.perm,type:fm[t]+'(ກລ)',price:k.price,klb:true});});
-  });
+  var d=e.d,b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0,lines=[],lek=e.lek;
+  function push(num,pr,tot){lines.push({lek:num,price:pr,total:tot});}
+  function pstr(ps){return ps.join('*');}
+  if(d===1){
+    var ps=[];
+    if(b>0)ps.push('ลอยหลัง'+fmtNum(b));
+    if(l>0)ps.push('ลอยล่าง'+fmtNum(l));
+    if(n>0)ps.push('ปักน'+fmtNum(n));
+    if(ps.length)push(lek,pstr(ps),b+l+n);
+  } else if(d===2){
+    var hasKb2=(e.kd&&(e.kd['bon']||[]).length>0);
+    var hasKl2=(e.kd&&(e.kd['lang']||[]).length>0);
+    var hasKn2=(e.kd&&(e.kd['na']||[]).length>0);
+    var kb2=hasKb2?e.kd['bon']:[];
+    var kl2=hasKl2?e.kd['lang']:[];
+    var kn2=hasKn2?e.kd['na']:[];
+    var allPerms2=getPerms(lek);
+    if(hasKb2||hasKl2||hasKn2){
+      allPerms2.forEach(function(p){
+        var bx=null;kb2.forEach(function(x){if(x.perm===p)bx=x;});
+        var lx=null;kl2.forEach(function(x){if(x.perm===p)lx=x;});
+        var nx=null;kn2.forEach(function(x){if(x.perm===p)nx=x;});
+        var rps=[],rt=0;
+        var bp=(p===lek)?b:(bx?bx.price:0);
+        var lp=(p===lek)?l:(lx?lx.price:0);
+        var np=(p===lek)?n:(nx?nx.price:0);
+        if(bp>0){rps.push('บ'+fmtNum(bp));rt+=bp;}
+        if(lp>0){rps.push('ล'+fmtNum(lp));rt+=lp;}
+        if(np>0){rps.push('น'+fmtNum(np));rt+=np;}
+        if(rps.length)push(p,rps.join('*'),rt);
+      });
+      if(t>0)push(lek,'ต'+fmtNum(t),t);
+    } else {
+      var ps2=[],pt2=0;
+      if(b>0){ps2.push('บ'+fmtNum(b));pt2+=b;}
+      if(t>0){ps2.push('ต'+fmtNum(t));pt2+=t;}
+      if(l>0){ps2.push('ล'+fmtNum(l));pt2+=l;}
+      if(n>0){ps2.push('น'+fmtNum(n));pt2+=n;}
+      if(ps2.length)push(lek,ps2.join('*'),pt2);
+    }
+  } else if(d===3){
+    var hasKb3=(e.kd&&(e.kd['bon']||[]).length>0);
+    var ps3=[],pt3=0;
+    if(b>0&&!hasKb3){ps3.push('บ'+fmtNum(b));pt3+=b;}
+    if(t>0&&!hasKb3){ps3.push('ต'+fmtNum(t));pt3+=t;}
+    if(l>0){ps3.push('ล'+fmtNum(l));pt3+=l;}
+    if(ps3.length)push(lek,pstr(ps3),pt3);
+    if(hasKb3){
+      var kb3arr=e.kd['bon'];
+      var allP3=[];if(b>0)allP3.push(b);kb3arr.forEach(function(x){allP3.push(x.price);});
+      var allSame3=allP3.every(function(p){return p===allP3[0];});
+      var tot3=allP3.reduce(function(s,p){return s+p;},0);
+      var hasFull3=(b>0?1:0)+kb3arr.length===permCount(lek);
+      if(hasFull3&&allSame3){push(lek,'ชบ'+fmtNum(allP3[0]),tot3);}
+      else{if(b>0)push(lek,'บ'+fmtNum(b),b);kb3arr.forEach(function(x){push(x.perm,'บ'+fmtNum(x.price),x.price);});}
+      if(t>0)push(lek,'ต'+fmtNum(t),t);
+      if(l>0&&pt3===0)push(lek,'ล'+fmtNum(l),l);
+    }
+  } else if(d===4){
+    var hasKb4=(e.kd&&e.kd['bon']||[]).length>0;
+    var ps4=[],pt4=0;
+    if(b>0&&!hasKb4){ps4.push('บ'+fmtNum(b));pt4+=b;}
+    if(t>0&&!hasKb4){ps4.push('ต'+fmtNum(t));pt4+=t;}
+    if(ps4.length)push(lek,pstr(ps4),pt4);
+    if(hasKb4){
+      var kb4=e.kd['bon'];
+      var allP4=[];if(b>0)allP4.push(b);kb4.forEach(function(x){allP4.push(x.price);});
+      var allSame4=allP4.every(function(p){return p===allP4[0];});
+      var tot4=allP4.reduce(function(s,p){return s+p;},0);
+      var hasFull4=(b>0?1:0)+kb4.length===permCount(lek);
+      if(hasFull4&&allSame4){push(lek,'ชบ'+fmtNum(allP4[0]),tot4);}
+      else{if(b>0)push(lek,'บ'+fmtNum(b),b);kb4.forEach(function(x){push(x.perm,'บ'+fmtNum(x.price),x.price);});}
+      if(t>0)push(lek,'ต'+fmtNum(t),t);
+    }
+  } else {
+    if(t>0)push(lek,'ต'+fmtNum(t),t);
+  }
   (e.paks||[]).forEach(function(p){
-    var posLbl={na:'ໜ້າ',mid:'ກາງ',lang:'ຫລັງ'}[p.pos]||p.pos;
-    var typeLbl=p.type==='3bon'?'ປັກຫລັງ':'ປັກລ່າງ';
-    lines.push({lek:lek,type:typeLbl+' '+posLbl,price:p.price,pak:true});
+    var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
+    var typLbl=p.type==='bon'?'ปักหลัง':'ปักล่าง';
+    lines.push({lek:e.lek,price:typLbl+'('+posLbl+') '+fmtNum(p.price),total:p.price});
   });
   return lines;
 }
 
 function calcEntryTotal(e){
-  var t=0;
-  ['bon','tod','lang','na'].forEach(function(tp){if(e[tp]>0)t+=e[tp];});
-  ['bon','lang','na'].forEach(function(tp){(e.kd&&e.kd[tp]||[]).forEach(function(k){t+=k.price||0;});});
-  (e.paks||[]).forEach(function(p){t+=p.price||0;});
-  return t;
+  var kd=e.kd||{};
+  var kb=(kd['bon']||[]).reduce(function(s,x){return s+x.price;},0);
+  var kl=(kd['lang']||[]).reduce(function(s,x){return s+x.price;},0);
+  var kn=(kd['na']||[]).reduce(function(s,x){return s+x.price;},0);
+  return (e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0)+kb+kl+kn+(e.paks||[]).reduce(function(s,p){return s+p.price;},0);
 }
 
 function calcTotal(){return entries.reduce(function(s,e){return s+calcEntryTotal(e);},0);}
@@ -804,7 +880,7 @@ function calcTotal(){return entries.reduce(function(s,e){return s+calcEntryTotal
 // ══════════════════════════════════════════
 function renderList(){
   var sc=document.getElementById('list-scroll');if(!sc)return;
-  if(!entries.length){sc.innerHTML='<div class="empty-row">ຍັງບໍ່ມີລາຍການ</div>';return;}
+  if(!entries.length){sc.innerHTML='<div class="empty-row">ยังไม่มีรายการ</div>';return;}
   var h='';
   entries.forEach(function(e){
     h+='<div class="entry-row">'
@@ -857,7 +933,7 @@ function doOpenNgod(){
   ngodInfo={sender:sender,ngod:ngod,date:getToday(),ngodId:Date.now()};
   ngodOpen=true;entries=[];eid=0;isLocked=false;lastBasketName='';
   save();document.getElementById('modal-ngod').classList.remove('show');
-  showMain();toast('ເປີດງວດ '+ngod+' ✅');
+  showMain();toast('เปิดงวด '+ngod+' ✅');
 }
 
 // ══════════════════════════════════════════
@@ -865,101 +941,97 @@ function doOpenNgod(){
 // ══════════════════════════════════════════
 function doBasket(){
   if(!entries.length){toast('ยังไม่มีรายการครับ');return;}
-  showInputConfirm('ເກັບໃສ່ຊື່ໃຜ?','เช่น ต้อม, แมน...',function(name,discRates){
+  showInputConfirm('เก็บเข้าชื่อใคร?','เช่น ต้อม, แมน...',function(name,discRates){
     var total=calcTotal();
     var count=entries.length;
     var ngod=ngodInfo.ngod||'—';
     var displayName=name||('ชุดที่ '+(getHistory().filter(function(h){return h.isBasket&&h.ngod===ngod;}).length+1));
     if(name)lastBasketName=name;
     var dr=discRates||DEFAULT_DISC;
-    var msg='ເກັບ <b>'+count+' ລາຍການ</b> ລວມ <b>฿'+fmt(total)+'</b><br>'
-           +'ຊຸດ: <b>'+displayName+'</b><br>ງວດ <b>'+ngod+'</b><br><br>'
-           +'<span style="color:#f59e0b;font-size:13px;">⚠️ ຫຼັງເກັບ ແກ້ໄຂບໍ່ໄດ້</span>';
+    var msg='เก็บ <b>'+count+' รายการ</b> รวม <b>฿'+fmt(total)+'</b><br>'
+           +'ชุด: <b>'+displayName+'</b><br>งวด <b>'+ngod+'</b><br><br>'
+           +'<span style="color:#f59e0b;font-size:13px;">⚠️ หลังเก็บแก้ไขไม่ได้</span>';
     showConfirm(msg,function(){
       var hist=getHistory();
       hist.unshift({id:Date.now(),ngodId:ngodInfo.ngodId||0,ngod:ngodInfo.ngod,date:ngodInfo.date,sender:ngodInfo.sender,entries:entries.slice(),eid:eid,total:total,savedAt:getToday(),isBasket:true,basketName:displayName,discRates:dr,checkResult:null});
       saveHistory(hist);entries=[];eid=0;isLocked=false;save();renderList();updateTotal();updateLockUI();
-      toast('📂 ເກັບ '+displayName+' · ฿'+fmt(total)+' ✅',4000);
+      toast('📂 เก็บ '+displayName+' · ฿'+fmt(total)+' ✅',4000);
     });
   });
 }
 
 // ══════════════════════════════════════════
-// SLIP
+// SLIP — ใช้ format เดียวกับ customer-lao
 // ══════════════════════════════════════════
-var QR_MAX=500;
-function buildSlipPages(ents,info,basketName){
+var QR_MAX_CHARS=500;
+function encodeQREntries(pEntries){
+  return pEntries.map(function(e){
+    var o={l:e.lek};
+    if(e.bon)o.b=e.bon;if(e.tod)o.t=e.tod;if(e.lang)o.la=e.lang;if(e.na)o.n=e.na;
+    var kd=e.kd||{};
+    if(kd.bon&&kd.bon.length){var as=kd.bon.every(function(x){return x.price===e.bon;});o.kb=as?1:kd.bon.map(function(x){return x.price;});}
+    if(kd.lang&&kd.lang.length){var as2=kd.lang.every(function(x){return x.price===e.lang;});o.kl=as2?1:kd.lang.map(function(x){return x.price;});}
+    if(kd.na&&kd.na.length){var as3=kd.na.every(function(x){return x.price===e.na;});o.kn=as3?1:kd.na.map(function(x){return x.price;});}
+    if(e.paks&&e.paks.length)o.pk=e.paks.map(function(p){return{tp:p.type,ps:p.pos,pr:p.price};});
+    return o;
+  });
+}
+function encodePageData(pEntries,inf){
+  var data={s:inf.sender||'',r:inf.receiver||inf.sender||'',e:encodeQREntries(pEntries)};
+  return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+}
+function paginateEntries(sorted,inf){
   var pages=[],cur=[];
-  ents.forEach(function(e){
-    var test=cur.concat([e]);
-    var qrStr=JSON.stringify({s:info.sender,ng:info.ngod,e:test.map(slipCompact)});
-    if(cur.length>0&&qrStr.length>QR_MAX){pages.push(cur);cur=[e];}
-    else cur=test;
+  sorted.forEach(function(e){
+    var test=encodePageData(cur.concat([e]),inf);
+    if(cur.length>0&&test.length>QR_MAX_CHARS){pages.push(cur);cur=[e];}
+    else cur.push(e);
   });
   if(cur.length)pages.push(cur);
   return pages;
 }
-function slipCompact(e){
-  var o={l:e.lek};
-  if(e.bon>0)o.b=e.bon;if(e.tod>0)o.t=e.tod;if(e.lang>0)o.l2=e.lang;if(e.na>0)o.na=e.na;
-  if(e.kd&&Object.keys(e.kd).length)o.kd=e.kd;
-  if(e.paks&&e.paks.length)o.pk=e.paks.map(function(p){return{ty:p.type,pos:p.pos,pr:p.price};});
-  return o;
+function makePageHTML(pEntries,pgNum,totalPages,inf,basketName){
+  var bodyRows='';
+  pEntries.forEach(function(e){
+    var ls=toLines(e);if(!ls.length)return;
+    ls.forEach(function(line,li){
+      bodyRows+='<tr><td class="td-lek">'+(li===0?e.lek:'')+'</td>'
+        +'<td style="font-size:12px;color:#888;padding:4px 2px;">'+(li===0?'=':'')+'</td>'
+        +'<td class="td-price">'+line.price+'</td></tr>';
+    });
+    bodyRows+='<tr class="row-sep"><td colspan="3"></td></tr>';
+  });
+  var pt=pEntries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
+  return '<div class="slip-hd">'
+    +'<div class="slip-hd-row1"><h2>🐯 T999 · หวยลาวพัฒนา 🇱🇦</h2><span class="pg">'+pgNum+'/'+totalPages+'</span></div>'
+    +'<div class="slip-hd-row2"><span>จาก: <strong>'+(inf.sender||'—')+'</strong></span>'
+    +(basketName?'<span>ชุด: <strong>'+basketName+'</strong></span>':'')
+    +'<span>งวด: <strong>'+(inf.ngod||'—')+'</strong></span></div></div>'
+    +'<table class="ptbl" style="table-layout:fixed;width:100%;"><colgroup><col style="width:56px"><col style="width:14px"><col></colgroup><tbody>'+bodyRows+'</tbody></table>'
+    +'<div class="slip-ft"><span class="fl">ยอดรวม</span><span class="fv">฿'+fmtNum(pt)+'</span></div>'
+    +'<div class="slip-qr-wrap" id="slip-qr-pg-'+pgNum+'"></div>'
+    +LEGEND;
 }
-
 function renderSlip(ents,info,basketName,showButtons){
-  var pages=buildSlipPages(ents,info,basketName);
+  var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
+  var pages=paginateEntries(sorted,info);
   var slipEl=document.getElementById('slip-pages');if(!slipEl)return;
   var html='';
   pages.forEach(function(pg,pi){
-    var total=pg.reduce(function(s,e){return s+calcEntryTotal(e);},0);
-    var qrId='qr-pg-'+pi;
-    html+='<div class="slip-page" style="background:#fff;border-radius:4px;border:1px solid #ccc;">'
-      +'<div class="slip-hd">'
-      +'<div class="slip-hd-row1"><h2>ຫວຍລາວພັດທະນາ 🇱🇦</h2><span style="color:#444;font-size:13px;">'+(pi+1)+'/'+pages.length+'</span></div>'
-      +'<div class="slip-hd-row2">'
-      +'<span>ຈາກ: <strong>'+(info.sender||'—')+'</strong></span>'
-      +(basketName?'<span>ຊຸດ: <strong>'+basketName+'</strong></span>':'')
-      +'<span>ງວດ: <strong>'+(info.ngod||'—')+'</strong></span>'
-      +'</div></div>'
-      +'<table class="ptbl" style="width:auto;border-collapse:collapse;padding:4px 14px;">';
-    pg.forEach(function(e){
-      var ls=toLines(e);
-      ls.forEach(function(ln,li){
-        html+='<tr class="entry-row-slip">'
-          +'<td class="td-lek" style="font-size:18px;font-weight:900;color:#111;padding:4px 6px;">'+(li===0?e.lek:'')+'</td>'
-          +'<td style="font-size:12px;color:#888;padding:4px 2px;">'+(li===0?'=':'')+'</td>'
-          +'<td class="td-price" style="font-size:13px;font-weight:800;color:#111;padding:4px 4px;">'+ln.type+' '+ln.price+'</td>'
-          +'</tr>';
-      });
-      html+='<tr class="row-sep"><td colspan="3" style="padding:0;border-top:1px dashed #ccc;"></td></tr>';
-    });
-    html+='</table>'
-      +'<div class="slip-qr-wrap" id="'+qrId+'"></div>'
-      +'<div class="slip-ft">'
-      +'<span class="fl">ລວມ</span>'
-      +'<span class="fv">฿'+fmt(total)+'</span>'
-      +'</div></div>';
+    html+='<div class="slip-page-single"><div class="slip-page">'+makePageHTML(pg,pi+1,pages.length,info,basketName)+'</div></div>';
   });
   slipEl.innerHTML=html;
-  // generate QR
   setTimeout(function(){
     pages.forEach(function(pg,pi){
-      var el=document.getElementById('qr-pg-'+pi);if(!el)return;
-      var qrStr=JSON.stringify({s:info.sender,ng:info.ngod,e:pg.map(slipCompact)});
-      try{new QRCode(el,{text:qrStr,width:160,height:160,correctLevel:QRCode.CorrectLevel.L});}catch(ex){}
+      var el=document.getElementById('slip-qr-pg-'+(pi+1));if(!el)return;
+      var url=encodePageData(pg,info);
+      try{new QRCode(el,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.L});}catch(ex){}
     });
   },100);
   document.getElementById('slip-ov').classList.add('show');
-  if(showButtons){
-    document.getElementById('ov-back').style.display='block';
-    document.getElementById('ov-basket').style.display='block';
-    document.getElementById('ov-del-set').style.display='none';
-  }else{
-    document.getElementById('ov-back').style.display='none';
-    document.getElementById('ov-basket').style.display='none';
-    document.getElementById('ov-del-set').style.display='block';
-  }
+  document.getElementById('ov-back').style.display=showButtons?'block':'none';
+  document.getElementById('ov-basket').style.display=showButtons?'block':'none';
+  document.getElementById('ov-del-set').style.display=showButtons?'none':'block';
 }
 
 // ══════════════════════════════════════════
@@ -968,7 +1040,7 @@ function renderSlip(ents,info,basketName,showButtons){
 function renderHist(){
   var el=document.getElementById('hist-list');if(!el)return;
   var hist=getHistory();
-  if(!hist.length){el.innerHTML='<div class="hist-empty">ຍັງບໍ່ມີແຟ້ມ</div>';return;}
+  if(!hist.length){el.innerHTML='<div class="hist-empty">ยังไม่มีแฟ้ม</div>';return;}
   // จัดกลุ่มตาม ngod
   var groups={},gOrder=[];
   hist.forEach(function(h,idx){
@@ -982,7 +1054,7 @@ function renderHist(){
     var totalAll=items.reduce(function(s,x){return s+(x.h.total||0);},0);
     html+='<div class="hist-folder">'
       +'<div class="hist-folder-hd" onclick="toggleFolder(\'fg-'+ng.replace(/\//g,'-')+'\',this)">'
-      +'<div><div class="hist-folder-ngod">ງວດ '+ng+'</div><div class="hist-folder-meta">'+items.length+' ຊຸດ</div></div>'
+      +'<div><div class="hist-folder-ngod">ງວດ '+ng+'</div><div class="hist-folder-meta">'+items.length+' ชุด</div></div>'
       +'<div class="hist-folder-right"><div class="hist-folder-total">฿'+fmt(totalAll)+'</div><span class="hist-folder-toggle">▼</span></div>'
       +'</div>'
       +'<div class="hist-folder-body" id="fg-'+ng.replace(/\//g,'-')+'">';
@@ -993,8 +1065,8 @@ function renderHist(){
         +'<div class="hist-set-left"><div class="hist-set-num">'+name+'</div><div class="hist-set-time">'+(h.savedAt||h.closedAt||'')+'</div></div>'
         +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total||0)+'</div><div class="hist-set-count">'+(h.entries?h.entries.length:0)+' ລາຍການ</div></div>'
         +'<div class="hist-set-btns">'
-        +'<button class="hist-set-btn" onclick="APP.viewHistSet('+idx+')">📄 ດູ</button>'
-        +'<button class="hist-set-btn" onclick="APP.checkHistSet('+idx+')" style="color:var(--gold);">🔍 ຕວດ</button>'
+        +'<button class="hist-set-btn" onclick="APP.viewHistSet('+idx+')">📄 ดู</button>'
+        +'<button class="hist-set-btn" onclick="APP.checkHistSet('+idx+')" style="color:var(--gold);">🔍 ตรวจ</button>'
         +'<button class="hist-set-btn" onclick="APP.delHistSet('+idx+')" style="color:#ef4444;">🗑</button>'
         +'</div></div>';
     });
@@ -1088,12 +1160,12 @@ function doCheckLao(){
 
   var resEl=document.getElementById('check-results');
   if(!results.length){
-    resEl.innerHTML='<div class="result-card"><div class="result-none">😔 ບໍ່ຖືກລາງວັນ</div></div>'
-      +(_checkHistIdx>=0?'<button class="close-ngod-btn" onclick="APP.saveCheckToHist()">✅ ບັນທຶກຜົນ</button>':'');
+    resEl.innerHTML='<div class="result-card"><div class="result-none">😔 ไม่ถูกรางวัล</div></div>'
+      +(_checkHistIdx>=0?'<button class="close-ngod-btn" onclick="APP.saveCheckToHist()">✅ บันทึกผล</button>':'');
     return;
   }
   celebrate();
-  var html='<div class="result-card"><div class="result-title">🎉 ຖືກລາງວັນ!</div>';
+  var html='<div class="result-card"><div class="result-title">🎉 ถูกรางวัล!</div>';
   // จัดกลุ่มตามชุด
   var bySet={},setOrder=[];
   results.forEach(function(r){var k=r._setName||'';if(!bySet[k]){bySet[k]=[];setOrder.push(k);}r.hits.forEach(function(h){bySet[k].push({lek:r.lek,type:h.type,bet:h.bet});});});
@@ -1108,8 +1180,8 @@ function doCheckLao(){
     });
   });
   html+='</div>';
-  html+='<div class="congrats-bar"><div style="font-size:32px;">🎉🇱🇦🎊</div><div style="font-size:18px;font-weight:900;color:#fff;margin-top:6px;">ຍິນດີດ້ວຍ!</div></div>';
-  html+=(_checkHistIdx>=0?'<button class="close-ngod-btn" onclick="APP.saveCheckToHist()">✅ ບັນທຶກຜົນ</button>':'');
+  html+='<div class="congrats-bar"><div style="font-size:32px;">🎉🇱🇦🎊</div><div style="font-size:18px;font-weight:900;color:#fff;margin-top:6px;">ยินดีด้วย!</div></div>';
+  html+=(_checkHistIdx>=0?'<button class="close-ngod-btn" onclick="APP.saveCheckToHist()">✅ บันทึกผล</button>':'');
   resEl.innerHTML=html;
 }
 
@@ -1119,7 +1191,7 @@ function doCheckLao(){
 function renderLaoHistory(){
   var el=document.getElementById('lao-result-hist');if(!el)return;
   var arr=getLaoResults();
-  if(!arr.length){el.innerHTML='<div style="text-align:center;color:var(--gray);font-size:13px;padding:10px;">ຍັງບໍ່ມີປະຫວັດ</div>';return;}
+  if(!arr.length){el.innerHTML='<div style="text-align:center;color:var(--gray);font-size:13px;padding:10px;">ยังไม่มีประวัติ</div>';return;}
   var h='';
   arr.slice(0,5).forEach(function(r){
     var v=r.result;
@@ -1131,7 +1203,7 @@ function renderLaoHistory(){
   });
   el.innerHTML=h;
 }
-function loadLaoResult(v){var el=document.getElementById('res-6');if(el){el.value=v;autoFillLao();}toast('ໂຫລດຜົນ '+v);}
+function loadLaoResult(v){var el=document.getElementById('res-6');if(el){el.value=v;autoFillLao();}toast('โหลดผล '+v);}
 
 // ══════════════════════════════════════════
 // CELEBRATE
@@ -1206,7 +1278,7 @@ var APP={
     document.getElementById('hist-ov').classList.remove('show');
   },
   delHistSet:function(idx){
-    showConfirm('ລຶບຊຸດນີ້?',function(){
+    showConfirm('ລຶບชุดນີ້?',function(){
       var hist=getHistory();hist.splice(idx,1);saveHistory(hist);renderHist();toast('ລຶບແລ້ວ');
     });
   },
@@ -1214,7 +1286,7 @@ var APP={
     if(_checkHistIdx<0)return;
     var hist=getHistory();if(hist[_checkHistIdx]){hist[_checkHistIdx].checkResult=true;saveHistory(hist);}
     document.getElementById('check-ov').classList.remove('show');
-    toast('ບັນທຶກຜົນແລ້ວ ✅');
+    toast('บันทึกผลແລ້ວ ✅');
   }
 };
 window.APP=APP;
