@@ -315,7 +315,7 @@ function normalizeQRData(data){
           paks:(e.pk||[]).map(function(p){
             return{type:p.tp,pos:p.ps,price:p.pr,
               typeLabel:({'3bon':'บน','2lang':'ล่าง'}[p.tp]||p.tp),
-              posLabel:({na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.ps]||p.ps)};
+              posLabel:({na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.ps]||p.ps)};
           })
         };
       })
@@ -1191,7 +1191,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 <script>
 (function(){
   var RULES={1:['bon','lang','pak'],2:['bon','tod','lang'],3:['bon','tod'],4:['bon','tod'],5:['tod']};
-  var KLB={bon:[2,3],lang:[2,3],na:[2,3]};
+  var KLB={bon:[2,3,4],lang:[2]};
   var FM={bon:{l:'บน',c:'lbl-bon'},tod:{l:'โต๊ด',c:'lbl-tod'},lang:{l:'ล่าง',c:'lbl-lang'}};
   var MAX_ROWS=20;
   var STORE_KEY='lotto_v2_current';
@@ -1625,7 +1625,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       pl.forEach(function(p){
         var pv=fs.pp[p]||'';
         prHTML+='<div class="perm-row"><div class="perm-num">'+p+'</div>'
-          +'<input type="tel" class="perm-inp" inputmode="numeric" placeholder="฿" value="'+pv+'" enterkeyhint="next"'
+          +'<input type="tel" class="perm-inp" inputmode="numeric" placeholder="" value="'+pv+'" enterkeyhint="next"'
           +' data-k="'+k+'" data-p="'+p+'" pattern="[0-9]*" enterkeyhint="next" id="pp-'+k+'-'+p+'" oninput="APP.oppNav(this,\''+k+'\')" onkeypress="if(!/[0-9]/.test(event.key))event.preventDefault()" onkeydown="APP.oppNav(this,\''+k+'\',event)" onbeforeinput="APP.permBefore(event,\''+k+'\')" onfocus="this.select()">'
           +'<div class="pqbtns">'
           +'<button class="pqb" data-k="'+k+'" data-p="'+p+'" data-n="10" onclick="APP.spp(this)">10</button>'
@@ -1639,7 +1639,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var prPanel=canK?('<div class="perm-rows'+(fs.klbOpen?' show':'')+'" id="pr-'+k+'">'+prHTML+'</div>'):'';
     return '<div class="field-block'+(dis?' disabled':'')+(canK&&fs.klbOpen?' klb-active':'')+'" id="fb-'+k+'">'
       +'<div class="field-main"><div class="field-lbl '+m.c+'">'+m.l+'</div>'
-      +'<input type="tel" class="field-inp" id="fi-'+k+'" inputmode="numeric" placeholder="฿" value="'+fs.price+'"'+(dis?' disabled':'')
+      +'<input type="tel" class="field-inp" id="fi-'+k+'" inputmode="numeric" placeholder="" value="'+fs.price+'"'+(dis?' disabled':'')
       +' enterkeyhint="next" tabindex="-1" pattern="[0-9]*" data-k="'+k+'" oninput="APP.ofp(this)" onkeypress="APP.fldPress(event,this.dataset.k)" onfocus="clearAddBtnHl();this.select()" onbeforeinput="APP.fldBefore(event,\''+k+'\')" onkeydown="APP.fldKey(event,\''+k+'\')">'
       +'<div class="field-qbtns">'
       +'<button class="fqb" data-k="'+k+'" data-n="10" onclick="APP.sfp(this)">10</button>'
@@ -1820,7 +1820,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(!curLek){toast('กรอกเลขก่อนครับ');return;}
       if(!APP.pakPos.length){toast('เลือกตำแหน่งด้วยครับ');return;}
       var typeLabels={'3bon':'บน','2lang':'ล่าง'};
-      var posLabels={'na':'หน้า 📍__','mid':'กลาง _📍_','lang':'หลัง __📍'};
+      var posLabels={'na':'ร้อย 📍__','mid':'สิบ _📍_','lang':'หน่วย __📍'};
       var paks=APP.pakPos.map(function(pos){
         return {type:APP.pakType,pos:pos,price:price,
                 typeLabel:typeLabels[APP.pakType],posLabel:posLabels[pos]};
@@ -2645,6 +2645,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var LEGEND='<div class="slip-legend">บ=บน  ล=ล่าง  ต=โต๊ด  หน้า=หน้า  ช=ชุด  ก=กลับ</div>';
 
   function fmt(n){return parseInt(n).toLocaleString();}
+  function fmtNum(n){return parseInt(n||0).toLocaleString();} // alias for Lao functions
 
   function toLines(e){
     var d=e.d,b=e.bon||0,t=e.tod||0,l=e.lang||0,lines=[],lek=e.lek,kd=e.kd||{};
@@ -3819,6 +3820,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById("list-scroll").scrollTop=0;
   }
 
+  window.toast=toast;
   window.fkNum=fkNum;
   window.fkSep=fkSep;
   window.fkMul=fkMul;
@@ -3829,6 +3831,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   window.openQA=openQA;
   window.closeQA=closeQA;
   window.doBasket=doBasket;
+  window.toast=toast;
   window.fkNum=fkNum;
   window.fkDel=fkDel;
   window.fkSep=fkSep;
@@ -4259,15 +4262,15 @@ fkAutoSel(2); fkRender();
     <div class="pak-sec">ตำแหน่ง</div>
     <div class="pak-pos-row" id="pak-pos-grid">
       <div class="pak-pbtn" data-pos="na" onclick="APP.selPakPos(this)">
-        <div class="pak-pbtn-lbl">หน้า</div>
+        <div class="pak-pbtn-lbl">ร้อย</div>
         <div class="pak-pbtn-ex" id="pak-ex-na">?_ _</div>
       </div>
       <div class="pak-pbtn" data-pos="mid" onclick="APP.selPakPos(this)" id="pak-mid-btn">
-        <div class="pak-pbtn-lbl">กลาง</div>
+        <div class="pak-pbtn-lbl">สิบ</div>
         <div class="pak-pbtn-ex" id="pak-ex-mid">_ ? _</div>
       </div>
       <div class="pak-pbtn" data-pos="lang" onclick="APP.selPakPos(this)">
-        <div class="pak-pbtn-lbl">หลัง</div>
+        <div class="pak-pbtn-lbl">หน่วย</div>
         <div class="pak-pbtn-ex" id="pak-ex-lang">_ _?</div>
       </div>
     </div>
