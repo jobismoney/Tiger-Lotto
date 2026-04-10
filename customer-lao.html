@@ -558,7 +558,7 @@ function renderList(){
     var paks=e.paks||[];
     if(paks.length){
       var pakDesc=paks.map(function(p){
-        var posLbl=p.type==='bon'?{na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]:{na:'สิบ',lang:'หน่วย'}[p.pos];
+        var posLbl=p.type==='bon'?{na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]:{na:'สิบ',mid:'สิบ',lang:'หน่วย'}[p.pos];
         var typLbl=p.type==='bon'?'บน':'ล่าง';
         return 'ปัก'+(posLbl||p.pos)+typLbl;
       }).join(', ');
@@ -791,7 +791,7 @@ function toLines(e){
     if(l>0)ps.push('ล'+fmtNum(l));
     if(ps.length)push(lek,pstr(ps),b+l);
     (e.paks||[]).forEach(function(p){
-      var posLbl={na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]||p.pos;
+      var posLbl=p.type==='bon'?({na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]||p.pos):({na:'สิบ',mid:'สิบ',lang:'หน่วย'}[p.pos]||p.pos);
       var typLbl=p.type==='bon'?'ปักบน':'ปักล่าง';
       lines.push({lek:lek,price:typLbl+'('+posLbl+') '+fmtNum(p.price),total:p.price});
     });
@@ -1221,7 +1221,7 @@ function selPakType(el){
   pakType=el.dataset.type;
   // ล่าง: ไม่มีร้อย ไม่มีสิบ(mid) — เหลือแค่ สิบ(na→สิบ) หน่วย(lang)
   if(pakType!=='3bon'){
-    pakPos=pakPos.filter(function(p){return p!=='mid'&&p!=='na';});
+    pakPos=pakPos.filter(function(p){return p!=='mid';});
     document.getElementById('pak-mid-btn').classList.remove('on');
   }
   updatePakUI();
@@ -1247,11 +1247,10 @@ function updatePakUI(){
     document.getElementById('pak-ex-mid').textContent='_ '+lek+' _';
     document.getElementById('pak-ex-lang').textContent='_ _'+lek;
   } else {
-    // ล่าง: สิบ(mid) หน่วย(lang) — ซ่อนแค่ ร้อย(na)
-    if(naBtn)naBtn.style.display='none';
-    midBtn.style.display='';
-    document.querySelector('#pak-mid-btn .pak-pbtn-lbl').textContent='สิบ';
-    document.getElementById('pak-ex-mid').textContent=lek+'_';
+    // ล่าง: na=สิบ, lang=หน่วย, ซ่อน mid(ร้อย)
+    if(naBtn){naBtn.style.display='';document.querySelector('.pak-pbtn[data-pos="na"] .pak-pbtn-lbl').textContent='สิบ';}
+    midBtn.style.display='none';
+    document.getElementById('pak-ex-na').textContent=lek+'_';
     document.getElementById('pak-ex-lang').textContent='_'+lek;
   }
 }
