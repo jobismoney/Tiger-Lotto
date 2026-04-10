@@ -881,18 +881,31 @@ function calcTotal(){return entries.reduce(function(s,e){return s+calcEntryTotal
 function renderList(){
   var sc=document.getElementById('list-scroll');if(!sc)return;
   if(!entries.length){sc.innerHTML='<div class="empty-row">ยังไม่มีรายการ</div>';return;}
-  var h='';
+  var h='',grand=0;
   entries.forEach(function(e){
+    var kd=e.kd||{};
+    var b=e.bon||0,t=e.tod||0,l=e.lang||0,n=e.na||0;
+    var kb=(kd.bon||[]).reduce(function(s,x){return s+x.price;},0);
+    var kl=(kd.lang||[]).reduce(function(s,x){return s+x.price;},0);
+    var kn=(kd.na||[]).reduce(function(s,x){return s+x.price;},0);
+    var etot=b+t+l+n+kb+kl+kn+(e.paks||[]).reduce(function(s,p){return s+p.price;},0);
+    grand+=etot;
+    function fod(v,kv){
+      var txt=v>0?String(v):'';
+      if(kv>0)txt+=(txt?'+':'')+'กลับ';
+      return txt||'<span style="color:#444">—</span>';
+    }
     h+='<div class="entry-row">'
       +'<span class="e-lek">'+e.lek+'</span>'
-      +'<span class="e-price e-bon">'+(e.bon>0?e.bon:'')+(e.kd&&e.kd.bon&&e.kd.bon.length?'<small>+ກລ</small>':'')+'</span>'
-      +'<span class="e-price e-tod">'+(e.tod>0?e.tod:'')+'</span>'
-      +'<span class="e-price e-lang">'+(e.lang>0?e.lang:'')+(e.kd&&e.kd.lang&&e.kd.lang.length?'<small>+ກລ</small>':'')+'</span>'
-      +'<span class="e-price e-na">'+(e.na>0?e.na:'')+(e.paks&&e.paks.length?'<small>📌</small>':'')+'</span>'
+      +'<span class="e-price e-bon">'+fod(b,kb)+'</span>'
+      +'<span class="e-price e-tod">'+(t>0?t:'<span style="color:#444">—</span>')+'</span>'
+      +'<span class="e-price e-lang">'+fod(l,kl)+'</span>'
+      +'<span class="e-price e-na">'+(n>0?n:e.paks&&e.paks.length?'📌':'<span style="color:#444">—</span>')+'</span>'
       +(isLocked?'<span></span>':'<button class="e-rm" onclick="APP.rmEntry('+e.id+')">✕</button>')
       +'</div>';
   });
   sc.innerHTML=h;
+  var tv=document.getElementById('total-val');if(tv)tv.textContent='฿'+fmt(grand);
 }
 
 function updateTotal(){var el=document.getElementById('total-val');if(el)el.textContent='฿'+fmt(calcTotal());}
