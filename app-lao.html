@@ -888,19 +888,19 @@ function renderList(){
     var kb=(kd.bon||[]).reduce(function(s,x){return s+x.price;},0);
     var kl=(kd.lang||[]).reduce(function(s,x){return s+x.price;},0);
     var kn=(kd.na||[]).reduce(function(s,x){return s+x.price;},0);
-    var etot=b+t+l+n+kb+kl+kn+(e.paks||[]).reduce(function(s,p){return s+p.price;},0);
-    grand+=etot;
-    function fod(v,kv){
-      var txt=v>0?String(v):'';
-      if(kv>0)txt+=(txt?'+':'')+'กลับ';
-      return txt||'<span style="color:#444">—</span>';
+    grand+=(b+t+l+n+kb+kl+kn+(e.paks||[]).reduce(function(s,p){return s+p.price;},0));
+    function cell(v,kv){
+      if(!v&&!kv)return '<span style="color:#444">-</span>';
+      var txt='฿'+fmt(v);
+      if(kv)txt+='<span style="font-size:10px;color:#a78bfa">+กลับ</span>';
+      return txt;
     }
     h+='<div class="entry-row">'
       +'<span class="e-lek">'+e.lek+'</span>'
-      +'<span class="e-price e-bon">'+fod(b,kb)+'</span>'
-      +'<span class="e-price e-tod">'+(t>0?t:'<span style="color:#444">—</span>')+'</span>'
-      +'<span class="e-price e-lang">'+fod(l,kl)+'</span>'
-      +'<span class="e-price e-na">'+(n>0?n:e.paks&&e.paks.length?'📌':'<span style="color:#444">—</span>')+'</span>'
+      +'<span class="e-price e-bon">'+cell(b,kb)+'</span>'
+      +'<span class="e-price e-tod">'+(t?'฿'+fmt(t):'<span style="color:#444">-</span>')+'</span>'
+      +'<span class="e-price e-lang">'+cell(l,kl)+'</span>'
+      +'<span class="e-price e-na">'+(n?'฿'+fmt(n):e.paks&&e.paks.length?'📌':'<span style="color:#444">-</span>')+'</span>'
       +(isLocked?'<span></span>':'<button class="e-rm" onclick="APP.rmEntry('+e.id+')">✕</button>')
       +'</div>';
   });
