@@ -1693,7 +1693,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       entries.unshift({id:eid,lek:l,d:l.length,bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,kd:kd,paks:[]});
       added++;
     });
-    if(added>0){save();renderList();var ls=document.getElementById('list-scroll');if(ls)ls.scrollTop=0;toast('✅ เพิ่ม '+added+' รายการ');}
+    if(added>0){save();renderList();updateTotal();var ls=document.getElementById('list-scroll');if(ls)ls.scrollTop=0;toast('✅ เพิ่ม '+added+' รายการ');}
     if(window._fkReset) window._fkReset(d);
   }
   window.fkCommit=fkCommit;
