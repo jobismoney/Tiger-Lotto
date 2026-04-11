@@ -3453,17 +3453,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   // ══════════════════════════════════════
   // CONFIRM / TOAST
   // ══════════════════════════════════════
-  var _cfOk=null;
-  function showConfirm(msg,cancelLabel,okOnly){
-    document.getElementById('cf-msg').innerHTML=msg;
-    var cancel=document.getElementById('cf-no');
-    var ok=document.getElementById('cf-yes');
-    if(okOnly){cancel.style.display='none';ok.style.flex='unset';ok.style.width='100%';}
-    else{cancel.style.display='';ok.style.flex='';ok.style.width='';}
-    document.getElementById('cf-ov').classList.add('show');
-    ok.onclick=function(){document.getElementById('cf-ov').classList.remove('show');if(_cfOk)_cfOk();};
-    cancel.onclick=function(){document.getElementById('cf-ov').classList.remove('show');};
-  }
   var _toastT;
   function toast(msg){
     var el=document.getElementById('_toast');el.textContent=msg;el.style.display='block';
