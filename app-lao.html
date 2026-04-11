@@ -124,7 +124,7 @@ function gkCopy(){
 // ══════════════════════════════════════
 // FK KEYBOARD (ไทย)
 // ══════════════════════════════════════
-var FK_DEFAULT_THAI = {1:['bon','lang'],2:['bon','lang'],3:['bon','tod'],4:['tod'],5:['tod']};
+var FK_DEFAULT_THAI = {1:['bon','lang'],2:['bon','lang'],3:['bon','tod'],4:['bon','tod'],5:['tod']}; // LAO
 var FK_KLB_TYPES    = ['bon','lang'];
 var FK_COLOR        = {bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
 var FK_LABEL        = {bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'}; // na ซ่อนใน LAO
@@ -135,20 +135,14 @@ var fkUserOverride = false;
 
 function fkAutoSel(d){
   d=d||2;
-  if(d>=4){
-    ['bon','tod','lang'].forEach(function(t){
-      fkSel[t]=(t==='tod');
-      var btn=document.getElementById('fkt-'+t);
-      if(btn)btn.className='fk-tbtn'+(fkSel[t]?' on-'+t:'');
-    });
-    fkKlb={bon:false,lang:false,na:false};
-  } else if(!fkUserOverride){
+  if(!fkUserOverride){
     var def=FK_DEFAULT_THAI[d]||['bon','lang'];
     ['bon','tod','lang'].forEach(function(t){
       fkSel[t]=def.indexOf(t)>=0;
       var btn=document.getElementById('fkt-'+t);
       if(btn)btn.className='fk-tbtn'+(fkSel[t]?' on-'+t:'');
     });
+    fkKlb={bon:false,lang:false};
   }
   fkUpdateKlbBtns(d);
   // pak button โชว์เฉพาะ d=1 และไม่มี /
@@ -159,10 +153,12 @@ function fkAutoSel(d){
 
 function fkUpdateKlbBtns(d){
   d=d||2;
+  if(d===1){FK_KLB_TYPES.forEach(function(t){var btn=document.getElementById('fkk-'+t);if(btn)btn.style.display='none';});return;}
   var lbl=d===2?'กลับ':'ชุด';
   FK_KLB_TYPES.forEach(function(t){
     var btn=document.getElementById('fkk-'+t);if(!btn)return;
-    var show=fkSel[t]&&(d>=2&&d<=3);
+    // ลาว: d=2→กลับ bon+lang, d=3,4→ชุดบนได้
+    var show=fkSel[t]&&(d===2||(d>=3&&t==='bon'));
     btn.style.display=show?'block':'none';
     if(show){btn.textContent=lbl;btn.className='fk-klb'+(fkKlb[t]?' on':'');}
   });
@@ -170,7 +166,10 @@ function fkUpdateKlbBtns(d){
 
 function fkToggle(t){
   var d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
-  if(d>=4)return;
+  if(d===1&&t==='tod')return;
+  if(d===1&&t==='bon'&&fkSel['bon']&&!fkSel['lang'])return; // ต้องมีอย่างน้อย 1
+  if(d>=3&&t==='lang')return; // ลาว d>=3 ไม่มีล่าง
+  if(d>=5)return;
   fkUserOverride=true;
   fkSel[t]=!fkSel[t];
   if(!fkSel[t])fkKlb[t]=false;
