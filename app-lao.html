@@ -2732,6 +2732,25 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(d===1)return{c4:0,c3:0,c2:0,c1:b+l+pk,ct:0,cna:0};
     return{c4:0,c3:0,c2:0,c1:pk,ct:t,cna:0};
   }
+  function calcDiscountBreakdown(ents, rates){
+    var r=rates||DEFAULT_DISC;
+    var s={c4:0,c3:0,c2:0,c1:0,ct:0};
+    ents.forEach(function(e){
+      var es=entrySummary(e);
+      s.c4+=es.c4; s.c3+=es.c3; s.c2+=es.c2; s.c1+=es.c1; s.ct+=es.ct;
+    });
+    var disc={
+      c4:Math.round(s.c4*(r.c4||0)/100),
+      c3:Math.round(s.c3*(r.c3||0)/100),
+      c2:Math.round(s.c2*(r.c2||0)/100),
+      c1:Math.round(s.c1*(r.c1||0)/100),
+      ct:Math.round(s.ct*(r.ct||0)/100)
+    };
+    var totalDisc=disc.c4+disc.c3+disc.c2+disc.c1+disc.ct;
+    var gross=s.c4+s.c3+s.c2+s.c1+s.ct;
+    return{gross:gross,sums:s,disc:disc,totalDisc:totalDisc,net:gross-totalDisc,rates:r};
+  }
+
   function pageSumTotals(pEntries){
     var s={c4:0,c3:0,c2:0,c1:0,ct:0,cna:0};
     pEntries.forEach(function(e){var es=entrySummary(e);s.c4+=es.c4;s.c3+=es.c3;s.c2+=es.c2;s.c1+=es.c1;s.ct+=es.ct;s.cna+=es.cna;});
