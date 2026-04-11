@@ -1743,6 +1743,46 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     saveHistory(hist);
     toast('📂 บันทึก '+sender+' เรียบร้อย');
   };
+  window.addScanBasket=function(data, ents){
+    var sender=data.sender||'scan';
+    var now=getNowTime();
+    var scanEid=0;
+    var scanEntries=ents.map(function(e){
+      scanEid++;
+      return {id:scanEid,lek:e.lek,d:e.d||e.lek.length,
+        bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
+        kd:e.kd||{},paks:e.paks||[]};
+    });
+    var total=scanEntries.reduce(function(s,e){
+      var kd=e.kd||{};
+      var kb=(kd.bon||[]).reduce(function(a,x){return a+x.price;},0);
+      var kl=(kd.lang||[]).reduce(function(a,x){return a+x.price;},0);
+      var pk=(e.paks||[]).reduce(function(a,x){return a+x.price;},0);
+      return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+kb+kl+pk;
+    },0);
+    // popup ยืนยันก่อนบันทึก
+    var msg='📥 <b>รับโพยจาก: '+sender+'</b><br>'
+      +scanEntries.length+' รายการ · ยอด <b>฿'+fmt(total)+'</b><br><br>'
+      +'บันทึกเข้าแฟ้มเลยมั้ยครับ?';
+    showConfirm(msg, function(){
+      var hist=getHistory();
+      hist.unshift({
+        id:Date.now()+Math.random(),
+        ngodId:ngodInfo.ngodId||0,
+        ngod:ngodInfo.ngod||data.ngod||'—',
+        date:ngodInfo.date||'',
+        sender:sender, receiver:ngodInfo.sender||'',
+        entries:scanEntries, eid:scanEid,
+        pageBreakIds:[], total:total,
+        savedAt:now, isBasket:true,
+        basketName:sender,
+        setNum:hist.filter(function(x){return x.isBasket&&x.ngodId===(ngodInfo.ngodId||0);}).length+1,
+        discRates:DEFAULT_DISC, checkResult:null, checkNumbers:null
+      });
+      saveHistory(hist);
+      toast('📂 บันทึก '+sender+' · '+scanEntries.length+' รายการ · ฿'+fmt(total)+' ✅', 4000);
+    }, false, null, null, 'บันทึก', 'ยกเลิก');
+  };
   window.addScanEntries=function(ents){
     ents.forEach(function(e){
       eid++;
@@ -1750,7 +1790,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
         kd:e.kd||{},paks:e.paks||[]});
     });
-    save(); renderList();
+    save(); renderList(); updateTotal();
     var ls=document.getElementById('list-scroll');
     if(ls)ls.scrollTop=0;
   };
