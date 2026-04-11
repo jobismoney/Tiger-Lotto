@@ -3456,8 +3456,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var _cfOk=null;
   function showConfirm(msg,cancelLabel,okOnly){
     document.getElementById('cf-msg').innerHTML=msg;
-    var cancel=document.getElementById('cf-cancel');
-    var ok=document.getElementById('cf-ok');
+    var cancel=document.getElementById('cf-no');
+    var ok=document.getElementById('cf-yes');
     if(okOnly){cancel.style.display='none';ok.style.flex='unset';ok.style.width='100%';}
     else{cancel.style.display='';ok.style.flex='';ok.style.width='';}
     document.getElementById('cf-ov').classList.add('show');
