@@ -241,10 +241,9 @@ function fkMul(){
     var types=['bon','tod','lang'].filter(function(t){return fkSel[t];});
     var d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
     if(ps.length>=types.length){
-      if(d>=4)return;
-      var allOrder=['bon','tod','lang'];
+      var allowed=window.RULES_LAO?window.RULES_LAO[d]||[]:['bon','tod','lang'];
       var next=null;
-      for(var i=0;i<allOrder.length;i++){if(!fkSel[allOrder[i]]){next=allOrder[i];break;}}
+      for(var i=0;i<allowed.length;i++){if(!fkSel[allowed[i]]){next=allowed[i];break;}}
       if(!next)return;
       fkSel[next]=true;fkUserOverride=true;
       var btn=document.getElementById('fkt-'+next);
@@ -974,7 +973,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
 <!-- WELCOME SCREEN -->
 <div class="welcome-screen" id="welcome-screen">
-  <div class="welcome-icon">🐯 🇹🇭</div>
+  <div class="welcome-icon">🐯 🇱🇦</div>
   <div class="welcome-title">TIGER 999</div>
   <div class="welcome-sub">ระบบบันทึกและคำนวณเลขหวย<br>กรุณาเปิดงวดก่อนเข้าใช้งานครับ</div>
   <button class="welcome-btn" id="open-ngod-btn">🎯 เปิดงวดใหม่</button>
@@ -987,7 +986,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 <div class="main-wrap" id="main-wrap">
   <div class="hdr">
     <div class="hdr-left">
-      <h1>🐯 TIGER 999 🇹🇭</h1>
+      <h1>🐯 T999 ลาว 🇱🇦</h1>
       <span id="hd-ngod" style="font-size:13px;font-weight:700;color:var(--lg);display:block;margin-top:-2px;"></span>
       <p id="hd-info">กรอกชื่อและงวด</p>
     </div>
@@ -1190,6 +1189,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 <script>
 (function(){
   var RULES={1:['bon','lang','pak'],2:['bon','tod','lang'],3:['bon','tod'],4:['bon','tod'],5:['tod']};
+  window.RULES_LAO=RULES;
   var KLB={bon:[2,3,4],lang:[2]};
   var FM={bon:{l:'บน',c:'lbl-bon'},tod:{l:'โต๊ด',c:'lbl-tod'},lang:{l:'ล่าง',c:'lbl-lang'}};
   var MAX_ROWS=20;
@@ -2920,7 +2920,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
       });
       return '<div class="slip-hd">'
-        +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇹🇭 THAI</h2><span class="pg">แผ่นที่ '+(i+1)+'/'+totalPages+'</span></div>'
+        +'<div class="slip-hd-row1"><h2>🐯 T999 · '+inf.ngod+' 🇱🇦 LAO</h2><span class="pg">แผ่นที่ '+(i+1)+'/'+totalPages+'</span></div>'
         
         +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||inf.label||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
         +'</div>'
@@ -3248,7 +3248,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var ps=pageSumTotals(pgEntries);
     var pt=pgEntries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
     return '<div class="slip-hd">'
-      +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇹🇭 THAI</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
+      +'<div class="slip-hd-row1"><h2>🐯 T999 · '+inf.ngod+' 🇱🇦 LAO</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
       +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
       +'</div>'
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
@@ -4305,7 +4305,7 @@ fkAutoSel(2); fkRender();
 <!-- LICENSE KEY SCREEN -->
 <div id="lk-screen">
   <div class="lk-logo">🐯</div>
-  <div class="lk-title">T999 Agent 🇹🇭</div>
+  <div class="lk-title">T999 Agent 🇱🇦</div>
   <div class="lk-sub">ใส่ License Key (L2)<br>จากเจ้ามือของคุณครับ</div>
   <input class="lk-inp" id="lk-inp" type="text" placeholder="T999-XXXX-XXXX-XXXX" maxlength="19"
     oninput="this.value=this.value.toUpperCase()">
