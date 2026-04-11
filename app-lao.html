@@ -1131,7 +1131,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           <input type="tel" inputmode="numeric" maxlength="3" id="r3b2" placeholder="xxx" class="check-inp-med" style="margin-top:6px" oninput="if(this.value.length===3)document.getElementById('r2').focus()">
         </div>
         <div class="check-col">
-          <div class="check-col-title">2ตัวล่าง</div>
+          <div class="check-col-title">ล่าง</div>
           <input type="tel" inputmode="numeric" maxlength="2" id="r2" placeholder="xx" class="check-inp-med" style="margin-top:4px;" oninput="if(this.value.length===2)APP.doCheck()">
         </div>
       </div>
@@ -1781,8 +1781,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       el.classList.add('on');
       APP.pakType=el.dataset.type;
       if(APP.pakType!=='3bon'){
-        APP.pakPos=APP.pakPos.filter(function(p){return p!=='mid';});
+        APP.pakPos=APP.pakPos.filter(function(p){return p!=='mid'&&p!=='na';});
         document.getElementById('pak-mid-btn').classList.remove('on');
+        var naBtn=document.querySelector('.pak-pbtn[data-pos="na"]');
+        if(naBtn)naBtn.classList.remove('on');
       }
       APP.updatePakUI();
     },
@@ -1799,14 +1801,22 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var lek=curLek;
       var midBtn=document.getElementById('pak-mid-btn');
       var d=lek||'?';
+      var naBtn2=document.querySelector('.pak-pbtn[data-pos="na"]');
       if(APP.pakType==='3bon'){
+        // บน: ร้อย สิบ หน่วย
+        if(naBtn2)naBtn2.style.display='';
         midBtn.style.display='';
+        document.querySelector('.pak-pbtn[data-pos="na"] .pak-pbtn-lbl').textContent='ร้อย';
+        document.querySelector('#pak-mid-btn .pak-pbtn-lbl').textContent='สิบ';
         document.getElementById('pak-ex-na').textContent=d+'_ _';
         document.getElementById('pak-ex-mid').textContent='_ '+d+' _';
         document.getElementById('pak-ex-lang').textContent='_ _'+d;
       } else {
-        midBtn.style.display='none';
-        document.getElementById('pak-ex-na').textContent=d+'_';
+        // ล่าง: สิบ(mid) หน่วย(lang) ซ่อน ร้อย(na)
+        if(naBtn2)naBtn2.style.display='none';
+        midBtn.style.display='';
+        document.querySelector('#pak-mid-btn .pak-pbtn-lbl').textContent='สิบ';
+        document.getElementById('pak-ex-mid').textContent=d+'_';
         document.getElementById('pak-ex-lang').textContent='_'+d;
       }
     },
@@ -4230,8 +4240,8 @@ fkAutoSel(2); fkRender();
     </div>
     <div class="pak-sec">ประเภท</div>
     <div class="pak-type-row" id="pak-type-tabs">
-      <div class="pak-ttab on" data-type="3bon" onclick="APP.selPakType(this)">3ตัวบน</div>
-      <div class="pak-ttab" data-type="2lang" onclick="APP.selPakType(this)">2ตัวล่าง</div>
+      <div class="pak-ttab on" data-type="3bon" onclick="APP.selPakType(this)">บน</div>
+      <div class="pak-ttab" data-type="2lang" onclick="APP.selPakType(this)">ล่าง</div>
     </div>
     <div class="pak-sec">ตำแหน่ง</div>
     <div class="pak-pos-row" id="pak-pos-grid">
