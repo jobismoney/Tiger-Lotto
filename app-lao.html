@@ -1873,10 +1873,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(!curLek){toast('กรอกเลขก่อนครับ');return;}
       if(!APP.pakPos.length){toast('เลือกตำแหน่งด้วยครับ');return;}
       var typeLabels={'3bon':'บน','2lang':'ล่าง'};
-      var posLabels={'na':'ร้อย 📍__','mid':'สิบ _📍_','lang':'หน่วย __📍'};
       var paks=APP.pakPos.map(function(pos){
-        return {type:APP.pakType,pos:pos,price:price,
-                typeLabel:typeLabels[APP.pakType],posLabel:posLabels[pos]};
+        var isBon=APP.pakType==='3bon';
+        var posLblBon={na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[pos]||pos;
+        var posLblLang={na:'สิบ',mid:'สิบ',lang:'หน่วย'}[pos]||pos;
+        return {type:isBon?'bon':'lang',pos:pos,price:price,
+                typeLabel:typeLabels[APP.pakType],posLabel:isBon?posLblBon:posLblLang};
       });
       function getPakKeys(e){
         var keys=[];
@@ -2696,7 +2698,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     }
   }
 
-  var LEGEND='<div class="slip-legend">บ=บน  ล=ล่าง  ต=โต๊ด  หน้า=หน้า  ช=ชุด  ก=กลับ</div>';
+  var LEGEND='<div class="slip-legend">บ=บน  ล=ล่าง  ต=โต๊ด  ช=ชุด  ก=กลับ</div>';
 
   function fmt(n){return parseInt(n).toLocaleString();}
   function fmtNum(n){return parseInt(n||0).toLocaleString();} // alias for Lao functions
