@@ -311,9 +311,10 @@ function normalizeQRData(data){
             na:expandFlag(e.kn,e.n||e.na||0)
           },
           paks:(e.pk||[]).map(function(p){
-            return{type:p.tp,pos:p.ps,price:p.pr,
-              typeLabel:({'3bon':'บน','2lang':'ล่าง'}[p.tp]||p.tp),
-              posLabel:({na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.ps]||p.ps)};
+            var isBon=p.tp==='bon'||p.tp==='3bon';
+            var posLbl=isBon?({na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.ps]||p.ps):({na:'สิบ',mid:'สิบ',lang:'หน่วย'}[p.ps]||p.ps);
+            return{type:isBon?'bon':'lang',pos:p.ps,price:p.pr,
+              typeLabel:isBon?'บน':'ล่าง',posLabel:posLbl};
           })
         };
       })
