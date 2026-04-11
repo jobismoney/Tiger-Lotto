@@ -350,7 +350,8 @@ window.addEventListener('message',function(ev){
   closeScan();
   var imps=ev.data.imports||(ev.data.import?[ev.data.import]:[]);
   if(!imps.length)return;
-  var totalSlips=0, totalEnts=0;
+  var totalEnts=0;
+  var senderName='';
   imps.forEach(function(imp){
     try{
       var json=decodeURIComponent(escape(atob(imp)));
@@ -358,13 +359,15 @@ window.addEventListener('message',function(ev){
       var data=normalizeQRData(raw);
       var ents=data.entries||[];
       if(!ents.length)return;
-      // แต่ละ QR = 1 basket แยกกัน
-      if(window.addScanBasket) addScanBasket(data, ents);
-      else if(window.addScanEntries) addScanEntries(ents);
-      totalSlips++; totalEnts+=ents.length;
+      if(!senderName)senderName=data.sender||'';
+      addScanEntries(ents);
+      totalEnts+=ents.length;
     }catch(err){toast('อ่าน QR ไม่ได้: '+err.message);}
   });
-  if(totalEnts>0){toast('✅ นำเข้า '+totalSlips+' โพย · '+totalEnts+' รายการ');}
+  if(totalEnts>0){
+    var msg='📥 นำเข้า '+totalEnts+' รายการ'+(senderName?' จาก '+senderName:'');
+    toast(msg, 4000);
+  }
 });
 
 // init FK
