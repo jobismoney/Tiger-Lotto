@@ -554,18 +554,18 @@ function renderList(){
     var pakTot=(e.paks||[]).reduce(function(s,p){return s+p.price;},0);
     var etot=b+t+l+n+kb+kl+kn+pakTot; grand+=etot;
     function fod(v){return v>0?fmt(v):'<span class="cel e">—</span>';}
-    // paks row
+    // paks row — แยก row ตาม pos เหมือน app
     var paks=e.paks||[];
     if(paks.length){
-      var pakDesc=paks.map(function(p){
-        var posLbl=p.type==='bon'?{na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]:{na:'สิบ',mid:'สิบ',lang:'หน่วย'}[p.pos];
-        var typLbl=p.type==='bon'?'บน':'ล่าง';
-        return 'ปัก'+(posLbl||p.pos)+typLbl;
-      }).join(', ');
-      var pakTotal=paks.reduce(function(s,p){return s+p.price;},0);
-      h+='<div class="bet-row"><span class="lek-cell">'+e.lek+'</span>'
-        +'<span class="cel" style="font-size:11px;color:#fb923c;text-align:left;grid-column:span 3;">📌 '+pakDesc+' ฿'+fmt(pakTotal)+'</span>'
-        +'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button></div>';
+      paks.forEach(function(p){
+        var isBon=p.type==='bon';
+        var posLbl=isBon?{na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]:{na:'สิบ',mid:'สิบ',lang:'หน่วย'}[p.pos];
+        var typLbl=isBon?'บน':'ล่าง';
+        h+='<div class="bet-row"><span class="lek-cell" style="color:#fb923c;">'+e.lek
+          +'<span style="font-size:11px;"> ปัก'+typLbl+'('+posLbl+')</span></span>'
+          +(isBon?'<span class="cel" style="color:#fb923c;">'+fmt(p.price)+'</span><span class="cel e">—</span><span class="cel e">—</span>':'<span class="cel e">—</span><span class="cel e">—</span><span class="cel" style="color:#fb923c;">'+fmt(p.price)+'</span>')
+          +'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button></div>';
+      });
     } else {
       // แสดงหลักรวม perm
       h+='<div class="bet-row"><span class="lek-cell">'+e.lek+'</span>'

@@ -2561,12 +2561,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       // pak entry — row เดียว ไม่แสดง row หลักที่ว่าง
       if(e.paks&&e.paks.length){
         (e.paks||[]).forEach(function(p){
-          var posLbl={na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]||p.pos;
-          var isBon=p.type==='3bon';
+          var isBon=p.type==='3bon'||p.type==='bon';
+          var posLbl=isBon?({na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]||p.pos):({na:'สิบ',mid:'สิบ',lang:'หน่วย'}[p.pos]||p.pos);
+          var typLbl=isBon?'ปักบน':'ปักล่าง';
           var priceVal='<div class="cel" style="color:#fb923c;font-weight:800;">฿'+p.price+'</div>';
           var dash='<div class="cel e">-</div>';
           h+='<div class="bet-row'+(isLocked?' locked':'')+'">'
-            +'<div class="lek-cell" style="color:#fb923c;font-size:15px;">'+e.lek+'<span style="font-size:11px;color:#fb923c;"> '+({na:'ร้อย 📍__',mid:'สิบ _📍_',lang:'หน่วย __📍'}[p.pos]||p.pos)+'</span></div>'
+            +'<div class="lek-cell" style="color:#fb923c;font-size:15px;">'+e.lek+'<span style="font-size:11px;color:#fb923c;"> '+typLbl+'('+posLbl+')</span></div>'
             +(isBon?priceVal:dash)
             +dash
             +(!isBon?priceVal:dash)
