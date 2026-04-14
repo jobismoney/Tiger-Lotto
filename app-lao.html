@@ -3898,7 +3898,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   window._handleScanResult=function(imps){
     var senderName='';
     var rejected=false;
-    var allEnts=[];
+    var baskets=[]; // แต่ละ QR = 1 basket แยก (เหมือน app Thai)
+
     imps.forEach(function(imp){
       if(rejected)return;
       try{
@@ -3914,46 +3915,51 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           toast('⚠️ สแกนได้เฉพาะชื่อเดียวกันเท่านั้น ('+senderName+' ≠ '+sender+')', 4000);
           return;
         }
-        allEnts=allEnts.concat(ents);
+        var scanEid=0;
+        var scanEntries=ents.map(function(e){
+          scanEid++;
+          return{id:scanEid,lek:e.lek,d:e.d||e.lek.length,
+            bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
+            kd:e.kd||{},paks:e.paks||[]};
+        });
+        baskets.push({scanEntries:scanEntries,scanEid:scanEid,ngod:data.ngod||''});
       }catch(err){toast('อ่าน QR ไม่ได้: '+err.message);}
     });
-    if(rejected||!allEnts.length)return;
-    // คำนวณ scanEntries และ total
-    var scanEid=0;
-    var scanEntries=allEnts.map(function(e){
-      scanEid++;
-      return{id:scanEid,lek:e.lek,d:e.d||e.lek.length,
-        bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
-        kd:e.kd||{},paks:e.paks||[]};
-    });
-    var gross=scanEntries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
-    // popup ถามส่วนลด — ชื่อ auto-fill
+
+    if(rejected||!baskets.length)return;
+
+    // popup ถามส่วนลด ครั้งเดียว ชื่อ auto-fill
     showInputConfirm(
       '📥 รับโพยจาก: '+senderName,
       '',
       function(basketName,discRates){
         var name=basketName||senderName;
         var dr=discRates||DEFAULT_DISC;
-        var db=calcDiscountBreakdown(scanEntries,dr);
         var now=getNowTime();
         var hist=getHistory();
-        hist.unshift({
-          id:Date.now()+Math.random(),
-          ngodId:ngodInfo.ngodId||0,
-          ngod:ngodInfo.ngod||'—',
-          date:ngodInfo.date||'',
-          sender:name, receiver:ngodInfo.sender||'',
-          entries:scanEntries, eid:scanEid,
-          pageBreakIds:[], total:db.net,
-          savedAt:now, isBasket:true,
-          basketName:name,
-          setNum:hist.filter(function(x){return x.isBasket&&x.ngodId===(ngodInfo.ngodId||0);}).length+1,
-          discRates:dr, checkResult:null, checkNumbers:null
+        // บันทึกแต่ละ QR เป็น basket แยก
+        baskets.forEach(function(b){
+          var total=b.scanEntries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
+          var net=total-Math.round(total*(dr.c3||0)/100); // approximate
+          hist.unshift({
+            id:Date.now()+Math.random(),
+            ngodId:ngodInfo.ngodId||0,
+            ngod:ngodInfo.ngod||b.ngod||'—',
+            date:ngodInfo.date||'',
+            sender:name, receiver:ngodInfo.sender||'',
+            entries:b.scanEntries, eid:b.scanEid,
+            pageBreakIds:[], total:total,
+            savedAt:now, isBasket:true,
+            basketName:name,
+            setNum:hist.filter(function(x){return x.isBasket&&x.ngodId===(ngodInfo.ngodId||0);}).length+1,
+            discRates:dr, checkResult:null, checkNumbers:null
+          });
         });
         saveHistory(hist);
         if(name)saveDiscForName(name,dr);
         renderHistory();
-        toast('📂 บันทึก '+name+' · '+scanEntries.length+' รายการ · ฿'+fmt(db.net)+' ✅', 4000);
+        var totalEnts=baskets.reduce(function(s,b){return s+b.scanEntries.length;},0);
+        toast('📂 '+name+' · '+baskets.length+' โพย · '+totalEnts+' รายการ ✅', 4000);
       },
       senderName
     );
