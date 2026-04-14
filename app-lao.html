@@ -1528,7 +1528,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   // ─── BASKET (เก็บเข้าโพย) ───
   function getNowTime(){
     var n=new Date();
-    return n.toLocaleDateString('th-TH');
+    var time=n.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    return time+' น.';
   }
 
   function doBasket(){
@@ -3148,6 +3149,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           var realIdx=hist.indexOf(h);
           innerRows+='<div class="hist-set" style="padding-left:20px;">'
             +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(custSets.length-ci)+'</div>'
+            +'<div style="font-size:11px;color:#60a5fa;font-weight:700;">'+(h.savedAt||'')+'</div>'
             +'</div>'
             +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
             +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
@@ -3224,6 +3226,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           var h=x.h,realIdx=x.i;
           innerRows+='<div class="hist-set" style="padding-left:20px;">'
             +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(cSets.length-ci)+'</div>'
+            +'<div style="font-size:10px;color:var(--lg);">'+(h.savedAt||'')+'</div>'
             +'</div>'
             +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
             +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
