@@ -1474,8 +1474,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   // ─── BASKET (เก็บเข้าโพย) ───
   function getNowTime(){
     var n=new Date();
+    var date=n.toLocaleDateString('th-TH',{day:'numeric',month:'numeric',year:'numeric'});
     var time=n.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    return time+' น.';
+    return date+' '+time+' น.';
   }
 
   function doBasket(){
