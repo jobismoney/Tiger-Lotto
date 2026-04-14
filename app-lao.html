@@ -371,8 +371,11 @@ window.addEventListener('message',function(ev){
   if(!senderOrder.length)return;
 
   // บันทึกแต่ละ sender เป็น basket แยก
-  var hist=getHistory();
-  var now=getNowTime();
+  var hist=window.getHistory();
+  var now=window.getNowTime();
+  var ngodInfo=window._ngodInfo();
+  var DEFAULT_DISC=window._DEFAULT_DISC();
+  var fmt=window._fmt;
   var summary=[];
   senderOrder.forEach(function(sender){
     var grp=senderMap[sender];
@@ -405,8 +408,8 @@ window.addEventListener('message',function(ev){
     });
     summary.push(sender+' '+scanEntries.length+' รายการ ฿'+fmt(total));
   });
-  saveHistory(hist);
-  toast('📂 บันทึก '+senderOrder.length+' คน: '+summary.join(' | '), 5000);
+  window.saveHistory(hist);
+  window.toast('📂 บันทึก '+senderOrder.length+' คน: '+summary.join(' | '), 5000);
 });
 
 // init FK
@@ -3893,6 +3896,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   window.toast=toast;
+  window.getHistory=getHistory;
+  window.saveHistory=saveHistory;
+  window.getNowTime=getNowTime;
+  window._ngodInfo=function(){return ngodInfo;};
+  window._DEFAULT_DISC=function(){return DEFAULT_DISC;};
+  window._fmt=fmt;
   window.fkNum=fkNum;
   window.fkSep=fkSep;
   window.fkMul=fkMul;
