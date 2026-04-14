@@ -345,71 +345,14 @@ function closeScan(){
   if(popup)popup.style.display='none';
   if(iframe)iframe.src='';
 }
-// รับผลจาก scan iframe
+// รับผลจาก scan iframe — handler ลงทะเบียนทันที แต่รอ IIFE init ก่อน
 window.addEventListener('message',function(ev){
   if(!ev.data||ev.data.type!=='scanResult')return;
   closeScan();
   var imps=ev.data.imports||(ev.data.import?[ev.data.import]:[]);
   if(!imps.length)return;
-
-  // group entries by sender
-  var senderMap={};
-  var senderOrder=[];
-  imps.forEach(function(imp){
-    try{
-      var json=decodeURIComponent(escape(atob(imp)));
-      var raw=JSON.parse(json);
-      var data=normalizeQRData(raw);
-      var ents=data.entries||[];
-      if(!ents.length)return;
-      var sender=data.sender||'ไม่ระบุ';
-      if(!senderMap[sender]){senderMap[sender]={sender:sender,entries:[],ngod:data.ngod||''};senderOrder.push(sender);}
-      senderMap[sender].entries=senderMap[sender].entries.concat(ents);
-    }catch(err){toast('อ่าน QR ไม่ได้: '+err.message);}
-  });
-
-  if(!senderOrder.length)return;
-
-  // บันทึกแต่ละ sender เป็น basket แยก
-  var hist=window.getHistory();
-  var now=window.getNowTime();
-  var ngodInfo=window._ngodInfo();
-  var DEFAULT_DISC=window._DEFAULT_DISC();
-  var fmt=window._fmt;
-  var summary=[];
-  senderOrder.forEach(function(sender){
-    var grp=senderMap[sender];
-    var scanEid=0;
-    var scanEntries=grp.entries.map(function(e){
-      scanEid++;
-      return{id:scanEid,lek:e.lek,d:e.d||e.lek.length,
-        bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
-        kd:e.kd||{},paks:e.paks||[]};
-    });
-    var total=scanEntries.reduce(function(s,e){
-      var kd=e.kd||{};
-      var kb=(kd.bon||[]).reduce(function(a,x){return a+x.price;},0);
-      var kl=(kd.lang||[]).reduce(function(a,x){return a+x.price;},0);
-      var pk=(e.paks||[]).reduce(function(a,x){return a+x.price;},0);
-      return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+kb+kl+pk;
-    },0);
-    hist.unshift({
-      id:Date.now()+Math.random(),
-      ngodId:ngodInfo.ngodId||0,
-      ngod:ngodInfo.ngod||grp.ngod||'—',
-      date:ngodInfo.date||'',
-      sender:sender, receiver:ngodInfo.sender||'',
-      entries:scanEntries, eid:scanEid,
-      pageBreakIds:[], total:total,
-      savedAt:now, isBasket:true,
-      basketName:sender,
-      setNum:hist.filter(function(x){return x.isBasket&&x.ngodId===(ngodInfo.ngodId||0);}).length+1,
-      discRates:DEFAULT_DISC, checkResult:null, checkNumbers:null
-    });
-    summary.push(sender+' '+scanEntries.length+' รายการ ฿'+fmt(total));
-  });
-  window.saveHistory(hist);
-  window.toast('📂 บันทึก '+senderOrder.length+' คน: '+summary.join(' | '), 5000);
+  if(typeof window._handleScanResult==='function'){window._handleScanResult(imps);}
+  else{window.toast&&window.toast('⚠️ ยังไม่พร้อม กรุณาลองใหม่');}
 });
 
 // init FK
@@ -3921,6 +3864,62 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   window.fkToggle=fkToggle;
   window.fkToggleKlb=fkToggleKlb;
 
+
+  // scan result handler
+  window._handleScanResult=function(imps){
+    var senderMap={};
+    var senderOrder=[];
+    imps.forEach(function(imp){
+      try{
+        var json=decodeURIComponent(escape(atob(imp)));
+        var raw=JSON.parse(json);
+        var data=normalizeQRData(raw);
+        var ents=data.entries||[];
+        if(!ents.length)return;
+        var sender=data.sender||'ไม่ระบุ';
+        if(!senderMap[sender]){senderMap[sender]={sender:sender,entries:[],ngod:data.ngod||''};senderOrder.push(sender);}
+        senderMap[sender].entries=senderMap[sender].entries.concat(ents);
+      }catch(err){toast('อ่าน QR ไม่ได้: '+err.message);}
+    });
+    if(!senderOrder.length)return;
+    var hist=getHistory();
+    var now=getNowTime();
+    var summary=[];
+    senderOrder.forEach(function(sender){
+      var grp=senderMap[sender];
+      var scanEid=0;
+      var scanEntries=grp.entries.map(function(e){
+        scanEid++;
+        return{id:scanEid,lek:e.lek,d:e.d||e.lek.length,
+          bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
+          kd:e.kd||{},paks:e.paks||[]};
+      });
+      var total=scanEntries.reduce(function(s,e){
+        var kd=e.kd||{};
+        var kb=(kd.bon||[]).reduce(function(a,x){return a+x.price;},0);
+        var kl=(kd.lang||[]).reduce(function(a,x){return a+x.price;},0);
+        var pk=(e.paks||[]).reduce(function(a,x){return a+x.price;},0);
+        return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+kb+kl+pk;
+      },0);
+      hist.unshift({
+        id:Date.now()+Math.random(),
+        ngodId:ngodInfo.ngodId||0,
+        ngod:ngodInfo.ngod||grp.ngod||'—',
+        date:ngodInfo.date||'',
+        sender:sender, receiver:ngodInfo.sender||'',
+        entries:scanEntries, eid:scanEid,
+        pageBreakIds:[], total:total,
+        savedAt:now, isBasket:true,
+        basketName:sender,
+        setNum:hist.filter(function(x){return x.isBasket&&x.ngodId===(ngodInfo.ngodId||0);}).length+1,
+        discRates:DEFAULT_DISC, checkResult:null, checkNumbers:null
+      });
+      summary.push(sender+' '+scanEntries.length+' รายการ ฿'+fmt(total));
+    });
+    saveHistory(hist);
+    renderHistory();
+    toast('📂 บันทึก '+senderOrder.length+' คน: '+summary.join(' | '), 5000);
+  };
 
   document.addEventListener('DOMContentLoaded',init);
 })();
