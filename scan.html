@@ -335,7 +335,8 @@ function parseQRResult(url){
       var kb=(kd.bon||[]).reduce(function(s2,x){return s2+(x.price||0);},0);
       var kl=(kd.lang||[]).reduce(function(s2,x){return s2+(x.price||0);},0);
       var kn=(kd.na||[]).reduce(function(s2,x){return s2+(x.price||0);},0);
-      return s+b+t+l+n+kb+kl+kn;
+      var pk=(e.paks||e.pk||[]).reduce(function(s2,x){return s2+(x.price||x.pr||0);},0);
+      return s+b+t+l+n+kb+kl+kn+pk;
     },0);
     return {imp: imp, cnt: ents.length, total: total, ngod: norm.ngod||'', sender: norm.sender||'', pg: norm.pg||1};
   } catch(e){ return null; }
