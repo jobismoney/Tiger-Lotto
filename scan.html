@@ -400,7 +400,37 @@ function handleQRResult(url){
 }
 
 function normalizeData(data){
-  if(data.e) return {ngod:data.g||'',sender:data.s||'',receiver:data.r||'',date:data.dt||'',pg:data.p||1,entries:data.e||[]};
+  if(data.e){
+    var entries=data.e.map(function(e){
+      var lekVal=String(e.l||e.lek||'');
+      function genPerms(l){
+        if(l.length<=1)return[l];
+        var res={};
+        for(var i=0;i<l.length;i++){var r=l.slice(0,i)+l.slice(i+1);genPerms(r).forEach(function(p){res[l[i]+p]=1;});}
+        return Object.keys(res).sort();
+      }
+      function expandFlag(flag,mainPrice){
+        if(!flag)return[];
+        var perms=genPerms(lekVal).filter(function(p){return p!==lekVal;});
+        if(flag===1)return perms.map(function(p){return{perm:p,price:mainPrice};});
+        if(Array.isArray(flag))return perms.map(function(p,i){return{perm:p,price:flag[i]||mainPrice};});
+        return[];
+      }
+      var bon=e.b||e.bon||null, lang=e.la||e.lang||null;
+      return{
+        lek:lekVal, d:lekVal.length,
+        bon:bon, tod:e.t||e.tod||null,
+        lang:lang, na:e.n||e.na||null,
+        kd:{
+          bon:expandFlag(e.kb,bon||0),
+          lang:expandFlag(e.kl,lang||0),
+          na:expandFlag(e.kn,e.n||e.na||0)
+        },
+        paks:(e.pk||[]).map(function(p){return{price:p.pr||p.price||0};})
+      };
+    });
+    return{ngod:data.g||'',sender:data.s||'',receiver:data.r||'',date:data.dt||'',pg:data.p||1,entries:entries};
+  }
   return data;
 }
 
