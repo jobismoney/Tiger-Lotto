@@ -1368,14 +1368,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       ct:parseFloat(document.getElementById('disc-ct').value)||0
     };
   }
-  function showInputConfirm(title,placeholder,onOk){
+  function showInputConfirm(title,placeholder,onOk,prefill){
     var ov=document.getElementById('name-inp-ov');
     var field=document.getElementById('name-inp-field');
     var chipsBox=document.getElementById('name-inp-chips');
     document.getElementById('name-inp-title').textContent=title;
-    field.value='';
+    field.value=prefill||'';
     field.placeholder=placeholder;
-    fillDiscFields(DEFAULT_DISC);
+    var savedDisc=prefill?getDiscForName(prefill):null;
+    fillDiscFields(savedDisc||DEFAULT_DISC);
     // chips ชื่อเก่า
     var hist=getHistory();
     var seen={};var recentNames=[];
@@ -1479,6 +1480,23 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     return d+'/'+mo+' '+h+':'+mi+' น.';
   }
 
+  function doBasketWithName(prefillName){
+    if(!entries.length){toast('ยังไม่มีรายการครับ');return;}
+    var total=calcTotal();
+    var count=entries.filter(function(e){return e.lek!=='__div__';}).length;
+    var time=getNowTime();
+    var ngod=ngodInfo.ngod||'—';
+    showInputConfirm(
+      'เก็บเข้าชื่อใคร?',
+      'เช่น แมน, ป้าดา, ต้อม...',
+      function(basketName,discRates){
+        // ลบ dividers ออกจาก entries ก่อนบันทึก
+        entries=entries.filter(function(e){return e.lek!=='__div__';});
+        doBasket();
+      },
+      prefillName
+    );
+  }
   function doBasket(){
     if(!entries.length){toast('ยังไม่มีรายการครับ');return;}
     var total=calcTotal();
@@ -2530,6 +2548,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function calcTotal(){
     return entries.reduce(function(s,e){
+      if(e.lek==='__div__')return s;
       var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);
       ['bon','lang'].forEach(function(k){(e.kd[k]||[]).forEach(function(x){t+=x.price;});});
       (e.paks||[]).forEach(function(p){t+=p.price;});
@@ -2547,6 +2566,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var h='';
     sorted.forEach(function(e){
       var rmDisabled=isLocked?' disabled':'';
+      // divider row
+      if(e.lek==='__div__'){
+        h+='<div style="padding:6px 10px;font-size:11px;font-weight:800;color:#60a5fa;background:rgba(96,165,250,.1);border-left:3px solid #60a5fa;margin:4px 0;">📄 '+e._divLabel+'</div>';
+        return;
+      }
       // pak entry — row เดียว ไม่แสดง row หลักที่ว่าง
       if(e.paks&&e.paks.length){
         (e.paks||[]).forEach(function(p){
@@ -3868,9 +3892,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   // scan result handler
   window._handleScanResult=function(imps){
-    var allEnts=[];
     var senderName='';
     var rejected=false;
+    var slips=[]; // แต่ละ QR = 1 slip
     imps.forEach(function(imp){
       if(rejected)return;
       try{
@@ -3886,20 +3910,31 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           toast('⚠️ สแกนได้เฉพาะชื่อเดียวกันเท่านั้น ('+senderName+' ≠ '+sender+')', 4000);
           return;
         }
-        allEnts=allEnts.concat(ents);
+        slips.push({pg:data.pg||slips.length+1, ents:ents});
       }catch(err){toast('อ่าน QR ไม่ได้: '+err.message);}
     });
-    if(rejected||!allEnts.length)return;
-    allEnts.forEach(function(e){
+    if(rejected||!slips.length)return;
+    // เพิ่มแต่ละ slip แยกกัน คั่นด้วย divider
+    var totalEnts=0;
+    slips.forEach(function(slip,si){
+      // divider แสดงชื่อ+แผ่นที่
+      var label=senderName+' — แผ่น '+(si+1)+'/'+slips.length;
       eid++;
-      entries.unshift({id:eid,lek:e.lek,d:e.d||e.lek.length,
-        bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
-        kd:e.kd||{},paks:e.paks||[]});
+      entries.unshift({id:eid,lek:'__div__',d:0,bon:null,tod:null,lang:null,na:null,kd:{},paks:[],_divLabel:label});
+      // entry ของ slip นี้
+      slip.ents.forEach(function(e){
+        eid++;
+        entries.unshift({id:eid,lek:e.lek,d:e.d||e.lek.length,
+          bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
+          kd:e.kd||{},paks:e.paks||[]});
+        totalEnts++;
+      });
     });
     save(); renderList(); updateTotal();
     var ls=document.getElementById('list-scroll');
     if(ls)ls.scrollTop=0;
-    toast('📥 '+senderName+' · '+allEnts.length+' รายการ — ตรวจแล้วกด "เก็บเข้าแฟ้ม"', 4000);
+    // popup เก็บแฟ้ม พร้อม auto-fill ชื่อ
+    doBasketWithName(senderName);
   };
 
   document.addEventListener('DOMContentLoaded',init);
