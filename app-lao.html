@@ -2208,6 +2208,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(lbl)lbl.textContent=ngodInfo.ngod||'—';
     },
     doCheck:function(){doCheck();},
+    _pickNgodCheck:function(idx){
+      document.getElementById('cf-ov').classList.remove('show');
+      var order=window._ngodCheckOrder||[];
+      var map=window._ngodCheckMap||{};
+      var ngod=order[idx];
+      if(ngod&&map[ngod])_doCheckNgod(map[ngod].entries, ngod);
+    },
     showCollectSummary:function(ngod){
       var hist=getHistory();
       var sets=hist.filter(function(h){return h.ngod===ngod&&h.isBasket;});
@@ -3391,18 +3398,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     window._lastCheckResultHTML=null;window._lastCheckNumbers=null;
     var lbl=document.getElementById('check-ngod-lbl2');
     if(lbl) lbl.textContent=_checkNgod||'—';
-    document.getElementById('r1').value='';
-    document.getElementById('r2').value='';
-    if(document.getElementById('r2bon')) document.getElementById('r2bon').value='';
-    if(document.getElementById('r2na')) document.getElementById('r2na').value='';
-    document.getElementById('r3f1').value='';
-    document.getElementById('r3f2').value='';
-    document.getElementById('r3b1').value='';
-    document.getElementById('r3b2').value='';
+    var r6=document.getElementById('res-1st');
+    if(r6)r6.value='';
+    ['disp-4bon','disp-3bon','disp-2bon','disp-2lang'].forEach(function(id){
+      var el=document.getElementById(id);if(el)el.textContent='—';
+    });
     document.getElementById('check-results').innerHTML='';
     var formEl=document.getElementById('check-form');
     if(formEl)formEl.style.display='';
-    setTimeout(function(){document.getElementById('r1').focus();},100);
+    setTimeout(function(){if(r6)r6.focus();},100);
   }
   function openCheckOverlay(ents,ngod,histIdx){
     _checkEntries=ents;_checkNgod=ngod;_checkHistIdx=histIdx;
@@ -3432,9 +3436,37 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var _laoWin6='',_laoWin3='',_laoWin4='',_laoWin2b='',_laoWin2l='';
   
   function doCheck(){
+    // รวบรวม ngod ที่มีในระบบ
     var hist=getHistory();
-    var allEnts=entries.slice();hist.forEach(function(h){allEnts=allEnts.concat(h.entries||[]);});
-    if(!allEnts.length){toast('ไม่มีรายการตรวจ');return;}
+    var ngodMap={};var ngodOrder=[];
+    // งวดปัจจุบัน
+    if(ngodInfo&&ngodInfo.ngod&&entries.length){
+      ngodMap[ngodInfo.ngod]={ngod:ngodInfo.ngod,entries:entries.slice()};
+      ngodOrder.push(ngodInfo.ngod);
+    }
+    // งวดในประวัติ
+    hist.forEach(function(h){
+      if(!h.ngod||!h.entries||!h.entries.length)return;
+      if(!ngodMap[h.ngod]){ngodMap[h.ngod]={ngod:h.ngod,entries:[]};ngodOrder.push(h.ngod);}
+      ngodMap[h.ngod].entries=ngodMap[h.ngod].entries.concat(h.entries);
+    });
+    if(!ngodOrder.length){toast('ไม่มีรายการตรวจ');return;}
+    // ถ้ามีงวดเดียว ตรวจเลย
+    if(ngodOrder.length===1){
+      _doCheckNgod(ngodMap[ngodOrder[0]].entries, ngodOrder[0]);
+      return;
+    }
+    // ถ้ามีหลายงวด ให้เลือก
+    window._ngodCheckMap=ngodMap;
+    window._ngodCheckOrder=ngodOrder;
+    var btns=ngodOrder.map(function(ng,idx){
+      return '<button onclick="APP._pickNgodCheck('+idx+')" style="display:block;width:100%;margin-bottom:8px;padding:12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;font-size:16px;font-weight:800;cursor:pointer;">📅 งวด '+ng+'</button>';
+    }).join('');
+    showConfirm('<b>ตรวจงวดไหนครับ?</b><br><br>'+btns,null,false,null,null,null,null,true);
+    return;
+  }
+  function _doCheckNgod(allEnts, ngod){
+    if(!allEnts.length){toast('ไม่มีรายการตรวจงวด '+ngod);return;}
     var r6=document.getElementById('res-1st').value.trim();
     if(r6.length!==6){toast('ใส่เลข 6 หลักครับ');return;}
     // positions ลาว: 123456
