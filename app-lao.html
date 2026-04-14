@@ -1474,9 +1474,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   // ─── BASKET (เก็บเข้าโพย) ───
   function getNowTime(){
     var n=new Date();
-    var date=n.toLocaleDateString('th-TH',{day:'numeric',month:'numeric',year:'numeric'});
-    var time=n.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    return date+' '+time+' น.';
+    var d=n.getDate(),mo=n.getMonth()+1;
+    var h=n.getHours().toString().padStart(2,'0'),mi=n.getMinutes().toString().padStart(2,'0');
+    return d+'/'+mo+' '+h+':'+mi+' น.';
   }
 
   function doBasket(){
@@ -3895,13 +3895,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
           kd:e.kd||{},paks:e.paks||[]};
       });
-      var total=scanEntries.reduce(function(s,e){
-        var kd=e.kd||{};
-        var kb=(kd.bon||[]).reduce(function(a,x){return a+x.price;},0);
-        var kl=(kd.lang||[]).reduce(function(a,x){return a+x.price;},0);
-        var pk=(e.paks||[]).reduce(function(a,x){return a+x.price;},0);
-        return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+kb+kl+pk;
-      },0);
+      var total=scanEntries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
       hist.unshift({
         id:Date.now()+Math.random(),
         ngodId:ngodInfo.ngodId||0,
