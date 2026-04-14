@@ -3869,17 +3869,27 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   // scan result handler
   window._handleScanResult=function(imps){
     var allEnts=[];
+    var senderName='';
+    var rejected=false;
     imps.forEach(function(imp){
+      if(rejected)return;
       try{
         var json=decodeURIComponent(escape(atob(imp)));
         var raw=JSON.parse(json);
         var data=normalizeQRData(raw);
         var ents=data.entries||[];
+        if(!ents.length)return;
+        var sender=data.sender||'ไม่ระบุ';
+        if(!senderName){senderName=sender;}
+        else if(sender!==senderName){
+          rejected=true;
+          toast('⚠️ สแกนได้เฉพาะชื่อเดียวกันเท่านั้น ('+senderName+' ≠ '+sender+')', 4000);
+          return;
+        }
         allEnts=allEnts.concat(ents);
       }catch(err){toast('อ่าน QR ไม่ได้: '+err.message);}
     });
-    if(!allEnts.length)return;
-    // เลขเข้ารายการ (entries) ก่อน — เหมือนคีย์ปกติ
+    if(rejected||!allEnts.length)return;
     allEnts.forEach(function(e){
       eid++;
       entries.unshift({id:eid,lek:e.lek,d:e.d||e.lek.length,
@@ -3889,7 +3899,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     save(); renderList(); updateTotal();
     var ls=document.getElementById('list-scroll');
     if(ls)ls.scrollTop=0;
-    toast('📥 นำเข้า '+allEnts.length+' รายการ — ตรวจแล้วกด "เก็บเข้าแฟ้ม"', 4000);
+    toast('📥 '+senderName+' · '+allEnts.length+' รายการ — ตรวจแล้วกด "เก็บเข้าแฟ้ม"', 4000);
   };
 
   document.addEventListener('DOMContentLoaded',init);
