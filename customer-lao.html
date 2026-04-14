@@ -1127,7 +1127,42 @@ var _laoWin6='',_laoWin3='',_laoWin4='',_laoWin2b='',_laoWin2l='';
 
 function doCheck(){
   var hist=getHist();
-  var allEnts=entries.slice();hist.forEach(function(h){allEnts=allEnts.concat(h.entries||[]);});
+  // รวบรวม ngod ที่มีในระบบ
+  var ngodMap={};var ngodOrder=[];
+  // งวดปัจจุบัน
+  if(profile.ngod&&entries.length){
+    ngodMap[profile.ngod]={entries:entries.slice()};
+    ngodOrder.push(profile.ngod);
+  }
+  // งวดในประวัติ
+  hist.forEach(function(h){
+    var ng=h.ngod||profile.ngod||'—';
+    if(!ngodMap[ng]){ngodMap[ng]={entries:[]};ngodOrder.push(ng);}
+    ngodMap[ng].entries=ngodMap[ng].entries.concat(h.entries||[]);
+  });
+  if(!ngodOrder.length){toast('ไม่มีรายการตรวจ');return;}
+  // งวดเดียว → ตรวจเลย
+  if(ngodOrder.length===1){_doCheckNgod(ngodMap[ngodOrder[0]].entries);return;}
+  // หลายงวด → ถาม
+  _pendingNgodMap=ngodMap;_pendingNgodOrder=ngodOrder;
+  var html='<b>ตรวจงวดไหนครับ?</b><br><br>';
+  ngodOrder.forEach(function(ng,i){
+    html+='<button onclick="_pickNgod('+i+')" style="display:block;width:100%;margin-bottom:8px;padding:11px;background:#1e2235;border:1px solid #2e3248;border-radius:10px;color:#fff;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">📅 งวด '+ng+'</button>';
+  });
+  document.getElementById('cf-msg').innerHTML=html;
+  document.getElementById('cf-no').style.display='none';
+  document.getElementById('cf-yes').style.display='none';
+  document.getElementById('cf-ov').classList.add('show');
+}
+var _pendingNgodMap={},_pendingNgodOrder=[];
+function _pickNgod(idx){
+  document.getElementById('cf-ov').classList.remove('show');
+  document.getElementById('cf-no').style.display='';
+  document.getElementById('cf-yes').style.display='';
+  var ng=_pendingNgodOrder[idx];
+  if(ng&&_pendingNgodMap[ng])_doCheckNgod(_pendingNgodMap[ng].entries);
+}
+function _doCheckNgod(allEnts){
   if(!allEnts.length){toast('ไม่มีรายการตรวจ');return;}
   var r6=document.getElementById('res-1st').value.trim();
   if(r6.length!==6){toast('ใส่เลข 6 หลักครับ');return;}
@@ -1219,10 +1254,11 @@ function selPakType(el){
   document.querySelectorAll('#pak-type-tabs .pak-ttab').forEach(function(t){t.classList.remove('on');});
   el.classList.add('on');
   pakType=el.dataset.type;
-  // ล่าง: ไม่มีร้อย ไม่มีสิบ(mid) — เหลือแค่ สิบ(na→สิบ) หน่วย(lang)
+  // ล่าง: ไม่มีร้อย(na) — เหลือแค่ mid(สิบ) lang(หน่วย)
   if(pakType!=='3bon'){
-    pakPos=pakPos.filter(function(p){return p!=='mid';});
-    document.getElementById('pak-mid-btn').classList.remove('on');
+    pakPos=pakPos.filter(function(p){return p!=='na';});
+    var naBtn2=document.querySelector('.pak-pbtn[data-pos="na"]');
+    if(naBtn2)naBtn2.classList.remove('on');
   }
   updatePakUI();
 }
@@ -1247,10 +1283,11 @@ function updatePakUI(){
     document.getElementById('pak-ex-mid').textContent='_ '+lek+' _';
     document.getElementById('pak-ex-lang').textContent='_ _'+lek;
   } else {
-    // ล่าง: na=สิบ, lang=หน่วย, ซ่อน mid(ร้อย)
-    if(naBtn){naBtn.style.display='';document.querySelector('.pak-pbtn[data-pos="na"] .pak-pbtn-lbl').textContent='สิบ';}
-    midBtn.style.display='none';
-    document.getElementById('pak-ex-na').textContent=lek+'_';
+    // ล่าง: mid=สิบ, lang=หน่วย, ซ่อน na(ร้อย)
+    if(naBtn)naBtn.style.display='none';
+    midBtn.style.display='';
+    document.querySelector('#pak-mid-btn .pak-pbtn-lbl').textContent='สิบ';
+    document.getElementById('pak-ex-mid').textContent=lek+'_';
     document.getElementById('pak-ex-lang').textContent='_'+lek;
   }
 }
