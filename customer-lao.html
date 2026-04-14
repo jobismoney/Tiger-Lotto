@@ -229,6 +229,27 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 .g-hero-cus .title{font-size:22px;font-weight:900;color:#f5c518;font-family:'Sarabun',sans-serif;margin-top:6px;}
 .g-hero-cus .sub{font-size:13px;color:#9ca3af;margin-top:4px;font-family:'Sarabun',sans-serif;}
 
+
+/* ── Date Picker ── */
+.dp-wrap{position:relative;width:100%;}
+.dp-input{width:100%;background:var(--bg,#0d0f18);border:1.5px solid var(--border,#2e3248);border-radius:10px;color:var(--white,#fff);font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;padding:10px 14px;box-sizing:border-box;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;}
+.dp-input:hover{border-color:var(--gold,#f5c518);}
+.dp-cal{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#1a1d2e;border:1.5px solid var(--border,#2e3248);border-radius:14px;z-index:999;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,.5);}
+.dp-cal.show{display:block;}
+.dp-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.dp-nav-btn{background:none;border:none;color:var(--gold,#f5c518);font-size:20px;cursor:pointer;padding:4px 10px;border-radius:8px;}
+.dp-nav-btn:hover{background:rgba(245,197,24,.15);}
+.dp-month-lbl{font-size:15px;font-weight:900;color:#fff;font-family:'Sarabun',sans-serif;}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.dp-dow{font-size:11px;font-weight:800;color:var(--lg,#7a8aaa);text-align:center;padding:4px 0;}
+.dp-day{font-size:14px;font-weight:700;color:#fff;text-align:center;padding:7px 2px;border-radius:8px;cursor:pointer;font-family:'Sarabun',sans-serif;}
+.dp-day:hover{background:rgba(245,197,24,.2);}
+.dp-day.selected{background:var(--gold,#f5c518);color:#111;}
+.dp-day.today{border:1.5px solid var(--gold,#f5c518);color:var(--gold,#f5c518);}
+.dp-day.today.selected{color:#111;}
+.dp-day.empty{cursor:default;}
+.dp-day.empty:hover{background:none;}
+
 </style>
 </head>
 <body>
@@ -395,7 +416,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
     </div>
     <div class="modal-field">
       <label>งวดประจำ</label>
-      <input id="setup-ngod" type="text" placeholder="เช่น 1/4/69" maxlength="10">
+      <div class="dp-wrap">
+        <button type="button" class="dp-input" id="dp-ngod-btn">เลือกงวด 📅</button>
+        <div class="dp-cal" id="dp-ngod-cal"></div>
+        <input type="hidden" id="setup-ngod">
+      </div>
     </div>
     <button class="modal-ok" onclick="saveSetup()">✓ บันทึก</button>
   </div>
@@ -504,6 +529,7 @@ function updateHdr(){
 // SETUP
 // ══════════════════════════════════════
 function openSetup(){
+  setTimeout(function(){initDatePicker('dp-ngod-btn','dp-ngod-cal','setup-ngod');},50);
   document.getElementById('setup-name').value  = profile.name;
   document.getElementById('setup-agent').value = profile.agent;
   document.getElementById('setup-ngod').value  = profile.ngod;
@@ -1321,6 +1347,84 @@ function updatePakBtn(){
   var wrap=document.getElementById('pak-open-wrap');
   if(wrap)wrap.style.display=show?'block':'none';
 }
+
+
+
+
+
+// ── Date Picker Component ──
+(function(){
+  var MONTHS_TH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  var DOWS=['อา','จ','อ','พ','พฤ','ศ','ส'];
+
+  function thYear(y){return y+543;}
+  function formatNgod(d,m,y){return d+'/'+m+'/'+y;}
+
+  function initPicker(inputId,calId,hidId){
+    var inp=document.getElementById(inputId);
+    var cal=document.getElementById(calId);
+    var hid=hidId?document.getElementById(hidId):null;
+    if(!inp||!cal)return;
+
+    var now=new Date();
+    var curY=now.getFullYear();
+    var curM=now.getMonth();
+    var selD=null,selM=null,selY=null;
+
+    function render(){
+      var daysInMonth=new Date(curY,curM+1,0).getDate();
+      var firstDow=new Date(curY,curM,1).getDay();
+      var html='<div class="dp-nav">'
+        +'<button class="dp-nav-btn" onclick="dpPrev(\''+inputId+'\')">‹</button>'
+        +'<div class="dp-month-lbl">'+MONTHS_TH[curM]+' '+thYear(curY)+'</div>'
+        +'<button class="dp-nav-btn" onclick="dpNext(\''+inputId+'\')">›</button>'
+        +'</div><div class="dp-grid">';
+      DOWS.forEach(function(d){html+='<div class="dp-dow">'+d+'</div>';});
+      for(var i=0;i<firstDow;i++)html+='<div class="dp-day empty"></div>';
+      for(var d=1;d<=daysInMonth;d++){
+        var isSel=selD===d&&selM===curM&&selY===curY;
+        var isToday=d===now.getDate()&&curM===now.getMonth()&&curY===now.getFullYear();
+        var cls='dp-day'+(isSel?' selected':'')+(isToday?' today':'');
+        html+='<div class="'+cls+'" onclick="dpPick(\''+inputId+'\','+d+','+curM+','+curY+')">'+d+'</div>';
+      }
+      html+='</div>';
+      cal.innerHTML=html;
+    }
+
+    window['dpPrev_'+inputId]=function(){curM--;if(curM<0){curM=11;curY--;}render();};
+    window['dpNext_'+inputId]=function(){curM++;if(curM>11){curM=0;curY++;}render();};
+    window['dpPick_'+inputId]=function(d,m,y){
+      selD=d;selM=m;selY=y;
+      var val=formatNgod(d,m+1,thYear(y));
+      inp.textContent=val+' 📅';
+      inp.dataset.val=val;
+      if(hid)hid.value=val;
+      cal.classList.remove('show');
+      render();
+    };
+
+    inp.addEventListener('click',function(e){
+      e.stopPropagation();
+      cal.classList.toggle('show');
+      if(cal.classList.contains('show'))render();
+    });
+    document.addEventListener('click',function(){cal.classList.remove('show');});
+    cal.addEventListener('click',function(e){e.stopPropagation();});
+
+    if(hid&&hid.value){
+      inp.textContent=hid.value+' 📅';
+    } else {
+      inp.textContent='เลือกงวด 📅';
+    }
+  }
+
+  window.dpPrev=function(id){if(window['dpPrev_'+id])window['dpPrev_'+id]();};
+  window.dpNext=function(id){if(window['dpNext_'+id])window['dpNext_'+id]();};
+  window.dpPick=function(id,d,m,y){if(window['dpPick_'+id])window['dpPick_'+id](d,m,y);};
+  window.initDatePicker=initPicker;
+  window.getPickerVal=function(hidId){var el=document.getElementById(hidId);return el?el.value:'';};
+})();
+
 </script>
 <script>
 (function(){
