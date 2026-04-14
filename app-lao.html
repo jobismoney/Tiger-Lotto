@@ -1100,31 +1100,27 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         <div style="font-size:13px;font-weight:800;color:var(--gold);">งวด <span id="check-ngod-lbl2">—</span></div>
       </div>
 
-      <!-- รางวัลที่ 1 -->
-      <div class="check-section">
-        <div class="check-section-title">รางวัลที่ 1</div>
-        <input type="tel" inputmode="numeric" maxlength="6" id="r1" placeholder="x x x x x x" class="check-inp-big" oninput="if(this.value.length===6)document.getElementById('r3f1').focus()">
-      </div>
-
-      <!-- แถว 2: หน้า 3 ตัว | ท้าย 3 ตัว | ท้าย 2 ตัว -->
-      <div class="check-row3">
-        <div class="check-col">
-          <div class="check-col-title">เลขหน้า 3 ตัว</div>
-          <input type="tel" inputmode="numeric" maxlength="3" id="r3f1" placeholder="xxx" class="check-inp-med" oninput="if(this.value.length===3)document.getElementById('r3f2').focus()">
-          <input type="tel" inputmode="numeric" maxlength="3" id="r3f2" placeholder="xxx" class="check-inp-med" style="margin-top:6px" oninput="if(this.value.length===3)document.getElementById('r3b1').focus()">
+      <!-- ลาว: กรอก 6 หลัก auto-fill -->
+      <div style="font-size:13px;color:var(--lg);margin-bottom:8px;">ใส่เลข 6 หลักที่ออกครับ</div>
+      <input type="tel" inputmode="numeric" maxlength="6" id="res-1st" placeholder="x x x x x x" class="check-inp-big" oninput="laoAutoFillCheck(this.value)" style="letter-spacing:8px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0;">
+        <div style="text-align:center;">
+          <div style="font-size:11px;color:var(--lg);margin-bottom:4px;">4ตัว (3-6)</div>
+          <div id="disp-4bon" style="font-size:20px;font-weight:900;color:var(--gold);">—</div>
         </div>
-        <div class="check-col">
-          <div class="check-col-title">เลขท้าย 3 ตัว</div>
-          <input type="tel" inputmode="numeric" maxlength="3" id="r3b1" placeholder="xxx" class="check-inp-med" oninput="if(this.value.length===3)document.getElementById('r3b2').focus()">
-          <input type="tel" inputmode="numeric" maxlength="3" id="r3b2" placeholder="xxx" class="check-inp-med" style="margin-top:6px" oninput="if(this.value.length===3)document.getElementById('r2').focus()">
+        <div style="text-align:center;">
+          <div style="font-size:11px;color:var(--lg);margin-bottom:4px;">3ตัว (4-6)</div>
+          <div id="disp-3bon" style="font-size:20px;font-weight:900;color:#60a5fa;">—</div>
         </div>
-        <div class="check-col">
-          <div class="check-col-title">ล่าง</div>
-          <input type="tel" inputmode="numeric" maxlength="2" id="r2" placeholder="xx" class="check-inp-med" style="margin-top:4px;" oninput="if(this.value.length===2)APP.doCheck()">
+        <div style="text-align:center;">
+          <div style="font-size:11px;color:var(--lg);margin-bottom:4px;">2บน (5-6)</div>
+          <div id="disp-2bon" style="font-size:20px;font-weight:900;color:#f472b6;">—</div>
         </div>
       </div>
-
-      <button onclick="fetchResult()" style="width:100%;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:800;padding:11px;cursor:pointer;margin-bottom:8px;">📡 ดึงผลรางวัลล่าสุด</button>
+      <div style="text-align:center;margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--lg);margin-bottom:4px;">2ล่าง (3-4)</div>
+        <div id="disp-2lang" style="font-size:20px;font-weight:900;color:#34d399;">—</div>
+      </div>
       <button class="check-btn" id="check-btn">🔍 ตรวจเลย</button>
     </div>
     <div id="check-results"></div>
@@ -3414,7 +3410,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     document.getElementById('check-ov').classList.add('show');
   }
 
-  function laoAutoFillCheck(v){
+  window.laoAutoFillCheck=function(v){
     function sd(id,val){var el=document.getElementById(id);if(el)el.textContent=val;}
     if(v.length===6){
       sd('disp-4bon',v.slice(2));
@@ -3424,8 +3420,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     } else {
       ['disp-4bon','disp-3bon','disp-2bon','disp-2lang'].forEach(function(id){sd(id,'—');});
     }
-  }
-  
+  };
   function fetchResult(){} // ไม่ใช้กับหวยลาว
   
   function getLaoTod(lek){
@@ -3437,7 +3432,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var _laoWin6='',_laoWin3='',_laoWin4='',_laoWin2b='',_laoWin2l='';
   
   function doCheck(){
-    var hist=getHist();
+    var hist=getHistory();
     var allEnts=entries.slice();hist.forEach(function(h){allEnts=allEnts.concat(h.entries||[]);});
     if(!allEnts.length){toast('ไม่มีรายการตรวจ');return;}
     var r6=document.getElementById('res-1st').value.trim();
@@ -3482,7 +3477,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         if(p.type==='lang'&&posIdx2!==undefined&&_laoWin2l[posIdx2]===lek){hits.push({lek:lek,type:'ปักล่าง('+({na:'สิบ',lang:'หน่วย'}[p.pos])+')',bet:p.price,pay:p.price*PAY.pak_lang});grandPay+=p.price*PAY.pak_lang;}
       });
     });
-    var el=document.getElementById('check-result-out');
+    var el=document.getElementById('check-results');
     if(!hits.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--lg);">😔 ไม่ถูกรางวัลครับ</div>';return;}
     var h='<div class="check-result-total"><span class="lbl">🎉 ถูกรางวัล</span><span class="val">'+hits.length+' รายการ</span></div>';
     hits.forEach(function(hit){h+='<div class="check-hit"><div class="lek">'+hit.lek+'</div><div class="type">'+hit.type+' × '+fmt(hit.bet)+'</div></div>';});
