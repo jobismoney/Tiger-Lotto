@@ -1499,10 +1499,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
   function doBasket(){
     if(!entries.length){toast('ยังไม่มีรายการครับ');return;}
+    // ลบ dividers ออกก่อนบันทึก
+    entries=entries.filter(function(e){return e.lek!=='__div__';});
     var total=calcTotal();
     var count=entries.length;
     var time=getNowTime();
     var ngod=ngodInfo.ngod||'—';
+    var prefill=window._lastScanSender||'';
+    window._lastScanSender=null;
     // popup ถามชื่อชุดก่อน
     showInputConfirm(
       'เก็บเข้าชื่อใคร?',
@@ -1551,7 +1555,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           toast('📂 เก็บเข้าแฟ้มแล้ว · '+displayName+' · ฿'+fmt(total)+' ครับ ✅', 5000);
         }, false);
       }
-    );
+    , prefill);
   }
 
   function updateBasketBadge(){
@@ -3933,8 +3937,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     save(); renderList(); updateTotal();
     var ls=document.getElementById('list-scroll');
     if(ls)ls.scrollTop=0;
-    // popup เก็บแฟ้ม พร้อม auto-fill ชื่อ
-    doBasketWithName(senderName);
+    // เก็บชื่อไว้ให้ popup ตอนกด เก็บเข้าแฟ้ม
+    window._lastScanSender=senderName;
+    toast('📥 '+senderName+' · '+totalEnts+' รายการ — ตรวจแล้วกด "เก็บเข้าแฟ้ม"', 4000);
   };
 
   document.addEventListener('DOMContentLoaded',init);
