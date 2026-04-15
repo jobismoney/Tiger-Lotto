@@ -2233,9 +2233,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       nid=parseInt(nid)||0;
       var hist=getHistory();
       var allEnts=[];
+      var si=0;
       hist.forEach(function(h){
-        if(h.ngod===ngod&&h.isBasket&&(nid?h.ngodId===nid:true))
-          allEnts=allEnts.concat(h.entries||[]);
+        if(h.ngod===ngod&&h.isBasket&&(nid?h.ngodId===nid:true)){
+          si++;
+          (h.entries||[]).forEach(function(e){
+            allEnts.push(Object.assign({},e,{_setName:h.basketName||'',_setNum:si}));
+          });
+        }
       });
       document.getElementById('hist-ov').classList.remove('show');
       _checkHistIdx=-1;
@@ -3551,7 +3556,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var nid=h.ngodId||0;
       var key=h.ngod+'::'+nid;
       if(!ngodMap[key]){ngodMap[key]={ngod:h.ngod,ngodId:nid,entries:[]};ngodOrder.push(key);}
-      ngodMap[key].entries=ngodMap[key].entries.concat(h.entries);
+      var si2=ngodMap[key].entries.length;
+      (h.entries||[]).forEach(function(e){
+        ngodMap[key].entries.push(Object.assign({},e,{_setName:h.basketName||'',_setNum:si2+1}));
+        si2++;
+      });
     });
     if(!ngodOrder.length){toast('ไม่มีรายการตรวจ');return;}
     // ถ้ามีงวดเดียว ตรวจเลย
@@ -3625,10 +3634,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     }
     var h='<div class="check-result-total"><span class="lbl">🎉 ถูกรางวัล</span><span class="val">'+hits.length+' รายการ</span></div>';
     hits.forEach(function(hit){
-      var name=hit._name||'';
-      h+='<div class="check-hit">'
-        +(name?'<div style="font-size:11px;color:#f5c518;font-weight:800;margin-bottom:2px;">'+name+'</div>':'')
-        +'<div class="lek">'+hit.lek+'</div><div class="type">'+hit.type+' × '+fmt(hit.bet)+'</div></div>';
+      var name=hit._setName||'';
+      h+='<div class="check-hit" style="padding:8px 10px;background:#1a1d2e;border-radius:8px;margin-bottom:4px;">'
+        +(name?'<div style="font-size:11px;font-weight:900;color:#f5c518;margin-bottom:4px;">👤 '+name+'</div>':'')
+        +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div><span style="font-size:18px;font-weight:900;color:#fff;margin-right:8px;">'+hit.lek+'</span>'
+        +'<span style="font-size:12px;color:#60a5fa;">'+hit.type+'</span>'
+        +' <span style="font-size:11px;color:#7a8aaa;">×฿'+fmt(hit.bet)+'</span></div>'
+        +'<div style="font-size:16px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div>'
+        +'</div></div>';
     });
     h+=saveBtn;
     el.innerHTML=h;
