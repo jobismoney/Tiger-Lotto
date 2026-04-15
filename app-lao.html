@@ -2176,12 +2176,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(_hPen.length)_hPages.push(_hPen);
       setTimeout(function(){_hPages.forEach(function(pg,pi){renderPageQR(pg,_hInf,pi+1);});},100);
     },
-    printMerged:function(ngod){
+    printMerged:function(ngod,nid){
+      nid=parseInt(nid)||0;
       // เตือนถ้ามีเลขค้าง
       if(ngodOpen&&ngodInfo&&ngodInfo.ngod===ngod&&entries.length>0){
         showConfirm(
           'มีเลขค้างอยู่ <b>'+entries.length+' รายการ</b> ยังไม่ได้เก็บเข้าแฟ้ม<br><br>จะทำยังไงดีครับ?',
-          function(){printMergedByNgod(ngod);},  // ยืนยัน = พิมพ์เลย
+          function(){printMergedByNgod(ngod,nid);},  // ยืนยัน = พิมพ์เลย
           false,
           '✏️ ไปเก็บก่อน',
           function(){
@@ -2190,13 +2191,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         );
         return;
       }
-      printMergedByNgod(ngod);
+      printMergedByNgod(ngod,nid);
     },
     closeHist:function(){document.getElementById('hist-ov').classList.remove('show');},
-    delNgod:function(ngod){
+    delNgod:function(ngod,nid){
+      nid=parseInt(nid)||0;
       showConfirm('ลบทุกชุดของงวด <b>'+ngod+'</b>?<br>ไม่สามารถกู้คืนได้',function(){
         var hist=getHistory();
-        hist=hist.filter(function(h){return h.ngod!==ngod;});
+        hist=hist.filter(function(h){return !(h.ngod===ngod&&(nid?h.ngodId===nid:true));});
         saveHistory(hist);renderHistory();toast('ลบแล้ว');
       },true);
     },
@@ -2207,6 +2209,38 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         if(idx>=0)hist.splice(idx,1);
         saveHistory(hist);renderHistory();toast('ลบแล้ว');
       },true);
+    },
+    saveCheckResultPending:function(){
+      var d=window._pendingCheckData;if(!d)return;
+      APP.saveCheckResult(d.ngod,d.ngodId,d.r6,d.hits);
+      window._pendingCheckData=null;
+    },
+    saveCheckResult:function(ngod,ngodId,r6,hits){
+      ngodId=parseInt(ngodId)||0;
+      var hist=getHistory();
+      var result={r6:r6,hits:hits,savedAt:getNowTime()};
+      hist.forEach(function(h){
+        if(h.ngod===ngod&&h.isBasket&&(ngodId?h.ngodId===ngodId:true)){
+          h.checkResult=result;
+        }
+      });
+      saveHistory(hist);
+      renderHistory();
+      document.getElementById('check-ov').classList.remove('show');
+      toast('💾 บันทึกผลรางวัลแล้ว ✅',3000);
+    },
+    checkHistNgod:function(ngod,nid){
+      nid=parseInt(nid)||0;
+      var hist=getHistory();
+      var allEnts=[];
+      hist.forEach(function(h){
+        if(h.ngod===ngod&&h.isBasket&&(nid?h.ngodId===nid:true))
+          allEnts=allEnts.concat(h.entries||[]);
+      });
+      document.getElementById('hist-ov').classList.remove('show');
+      _checkHistIdx=-1;
+      _checkNgodId=nid;
+      openCheckOverlay(allEnts,ngod,-1);
     },
     checkHist:function(i){
       var hist=getHistory();
@@ -2242,12 +2276,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       document.getElementById('cf-ov').classList.remove('show');
       var order=window._ngodCheckOrder||[];
       var map=window._ngodCheckMap||{};
-      var ngod=order[idx];
-      if(ngod&&map[ngod])_doCheckNgod(map[ngod].entries, ngod);
+      var key=order[idx];
+      var m=map[key];
+      if(m)_doCheckNgod(m.entries,m.ngod,m.ngodId||0);
     },
-    showCollectSummary:function(ngod){
+    showCollectSummary:function(ngod,nid){
+      nid=parseInt(nid)||0;
       var hist=getHistory();
-      var sets=hist.filter(function(h){return h.ngod===ngod&&h.isBasket;});
+      var sets=hist.filter(function(h){return h.ngod===ngod&&h.isBasket&&(nid?h.ngodId===nid:true);});
       if(!sets.length){toast('ไม่มีรายการ');return;}
       // จัดกลุ่มตามชื่อลูกค้า
       var groups={};var order=[];
@@ -3195,21 +3231,25 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'</div>');
     }
 
-    // group ประวัติ by งวด (ไม่รวมงวดปัจจุบัน)
-    var groups={};var groupOrder=[];
+    // group ประวัติ by งวด+ngodId (ไม่รวมงวดปัจจุบัน)
+    var groups={};var groupOrder=[];var groupMeta={};
     hist.forEach(function(h,i){
       var ng=h.ngod;
-      if(ngodOpen&&ngodInfo&&ngodInfo.ngod===ng)return; // ข้ามงวดปัจจุบัน
-      if(!groups[ng]){groups[ng]=[];groupOrder.push(ng);}
-      groups[ng].push({h:h,i:i});
+      var nid=h.ngodId||0;
+      if(ngodOpen&&ngodInfo&&ngodInfo.ngodId&&ngodInfo.ngodId===nid)return; // ข้ามงวดปัจจุบัน
+      var key=ng+'::'+nid;
+      if(!groups[key]){groups[key]=[];groupOrder.push(key);groupMeta[key]={ngod:ng,ngodId:nid};}
+      groups[key].push({h:h,i:i});
     });
 
     if(!groupOrder.length&&!cards.length){
       el.innerHTML='<div class="hist-empty">ยังไม่มีประวัติ</div>';return;
     }
 
-    groupOrder.forEach(function(ngod){
-      var sets=groups[ngod];
+    groupOrder.forEach(function(key){
+      var sets=groups[key];
+      var ngod=groupMeta[key].ngod;
+      var ngodId=groupMeta[key].ngodId;
       var groupTotal=sets.reduce(function(s,x){return s+x.h.total;},0);
       var inf=sets[0].h;
       var hasCheck=sets.some(function(x){return x.h.checkResult;});
@@ -3257,6 +3297,35 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           +'<div>'+innerRows+'</div>'
           +'</div>';
       });
+      // result badge
+      var checkRes=null;
+      sets.forEach(function(s){if(s.h.checkResult)checkRes=s.h.checkResult;});
+      var hasResult=!!checkRes;
+      var resultBadgeHTML='';
+      if(checkRes){
+        var r6c=checkRes.r6||'';var hitsc=checkRes.hits||[];
+        var bh='<div style="background:#0d1f12;border-top:1px solid #22c55e;padding:10px 14px;">'
+          +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+          +'<span style="font-size:11px;color:#22c55e;font-weight:800;">🎯 ผลรางวัล</span>'
+          +'<span style="font-size:18px;font-weight:900;color:#fff;letter-spacing:4px;">'+r6c+'</span></div>';
+        if(r6c.length===6){bh+='<div style="display:flex;gap:12px;margin-bottom:6px;">'
+          +'<span style="font-size:10px;color:#7a8aaa;">4ตัว <b style="color:#f5c518">'+r6c.slice(2)+'</b></span>'
+          +'<span style="font-size:10px;color:#7a8aaa;">3ตัว <b style="color:#60a5fa">'+r6c.slice(3)+'</b></span>'
+          +'<span style="font-size:10px;color:#7a8aaa;">2บน <b style="color:#f472b6">'+r6c.slice(4)+'</b></span>'
+          +'<span style="font-size:10px;color:#7a8aaa;">2ล่าง <b style="color:#34d399">'+r6c.slice(2,4)+'</b></span>'
+          +'</div>';}
+        if(hitsc.length){hitsc.forEach(function(hit){
+          bh+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid #1a2a1a;">'
+            +'<div><span style="font-size:14px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>'
+            +' <span style="font-size:11px;color:#60a5fa;">'+hit.type+'</span>'
+            +' <span style="font-size:11px;color:#7a8aaa;">×฿'+fmt(hit.bet)+'</span></div>'
+            +'<div style="font-size:14px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div></div>';
+        });}else{bh+='<div style="font-size:12px;color:#7a8aaa;padding:4px 0;">😌 ไม่มีถูกรางวัลงวดนี้</div>';}
+        bh+='</div>';
+        resultBadgeHTML=bh;
+      } else {
+        resultBadgeHTML='<div style="padding:8px 14px;border-top:1px solid var(--border);font-size:11px;color:#f87171;">⏳ ยังไม่ได้บันทึกผลรางวัล</div>';
+      }
       cards.push('<div class="hist-folder">'
         +'<div class="hist-folder-hd" onclick="APP.toggleFolder(this)">'
         +'<div><div class="hist-folder-ngod">📁 งวด '+ngod+'</div>'
@@ -3266,11 +3335,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'<span class="hist-folder-toggle">▼</span></div>'
         +'</div>'
         +'<div class="hist-folder-body collapsed">'+setRows+'</div>'
+        +resultBadgeHTML
         +'<div class="hist-folder-actions">'
-        +'<button class="hist-btn del" onclick="APP.delNgod(this.dataset.ngod)" data-ngod="'+ngodEsc+'">🗑️ ลบทั้งงวด</button>'
-        +'<button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEsc+'">📋 ดูทั้งหมด</button>'
-        +'<button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEsc+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button>'
-        +'<button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHist('+(sets[0].h.id)+')">🔍 ตรวจผล</button>'
+        +'<button class="hist-btn del" onclick="APP.delNgod(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEsc+'" data-nid="'+ngodId+'">🗑️ ลบทั้งงวด</button>'
+        +'<button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEsc+'" data-nid="'+ngodId+'">📋 ดูทั้งหมด</button>'
+        +'<button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEsc+'" data-nid="'+ngodId+'" onclick="APP.showCollectSummary(this.dataset.ng,this.dataset.nid)">💰 ยอดเก็บเงิน</button>'
+        +'<button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHistNgod(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEsc+'" data-nid="'+ngodId+'">🔍 ตรวจผล</button>'
         +'</div></div>');
     });
 
@@ -3331,11 +3401,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       +LEGEND;
   }
 
-  function printMergedByNgod(ngod){
+  function printMergedByNgod(ngod,nid){
+    nid=parseInt(nid)||0;
     var hist=getHistory();
     var sets=[];var inf=null;
     hist.forEach(function(h){
-      if(h.ngod===ngod&&h.isBasket){
+      if(h.ngod===ngod&&h.isBasket&&(nid?h.ngodId===nid:true)){
         if(!inf)inf={ngod:h.ngod,date:h.date,sender:h.sender,receiver:h.receiver};
         sets.push(h);
       }
@@ -3422,7 +3493,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   // ─── CHECK RESULT ───
-  var _checkEntries=[], _checkNgod='', _checkHistIdx=-1;
+  var _checkEntries=[], _checkNgod='', _checkHistIdx=-1, _checkNgodId=0;
 
   function resetCheckForm(){
     window._lastCheckResultHTML=null;window._lastCheckNumbers=null;
@@ -3474,28 +3545,33 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       ngodMap[ngodInfo.ngod]={ngod:ngodInfo.ngod,entries:entries.slice()};
       ngodOrder.push(ngodInfo.ngod);
     }
-    // งวดในประวัติ
+    // งวดในประวัติ — group ด้วย ngod+ngodId
     hist.forEach(function(h){
       if(!h.ngod||!h.entries||!h.entries.length)return;
-      if(!ngodMap[h.ngod]){ngodMap[h.ngod]={ngod:h.ngod,entries:[]};ngodOrder.push(h.ngod);}
-      ngodMap[h.ngod].entries=ngodMap[h.ngod].entries.concat(h.entries);
+      var nid=h.ngodId||0;
+      var key=h.ngod+'::'+nid;
+      if(!ngodMap[key]){ngodMap[key]={ngod:h.ngod,ngodId:nid,entries:[]};ngodOrder.push(key);}
+      ngodMap[key].entries=ngodMap[key].entries.concat(h.entries);
     });
     if(!ngodOrder.length){toast('ไม่มีรายการตรวจ');return;}
     // ถ้ามีงวดเดียว ตรวจเลย
     if(ngodOrder.length===1){
-      _doCheckNgod(ngodMap[ngodOrder[0]].entries, ngodOrder[0]);
+      var _k0=ngodOrder[0],_m0=ngodMap[_k0];
+      _doCheckNgod(_m0.entries,_m0.ngod,_m0.ngodId||0);
       return;
     }
     // ถ้ามีหลายงวด ให้เลือก
     window._ngodCheckMap=ngodMap;
     window._ngodCheckOrder=ngodOrder;
-    var btns=ngodOrder.map(function(ng,idx){
-      return '<button onclick="APP._pickNgodCheck('+idx+')" style="display:block;width:100%;margin-bottom:8px;padding:12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;font-size:16px;font-weight:800;cursor:pointer;">📅 งวด '+ng+'</button>';
+    var btns=ngodOrder.map(function(key,idx){
+      var m=ngodMap[key];
+      return '<button onclick="APP._pickNgodCheck('+idx+')" style="display:block;width:100%;margin-bottom:8px;padding:12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;font-size:16px;font-weight:800;cursor:pointer;">📅 งวด '+m.ngod+'</button>';
     }).join('');
     showConfirm('<b>ตรวจงวดไหนครับ?</b><br><br>'+btns,null,false,null,null,null,null,true);
     return;
   }
-  function _doCheckNgod(allEnts, ngod){
+  function _doCheckNgod(allEnts, ngod, ngodId){
+    ngodId=parseInt(ngodId)||_checkNgodId||0;
     if(!allEnts.length){toast('ไม่มีรายการตรวจงวด '+ngod);return;}
     var r6=document.getElementById('res-1st').value.trim();
     if(r6.length!==6){toast('ใส่เลข 6 หลักครับ');return;}
@@ -3540,9 +3616,21 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       });
     });
     var el=document.getElementById('check-results');
-    if(!hits.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--lg);">😔 ไม่ถูกรางวัลครับ</div>';return;}
+    var r6=document.getElementById('res-1st').value.trim();
+    window._pendingCheckData={ngod:ngod,ngodId:ngodId||0,r6:r6,hits:hits};
+    var saveBtn='<button onclick="APP.saveCheckResultPending()" style="width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:12px;color:#fff;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">💾 บันทึกผลรางวัลนี้</button>';
+    if(!hits.length){
+      el.innerHTML='<div style="text-align:center;padding:24px;color:var(--lg);">😔 ไม่ถูกรางวัลครับ</div>'+saveBtn;
+      return;
+    }
     var h='<div class="check-result-total"><span class="lbl">🎉 ถูกรางวัล</span><span class="val">'+hits.length+' รายการ</span></div>';
-    hits.forEach(function(hit){h+='<div class="check-hit"><div class="lek">'+hit.lek+'</div><div class="type">'+hit.type+' × '+fmt(hit.bet)+'</div></div>';});
+    hits.forEach(function(hit){
+      var name=hit._name||'';
+      h+='<div class="check-hit">'
+        +(name?'<div style="font-size:11px;color:#f5c518;font-weight:800;margin-bottom:2px;">'+name+'</div>':'')
+        +'<div class="lek">'+hit.lek+'</div><div class="type">'+hit.type+' × '+fmt(hit.bet)+'</div></div>';
+    });
+    h+=saveBtn;
     el.innerHTML=h;
   }
   
