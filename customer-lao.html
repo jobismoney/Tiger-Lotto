@@ -1108,25 +1108,41 @@ function renderHistList(){
     groups[ng].push({item:item,i:i});
   });
   var h='';
-  groupOrder.forEach(function(ng){
+  var isFirst=true;
+  groupOrder.forEach(function(ng,gi){
     var items=groups[ng];
     var ngTotal=items.reduce(function(s,x){return s+(x.item.total||0);},0);
     var checkRes=null;
     items.forEach(function(x){if(x.item.checkResult)checkRes=x.item.checkResult;});
+    // งวดแรก =펼쳐짐, งวดเก่า = พับเก็บ
+    var isOpen=isFirst;
+    isFirst=false;
+    var foldId='fold-'+gi;
     h+='<div style="background:#13161f;border:1px solid #2e3248;border-radius:12px;margin-bottom:10px;overflow:hidden;">';
-    h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#1a1d2e;">';
-    h+='<div><div style="font-size:15px;font-weight:900;color:#f5c518;">📁 งวด '+ng+'</div>';
+    // header
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#1a1d2e;cursor:pointer;" onclick="toggleFold('+gi+')">';
+    h+='<div>';
+    h+='<div style="font-size:15px;font-weight:900;color:#f5c518;">📁 งวด '+ng+'</div>';
     h+='<div style="font-size:11px;color:#7a8aaa;">'+items.length+' แผ่น · ฿'+fmt(ngTotal)+'</div></div>';
-    h+='<span style="color:#f87171;font-size:11px;font-weight:800;">'+(checkRes?'🎯 มีผล':'⏳ ยังไม่บันทึก')+'</span></div>';
+    h+='<div style="display:flex;align-items:center;gap:8px;">';
+    h+='<span style="font-size:11px;font-weight:800;color:'+(checkRes?'#22c55e':'#f87171')+'">'+(checkRes?'🎯 มีผล':'⏳ ยังไม่บันทึก')+'</span>';
+    h+='<button onclick="event.stopPropagation();checkNgod('+gi+')" style="padding:5px 10px;background:#7c3aed;border:none;border-radius:8px;color:#fff;font-family:Sarabun,sans-serif;font-size:12px;font-weight:800;cursor:pointer;">🔍 ตรวจ</button>';
+    h+='<span class="fold-arrow" style="color:#7a8aaa;font-size:12px;">'+(isOpen?'▼':'▶')+'</span>';
+    h+='</div></div>';
+    // body
+    h+='<div id="'+foldId+'" style="display:'+(isOpen?'block':'none')+';">';
+    // แต่ละแผ่น
     items.forEach(function(x,ci){
       var item=x.item,idx=x.i;
       h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid #2e3248;">';
       h+='<div style="cursor:pointer;flex:1;" onclick="viewHistSlip('+idx+')">';
-      h+='<div style="font-size:13px;font-weight:800;color:#fff;">แผ่น '+(items.length-ci)+' · '+item.timeStr+'</div>';
+      h+='<div style="font-size:13px;font-weight:800;color:#fff;">แผ่น '+(items.length-ci)+'</div>';
+      h+='<div style="font-size:11px;color:#60a5fa;">'+item.dateStr+' '+item.timeStr+'</div>';
       h+='<div style="font-size:11px;color:#7a8aaa;">'+(item.entries||[]).length+' รายการ</div></div>';
       h+='<div style="font-size:14px;font-weight:900;color:#f5c518;margin-right:10px;">฿'+fmt(item.total||0)+'</div>';
       h+='<button class="hist-del-btn" onclick="delHist('+idx+')">🗑️</button></div>';
     });
+    // result badge
     if(checkRes){
       var r6c=checkRes.r6||'';var hitsc=checkRes.hits||[];
       h+='<div style="padding:10px 14px;background:#0d1f12;border-top:1px solid #22c55e;">';
@@ -1134,16 +1150,40 @@ function renderHistList(){
       h+='<span style="font-size:11px;color:#22c55e;font-weight:800;">🎯 ผลรางวัล</span>';
       h+='<span style="font-size:16px;font-weight:900;color:#fff;letter-spacing:4px;">'+r6c+'</span></div>';
       if(hitsc.length){hitsc.forEach(function(hit){
-        h+='<div style="display:flex;justify-content:space-between;padding:3px 0;">';
-        h+='<span style="font-size:13px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>';
-        h+='<span style="font-size:11px;color:#60a5fa;">'+hit.type+' ×฿'+fmt(hit.bet)+'</span>';
-        h+='<span style="font-size:13px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</span></div>';
+        h+='<div style="display:flex;align-items:center;gap:10px;padding:3px 0;">';
+        h+='<span style="font-size:14px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>';
+        h+='<span style="font-size:11px;color:#60a5fa;">'+hit.type+'</span>';
+        h+='<span style="font-size:12px;font-weight:800;color:#fff;">ซื้อ ฿'+fmt(hit.bet)+'</span>';
+        h+='</div>';
       });}else{h+='<div style="font-size:12px;color:#7a8aaa;">😌 ไม่มีถูกรางวัลงวดนี้</div>';}
       h+='</div>';
     }
-    h+='</div>';
+    h+='</div></div>';
   });
   el.innerHTML=h;
+}
+function toggleFold(gi){
+  var b=document.getElementById('fold-'+gi);
+  if(!b)return;
+  var open=b.style.display!=='none';
+  b.style.display=open?'none':'block';
+  var arr=document.querySelectorAll('.fold-arrow')[gi];
+  if(arr)arr.textContent=open?'▶':'▼';
+}
+function checkNgod(gi){
+  var hist=getHist();
+  var groups={};var groupOrder=[];
+  hist.forEach(function(item){
+    var ng=item.ngod||'—';
+    if(!groups[ng]){groups[ng]=[];groupOrder.push(ng);}
+    groups[ng].push(item);
+  });
+  var ng=groupOrder[gi];if(!ng)return;
+  var allEnts=[];
+  groups[ng].forEach(function(item){allEnts=allEnts.concat(item.entries||[]);});
+  closeHist();
+  _doCheckNgod(allEnts);
+  openCheck();
 }
 function delHist(idx){
   var hist=getHist();
@@ -1282,11 +1322,10 @@ function _doCheckNgod(allEnts){
   var h='<div class="check-result-total"><span class="lbl">🎉 ถูกรางวัล</span><span class="val">'+hits.length+' รายการ</span></div>';
   hits.forEach(function(hit){
     h+='<div class="check-hit" style="padding:8px 10px;background:#1a1d2e;border-radius:8px;margin-bottom:4px;">';
-    h+='<div style="display:flex;justify-content:space-between;align-items:center;">';
-    h+='<div><span style="font-size:18px;font-weight:900;color:#fff;margin-right:8px;">'+hit.lek+'</span>';
+    h+='<div style="display:flex;align-items:center;gap:10px;">';
+    h+='<span style="font-size:20px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>';
     h+='<span style="font-size:12px;color:#60a5fa;">'+hit.type+'</span>';
-    h+=' <span style="font-size:11px;color:#7a8aaa;">×฿'+fmt(hit.bet)+'</span></div>';
-    h+='<div style="font-size:16px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div>';
+    h+='<span style="font-size:13px;font-weight:800;color:#fff;">ซื้อ ฿'+fmt(hit.bet)+'</span>';
     h+='</div></div>';
   });
   h+=saveBtn;
