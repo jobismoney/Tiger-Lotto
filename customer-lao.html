@@ -397,7 +397,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
       <div style="font-size:11px;color:var(--lg);margin-bottom:4px;">2ล่าง (3-4)</div>
       <div id="disp-2lang" style="font-size:20px;font-weight:900;color:#34d399;">—</div>
     </div>
-    <button class="check-go-btn" onclick="doCheck()">🔍 ตรวจเลย</button>
+    <button class="check-go-btn" onclick="doCheckCurrent()">🔍 ตรวจเลย</button>
     <div id="check-result-out"></div>
   </div>
 </div>
@@ -1136,9 +1136,9 @@ function renderHistList(){
     h+='<div style="font-size:15px;font-weight:900;color:#f5c518;">📁 งวด '+ng+'</div>';
     h+='<div style="font-size:11px;color:#7a8aaa;">'+items.length+' แผ่น · ฿'+fmt(ngTotal)+'</div></div>';
     h+='<div style="display:flex;align-items:center;gap:6px;">';
-    h+='<span style="font-size:11px;font-weight:800;color:'+(checkRes?'#22c55e':'#f87171')+'">'+(checkRes?'🎯 มีผล':'⏳')+'</span>';
-    h+='<button onclick="event.stopPropagation();checkNgod('+gi+')" style="padding:5px 8px;background:#7c3aed;border:none;border-radius:8px;color:#fff;font-family:Sarabun,sans-serif;font-size:11px;font-weight:800;cursor:pointer;">🔍</button>';
     h+='<button onclick="event.stopPropagation();delNgod('+gi+')" style="padding:5px 8px;background:#7f1d1d;border:none;border-radius:8px;color:#fca5a5;font-family:Sarabun,sans-serif;font-size:11px;font-weight:800;cursor:pointer;">🗑️</button>';
+    h+='<button onclick="event.stopPropagation();checkNgod('+gi+')" style="padding:5px 8px;background:#7c3aed;border:none;border-radius:8px;color:#fff;font-family:Sarabun,sans-serif;font-size:11px;font-weight:800;cursor:pointer;">🔍</button>';
+    h+='<span style="font-size:11px;font-weight:800;color:'+(checkRes?'#22c55e':'#f87171')+'">'+(checkRes?'✅ ตรวจผลแล้ว':'⏳ ยังไม่ได้ตรวจผล')+'</span>';
     h+='<span class="fold-arrow" style="color:#7a8aaa;font-size:12px;">'+(isOpen?'▼':'▶')+'</span>';
     h+='</div></div>';
     // body
@@ -1235,13 +1235,15 @@ function checkNgod(gi){
   var ng=groupOrder[gi];if(!ng)return;
   var allEnts=[];
   groups[ng].forEach(function(item){allEnts=allEnts.concat(item.entries||[]);});
-  // รู้งวดแล้ว ไม่ต้องถาม — ตรวจเลย
+  // รู้งวดแล้ว — เปิด overlay แล้วรอกรอก 6 หลัก
   closeHist();
-  _doCheckNgod(allEnts);
+  _checkPendingEnts=allEnts;
+  // reset form
+  var r6el=document.getElementById('res-1st');if(r6el)r6el.value='';
+  document.getElementById('check-result-out').innerHTML='';
+  ['disp-4bon','disp-3bon','disp-2bon','disp-2lang'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent='—';});
   openCheck();
-  // อัพเดท ngod label
-  var lbl=document.getElementById('check-ngod-lbl');
-  if(lbl)lbl.textContent=ng;
+  setTimeout(function(){if(r6el)r6el.focus();},200);
 }
 function delHist(idx){
   var hist=getHist();
@@ -1292,6 +1294,13 @@ function getLaoTod(lek){
 
 var _laoWin6='',_laoWin3='',_laoWin4='',_laoWin2b='',_laoWin2l='';
 
+function doCheckCurrent(){
+  if(_checkPendingEnts&&_checkPendingEnts.length){
+    _doCheckNgod(_checkPendingEnts);
+  } else {
+    doCheck();
+  }
+}
 function doCheck(){
   var hist=getHist();
   // รวบรวม ngod ที่มีในระบบ
@@ -1320,6 +1329,7 @@ function doCheck(){
   document.getElementById('ngod-pick-ov').style.display='flex';
 }
 var _pendingNgodMap={},_pendingNgodOrder=[];
+var _checkPendingEnts=[];
 function _pickNgod(idx){
   document.getElementById('ngod-pick-ov').style.display='none';
   var ng=_pendingNgodOrder[idx];
