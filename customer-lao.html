@@ -426,6 +426,15 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
   </div>
 </div>
 
+<!-- NGOD PICKER -->
+<div id="ngod-pick-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:600;align-items:center;justify-content:center;">
+  <div style="background:#13161f;border:1px solid #2e3248;border-radius:18px;padding:20px;width:92%;max-width:340px;">
+    <div style="font-size:17px;font-weight:900;color:#f5c518;margin-bottom:14px;">📅 ตรวจงวดไหนครับ?</div>
+    <div id="ngod-pick-btns"></div>
+    <button onclick="document.getElementById('ngod-pick-ov').style.display='none';" style="width:100%;margin-top:10px;padding:10px;background:#1e2235;border:1px solid #2e3248;border-radius:10px;color:#7a8aaa;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">ยกเลิก</button>
+  </div>
+</div>
+
 <!-- CONFIRM -->
 <div class="cf-ov" id="cf-ov">
   <div class="cf-box">
@@ -1169,22 +1178,18 @@ function doCheck(){
   if(!ngodOrder.length){toast('ไม่มีรายการตรวจ');return;}
   // งวดเดียว → ตรวจเลย
   if(ngodOrder.length===1){_doCheckNgod(ngodMap[ngodOrder[0]].entries);return;}
-  // หลายงวด → ถาม
+  // หลายงวด → custom overlay
   _pendingNgodMap=ngodMap;_pendingNgodOrder=ngodOrder;
-  var html='<b>ตรวจงวดไหนครับ?</b><br><br>';
+  var btnsHTML='';
   ngodOrder.forEach(function(ng,i){
-    html+='<button onclick="_pickNgod('+i+')" style="display:block;width:100%;margin-bottom:8px;padding:11px;background:#1e2235;border:1px solid #2e3248;border-radius:10px;color:#fff;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">📅 งวด '+ng+'</button>';
+    btnsHTML+='<button onclick="_pickNgod('+i+')" style="display:block;width:100%;margin-bottom:8px;padding:11px;background:#1e2235;border:1px solid #2e3248;border-radius:10px;color:#fff;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">📅 งวด '+ng+'</button>';
   });
-  document.getElementById('cf-msg').innerHTML=html;
-  document.getElementById('cf-no').style.display='none';
-  document.getElementById('cf-yes').style.display='none';
-  document.getElementById('cf-ov').classList.add('show');
+  document.getElementById('ngod-pick-btns').innerHTML=btnsHTML;
+  document.getElementById('ngod-pick-ov').style.display='flex';
 }
 var _pendingNgodMap={},_pendingNgodOrder=[];
 function _pickNgod(idx){
-  document.getElementById('cf-ov').classList.remove('show');
-  document.getElementById('cf-no').style.display='';
-  document.getElementById('cf-yes').style.display='';
+  document.getElementById('ngod-pick-ov').style.display='none';
   var ng=_pendingNgodOrder[idx];
   if(ng&&_pendingNgodMap[ng])_doCheckNgod(_pendingNgodMap[ng].entries);
 }
