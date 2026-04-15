@@ -2270,11 +2270,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     },
     closeNgodFromCheck:function(){doCloseNgodFromCheck();},
     openCheck:function(){
-      var ov=document.getElementById('check-ov');
-      if(ov)ov.classList.add('show');
-      // set งวด label
-      var lbl=document.getElementById('check-ngod-lbl2');
-      if(lbl)lbl.textContent=ngodInfo.ngod||'—';
+      doCheck();
     },
     doCheck:function(){doCheck();},
     _pickNgodCheck:function(idx){
