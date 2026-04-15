@@ -3232,7 +3232,24 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'<span class="hist-folder-toggle open">▼</span></div>'
         +'</div>'
         +'<div class="hist-folder-body">'+setRows+'</div>'
-        +(basketSets.length>0?'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEscQ+'">📋 ดูทั้งหมด</button><button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEscQ+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHist('+(basketSets[basketSets.length-1].id)+')">🔍 ตรวจผล</button></div>':'')
+        +(basketSets.length>0?(function(){
+          var curCheckRes=null;
+          basketSets.forEach(function(h){if(h.checkResult)curCheckRes=h.checkResult;});
+          var curHasResult=!!curCheckRes;
+          var curBadge='';
+          if(curCheckRes){
+            var r6c=curCheckRes.r6||'';var hitsc=curCheckRes.hits||[];
+            curBadge='<div style="background:#0d1f12;border-top:1px solid #22c55e;padding:10px 14px;">'              +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'              +'<span style="font-size:11px;color:#22c55e;font-weight:800;">🎯 ผลรางวัล</span>'              +'<span style="font-size:18px;font-weight:900;color:#fff;letter-spacing:4px;">'+r6c+'</span></div>';
+            if(r6c.length===6){curBadge+='<div style="display:flex;gap:12px;margin-bottom:6px;">'              +'<span style="font-size:10px;color:#7a8aaa;">4ตัว <b style="color:#f5c518">'+r6c.slice(2)+'</b></span>'              +'<span style="font-size:10px;color:#7a8aaa;">3ตัว <b style="color:#60a5fa">'+r6c.slice(3)+'</b></span>'              +'<span style="font-size:10px;color:#7a8aaa;">2บน <b style="color:#f472b6">'+r6c.slice(4)+'</b></span>'              +'<span style="font-size:10px;color:#7a8aaa;">2ล่าง <b style="color:#34d399">'+r6c.slice(2,4)+'</b></span>'              +'</div>';}
+            if(hitsc.length){hitsc.forEach(function(hit){curBadge+=              '<div style="display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid #1a2a1a;">'              +'<div><span style="font-size:14px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>'              +' <span style="font-size:11px;color:#60a5fa;">'+hit.type+'</span>'              +' <span style="font-size:11px;color:#7a8aaa;">×฿'+fmt(hit.bet)+'</span></div>'              +'<div style="font-size:14px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div></div>';});}
+            else{curBadge+='<div style="font-size:12px;color:#7a8aaa;padding:4px 0;">😌 ไม่มีถูกรางวัลงวดนี้</div>';}
+            curBadge+='</div>';
+          } else {
+            curBadge='<div style="padding:8px 14px;border-top:1px solid var(--border);font-size:11px;color:#f87171;">⏳ ยังไม่ได้บันทึกผลรางวัล</div>';
+          }
+          var _cnid=ngodInfo.ngodId||0;
+          return curBadge+'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEscQ+'">📋 ดูทั้งหมด</button><button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEscQ+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHistNgod(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEscQ+'" data-nid="'+_cnid+'">'+(curHasResult?'🔍 ดูผลอีกครั้ง':'🔍 ตรวจผล')+'</button></div>';
+        })():'')
         +'</div>');
     }
 
