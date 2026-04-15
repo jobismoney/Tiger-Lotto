@@ -519,6 +519,17 @@ function load(){try{var r=localStorage.getItem(STORE_KEY);if(r){var d=JSON.parse
 function loadProfile(){try{var r=localStorage.getItem(PROFILE_KEY);if(r)profile=JSON.parse(r);}catch(e){}}
 function saveProfile(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}catch(e){}}
 function getHist(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch(e){return[];}}
+function trimHistToNgods(hist,maxNgods){
+  // เก็บแค่ maxNgods งวดล่าสุด
+  var seen={};var order=[];
+  hist.forEach(function(item){
+    var ng=item.ngod||'—';
+    if(!seen[ng]){seen[ng]=1;order.push(ng);}
+  });
+  if(order.length<=maxNgods)return hist;
+  var keep=order.slice(0,maxNgods);
+  return hist.filter(function(item){return keep.indexOf(item.ngod||'—')>=0;});
+}
 function saveHist(h){try{localStorage.setItem(HIST_KEY,JSON.stringify(h));}catch(e){}}
 
 // ══════════════════════════════════════
@@ -1036,7 +1047,7 @@ function doBasketAndShow(){
     ngod:profile.ngod||'—',sender:profile.name||'—',receiver:profile.agent||'—',
     entries:entsToShow,total:calcTotal()
   });
-  if(hist.length>50)hist=hist.slice(0,50);
+  hist=trimHistToNgods(hist,7);
   saveHist(hist);
   entries=[];eid=0;save();renderList();
   // แสดงโพย
@@ -1060,7 +1071,7 @@ function doBasket(){
     ngod:profile.ngod||'—',sender:profile.name||'—',receiver:profile.agent||'—',
     entries:JSON.parse(JSON.stringify(entries)),total:calcTotal()
   });
-  if(hist.length>50)hist=hist.slice(0,50);
+  hist=trimHistToNgods(hist,7);
   saveHist(hist);
   entries=[];eid=0;save();renderList();
   showConfirm('📋 เก็บโพยเข้าแฟ้มแล้วครับ<br><br>ดูย้อนหลังได้ที่ 📂 แฟ้ม','',true);
@@ -1124,9 +1135,10 @@ function renderHistList(){
     h+='<div>';
     h+='<div style="font-size:15px;font-weight:900;color:#f5c518;">📁 งวด '+ng+'</div>';
     h+='<div style="font-size:11px;color:#7a8aaa;">'+items.length+' แผ่น · ฿'+fmt(ngTotal)+'</div></div>';
-    h+='<div style="display:flex;align-items:center;gap:8px;">';
-    h+='<span style="font-size:11px;font-weight:800;color:'+(checkRes?'#22c55e':'#f87171')+'">'+(checkRes?'🎯 มีผล':'⏳ ยังไม่บันทึก')+'</span>';
-    h+='<button onclick="event.stopPropagation();checkNgod('+gi+')" style="padding:5px 10px;background:#7c3aed;border:none;border-radius:8px;color:#fff;font-family:Sarabun,sans-serif;font-size:12px;font-weight:800;cursor:pointer;">🔍 ตรวจ</button>';
+    h+='<div style="display:flex;align-items:center;gap:6px;">';
+    h+='<span style="font-size:11px;font-weight:800;color:'+(checkRes?'#22c55e':'#f87171')+'">'+(checkRes?'🎯 มีผล':'⏳')+'</span>';
+    h+='<button onclick="event.stopPropagation();checkNgod('+gi+')" style="padding:5px 8px;background:#7c3aed;border:none;border-radius:8px;color:#fff;font-family:Sarabun,sans-serif;font-size:11px;font-weight:800;cursor:pointer;">🔍</button>';
+    h+='<button onclick="event.stopPropagation();delNgod('+gi+')" style="padding:5px 8px;background:#7f1d1d;border:none;border-radius:8px;color:#fca5a5;font-family:Sarabun,sans-serif;font-size:11px;font-weight:800;cursor:pointer;">🗑️</button>';
     h+='<span class="fold-arrow" style="color:#7a8aaa;font-size:12px;">'+(isOpen?'▼':'▶')+'</span>';
     h+='</div></div>';
     // body
@@ -1156,6 +1168,7 @@ function renderHistList(){
         h+='<span style="font-size:12px;font-weight:800;color:#fff;">ซื้อ ฿'+fmt(hit.bet)+'</span>';
         h+='</div>';
       });}else{h+='<div style="font-size:12px;color:#7a8aaa;">😌 ไม่มีถูกรางวัลงวดนี้</div>';}
+      h+='<button onclick="shareResult('+gi+')" style="width:100%;margin-top:8px;padding:10px;background:linear-gradient(135deg,#06c755,#04a543);border:none;border-radius:10px;color:#fff;font-family:Sarabun,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">📤 ส่งผลให้เอเย่นต์ทาง Line</button>';
       h+='</div>';
     }
     h+='</div></div>';
@@ -1169,6 +1182,46 @@ function toggleFold(gi){
   b.style.display=open?'none':'block';
   var arr=document.querySelectorAll('.fold-arrow')[gi];
   if(arr)arr.textContent=open?'▶':'▼';
+}
+function delNgod(gi){
+  var hist=getHist();
+  var groups={};var groupOrder=[];
+  hist.forEach(function(item){var ng=item.ngod||'—';if(!groups[ng]){groups[ng]=1;groupOrder.push(ng);}});
+  var ng=groupOrder[gi];if(!ng)return;
+  showConfirm('ลบทุกโพยของงวด <b>'+ng+'</b>?<br><span style="font-size:12px;color:#f87171;">ไม่สามารถกู้คืนได้</span>','ยกเลิก');
+  _cfOk=function(){
+    var h=getHist().filter(function(item){return (item.ngod||'—')!==ng;});
+    saveHist(h);renderHistList();toast('ลบงวด '+ng+' แล้วครับ');
+  };
+}
+function shareResult(gi){
+  var hist=getHist();
+  var groups={};var groupOrder=[];
+  hist.forEach(function(item){
+    var ng=item.ngod||'—';
+    if(!groups[ng]){groups[ng]=[];groupOrder.push(ng);}
+    groups[ng].push(item);
+  });
+  var ng=groupOrder[gi];if(!ng)return;
+  var checkRes=null;
+  groups[ng].forEach(function(item){if(item.checkResult)checkRes=item.checkResult;});
+  if(!checkRes){toast('ยังไม่ได้บันทึกผลรางวัลครับ');return;}
+  var r6=checkRes.r6||'';var hits=checkRes.hits||[];
+  var txt='🐯 T999 ลาว · งวด '+ng+'\n';
+  txt+='🎯 ผลรางวัล: '+r6+'\n';
+  if(hits.length){
+    txt+='\n🎉 ถูกรางวัล '+hits.length+' รายการ\n';
+    hits.forEach(function(hit){txt+='• '+hit.lek+' ('+hit.type+') ซื้อ ฿'+fmt(hit.bet)+'\n';});
+  } else {
+    txt+='😌 ไม่มีถูกรางวัลงวดนี้\n';
+  }
+  if(navigator.share){
+    navigator.share({text:txt}).catch(function(e){if(e.name!=='AbortError')toast('แชร์ไม่สำเร็จ');});
+  } else {
+    var el=document.createElement('textarea');
+    el.value=txt;document.body.appendChild(el);el.select();document.execCommand('copy');
+    document.body.removeChild(el);toast('คัดลอกข้อความแล้ว ✅');
+  }
 }
 function checkNgod(gi){
   var hist=getHist();
