@@ -385,7 +385,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 /* ─── OPEN NGOD MODAL ─── */
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}
 .modal-ov.show{display:flex;}
-.modal-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;width:100%;max-width:360px;}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;width:100%;max-width:380px;max-height:90vh;overflow-y:auto;}
 .modal-title{font-size:20px;font-weight:900;color:var(--gold);margin-bottom:18px;text-align:center;}
 .modal-field{margin-bottom:14px;}
 .modal-field label{font-size:13px;font-weight:700;color:var(--lg);display:block;margin-bottom:5px;}
@@ -1096,6 +1096,43 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         <input type="hidden" id="m-ngod">
       </div>
     </div>
+    <!-- ส่วนลด default -->
+    <div class="modal-field">
+      <div style="background:rgba(245,197,24,.07);border:1px solid rgba(245,197,24,.25);border-radius:10px;padding:10px 12px;">
+        <div style="font-size:12px;color:var(--gold);font-weight:800;margin-bottom:8px;">✂️ ส่วนลด default (%)</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;">
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">4ตัว</div><input id="m-disc-c4" type="tel" inputmode="numeric" maxlength="3" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">3ตัว</div><input id="m-disc-c3" type="tel" inputmode="numeric" maxlength="3" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">2ตัว</div><input id="m-disc-c2" type="tel" inputmode="numeric" maxlength="3" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">1ตัว</div><input id="m-disc-c1" type="tel" inputmode="numeric" maxlength="3" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">โต๊ด</div><input id="m-disc-ct" type="tel" inputmode="numeric" maxlength="3" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+        </div>
+      </div>
+    </div>
+    <!-- อัตราจ่าย default -->
+    <div class="modal-field">
+      <div style="background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.25);border-radius:10px;padding:10px 12px;">
+        <div style="font-size:12px;color:#60a5fa;font-weight:800;margin-bottom:8px;">💰 อัตราจ่าย default (×)</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:6px;">
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">4ตัวบน</div><input id="m-pay-p4" type="tel" inputmode="numeric" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">3ตัวบน</div><input id="m-pay-p3" type="tel" inputmode="numeric" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">2ตัวบน</div><input id="m-pay-p2b" type="tel" inputmode="numeric" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">2ตัวล่าง</div><input id="m-pay-p2l" type="tel" inputmode="numeric" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:6px;">
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">โต๊ด2</div><input id="m-pay-pt2" type="tel" inputmode="numeric" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">โต๊ด3</div><input id="m-pay-pt3" type="tel" inputmode="numeric" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">โต๊ด4</div><input id="m-pay-pt4" type="tel" inputmode="numeric" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">โต๊ด5</div><input id="m-pay-pt5" type="tel" inputmode="numeric" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;">
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">ลอยบน</div><input id="m-pay-plb" type="tel" inputmode="numeric" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">ลอยล่าง</div><input id="m-pay-pll" type="tel" inputmode="numeric" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">ปักบน</div><input id="m-pay-pkb" type="tel" inputmode="numeric" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+          <div><div style="font-size:9px;color:var(--lg);margin-bottom:3px;text-align:center;">ปักล่าง</div><input id="m-pay-pkl" type="tel" inputmode="numeric" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:Sarabun,sans-serif;font-size:14px;font-weight:700;padding:5px 4px;box-sizing:border-box;text-align:center;"></div>
+        </div>
+      </div>
+    </div>
     <div class="modal-btns">
       <button class="modal-cancel" id="modal-cancel">ยกเลิก</button>
       <button class="modal-ok" id="modal-ok">✅ เปิดงวด</button>
@@ -1525,6 +1562,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var _ng=getNextNgod();
     document.getElementById('m-ngod').value=_ng;
     var _dpb=document.getElementById('dp-ngod-btn');if(_dpb){_dpb.textContent=_ng+' 📅';_dpb.dataset.val=_ng;}
+    // fill ส่วนลด+อัตราจ่าย default
+    var _disc=DEFAULT_DISC;
+    var _pay=getDefaultPay();
+    var dmap={c4:'m-disc-c4',c3:'m-disc-c3',c2:'m-disc-c2',c1:'m-disc-c1',ct:'m-disc-ct'};
+    Object.keys(dmap).forEach(function(k){var el=document.getElementById(dmap[k]);if(el)el.value=_disc[k]||0;});
+    var pmap={p4:'m-pay-p4',p3:'m-pay-p3',p2b:'m-pay-p2b',p2l:'m-pay-p2l',pt2:'m-pay-pt2',pt3:'m-pay-pt3',pt4:'m-pay-pt4',pt5:'m-pay-pt5',plb:'m-pay-plb',pll:'m-pay-pll',pkb:'m-pay-pkb',pkl:'m-pay-pkl'};
+    Object.keys(pmap).forEach(function(k){var el=document.getElementById(pmap[k]);if(el)el.value=_pay[k]||0;});
     // ถ้ามีงวดเก่าค้างอยู่
     if(hasOld&&entries.length){
       showConfirm(
@@ -1673,6 +1717,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var receiver=sender;
     var ngod=document.getElementById('m-ngod').value.trim();
     if(!ngod){toast('กรุณาใส่งวดครับ');return;}
+    // อ่านและบันทึก ส่วนลด+อัตราจ่าย เป็น default ใหม่
+    var dmap={c4:'m-disc-c4',c3:'m-disc-c3',c2:'m-disc-c2',c1:'m-disc-c1',ct:'m-disc-ct'};
+    var newDisc={};
+    Object.keys(dmap).forEach(function(k){var el=document.getElementById(dmap[k]);newDisc[k]=parseFloat(el?el.value:0)||0;});
+    var pmap={p4:'m-pay-p4',p3:'m-pay-p3',p2b:'m-pay-p2b',p2l:'m-pay-p2l',pt2:'m-pay-pt2',pt3:'m-pay-pt3',pt4:'m-pay-pt4',pt5:'m-pay-pt5',plb:'m-pay-plb',pll:'m-pay-pll',pkb:'m-pay-pkb',pkl:'m-pay-pkl'};
+    var newPay={};
+    Object.keys(pmap).forEach(function(k){var el=document.getElementById(pmap[k]);newPay[k]=parseFloat(el?el.value:0)||0;});
+    DEFAULT_DISC=newDisc;
+    saveDefaultPay(newPay);
     var now=new Date();
     ngodInfo={sender:sender,receiver:sender,ngod:ngod,date:getToday(),basketName:'',ngodId:Date.now()};
     lastBasketName='';
