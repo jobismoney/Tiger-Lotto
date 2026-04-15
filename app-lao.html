@@ -1277,7 +1277,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var DISC_KEY='t999_lao_app_v2_disc';
   // ค่า default ส่วนลด (%) แต่ละประเภท — map ตรงกับคอลัมน์ตาราง
   // c4=4ตัว, c3=3ตัว, c2=2ตัว, c1=1ตัว, ct=โต๊ด
-  var DEFAULT_DISC={c4:25,c3:30,c2:25,c1:12,ct:25};
+  var _DEFAULT_DISC_BASE={c4:25,c3:30,c2:25,c1:12,ct:25};
+  var DISC_DEFAULT_STORE='t999_lao_disc_default_v1';
+  function getDefaultDisc(){try{return Object.assign({},_DEFAULT_DISC_BASE,JSON.parse(localStorage.getItem(DISC_DEFAULT_STORE)||'{}'));}catch(e){return Object.assign({},_DEFAULT_DISC_BASE);}}
+  function saveDefaultDisc(obj){try{localStorage.setItem(DISC_DEFAULT_STORE,JSON.stringify(obj));}catch(e){}}
+  var DEFAULT_DISC=getDefaultDisc();
   var PAY_STORE='t999_lao_pay_v1';
   var DEFAULT_PAY={p4:4000,p3:550,p2b:70,p2l:70,pt2:10,pt3:100,pt4:20,pt5:10,plb:3,pll:4,pkb:8,pkl:8};
   function getDefaultPay(){try{return Object.assign({},DEFAULT_PAY,JSON.parse(localStorage.getItem(PAY_STORE)||'{}'));}catch(e){return Object.assign({},DEFAULT_PAY);}}  function saveDefaultPay(obj){try{localStorage.setItem(PAY_STORE,JSON.stringify(obj));}catch(e){}}  function getPayForName(name){if(!name)return null;try{var all=JSON.parse(localStorage.getItem(PAY_STORE+'_by_name')||'{}');return all[name]||null;}catch(e){return null;}}  function savePayForName(name,pay){if(!name)return;try{var all=JSON.parse(localStorage.getItem(PAY_STORE+'_by_name')||'{}');all[name]=pay;localStorage.setItem(PAY_STORE+'_by_name',JSON.stringify(all));}catch(e){}}
@@ -1446,7 +1450,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   var _cfCb=null;
   var _cfExtraCb=null;
   function fillDiscFields(r){
-    r=r||DEFAULT_DISC;
+    r=r||getDefaultDisc();
     document.getElementById('disc-c4').value=r.c4||0;
     document.getElementById('disc-c3').value=r.c3||0;
     document.getElementById('disc-c2').value=r.c2||0;
@@ -1491,7 +1495,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     field.value=prefill||'';
     field.placeholder=placeholder;
     var savedDisc=prefill?getDiscForName(prefill):null;
-    fillDiscFields(savedDisc||DEFAULT_DISC);
+    fillDiscFields(savedDisc||getDefaultDisc());
     var savedPay=prefill?getPayForName(prefill):null;
     fillPayFields(savedPay||getDefaultPay());
     // chips ชื่อเก่า
@@ -1725,6 +1729,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var newPay={};
     Object.keys(pmap).forEach(function(k){var el=document.getElementById(pmap[k]);newPay[k]=parseFloat(el?el.value:0)||0;});
     DEFAULT_DISC=newDisc;
+    saveDefaultDisc(newDisc);
     saveDefaultPay(newPay);
     var now=new Date();
     ngodInfo={sender:sender,receiver:sender,ngod:ngod,date:getToday(),basketName:'',ngodId:Date.now()};
