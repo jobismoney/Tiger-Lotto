@@ -276,7 +276,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
   <div class="hdr-btns">
     <button class="hbtn" onclick="openHist()"><span class="hbtn-icon">📂</span><span class="hbtn-lbl">แฟ้ม</span></button>
     <button class="hbtn" onclick="openCheck()"><span class="hbtn-icon">🔍</span><span class="hbtn-lbl">ตรวจ</span></button>
-    <button class="hbtn" onclick="openSetup()"><span class="hbtn-icon">⚙️</span><span class="hbtn-lbl">ตั้งค่า</span></button>
+    <button class="hbtn" onclick="openSetup()"><span class="hbtn-icon">🗓️</span><span class="hbtn-lbl">งวดใหม่</span></button>
     <button class="hbtn" onclick="openGuide()"><span class="hbtn-icon">💡</span><span class="hbtn-lbl">วิธีใช้</span></button>
   </div>
 </div>
@@ -405,7 +405,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 <!-- SETUP MODAL -->
 <div class="modal-ov" id="setup-modal">
   <div class="modal-box">
-    <div class="modal-title">⚙️ ตั้งค่าบัญชี</div>
+    <div class="modal-title">🗓️ งวดใหม่ / ตั้งค่า</div>
     <div class="modal-field">
       <label>ชื่อของคุณ</label>
       <input id="setup-name" type="text" placeholder="เช่น สมชาย" maxlength="20">
@@ -1101,13 +1101,47 @@ function closeHist(){document.getElementById('hist-ov').classList.remove('show')
 function renderHistList(){
   var hist=getHist();var el=document.getElementById('hist-list');
   if(!hist.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--lg);font-size:15px;">ยังไม่มีประวัติโพยครับ</div>';return;}
-  var h='';
+  var groups={};var groupOrder=[];
   hist.forEach(function(item,i){
-    h+='<div class="hist-item"><div class="hist-item-info" onclick="viewHistSlip('+i+')">'
-      +'<div class="hist-item-num">โพยที่ '+(hist.length-i)+' · '+item.dateStr+' '+item.timeStr+' · งวด '+(item.ngod||'—')+'</div>'
-      +'<div class="hist-item-cnt">'+(item.entries||[]).length+' รายการ</div></div>'
-      +'<div class="hist-item-total">฿'+fmt(item.total||0)+'</div>'
-      +'<button class="hist-del-btn" onclick="delHist('+i+')">🗑️</button></div>';
+    var ng=item.ngod||'—';
+    if(!groups[ng]){groups[ng]=[];groupOrder.push(ng);}
+    groups[ng].push({item:item,i:i});
+  });
+  var h='';
+  groupOrder.forEach(function(ng){
+    var items=groups[ng];
+    var ngTotal=items.reduce(function(s,x){return s+(x.item.total||0);},0);
+    var checkRes=null;
+    items.forEach(function(x){if(x.item.checkResult)checkRes=x.item.checkResult;});
+    h+='<div style="background:#13161f;border:1px solid #2e3248;border-radius:12px;margin-bottom:10px;overflow:hidden;">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#1a1d2e;">';
+    h+='<div><div style="font-size:15px;font-weight:900;color:#f5c518;">📁 งวด '+ng+'</div>';
+    h+='<div style="font-size:11px;color:#7a8aaa;">'+items.length+' แผ่น · ฿'+fmt(ngTotal)+'</div></div>';
+    h+='<span style="color:#f87171;font-size:11px;font-weight:800;">'+(checkRes?'🎯 มีผล':'⏳ ยังไม่บันทึก')+'</span></div>';
+    items.forEach(function(x,ci){
+      var item=x.item,idx=x.i;
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid #2e3248;">';
+      h+='<div style="cursor:pointer;flex:1;" onclick="viewHistSlip('+idx+')">';
+      h+='<div style="font-size:13px;font-weight:800;color:#fff;">แผ่น '+(items.length-ci)+' · '+item.timeStr+'</div>';
+      h+='<div style="font-size:11px;color:#7a8aaa;">'+(item.entries||[]).length+' รายการ</div></div>';
+      h+='<div style="font-size:14px;font-weight:900;color:#f5c518;margin-right:10px;">฿'+fmt(item.total||0)+'</div>';
+      h+='<button class="hist-del-btn" onclick="delHist('+idx+')">🗑️</button></div>';
+    });
+    if(checkRes){
+      var r6c=checkRes.r6||'';var hitsc=checkRes.hits||[];
+      h+='<div style="padding:10px 14px;background:#0d1f12;border-top:1px solid #22c55e;">';
+      h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
+      h+='<span style="font-size:11px;color:#22c55e;font-weight:800;">🎯 ผลรางวัล</span>';
+      h+='<span style="font-size:16px;font-weight:900;color:#fff;letter-spacing:4px;">'+r6c+'</span></div>';
+      if(hitsc.length){hitsc.forEach(function(hit){
+        h+='<div style="display:flex;justify-content:space-between;padding:3px 0;">';
+        h+='<span style="font-size:13px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>';
+        h+='<span style="font-size:11px;color:#60a5fa;">'+hit.type+' ×฿'+fmt(hit.bet)+'</span>';
+        h+='<span style="font-size:13px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</span></div>';
+      });}else{h+='<div style="font-size:12px;color:#7a8aaa;">😌 ไม่มีถูกรางวัลงวดนี้</div>';}
+      h+='</div>';
+    }
+    h+='</div>';
   });
   el.innerHTML=h;
 }
@@ -1238,10 +1272,41 @@ function _doCheckNgod(allEnts){
     });
   });
   var el=document.getElementById('check-result-out');
-  if(!hits.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--lg);">😔 ไม่ถูกรางวัลครับ</div>';return;}
+  var r6=document.getElementById('res-1st').value.trim();
+  var saveBtn='<button onclick="saveCheckResult()" style="width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:12px;color:#fff;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">💾 บันทึกผลรางวัลนี้</button>';
+  _pendingCheckData={r6:r6,hits:hits};
+  if(!hits.length){
+    el.innerHTML='<div style="text-align:center;padding:24px;color:var(--lg);">😔 ไม่ถูกรางวัลครับ</div>'+saveBtn;
+    return;
+  }
   var h='<div class="check-result-total"><span class="lbl">🎉 ถูกรางวัล</span><span class="val">'+hits.length+' รายการ</span></div>';
-  hits.forEach(function(hit){h+='<div class="check-hit"><div class="lek">'+hit.lek+'</div><div class="type">'+hit.type+' × '+fmt(hit.bet)+'</div></div>';});
+  hits.forEach(function(hit){
+    h+='<div class="check-hit" style="padding:8px 10px;background:#1a1d2e;border-radius:8px;margin-bottom:4px;">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;">';
+    h+='<div><span style="font-size:18px;font-weight:900;color:#fff;margin-right:8px;">'+hit.lek+'</span>';
+    h+='<span style="font-size:12px;color:#60a5fa;">'+hit.type+'</span>';
+    h+=' <span style="font-size:11px;color:#7a8aaa;">×฿'+fmt(hit.bet)+'</span></div>';
+    h+='<div style="font-size:16px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div>';
+    h+='</div></div>';
+  });
+  h+=saveBtn;
   el.innerHTML=h;
+}
+var _pendingCheckData=null;
+function saveCheckResult(){
+  if(!_pendingCheckData)return;
+  var r6=_pendingCheckData.r6;
+  var hits=_pendingCheckData.hits;
+  var ng=profile.ngod||'—';
+  var hist=getHist();
+  hist.forEach(function(item){
+    if((item.ngod||'—')===ng)item.checkResult={r6:r6,hits:hits};
+  });
+  saveHist(hist);
+  _pendingCheckData=null;
+  closeCheck();
+  renderHistList();
+  toast('💾 บันทึกผลรางวัลแล้ว ✅',3000);
 }
 
 // ══════════════════════════════════════
