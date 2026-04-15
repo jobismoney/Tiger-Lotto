@@ -1154,6 +1154,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   </div>
 </div>
 
+<!-- NGOD PICKER OVERLAY -->
+<div id="ngod-pick-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:600;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;width:92%;max-width:360px;">
+    <div style="font-size:17px;font-weight:900;color:var(--gold);margin-bottom:14px;">📅 ตรวจงวดไหนครับ?</div>
+    <div id="ngod-pick-btns"></div>
+    <button onclick="document.getElementById('ngod-pick-ov').style.display='none';" style="width:100%;margin-top:10px;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--lg);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">ยกเลิก</button>
+  </div>
+</div>
+
 <!-- CONFIRM OVERLAY -->
 <div class="cf-ov" id="cf-ov">
   <div class="cf-box">
@@ -2274,7 +2283,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     },
     doCheck:function(){doCheck();},
     _pickNgodCheck:function(idx){
-      document.getElementById('cf-ov').classList.remove('show');
+      document.getElementById('ngod-pick-ov').style.display='none';
       var order=window._ngodCheckOrder||[];
       var map=window._ngodCheckMap||{};
       var key=order[idx];
@@ -3587,14 +3596,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       document.getElementById('check-ov').classList.add('show');
       return;
     }
-    // ถ้ามีหลายงวด → popup เลือกก่อน แล้วค่อยเปิด overlay
+    // ถ้ามีหลายงวด → custom overlay เลือกงวด
     window._ngodCheckMap=ngodMap;
     window._ngodCheckOrder=ngodOrder;
-    var btns=ngodOrder.map(function(key,idx){
+    var btnsHTML=ngodOrder.map(function(key,idx){
       var m=ngodMap[key];
-      return '<button onclick="APP._pickNgodCheck('+idx+')" style="display:block;width:100%;margin-bottom:8px;padding:12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;font-size:16px;font-weight:800;cursor:pointer;">📅 งวด '+m.ngod+'</button>';
+      return '<button onclick="APP._pickNgodCheck('+idx+')" style="display:block;width:100%;margin-bottom:8px;padding:12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:Sarabun,sans-serif;font-size:16px;font-weight:800;cursor:pointer;text-align:left;">📅 งวด '+m.ngod+'</button>';
     }).join('');
-    showConfirm('<b>ตรวจงวดไหนครับ?</b><br><br>'+btns,null,false,null,null,null,null,true);
+    document.getElementById('ngod-pick-btns').innerHTML=btnsHTML;
+    document.getElementById('ngod-pick-ov').style.display='flex';
     return;
   }
   function _doCheckNgod(allEnts, ngod, ngodId){
