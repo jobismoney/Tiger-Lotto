@@ -1238,6 +1238,7 @@ function checkNgod(gi){
   // รู้งวดแล้ว — เปิด overlay แล้วรอกรอก 6 หลัก
   closeHist();
   _checkPendingEnts=allEnts;
+  _checkPendingNg=ng;
   // reset form
   var r6el=document.getElementById('res-1st');if(r6el)r6el.value='';
   document.getElementById('check-result-out').innerHTML='';
@@ -1330,6 +1331,7 @@ function doCheck(){
 }
 var _pendingNgodMap={},_pendingNgodOrder=[];
 var _checkPendingEnts=[];
+var _checkPendingNg='';
 function _pickNgod(idx){
   document.getElementById('ngod-pick-ov').style.display='none';
   var ng=_pendingNgodOrder[idx];
@@ -1382,7 +1384,7 @@ function _doCheckNgod(allEnts){
   var el=document.getElementById('check-result-out');
   var r6=document.getElementById('res-1st').value.trim();
   var saveBtn='<button onclick="saveCheckResult()" style="width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:12px;color:#fff;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">💾 บันทึกผลรางวัลนี้</button>';
-  _pendingCheckData={r6:r6,hits:hits};
+  _pendingCheckData={r6:r6,hits:hits,ng:_checkPendingNg||profile.ngod||'—'};
   if(!hits.length){
     el.innerHTML='<div style="text-align:center;padding:24px;color:var(--lg);">😔 ไม่ถูกรางวัลครับ</div>'+saveBtn;
     return;
@@ -1404,7 +1406,7 @@ function saveCheckResult(){
   if(!_pendingCheckData)return;
   var r6=_pendingCheckData.r6;
   var hits=_pendingCheckData.hits;
-  var ng=profile.ngod||'—';
+  var ng=_pendingCheckData.ng||profile.ngod||'—';
   var hist=getHist();
   hist.forEach(function(item){
     if((item.ngod||'—')===ng)item.checkResult={r6:r6,hits:hits};
