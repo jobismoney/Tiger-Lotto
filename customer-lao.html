@@ -1146,13 +1146,14 @@ function renderHistList(){
     // แต่ละแผ่น
     items.forEach(function(x,ci){
       var item=x.item,idx=x.i;
-      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid #2e3248;">';
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid #2e3248;">';
+      h+='<button class="hist-del-btn" onclick="delHist('+idx+')" title="ลบแผ่นนี้">🗑️</button>';
       h+='<div style="cursor:pointer;flex:1;" onclick="viewHistSlip('+idx+')">';
       h+='<div style="font-size:13px;font-weight:800;color:#fff;">แผ่น '+(items.length-ci)+'</div>';
       h+='<div style="font-size:11px;color:#60a5fa;">'+item.dateStr+' '+item.timeStr+'</div>';
       h+='<div style="font-size:11px;color:#7a8aaa;">'+(item.entries||[]).length+' รายการ</div></div>';
-      h+='<div style="font-size:14px;font-weight:900;color:#f5c518;margin-right:10px;">฿'+fmt(item.total||0)+'</div>';
-      h+='<button class="hist-del-btn" onclick="delHist('+idx+')">🗑️</button></div>';
+      h+='<div style="font-size:14px;font-weight:900;color:#f5c518;">฿'+fmt(item.total||0)+'</div>';
+      h+='</div>';
     });
     // result badge
     if(checkRes){
@@ -1234,9 +1235,13 @@ function checkNgod(gi){
   var ng=groupOrder[gi];if(!ng)return;
   var allEnts=[];
   groups[ng].forEach(function(item){allEnts=allEnts.concat(item.entries||[]);});
+  // รู้งวดแล้ว ไม่ต้องถาม — ตรวจเลย
   closeHist();
   _doCheckNgod(allEnts);
   openCheck();
+  // อัพเดท ngod label
+  var lbl=document.getElementById('check-ngod-lbl');
+  if(lbl)lbl.textContent=ng;
 }
 function delHist(idx){
   var hist=getHist();
@@ -1642,7 +1647,7 @@ function updatePakBtn(){
     <div class="g-sec">
       <div class="g-sec-title">🚀 เริ่มต้นใช้งาน</div>
       <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">รับ License Key (L1) จาก Agent แล้วใส่ครั้งแรก ระบบจำให้อัตโนมัติ</div></div>
-      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">ตั้งค่าชื่อและงวดที่ปุ่ม ⚙️ ตั้งค่า ก่อนเริ่มแทง</div></div>
+      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">กด 🗓️ <b style="color:#f5c518;">งวดใหม่</b> ตั้งชื่อและเลือกวันที่จากปฏิทิน ก่อนเริ่มแทง</div></div>
     </div>
 
     <div class="g-sec">
@@ -1665,14 +1670,18 @@ function updatePakBtn(){
 
     <div class="g-sec">
       <div class="g-sec-title">🔍 ตรวจรางวัล</div>
-      <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">กดปุ่ม 🔍 ตรวจ ในหัว → กด <b>📡 ดึงผลรางวัลล่าสุด</b></div></div>
-      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">กด <b style="color:#f5c518;">🔍 ตรวจเลย</b> → ระบบแสดงรายการที่ถูกรางวัลทันที</div></div>
+      <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">กดปุ่ม 🔍 <b style="color:#f5c518;">ตรวจ</b> ในแถบบน → กรอกเลขที่ออก 6 หลัก → กด ตรวจเลย</div></div>
+      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">ถ้ามีหลายงวด ระบบจะถามให้เลือกงวดก่อน</div></div>
+      <div class="g-step"><div class="g-step-num">3</div><div class="g-step-txt">กด <b style="color:#22c55e;">💾 บันทึกผลรางวัล</b> เพื่อเก็บผลไว้ในแฟ้ม</div></div>
     </div>
 
     <div class="g-sec">
       <div class="g-sec-title">📂 แฟ้มโพย</div>
-      <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">กด 📂 แฟ้ม เพื่อดูโพยที่เก็บไว้ทั้งหมด</div></div>
-      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">กด 🗑️ เพื่อลบโพย — ระบบจะขอยืนยันก่อนลบเสมอ</div></div>
+      <div class="g-step"><div class="g-step-num">1</div><div class="g-step-txt">กด 📂 แฟ้ม → โพยจัดกลุ่มตามงวด งวดล่าสุดเปิดอยู่ งวดเก่าพับไว้</div></div>
+      <div class="g-step"><div class="g-step-num">2</div><div class="g-step-txt">ปุ่ม 🗑️ อยู่ <b>ซ้ายสุด</b> ของแต่ละแผ่น กดค้างยืนยันก่อนลบ</div></div>
+      <div class="g-step"><div class="g-step-num">3</div><div class="g-step-txt">กด 🔍 ที่หัวงวด → ตรวจรางวัลงวดนั้นได้เลย ไม่ต้องเลือกงวดซ้ำ</div></div>
+      <div class="g-step"><div class="g-step-num">4</div><div class="g-step-txt">กด 📤 <b style="color:#06c755;">ส่งผลให้เอเย่นต์</b> → แชร์ผลถูกรางวัลทาง Line ได้เลย</div></div>
+      <div class="g-tip">⚠️ ระบบเก็บข้อมูลแค่ 7 งวดล่าสุด งวดเก่ากว่าจะถูกลบอัตโนมัติ</div>
     </div>
   </div>
 </div>
