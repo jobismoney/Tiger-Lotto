@@ -1090,10 +1090,13 @@ function renderHistList(){
     });
     if(checkRes){
       var r6c=checkRes.r6||'';var hitsc=checkRes.hits||[];
+      var r2lc=checkRes.r2lang||'';var r3lc=checkRes.r3lang||'';
       h+='<div style="padding:10px 14px;background:#0d1f12;border-top:1px solid #22c55e;">';
       h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
       h+='<span style="font-size:11px;color:#22c55e;font-weight:800;">🎯 ผลรางวัล</span>';
       h+='<span style="font-size:16px;font-weight:900;color:#fff;letter-spacing:3px;">'+r6c+'</span></div>';
+      if(r2lc){h+='<div style="font-size:11px;color:#7a8aaa;margin-bottom:2px;">2ตัวล่าง: <b style="color:#34d399;">'+r2lc+'</b></div>';}
+      if(r3lc){h+='<div style="font-size:11px;color:#7a8aaa;margin-bottom:4px;">3ตัวล่าง: <b style="color:#60a5fa;">'+r3lc+'</b></div>';}
       if(hitsc.length){hitsc.forEach(function(hit){
         h+='<div style="display:flex;align-items:center;gap:10px;padding:3px 0;">';
         h+='<span style="font-size:14px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>';
@@ -1265,7 +1268,8 @@ function doCheck(){
     if(d===1&&vbon.indexOf(lek)>=0&&b){hits.push({lek:lek,type:'วิ่งบน',bet:b,pay:b*3});grandPay+=b*3;}
   });
   var el=document.getElementById('check-result-out');
-  _pendingCheckData={r6:first6,hits:hits,ng:_checkPendingNg||profile.ngod||'—'};
+  var r3langStr=r3langList.join(', ');
+  _pendingCheckData={r6:first6,r2lang:r2lang,r3lang:r3langStr,hits:hits,ng:_checkPendingNg||profile.ngod||'—'};
   var saveBtn='<button onclick="saveCheckResult()" style="width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:12px;color:#fff;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">💾 บันทึกผลรางวัลนี้</button>';
   if(!hits.length){
     el.innerHTML='<div style="text-align:center;padding:30px;color:var(--lg);">😔 ไม่ถูกรางวัลครับ</div>'+saveBtn;
