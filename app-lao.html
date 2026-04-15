@@ -3624,7 +3624,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var lek=e.lek,d=parseInt(e.d)||lek.length,b=e.bon||0,t=e.tod||0,l=e.lang||0;
       var kd=e.kd||{};
       var sn=e._setName||''; // ชื่อเจ้าของชุด
-      function ph(o){o._setName=sn;ph(o);}
+      function ph(o){o._setName=sn;hits.push(o);}
       // 4ตัวบน
       if(d===4&&b>0&&lek===_laoWin4){ph({lek:lek,type:'4ตัวบน',bet:b,pay:b*PAY.bon4});grandPay+=b*PAY.bon4;}
       (kd['bon']||[]).forEach(function(x){if(d===4&&x.perm===_laoWin4){ph({lek:x.perm,type:'4ตัวบน(ชุด)',bet:x.price,pay:x.price*PAY.bon4});grandPay+=x.price*PAY.bon4;}});
