@@ -376,6 +376,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
     </div>
     <button class="check-fetch-btn" onclick="fetchResult()">📡 ดึงผลรางวัลล่าสุด</button>
     <button class="check-go-btn" onclick="doCheck()">🔍 ตรวจเลย</button>
+    <button onclick="saveResultDirect()" style="width:100%;margin-top:8px;padding:12px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:12px;color:#fff;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">💾 บันทึกผลรางวัล (ไม่ต้องตรวจ)</button>
     <div id="check-result-out"></div>
   </div>
 </div>
@@ -1294,6 +1295,29 @@ function doCheck(){
   el.innerHTML=h;
 }
 var _pendingCheckData=null;
+function saveResultDirect(){
+  function gv(id){var el=document.getElementById(id);return el?el.value.trim():'';}
+  var r6=gv('res-1st');
+  if(r6.length!==6){toast('ใส่รางวัลที่ 1 ครบ 6 หลักครับ');return;}
+  var ng=_checkPendingNg||profile.ngod||'—';
+  var result={
+    r6:r6,
+    r2lang:gv('res-2lang'),
+    r3na1:gv('res-3lang1'), r3na2:gv('res-3lang2'),
+    r3tail1:gv('res-3lang3'), r3tail2:gv('res-3lang4'),
+    hits:[], ng:ng
+  };
+  var hist=getHist();
+  hist.forEach(function(item){
+    if((item.ngod||'—')===ng)item.checkResult=result;
+  });
+  saveHist(hist);
+  _checkPendingEnts=[];
+  _checkPendingNg='';
+  closeCheck();
+  renderHistList();
+  toast('💾 บันทึกผลรางวัลแล้ว ✅');
+}
 function saveCheckResult(){
   if(!_pendingCheckData)return;
   var r6=_pendingCheckData.r6;
