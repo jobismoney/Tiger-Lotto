@@ -3274,6 +3274,36 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'<span class="hist-folder-toggle open">▼</span></div>'
         +'</div>'
         +'<div class="hist-folder-body">'+setRows+'</div>'
+        +(function(){
+          var curCheckRes=null;
+          basketSets.forEach(function(h){if(h.checkResult)curCheckRes=h.checkResult;});
+          if(!curCheckRes)return '';
+          var r1c=curCheckRes.r1||'';var hitsc=curCheckRes.hits||[];
+          var grandPayC=hitsc.reduce(function(s,x){return s+(x.pay||0);},0);
+          var r3fArr=[curCheckRes.r3f1,curCheckRes.r3f2].filter(Boolean);
+          var r3bArr=[curCheckRes.r3b1,curCheckRes.r3b2].filter(Boolean);
+          var bh='<div style="background:#0d1f12;border-top:1px solid #22c55e;padding:10px 14px;">'
+            +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
+            +'<span style="font-size:12px;color:#22c55e;font-weight:800;">🎯 ผลรางวัล</span>'
+            +(grandPayC>0?'<span style="font-size:14px;font-weight:900;color:#34d399;">฿'+fmt(grandPayC)+'</span>':'')
+            +'</div>'
+            +'<div style="font-size:12px;color:#d1fae5;margin-bottom:2px;">รางวัลที่1: <b>'+r1c+'</b></div>'
+            +(curCheckRes.r2?'<div style="font-size:12px;color:#d1fae5;margin-bottom:2px;">2ตัวล่าง: <b>'+curCheckRes.r2+'</b></div>':'')
+            +(r3fArr.length?'<div style="font-size:12px;color:#d1fae5;margin-bottom:2px;">หน้า3ตัว: <b>'+r3fArr.join(' · ')+'</b></div>':'')
+            +(r3bArr.length?'<div style="font-size:12px;color:#d1fae5;margin-bottom:8px;">ท้าย3ตัว: <b>'+r3bArr.join(' · ')+'</b></div>':'');
+          if(hitsc.length){
+            hitsc.forEach(function(hit){
+              bh+='<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-top:1px solid #1a2a1a;">'
+                +'<div><span style="font-size:16px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>'
+                +' <span style="font-size:11px;color:#6ee7b7;">'+hit.type+'</span>'
+                +' <span style="font-size:11px;color:#7a8aaa;">ซื้อ ฿'+fmt(hit.bet)+'</span></div>'
+                +'<div style="font-size:15px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div></div>';
+            });
+          } else {
+            bh+='<div style="font-size:12px;color:#7a8aaa;padding:4px 0;border-top:1px solid #1a2a1a;">😌 ไม่มีถูกรางวัลงวดนี้</div>';
+          }
+          return bh+'</div>';
+        }())
         +(basketSets.length>0?'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEscQ+'">📋 ดูทั้งหมด</button><button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEscQ+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHistNgod(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEscQ+'" data-nid="'+curNgodId+'">🔍 ตรวจผล</button></div>':'')
         +'</div>');
     }
