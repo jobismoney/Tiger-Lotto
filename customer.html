@@ -604,21 +604,28 @@ function renderList(){
     var kn=(kd.na||[]).reduce(function(s,x){return s+x.price;},0);
     var etot=b+t+l+n+kb+kl+kn; grand+=etot;
     function fod(v){return v>0?fmt(v):'<span class="cel e">—</span>';}
-    // paks row
+    // paks row — group ตามตำแหน่ง แต่ละตำแหน่งแสดง 1 บรรทัด
     var paks=e.paks||[];
     if(paks.length){
-      paks.forEach(function(p,pi){
-        var pos={na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]||p.pos;
-        var typ=p.typeLabel||(p.type==='bon'?'บน':'ล่าง');
-        var desc='📌 ปัก'+pos;
-        var isBon=(p.type==='bon'||p.typeLabel==='บน');
-        // คอลัม: เลข | บน | โต๊ด | ล่าง | หน้า | ✕
+      // group by pos
+      var pakByPos={};var pakPosOrder=[];
+      paks.forEach(function(p){
+        if(!pakByPos[p.pos]){pakByPos[p.pos]={bon:0,lang:0};pakPosOrder.push(p.pos);}
+        if(p.type==='bon'||p.typeLabel==='บน')pakByPos[p.pos].bon+=p.price;
+        else pakByPos[p.pos].lang+=p.price;
+      });
+      var posLabel={na:'ร้อย',mid:'สิบ',lang:'หน่วย'};
+      pakPosOrder.forEach(function(pos,pi){
+        var pg=pakByPos[pos];
+        var lbl=posLabel[pos]||pos;
+        var bonVal=pg.bon>0?fmt(pg.bon):'<span class="cel e">—</span>';
+        var langVal=pg.lang>0?fmt(pg.lang):'<span class="cel e">—</span>';
         h+='<div class="bet-row">'
-          +'<span class="lek-cell">'+(pi===0?e.lek:'')+'</span>'
-          +'<span class="cel" style="font-size:11px;color:#fb923c;text-align:left;">'+(isBon?desc:'—')+'</span>'
-          +'<span class="cel">—</span>'
-          +'<span class="cel" style="font-size:11px;color:#fb923c;text-align:left;">'+(!isBon?desc:'—')+'</span>'
-          +'<span class="cel" style="color:#fb923c;font-weight:800;">'+fmt(p.price)+'</span>'
+          +'<span class="lek-cell" style="font-size:14px;">'+(pi===0?e.lek:'')+'<span style="font-size:11px;color:#fb923c;font-weight:800;">📌'+lbl+'</span></span>'
+          +'<span class="cel" style="color:#60a5fa;">'+bonVal+'</span>'
+          +'<span class="cel e">—</span>'
+          +'<span class="cel" style="color:#34d399;">'+langVal+'</span>'
+          +'<span class="cel e">—</span>'
           +(pi===0?'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button>':'<span></span>')
           +'</div>';
       });
