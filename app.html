@@ -1706,6 +1706,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var sender=document.getElementById('m-sender').value.trim();
     var ngod=document.getElementById('m-ngod').value.trim();
     if(!ngod){toast('กรุณาใส่งวดครับ');return;}
+    // archive งวดเก่าก่อนเสมอ (ถ้ามี entries ค้างอยู่)
+    if(ngodOpen&&entries.length){archiveCurrentNgod(true);}
     // อ่านและบันทึก ส่วนลด+อัตราจ่าย เป็น default ใหม่
     var newDisc=readNgodDiscFields();
     var newPay=readNgodPayFields();
