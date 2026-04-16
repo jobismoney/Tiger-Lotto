@@ -610,11 +610,16 @@ function renderList(){
       paks.forEach(function(p,pi){
         var pos={na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]||p.pos;
         var typ=p.typeLabel||(p.type==='bon'?'บน':'ล่าง');
-        var desc='📌 ปัก'+pos+'('+typ+')';
-        h+='<div class="bet-row"><span class="lek-cell">'+(pi===0?e.lek:'')+'</span>'
-          +'<span class="cel" style="font-size:12px;color:#fb923c;text-align:left;grid-column:span 3;">'+desc+'</span>'
+        var desc='📌 ปัก'+pos;
+        var isBon=(p.type==='bon'||p.typeLabel==='บน');
+        // คอลัม: เลข | บน | โต๊ด | ล่าง | หน้า | ✕
+        h+='<div class="bet-row">'
+          +'<span class="lek-cell">'+(pi===0?e.lek:'')+'</span>'
+          +'<span class="cel" style="font-size:11px;color:#fb923c;text-align:left;">'+(isBon?desc:'—')+'</span>'
+          +'<span class="cel">—</span>'
+          +'<span class="cel" style="font-size:11px;color:#fb923c;text-align:left;">'+(!isBon?desc:'—')+'</span>'
           +'<span class="cel" style="color:#fb923c;font-weight:800;">'+fmt(p.price)+'</span>'
-          +(pi===0?'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button>':'<span class="cel"></span>')
+          +(pi===0?'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button>':'<span></span>')
           +'</div>';
       });
     } else {
