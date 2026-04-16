@@ -1090,23 +1090,13 @@ function renderHistList(){
     });
     if(checkRes){
       var r6c=checkRes.r6||'';var hitsc=checkRes.hits||[];
-      var r2lc=checkRes.r2lang||'';
-      var r3nac=checkRes.r3na||'';
-      var r3tailc=checkRes.r3tail||'';
-      var r6c3bon=r6c.slice(-3),r6c3na=r6c.slice(0,3),r6c2bon=r6c.slice(-2);
+      var cr=checkRes;
       h+='<div style="padding:10px 14px;background:#0d1f12;border-top:1px solid #22c55e;">';
-      h+='<div style="font-size:11px;color:#22c55e;font-weight:800;margin-bottom:6px;">🎯 ผลรางวัล</div>';
-      if(r6c.length===6){
-        h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px;font-size:11px;">';
-        h+='<div style="color:#7a8aaa;">รางวัลที่1 <b style="color:#fff;letter-spacing:2px;">'+r6c+'</b></div>';
-        h+='<div style="color:#7a8aaa;">3ตัวบน <b style="color:#f5c518;">'+r6c3bon+'</b></div>';
-        h+='<div style="color:#7a8aaa;">3ตัวหน้า <b style="color:#f5c518;">'+r6c3na+'</b></div>';
-        h+='<div style="color:#7a8aaa;">2ตัวบน <b style="color:#f472b6;">'+r6c2bon+'</b></div>';
-        if(r2lc){h+='<div style="color:#7a8aaa;">2ตัวล่าง <b style="color:#34d399;">'+r2lc+'</b></div>';}
-        h+='</div>';
-      }
-      if(r3nac){h+='<div style="font-size:11px;color:#7a8aaa;margin-bottom:2px;">หน้า3ตัว: <b style="color:#60a5fa;">'+r3nac+'</b></div>';}
-      if(r3tailc){h+='<div style="font-size:11px;color:#7a8aaa;margin-bottom:4px;">ท้าย3ตัว: <b style="color:#60a5fa;">'+r3tailc+'</b></div>';}
+      h+='<div style="font-size:11px;color:#22c55e;font-weight:800;margin-bottom:8px;">🎯 ผลรางวัล</div>';
+      h+='<div style="font-size:12px;margin-bottom:3px;color:#7a8aaa;">รางวัลที่1: <b style="color:#fff;letter-spacing:2px;">'+(cr.r6||'—')+'</b></div>';
+      h+='<div style="font-size:12px;margin-bottom:3px;color:#7a8aaa;">2ตัวล่าง: <b style="color:#34d399;">'+(cr.r2lang||'—')+'</b></div>';
+      h+='<div style="font-size:12px;margin-bottom:3px;color:#7a8aaa;">หน้า3ตัว: <b style="color:#60a5fa;">'+(cr.r3na1||'—')+' · '+(cr.r3na2||'—')+'</b></div>';
+      h+='<div style="font-size:12px;margin-bottom:6px;color:#7a8aaa;">ท้าย3ตัว: <b style="color:#60a5fa;">'+(cr.r3tail1||'—')+' · '+(cr.r3tail2||'—')+'</b></div>';
       if(hitsc.length){hitsc.forEach(function(hit){
         h+='<div style="display:flex;align-items:center;gap:10px;padding:3px 0;">';
         h+='<span style="font-size:14px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>';
@@ -1278,13 +1268,11 @@ function doCheck(){
     if(d===1&&vbon.indexOf(lek)>=0&&b){hits.push({lek:lek,type:'วิ่งบน',bet:b,pay:b*3});grandPay+=b*3;}
   });
   var el=document.getElementById('check-result-out');
-  var r3naList=[gv('res-3lang1'),gv('res-3lang2')].filter(function(x){return x.length===3;});
-  var r3tailList=[gv('res-3lang3'),gv('res-3lang4')].filter(function(x){return x.length===3;});
   _pendingCheckData={
     r6:first6,
     r2lang:r2lang,
-    r3na:r3naList.join(', '),
-    r3tail:r3tailList.join(', '),
+    r3na1:gv('res-3lang1'), r3na2:gv('res-3lang2'),
+    r3tail1:gv('res-3lang3'), r3tail2:gv('res-3lang4'),
     hits:hits,
     ng:_checkPendingNg||profile.ngod||'—'
   };
