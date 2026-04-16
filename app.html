@@ -2281,19 +2281,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       ngodId=parseInt(ngodId)||0;
       var hist=getHistory();
       var result={r1:r1,r2:r2,r3f1:r3f1,r3f2:r3f2,r3b1:r3b1,r3b2:r3b2,hits:hits||[],savedAt:getNowTime()};
-      var saved=0;
+      // บันทึกทุก basket ที่ ngodId ตรง (ถ้ามี) หรือ ngod string ตรง
       hist.forEach(function(h){
-        // ใช้ ngodId เป็นตัวหลัก — ตรงกว่าเปรียบ string งวด
-        if(h.isBasket&&(ngodId?h.ngodId===ngodId:h.ngod===ngod)){
-          h.checkResult=result;saved++;
-        }
+        if(!h.isBasket)return;
+        var match=ngodId?h.ngodId===ngodId:h.ngod===ngod;
+        if(match)h.checkResult=result;
       });
-      // ถ้าหาจาก history ไม่เจอ ลองเทียบ string งวด (fallback)
-      if(!saved){
-        hist.forEach(function(h){
-          if(h.isBasket&&h.ngod===ngod){h.checkResult=result;saved++;}
-        });
-      }
       saveHistory(hist);
       renderHistory();
       toast('💾 บันทึกผลรางวัลแล้ว ✅',3000);
