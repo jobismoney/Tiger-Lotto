@@ -564,6 +564,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .slip-ft .fl{color:#000;font-size:14px;font-weight:800;}
 .slip-ft .fv{color:#000;font-size:22px;font-weight:900;}
 .slip-legend{font-size:11px;color:#888;padding:3px 8px;text-align:right;background:#fff;border-top:1px solid #eee;}
+.marquee-wrap{background:linear-gradient(90deg,#1a1d27,#222533,#1a1d27);border-bottom:1px solid var(--border);overflow:hidden;white-space:nowrap;padding:4px 0;flex-shrink:0;}
+.marquee-track{display:inline-flex;animation:marquee-scroll 22s linear infinite;}
+@keyframes marquee-scroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.marquee-text{font-size:13px;font-weight:800;color:var(--gold);padding:0 60px;letter-spacing:1px;}
 .slip-qr-wrap{display:flex;justify-content:flex-end;align-items:center;padding:4px 10px 2px;background:#fff;}
 .slip-qr-wrap canvas,.slip-qr-wrap img{width:160px!important;height:160px!important;}
 .slip-page-sum .slip-hd{padding:8px 12px 6px;}
@@ -986,6 +990,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 <!-- MAIN WRAP -->
 
 <div class="main-wrap" id="main-wrap">
+  <div class="marquee-wrap"><div class="marquee-track"><span class="marquee-text" id="marquee-txt">🐯 TIGER 999 · งวด — · 🇹🇭</span><span class="marquee-text" id="marquee-txt2">🐯 TIGER 999 · งวด — · 🇹🇭</span></div></div>
   <div class="hdr">
     <div class="hdr-left">
       <h1>🐯 TIGER 999 🇹🇭</h1>
@@ -1340,6 +1345,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var g=ngodInfo.ngod||'...';
     document.getElementById('hd-info').textContent=s+' → '+r;
     var gd=g.replace(/ \d{2}:\d{2}$/,''); document.getElementById('hd-ngod').textContent=gd&&gd!=='...'?' '+gd:'';
+    var txt=ngodInfo.ngod?'🐯 TIGER 999 · งวด '+ngodInfo.ngod+' · '+s+' → '+r+' · 🇹🇭':'🐯 TIGER 999 · 🇹🇭';
+    var mt=document.getElementById('marquee-txt');if(mt)mt.textContent=txt;
+    var mt2=document.getElementById('marquee-txt2');if(mt2)mt2.textContent=txt;
   }
 
   function updateLockUI(){
@@ -2798,7 +2806,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             +'<td class="td-eq">=</td>'
             +'<td class="td-price">'+line.price+'</td>'
             +'<td class="td-brace-empty"></td>'
-            +'<td class="td-total">'+fmt(line.total)+'</td>'
             +'</tr>';
         });
       } else {
@@ -2815,21 +2822,19 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             +'<td class="td-eq">=</td>'
             +'<td class="td-price">'+ls[li].price+'</td>'
             +'<td style="'+bs+'"></td>'
-            +(isMid?'<td class="td-total" rowspan="'+n+'" style="vertical-align:middle;text-align:right;width:50px;">'+fmt(eTot)+'</td>':'')
             +'</tr>';
         }
       }
-      bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
+      bodyRows+='<tr class="row-sep"><td colspan="4"></td></tr>';
     });
     var ps=pageSumTotals(pEntries);
     var pt=(pEntries.reduce(function(s,e){return s+(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);},0))+
       ['bon','lang','na'].reduce(function(s,k){return s+pEntries.reduce(function(ss,e){return ss+(e.kd[k]||[]).reduce(function(sss,x){return sss+x.price;},0);},0);},0);
     return '<div class="slip-hd">'
       +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇹🇭 THAI</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
-      
       +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
       +'</div>'
-      +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
+      +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"></colgroup><tbody>'+bodyRows+'</tbody></table>'
       +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
       +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmt(pt)+'</span></div>'
       +'<div class="slip-qr-wrap" id="slip-qr-pg-'+pgNum+'"></div>'
@@ -2902,7 +2907,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var eTot=ls.reduce(function(s,x){return s+x.total;},0);
         if(isPak||ls.length===1){
           ls.forEach(function(line){
-            bodyRows+='<tr><td class="td-lek">'+line.lek+'</td><td class="td-eq">=</td><td class="td-price">'+line.price+'</td><td class="td-brace-empty"></td><td class="td-total">'+fmt(line.total)+'</td></tr>';
+            bodyRows+='<tr><td class="td-lek">'+line.lek+'</td><td class="td-eq">=</td><td class="td-price">'+line.price+'</td><td class="td-brace-empty"></td></tr>';
           });
         } else {
           var n=ls.length,midIdx=Math.floor((n-1)/2);
@@ -2913,17 +2918,16 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             else if(isFirst)bs+='border-right:1.5px solid #999;border-top:1.5px solid #999;border-radius:0 4px 0 0;';
             else if(isLast)bs+='border-right:1.5px solid #999;border-bottom:1.5px solid #999;border-radius:0 0 4px 0;';
             else bs+='border-right:1.5px solid #999;';
-            bodyRows+='<tr><td class="td-lek">'+ls[li].lek+'</td><td class="td-eq">=</td><td class="td-price">'+ls[li].price+'</td><td style="'+bs+'"></td>'+(isMid?'<td class="td-total" rowspan="'+n+'" style="vertical-align:middle;text-align:right;width:50px;">'+fmt(eTot)+'</td>':'')+'</tr>';
+            bodyRows+='<tr><td class="td-lek">'+ls[li].lek+'</td><td class="td-eq">=</td><td class="td-price">'+ls[li].price+'</td><td style="'+bs+'"></td></tr>';
           }
         }
-        bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
+        bodyRows+='<tr class="row-sep"><td colspan="4"></td></tr>';
       });
       return '<div class="slip-hd">'
         +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇹🇭 THAI</h2><span class="pg">แผ่นที่ '+(i+1)+'/'+totalPages+'</span></div>'
-        
         +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||inf.label||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
         +'</div>'
-        +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
+        +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"></colgroup><tbody>'+bodyRows+'</tbody></table>'
         +sumTableHTML(buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false))
         +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmt(pt)+'</span></div>'
         +'<div class="slip-qr-wrap" id="slip-qr-pg-'+(i+1)+'"></div>'
@@ -3198,7 +3202,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var bodyRows='';
     items.forEach(function(item,idx){
       if(item.type==='divider'){
-        bodyRows+='<tr class="set-divider"><td colspan="5">'
+        bodyRows+='<tr class="set-divider"><td colspan="4">'
           +'<span style="font-size:9px;color:#666;letter-spacing:.5px;">─── '+item.label+' ───</span>'
           +'</td></tr>';
         return;
@@ -3215,7 +3219,6 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             +'<td class="td-eq">=</td>'
             +'<td class="td-price">'+line.price+'</td>'
             +'<td class="td-brace-empty"></td>'
-            +'<td class="td-total">'+fmt(line.total)+'</td>'
             +'</tr>';
         });
       } else {
@@ -3232,14 +3235,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             +'<td class="td-eq">=</td>'
             +'<td class="td-price">'+ls[li].price+'</td>'
             +'<td style="'+braceStyle+'"></td>'
-            +(isMid?'<td class="td-total" rowspan="'+n+'" style="vertical-align:middle;text-align:right;width:50px;">'+fmt(entryTotal)+'</td>':'')
             +'</tr>';
         }
       }
       // เส้นกั้นระหว่าง entry (ไม่ใส่ถ้าตามด้วย divider)
       var nextItem=items[idx+1];
       if(nextItem&&nextItem.type!=='divider'){
-        bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
+        bodyRows+='<tr class="row-sep"><td colspan="4"></td></tr>';
       }
     });
     // คำนวณ total ของแผ่นนี้
@@ -3250,7 +3252,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇹🇭 THAI</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
       +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
       +'</div>'
-      +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
+      +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:110px"><col style="width:12px"></colgroup><tbody>'+bodyRows+'</tbody></table>'
       +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
       +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmt(pt)+'</span></div>'
       +'<div class="slip-qr-wrap" id="slip-qr-pg-'+pgNum+'"></div>'
