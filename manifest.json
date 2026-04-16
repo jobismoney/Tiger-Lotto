@@ -1,0 +1,46 @@
+{
+  "name": "TIGER 999 - ระบบจัดการหวย",
+  "short_name": "TIGER 999",
+  "description": "ระบบจัดการหวยออนไลน์ Thai / Lao",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0c14",
+  "theme_color": "#f5c518",
+  "lang": "th",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "เจ้ามือ Thai",
+      "short_name": "เจ้ามือ",
+      "url": "/desktop.html",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "คนเดินโพย Thai",
+      "short_name": "เดินโพย",
+      "url": "/app.html",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "ลูกค้า Thai",
+      "short_name": "ลูกค้า",
+      "url": "/customer.html",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

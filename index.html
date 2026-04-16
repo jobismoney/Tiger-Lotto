@@ -2,207 +2,82 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>T999 — Private Access</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+<title>🐯 TIGER 999</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#f5c518">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-:root{--gold:#d4a017;--gold2:#f5c518;--dark:#0a0a0a;--card:#141414;--border:rgba(255,255,255,.08);}
-body{font-family:'Sarabun',sans-serif;background:var(--dark);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.bg{position:fixed;inset:0;z-index:0;}
-.bg-circle{position:absolute;border-radius:50%;filter:blur(80px);opacity:.15;}
-.bg-circle.c1{width:500px;height:500px;background:var(--gold);top:-150px;right:-150px;}
-.bg-circle.c2{width:400px;height:400px;background:#1d4ed8;bottom:-100px;left:-100px;}
-.bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:40px 40px;}
-.card{position:relative;z-index:1;width:100%;max-width:420px;padding:24px;animation:fadeUp .5s ease both;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-.logo{text-align:center;margin-bottom:40px;}
-.logo-icon{width:64px;height:64px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px;box-shadow:0 8px 32px rgba(212,160,23,.3);}
-.logo-name{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:4px;color:#fff;}
-.logo-sub{font-size:13px;color:#555;margin-top:4px;letter-spacing:1px;}
-.box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;}
-.label{font-size:13px;font-weight:700;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
-.input-wrap{position:relative;margin-bottom:20px;}
-.input-wrap input{width:100%;background:rgba(255,255,255,.04);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;color:#fff;letter-spacing:2px;outline:none;transition:border-color .2s;text-transform:uppercase;}
-.input-wrap input::placeholder{color:#333;letter-spacing:1px;text-transform:none;font-weight:400;}
-.input-wrap input:focus{border-color:rgba(212,160,23,.5);}
-.input-wrap input.error{border-color:#ef4444;animation:shake .3s ease;}
-@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
-.btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:12px;padding:15px;font-family:'Sarabun',sans-serif;font-size:17px;font-weight:900;cursor:pointer;transition:all .2s;}
-.btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(212,160,23,.4);}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-.btn-inner{display:flex;align-items:center;justify-content:center;gap:8px;}
-.msg{margin-top:16px;padding:12px 16px;border-radius:10px;font-size:14px;font-weight:600;text-align:center;display:none;}
-.msg.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#fca5a5;}
-.msg.success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#86efac;}
-.msg.show{display:block;}
-.footer-note{text-align:center;margin-top:24px;font-size:12px;color:#333;}
-.footer-note a{color:#555;text-decoration:none;}
-.spinner{width:18px;height:18px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;display:none;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.loading .spinner{display:block;}
-.loading .btn-text{display:none;}
+body{background:#0a0c14;color:#f0f2ff;font-family:'Sarabun',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.logo{font-size:64px;margin-bottom:8px;text-align:center;}
+.title{font-size:28px;font-weight:900;color:#f5c518;letter-spacing:2px;margin-bottom:4px;text-align:center;}
+.sub{font-size:14px;color:#556;font-weight:600;margin-bottom:40px;text-align:center;}
+.cards{display:flex;flex-direction:column;gap:14px;width:100%;max-width:340px;}
+.card{background:#13161f;border:1.5px solid #252840;border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;text-decoration:none;transition:border-color .2s,background .2s;}
+.card:active{background:#1a1d27;}
+.card.gold{border-color:rgba(245,197,24,.4);}
+.card.gold:active{background:#1c1e28;}
+.card-icon{font-size:32px;flex-shrink:0;}
+.card-body{}
+.card-title{font-size:17px;font-weight:900;color:#f0f2ff;margin-bottom:2px;}
+.card-title span{color:#f5c518;}
+.card-sub{font-size:12px;color:#556;font-weight:600;}
+.card.gold .card-title{color:#f5c518;}
+.ver{margin-top:32px;font-size:11px;color:#333;font-weight:600;text-align:center;}
 </style>
 </head>
 <body>
-<div class="bg">
-  <div class="bg-circle c1"></div>
-  <div class="bg-circle c2"></div>
-  <div class="bg-grid"></div>
-</div>
 
-<div class="card">
-  <div class="logo">
-    <div class="logo-icon">🐯</div>
-    <div class="logo-name">T999</div>
-    <div class="logo-sub">Private Access Only</div>
-  </div>
-  <div class="box">
-    <div class="label">License Key</div>
-    <div class="input-wrap">
-      <input type="text" id="keyInput" placeholder="T999-XXXX-XXXX-XXXX" maxlength="19" autocomplete="off" spellcheck="false">
+<div class="logo">🐯</div>
+<div class="title">TIGER 999</div>
+<div class="sub">ระบบจัดการหวยออนไลน์</div>
+
+<div class="cards">
+
+  <a class="card gold" href="desktop.html">
+    <div class="card-icon">🖥️</div>
+    <div class="card-body">
+      <div class="card-title"><span>เจ้ามือ</span> · Thai</div>
+      <div class="card-sub">L3 · จัดการลูกค้า · วิเคราะห์ยอด</div>
     </div>
-    <button class="btn" id="submitBtn" onclick="checkKey()">
-      <div class="btn-inner">
-        <div class="spinner"></div>
-        <span class="btn-text">เข้าสู่ระบบ →</span>
-      </div>
-    </button>
-    <div class="msg" id="msg"></div>
-  </div>
-  <div class="footer-note">ติดต่อรับ License Key ผ่าน <a href="https://lin.ee/F0PXniE" target="_blank">Line OA</a></div>
+  </a>
+
+  <a class="card" href="app.html">
+    <div class="card-icon">📋</div>
+    <div class="card-body">
+      <div class="card-title">คนเดินโพย · Thai 🇹🇭</div>
+      <div class="card-sub">L2 · รับโพยจากลูกค้า · ส่งเจ้ามือ</div>
+    </div>
+  </a>
+
+  <a class="card" href="customer.html">
+    <div class="card-icon">🎟️</div>
+    <div class="card-body">
+      <div class="card-title">ลูกค้า · Thai 🇹🇭</div>
+      <div class="card-sub">L1 · แทงหวย · ดูโพย · ตรวจรางวัล</div>
+    </div>
+  </a>
+
+  <a class="card" href="app-lao.html">
+    <div class="card-icon">📋</div>
+    <div class="card-body">
+      <div class="card-title">คนเดินโพย · Lao 🇱🇦</div>
+      <div class="card-sub">L2 · ລາວ · รับโพยหวยลาว</div>
+    </div>
+  </a>
+
+  <a class="card" href="customer-lao.html">
+    <div class="card-icon">🎟️</div>
+    <div class="card-body">
+      <div class="card-title">ລູກຄ້າ · Lao 🇱🇦</div>
+      <div class="card-sub">L1 · ລາວ · ແທງຫວຍ · ຕວດລາງວັນ</div>
+    </div>
+  </a>
+
 </div>
 
-<script>
-// ================================================================
-// CONFIG: แก้ตรงนี้เมื่อต้องการเปลี่ยน pattern
-// Pattern ปัจจุบัน: T999-0XX3-XX6X-X2XX (มีนาคม 2569/2026)
-// ตำแหน่งนับจาก string เต็ม รวม - ด้วย:
-// T=0, 9=1, 9=2, 9=3, -=4, b1=5,6,7,8, -=9, b2=10,11,12,13, -=14, b3=15,16,17,18
-// M1(0)=5, M2(3)=8, Y1(6)=12, Y2(2)=16
-var POS = { M1:5, M2:8, Y1:12, Y2:16 };
-// ================================================================
+<div class="ver">TIGER 999 · tiger999.online</div>
 
-// ฟอร์แมต input อัตโนมัติ
-document.getElementById('keyInput').addEventListener('input', function(e) {
-  var v = e.target.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
-  var f = '';
-  for(var i=0;i<v.length&&i<16;i++) {
-    if(i===4||i===8||i===12) f+='-';
-    f+=v[i];
-  }
-  e.target.value = f;
-});
-
-document.getElementById('keyInput').addEventListener('keydown', function(e) {
-  if(e.key==='Enter') checkKey();
-});
-
-function extractCode(key) {
-  // ดึงตัวเลข MMYY จากตำแหน่งที่กำหนด
-  return (key[POS.M1]||'') + (key[POS.M2]||'') + (key[POS.Y1]||'') + (key[POS.Y2]||'');
-}
-
-function getValidCodes() {
-  // สร้าง valid codes สำหรับเดือนปัจจุบัน + เดือนก่อนหน้า
-  var list = [];
-  var now = new Date();
-  for(var m=-1; m<=0; m++) {
-    var d = new Date(now.getFullYear(), now.getMonth()+m, 1);
-    var mm = String(d.getMonth()+1).padStart(2,'0');
-    var yy = String(d.getFullYear()).slice(-2);
-    // สลับปี: 26 → Y1=6, Y2=2
-    list.push(mm + yy[1] + yy[0]);
-  }
-  return list;
-}
-
-function checkKey() {
-  var input = document.getElementById('keyInput').value.trim().toUpperCase();
-  var btn = document.getElementById('submitBtn');
-  var msg = document.getElementById('msg');
-
-  // เช็ครูปแบบ
-  if(!/^T999-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(input)) {
-    showError('รูปแบบรหัสไม่ถูกต้อง');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.classList.add('loading');
-  msg.classList.remove('show','error','success');
-
-  setTimeout(function() {
-    var code = extractCode(input);
-    var validCodes = getValidCodes();
-
-    if(validCodes.indexOf(code) !== -1) {
-      // บันทึก session
-      localStorage.setItem('t999_key', input);
-      localStorage.setItem('t999_code', code);
-
-      msg.textContent = '✓ รหัสถูกต้อง กำลังเข้าสู่ระบบ...';
-      msg.className = 'msg success show';
-
-      setTimeout(function() {
-        // ตรวจขนาดจอ → ส่งไปหน้าที่เหมาะสม
-        if(window.innerWidth >= 768) {
-          window.location.href = 'desktop.html';
-        } else {
-          window.location.href = 'app.html';
-        }
-      }, 800);
-    } else {
-      btn.disabled = false;
-      btn.classList.remove('loading');
-      showError('รหัสหมดอายุหรือไม่ถูกต้อง');
-    }
-  }, 600);
-}
-
-function showError(text) {
-  var msg = document.getElementById('msg');
-  var inp = document.getElementById('keyInput');
-  msg.textContent = text;
-  msg.className = 'msg error show';
-  inp.classList.add('error');
-  setTimeout(function(){ inp.classList.remove('error'); }, 500);
-  document.getElementById('submitBtn').disabled = false;
-  document.getElementById('submitBtn').classList.remove('loading');
-}
-
-function redirectByLevel(lv){
-  if(lv===3){
-    if(window.innerWidth>=900){
-      window.location.href='desktop.html';
-    } else {
-      document.getElementById('choiceOv').classList.add('show');
-    }
-  } else {
-    window.location.href='app.html';
-  }
-}
-
-// เช็คว่า login อยู่แล้วไหม
-(function(){
-  var key = localStorage.getItem('t999_key');
-  var code = localStorage.getItem('t999_code');
-  if(key && code) {
-    var validCodes = getValidCodes();
-    if(validCodes.indexOf(code) !== -1) {
-      if(window.innerWidth >= 768) {
-        window.location.href = 'desktop.html';
-      } else {
-        window.location.href = 'app.html';
-      }
-    } else {
-      // รหัสหมดอายุ ล้างออก
-      localStorage.removeItem('t999_key');
-      localStorage.removeItem('t999_code');
-    }
-  }
-})();
-</script>
 </body>
 </html>
