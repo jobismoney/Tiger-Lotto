@@ -1277,7 +1277,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       </div>
     </div>
     <div style="display:flex;gap:8px;">
-      <button id="name-inp-skip" style="flex:1;padding:12px;border-radius:10px;background:var(--card2);color:var(--lg);border:1px solid var(--border);font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">ข้าม</button>
+      <button id="name-inp-skip" style="flex:1;padding:12px;border-radius:10px;background:var(--card2);color:var(--lg);border:1px solid var(--border);font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">ยกเลิก</button>
       <button id="name-inp-ok" style="flex:2;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:none;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">ตกลง</button>
     </div>
   </div>
@@ -1539,9 +1539,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(val){saveDiscForName(val,rates);savePayForName(val,pay);}
       onOk(val,rates,pay);
     }
-    document.getElementById('name-inp-ok').onclick=function(){doClose(field.value.trim(),readDiscFields(),readPayFields());};
-    document.getElementById('name-inp-skip').onclick=function(){doClose('',DEFAULT_DISC,getDefaultPay());};
-    field.onkeydown=function(e){if(e.key==='Enter'){doClose(field.value.trim(),readDiscFields(),readPayFields());}};
+    document.getElementById('name-inp-ok').onclick=function(){
+      if(!field.value.trim()){toast('กรุณาใส่ชื่อก่อนครับ');field.focus();return;}
+      doClose(field.value.trim(),readDiscFields(),readPayFields());
+    };
+    document.getElementById('name-inp-skip').onclick=function(){ov.style.display='none';};
+    field.onkeydown=function(e){if(e.key==='Enter'){if(!field.value.trim()){toast('กรุณาใส่ชื่อก่อนครับ');return;}doClose(field.value.trim(),readDiscFields(),readPayFields());}};
   }
   function showConfirm(msg,onYes,danger,extraLabel,onExtra,yesLabel,noLabel,hideNo){
     document.getElementById('cf-msg').innerHTML=msg;
@@ -2272,6 +2275,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       openCheckOverlay(mergedEntries,ngod,i,refNgodId);
     },
     closeNgodFromCheck:function(){doCloseNgodFromCheck();},
+    goBackToHist:function(){
+      document.getElementById('check-ov').classList.remove('show');
+      renderHistory();
+      document.getElementById('hist-ov').classList.add('show');
+    },
     saveCheckResultPending:function(){
       var d=window._pendingCheckData;if(!d)return;
       APP.saveCheckResult(d.ngod,d.ngodId,d.r1,d.r2,d.r3f1,d.r3f2,d.r3b1,d.r3b2,d.hits);
@@ -3273,7 +3281,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'<div class="hist-folder-count">'+totalSets+' ชุด</div></div>'
         +'<span class="hist-folder-toggle open">▼</span></div>'
         +'</div>'
-        +'<div class="hist-folder-body">'+setRows+'</div>'
+        +'<div class="hist-folder-body">'+setRows
         +(function(){
           var curCheckRes=null;
           basketSets.forEach(function(h){if(h.checkResult)curCheckRes=h.checkResult;});
@@ -3305,7 +3313,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           return bh+'</div>';
         }())
         +(basketSets.length>0?'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEscQ+'">📋 ดูทั้งหมด</button><button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEscQ+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHistNgod(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEscQ+'" data-nid="'+curNgodId+'">🔍 ตรวจผล</button></div>':'')
-        +'</div>');
+        +'</div></div>');
     }
 
     // group ประวัติ by งวด (ไม่รวมงวดปัจจุบัน)
@@ -3413,14 +3421,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'<div class="hist-folder-count">'+sets.length+' ชุด</div></div>'
         +'<span class="hist-folder-toggle">▼</span></div>'
         +'</div>'
-        +'<div class="hist-folder-body collapsed">'+setRows+'</div>'
-        +resultBadgeHTML
+        +'<div class="hist-folder-body collapsed">'+setRows+resultBadgeHTML
         +'<div class="hist-folder-actions">'
         +'<button class="hist-btn del" onclick="APP.delNgod(this.dataset.ngod)" data-ngod="'+ngodEsc+'">🗑️ ลบทั้งงวด</button>'
         +'<button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEsc+'">📋 ดูทั้งหมด</button>'
         +'<button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEsc+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button>'
         +'<button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHistNgod(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEsc+'" data-nid="'+ngodIdStr+'">'+(checkRes?'🔍 ดูผลอีกครั้ง':'🔍 ตรวจผล')+'</button>'
-        +'</div></div>');
+        +'</div></div></div>');
     });
 
     el.innerHTML=cards.join('');
@@ -3716,8 +3723,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     window._lastCheckNumbers={r1:r1,r2:r2,r3f1:r3f1,r3f2:r3f2,r3b1:r3b1,r3b2:r3b2};
 
     if(!results.length){
+      // บันทึกผลอัตโนมัติ (ไม่ถูก)
+      APP.saveCheckResult(_checkNgod,_checkNgodId,r1,r2,r3f1,r3f2,r3b1,r3b2,[]);
       var nowinHTML='<div class="result-card"><div class="result-none">😔 ไม่ถูกรางวัลครับ</div></div>'
-        +'<button class="close-ngod-btn" onclick="APP.closeNgodFromCheck()">✅ ปิดงวดนี้</button>';
+        +'<button class="close-ngod-btn" onclick="APP.goBackToHist()">← กลับ</button>';
       window._lastCheckResultHTML=nowinHTML;
       resEl.innerHTML=nowinHTML;
       return;
@@ -3779,10 +3788,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       +'<div class="congrats-sub">ถูก '+grandItems+' รายการ รวมจ่าย ฿'+fmt(grandPay)+'</div>'
       +'</div>';
     lineMsg+='รวมจ่ายทั้งหมด: ฿'+fmt(grandPay);
-    // เก็บข้อมูลสำหรับบันทึก
-    window._pendingCheckData={ngod:_checkNgod,ngodId:_checkNgodId||0,r1:r1,r2:r2,r3f1:r3f1,r3f2:r3f2,r3b1:r3b1,r3b2:r3b2,hits:allHits};
-    html+='<button class="close-ngod-btn" style="background:linear-gradient(135deg,#16a34a,#15803d);margin-bottom:8px;" onclick="APP.saveCheckResultPending()">💾 บันทึกผลรางวัลนี้</button>';
-    html+='<button class="close-ngod-btn" style="background:linear-gradient(135deg,#00b900,#00a000);" onclick="APP.shareLineResult()">📤 แจ้งเจ้ามือผ่าน Line</button>';
+    // บันทึกผลอัตโนมัติทันที
+    APP.saveCheckResult(_checkNgod,_checkNgodId,r1,r2,r3f1,r3f2,r3b1,r3b2,allHits);
+    html+='<button class="close-ngod-btn" style="background:linear-gradient(135deg,#00b900,#00a000);margin-bottom:8px;" onclick="APP.shareLineResult()">📤 แจ้งเจ้ามือผ่าน Line</button>';
+    html+='<button class="close-ngod-btn" onclick="APP.goBackToHist()">← กลับ</button>';
     window._lastCheckResultHTML=html;
     window._lastLineMsg=lineMsg;
     resEl.innerHTML=html;
