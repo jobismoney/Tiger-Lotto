@@ -3362,11 +3362,19 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           +'<span style="font-size:17px;font-weight:900;color:#fff;letter-spacing:3px;">'+r1c+'</span></div>'
           +(grandPayC>0?'<span style="font-size:14px;font-weight:900;color:#34d399;">฿'+fmt(grandPayC)+'</span>':'')
           +'</div>';
-        if(r1c.length===6){bh+='<div style="display:flex;gap:10px;margin-bottom:6px;">'
-          +'<span style="font-size:10px;color:#7a8aaa;">3ตัวบน <b style="color:#60a5fa">'+r1c.slice(-3)+'</b></span>'
-          +'<span style="font-size:10px;color:#7a8aaa;">2ตัวบน <b style="color:#f472b6">'+r1c.slice(-2)+'</b></span>'
-          +(checkRes.r2?'<span style="font-size:10px;color:#7a8aaa;">2ตัวล่าง <b style="color:#34d399">'+checkRes.r2+'</b></span>':'')
-          +'</div>';}
+        if(r1c.length===6){
+          var win3bon=r1c.slice(-3);
+          var win2bon=r1c.slice(-2);
+          var r3fArr=[checkRes.r3f1,checkRes.r3f2].filter(Boolean);
+          var r3bArr=[checkRes.r3b1,checkRes.r3b2].filter(Boolean);
+          bh+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;">'
+            +'<span style="font-size:10px;color:#7a8aaa;">3ตัวบน <b style="color:#60a5fa">'+win3bon+'</b></span>'
+            +'<span style="font-size:10px;color:#7a8aaa;">2ตัวบน <b style="color:#f472b6">'+win2bon+'</b></span>'
+            +(checkRes.r2?'<span style="font-size:10px;color:#7a8aaa;">2ตัวล่าง <b style="color:#34d399">'+checkRes.r2+'</b></span>':'')
+            +(r3fArr.length?'<span style="font-size:10px;color:#7a8aaa;">3ตัวหน้า <b style="color:#fb923c">'+r3fArr.join('·')+'</b></span>':'')
+            +(r3bArr.length?'<span style="font-size:10px;color:#7a8aaa;">3ตัวท้าย <b style="color:#a78bfa">'+r3bArr.join('·')+'</b></span>':'')
+            +'</div>';
+        }
         if(hitsc.length){
           hitsc.forEach(function(hit){
             bh+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid #1a2a1a;">'
