@@ -990,7 +990,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 <!-- MAIN WRAP -->
 
 <div class="main-wrap" id="main-wrap">
-  <div class="marquee-wrap"><div class="marquee-track"><span class="marquee-text" id="marquee-txt">🐯 TIGER 999 · งวด — · 🇹🇭</span><span class="marquee-text" id="marquee-txt2">🐯 TIGER 999 · งวด — · 🇹🇭</span></div></div>
+  <div class="marquee-wrap"><div class="marquee-track"><span class="marquee-text" id="marquee-txt">🇹🇭 TIGER 999 · งวด — · 🐯</span><span class="marquee-text" id="marquee-txt2">🇹🇭 TIGER 999 · งวด — · 🐯</span></div></div>
   <div class="hdr">
     <div class="hdr-left">
       <h1>🐯 TIGER 999 🇹🇭</h1>
@@ -1345,7 +1345,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var g=ngodInfo.ngod||'...';
     document.getElementById('hd-info').textContent=s+' → '+r;
     var gd=g.replace(/ \d{2}:\d{2}$/,''); document.getElementById('hd-ngod').textContent=gd&&gd!=='...'?' '+gd:'';
-    var txt=ngodInfo.ngod?'🐯 TIGER 999 · งวด '+ngodInfo.ngod+' · '+s+' → '+r+' · 🇹🇭':'🐯 TIGER 999 · 🇹🇭';
+    var txt=ngodInfo.ngod?'🇹🇭 TIGER 999 · งวด '+ngodInfo.ngod+' · 🐯':'🇹🇭 TIGER 999 · 🐯';
     var mt=document.getElementById('marquee-txt');if(mt)mt.textContent=txt;
     var mt2=document.getElementById('marquee-txt2');if(mt2)mt2.textContent=txt;
   }
@@ -1703,7 +1703,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       entries.unshift({id:eid,lek:l,d:l.length,bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,kd:kd,paks:[]});
       added++;
     });
-    if(added>0){save();renderList();var ls=document.getElementById('list-scroll');if(ls)ls.scrollTop=0;toast('✅ เพิ่ม '+added+' รายการ');}
+    if(added>0){save();renderList();updateTotal();var ls=document.getElementById('list-scroll');if(ls)ls.scrollTop=0;toast('✅ เพิ่ม '+added+' รายการ');}
     if(window._fkReset) window._fkReset(d);
   }
   window.fkCommit=fkCommit;
@@ -1713,7 +1713,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       eid++; e.id=eid;
       entries.unshift(e);
     });
-    save(); renderList();
+    save(); renderList(); updateTotal();
     var ls=document.getElementById('list-scroll');
     if(ls)ls.scrollTop=0;
   };
@@ -1760,7 +1760,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         bon:e.bon||null,tod:e.tod||null,lang:e.lang||null,na:e.na||null,
         kd:e.kd||{},paks:e.paks||[]});
     });
-    save(); renderList();
+    save(); renderList(); updateTotal();
     var ls=document.getElementById('list-scroll');
     if(ls)ls.scrollTop=0;
   };
@@ -3012,7 +3012,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function doPrint(){
     if(!entries.length){toast('ยังไม่มีรายการ');return;}
-    isLocked=true;save();updateLockUI();renderList();
+    isLocked=true;save();updateLockUI();renderList();updateTotal();
     var result=buildAllSlips(displayName);if(!result)return;
     document.getElementById('slip-pages').innerHTML=result.html;
     document.getElementById('slip-ov').classList.add('show');
@@ -3823,8 +3823,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             pageBreakIds.push(firstId);
           }
         }
-        isLocked=false;save();updateLockUI();renderList();
-        toast('✏️ ซื้อเพิ่มได้เลยครับ — จะขึ้นแผ่นใหม่อัตโนมัติ');
+        isLocked=false;save();updateLockUI();renderList();updateTotal();
       }
     });
     document.getElementById('ov-del-set').addEventListener('click',function(){
@@ -3873,7 +3872,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var firstId=entries[0].id;
         if(pageBreakIds.indexOf(firstId)<0)pageBreakIds.push(firstId);
       }
-      isLocked=false;save();updateLockUI();renderList();
+      isLocked=false;save();updateLockUI();renderList();updateTotal();
       toast('✏️ ซื้อเพิ่มได้เลยครับ — จะขึ้นแผ่นใหม่อัตโนมัติ');
     });
     document.getElementById('wb-close').addEventListener('click',function(){
