@@ -626,7 +626,7 @@ function renderList(){
           +'<span class="cel e">—</span>'
           +'<span class="cel" style="color:#34d399;">'+langVal+'</span>'
           +'<span class="cel e">—</span>'
-          +(pi===0?'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button>':'<span></span>')
+          +(pi===0?'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button>':'<span class="rm-btn"></span>')
           +'</div>';
       });
     } else {
@@ -888,10 +888,21 @@ function toLines(e){
       else{if(mp>0)push(lek,lbl+fmtNum(mp),mp);xd.forEach(function(x){push(x.perm,lbl+fmtNum(x.price),x.price);});}
     });
   } else {if(t>0)push(lek,'ต'+fmtNum(t),t);}
-  // pak lines
+  // pak lines — group by pos
+  var pakSlipByPos={};var pakSlipOrder=[];
   (e.paks||[]).forEach(function(p){
-    var posLbl={na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]||p.pos;
-    lines.push({lek:e.lek,price:'ปัก'+posLbl+' '+(p.typeLabel||p.type),total:p.price});
+    if(!pakSlipByPos[p.pos]){pakSlipByPos[p.pos]={bon:0,lang:0};pakSlipOrder.push(p.pos);}
+    if(p.type==='bon'||p.typeLabel==='บน')pakSlipByPos[p.pos].bon+=p.price;
+    else pakSlipByPos[p.pos].lang+=p.price;
+  });
+  var posLblMap={na:'ร้อย',mid:'สิบ',lang:'หน่วย'};
+  pakSlipOrder.forEach(function(pos){
+    var pg=pakSlipByPos[pos];
+    var lbl=posLblMap[pos]||pos;
+    var ps=[];var tot=0;
+    if(pg.bon>0){ps.push('บ'+fmtNum(pg.bon));tot+=pg.bon;}
+    if(pg.lang>0){ps.push('ล'+fmtNum(pg.lang));tot+=pg.lang;}
+    if(ps.length)lines.push({lek:e.lek,price:'📌'+lbl+' '+ps.join('*'),total:tot});
   });
   return lines;
 }
