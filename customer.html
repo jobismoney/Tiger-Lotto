@@ -602,7 +602,8 @@ function renderList(){
     var kb=(kd.bon||[]).reduce(function(s,x){return s+x.price;},0);
     var kl=(kd.lang||[]).reduce(function(s,x){return s+x.price;},0);
     var kn=(kd.na||[]).reduce(function(s,x){return s+x.price;},0);
-    var etot=b+t+l+n+kb+kl+kn; grand+=etot;
+    var pk=(e.paks||[]).reduce(function(s,p){return s+p.price;},0);
+    var etot=b+t+l+n+kb+kl+kn+pk; grand+=etot;
     function fod(v){return v>0?fmt(v):'<span class="cel e">—</span>';}
     // paks row — group ตามตำแหน่ง แต่ละตำแหน่งแสดง 1 บรรทัด
     var paks=e.paks||[];
