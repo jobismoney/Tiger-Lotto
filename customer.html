@@ -1447,6 +1447,8 @@ function toast(msg){
 // ══════════════════════════════════════
 // PAK (ปักหลัก)
 // ══════════════════════════════════════
+var pakType='3bon', pakPos=[];
+
 function openPak(){
   var lek=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');
   if(!lek||lek.length!==1){toast('ต้องเป็นเลข 1 หลักครับ');return;}
