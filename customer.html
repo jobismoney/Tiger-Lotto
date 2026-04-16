@@ -349,7 +349,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 <!-- SLIP OVERLAY -->
 <div class="slip-ov" id="slip-ov">
   <div class="slip-ov-inner">
-    <button class="ov-back" onclick="closeSlip()">← กลับ</button>
+    <button class="ov-back" onclick="slipBack()">← กลับ</button>
     <button class="ov-share" id="ov-share" onclick="shareSlip()">📤 ส่งโพยให้เอเย่นต์</button>
     <div class="slip-pages-grid" id="slip-pages"></div>
   </div>
@@ -995,7 +995,14 @@ function showSlip(entsToUse){
   document.getElementById('slip-ov').scrollTop=0;
   setTimeout(function(){result.pages.forEach(function(pg,i){renderPageQR(pg,result.inf,i+1);});},100);
 }
-function closeSlip(){document.getElementById('slip-ov').classList.remove('show');}
+function closeSlip(){
+  document.getElementById('slip-ov').classList.remove('show');
+  _slipFromHist=false;
+}
+function slipBack(){
+  document.getElementById('slip-ov').classList.remove('show');
+  if(_slipFromHist){_slipFromHist=false;openHist();}
+}
 
 // ══════════════════════════════════════
 // BASKET & SHARE
@@ -1095,15 +1102,13 @@ function renderHistList(){
     var isOpen=isFirst;isFirst=false;
     var foldId='fold-'+gi;
     h+='<div style="background:#13161f;border:1px solid #2e3248;border-radius:12px;margin-bottom:10px;overflow:hidden;">';
-    h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#1a1d2e;cursor:pointer;" onclick="toggleFoldTh('+gi+')">';
-    h+='<div><div style="font-size:15px;font-weight:900;color:#f5c518;">📁 งวด '+ng+'</div>';
+    h+='<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#1a1d2e;">';
+    h+='<button onclick="event.stopPropagation();delNgod('+gi+')" style="padding:6px 8px;background:#7f1d1d;border:none;border-radius:8px;color:#fca5a5;font-family:Sarabun,sans-serif;font-size:13px;cursor:pointer;flex-shrink:0;">🗑️</button>';
+    h+='<div style="flex:1;cursor:pointer;" onclick="toggleFoldTh('+gi+')">';
+    h+='<div style="font-size:15px;font-weight:900;color:#f5c518;">📁 งวด '+ng+' <span class="fold-arrow-th" style="color:#7a8aaa;font-size:12px;">'+(isOpen?'▼':'▶')+'</span></div>';
     h+='<div style="font-size:11px;color:#7a8aaa;">'+items.length+' แผ่น · ฿'+fmt(ngTotal)+'</div></div>';
-    h+='<div style="display:flex;align-items:center;gap:6px;">';
-    h+='<button onclick="event.stopPropagation();delNgod('+gi+')" style="padding:5px 8px;background:#7f1d1d;border:none;border-radius:8px;color:#fca5a5;font-family:Sarabun,sans-serif;font-size:11px;font-weight:800;cursor:pointer;">🗑️</button>';
-    h+='<button onclick="event.stopPropagation();checkNgod('+gi+')" style="padding:5px 8px;background:#7c3aed;border:none;border-radius:8px;color:#fff;font-family:Sarabun,sans-serif;font-size:11px;font-weight:800;cursor:pointer;">🔍</button>';
-    h+='<span style="font-size:11px;font-weight:800;color:'+(checkRes?'#22c55e':'#f87171')+'">'+(checkRes?'✅ ตรวจผลแล้ว':'⏳ ยังไม่ได้ตรวจผล')+'</span>';
-    h+='<span class="fold-arrow-th" style="color:#7a8aaa;font-size:12px;">'+(isOpen?'▼':'▶')+'</span>';
-    h+='</div></div>';
+    h+='<button onclick="event.stopPropagation();checkNgod('+gi+')" style="padding:8px 14px;background:#7c3aed;border:none;border-radius:10px;color:#fff;font-family:Sarabun,sans-serif;font-size:13px;font-weight:800;cursor:pointer;flex-shrink:0;">'+(checkRes?'🔍 ดูผลอีกครั้ง':'🔍 ตรวจรางวัล')+'</button>';
+    h+='</div>';
     h+='<div id="'+foldId+'" style="display:'+(isOpen?'block':'none')+'">';
     items.forEach(function(x,ci){
       var item=x.item,idx=x.i;
@@ -1220,10 +1225,11 @@ function delHist(idx){
 function viewHistSlip(idx){
   var hist=getHist();var item=hist[idx];if(!item)return;
   closeHist();
+  _slipFromHist=true;
   showSlip(item.entries);
-  // โชว์ปุ่มส่ง Line เสมอ แม้ดูจากแฟ้ม
   document.getElementById('ov-share').style.display='';
 }
+var _slipFromHist=false;
 
 // ══════════════════════════════════════
 // CHECK
