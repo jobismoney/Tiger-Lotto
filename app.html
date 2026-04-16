@@ -3355,36 +3355,27 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(checkRes){
         var r1c=checkRes.r1||'';var hitsc=checkRes.hits||[];
         var grandPayC=hitsc.reduce(function(s,x){return s+(x.pay||0);},0);
+        var r3fArr=[checkRes.r3f1,checkRes.r3f2].filter(Boolean);
+        var r3bArr=[checkRes.r3b1,checkRes.r3b2].filter(Boolean);
         var bh='<div style="background:#0d1f12;border-top:1px solid #22c55e;padding:10px 14px;">'
-          +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">'
-          +'<div style="display:flex;align-items:center;gap:8px;">'
-          +'<span style="font-size:11px;color:#22c55e;font-weight:800;">🎯 ผลรางวัล</span>'
-          +'<span style="font-size:17px;font-weight:900;color:#fff;letter-spacing:3px;">'+r1c+'</span></div>'
+          +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
+          +'<span style="font-size:12px;color:#22c55e;font-weight:800;">🎯 ผลรางวัล</span>'
           +(grandPayC>0?'<span style="font-size:14px;font-weight:900;color:#34d399;">฿'+fmt(grandPayC)+'</span>':'')
-          +'</div>';
-        if(r1c.length===6){
-          var win3bon=r1c.slice(-3);
-          var win2bon=r1c.slice(-2);
-          var r3fArr=[checkRes.r3f1,checkRes.r3f2].filter(Boolean);
-          var r3bArr=[checkRes.r3b1,checkRes.r3b2].filter(Boolean);
-          bh+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;">'
-            +'<span style="font-size:10px;color:#7a8aaa;">3ตัวบน <b style="color:#60a5fa">'+win3bon+'</b></span>'
-            +'<span style="font-size:10px;color:#7a8aaa;">2ตัวบน <b style="color:#f472b6">'+win2bon+'</b></span>'
-            +(checkRes.r2?'<span style="font-size:10px;color:#7a8aaa;">2ตัวล่าง <b style="color:#34d399">'+checkRes.r2+'</b></span>':'')
-            +(r3fArr.length?'<span style="font-size:10px;color:#7a8aaa;">3ตัวหน้า <b style="color:#fb923c">'+r3fArr.join('·')+'</b></span>':'')
-            +(r3bArr.length?'<span style="font-size:10px;color:#7a8aaa;">3ตัวท้าย <b style="color:#a78bfa">'+r3bArr.join('·')+'</b></span>':'')
-            +'</div>';
-        }
+          +'</div>'
+          +'<div style="font-size:12px;color:#d1fae5;margin-bottom:2px;">รางวัลที่1: <b>'+r1c+'</b></div>'
+          +(checkRes.r2?'<div style="font-size:12px;color:#d1fae5;margin-bottom:2px;">2ตัวล่าง: <b>'+checkRes.r2+'</b></div>':'')
+          +(r3fArr.length?'<div style="font-size:12px;color:#d1fae5;margin-bottom:2px;">หน้า3ตัว: <b>'+r3fArr.join(' · ')+'</b></div>':'')
+          +(r3bArr.length?'<div style="font-size:12px;color:#d1fae5;margin-bottom:8px;">ท้าย3ตัว: <b>'+r3bArr.join(' · ')+'</b></div>':'');
         if(hitsc.length){
           hitsc.forEach(function(hit){
-            bh+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid #1a2a1a;">'
-              +'<div><span style="font-size:13px;font-weight:900;color:#f5c518;">'+(hit.setName?'['+hit.setName+'] ':'')+hit.lek+'</span>'
-              +' <span style="font-size:11px;color:#60a5fa;">'+hit.type+'</span>'
-              +' <span style="font-size:11px;color:#7a8aaa;">×฿'+fmt(hit.bet)+'</span></div>'
-              +'<div style="font-size:13px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div></div>';
+            bh+='<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-top:1px solid #1a2a1a;">'
+              +'<div><span style="font-size:16px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>'
+              +' <span style="font-size:11px;color:#6ee7b7;">'+hit.type+'</span>'
+              +' <span style="font-size:11px;color:#7a8aaa;">ซื้อ ฿'+fmt(hit.bet)+'</span></div>'
+              +'<div style="font-size:15px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div></div>';
           });
         } else {
-          bh+='<div style="font-size:12px;color:#7a8aaa;padding:4px 0;">😌 ไม่มีถูกรางวัลงวดนี้</div>';
+          bh+='<div style="font-size:12px;color:#7a8aaa;padding:4px 0;border-top:1px solid #1a2a1a;">😌 ไม่มีถูกรางวัลงวดนี้</div>';
         }
         bh+='</div>';
         resultBadgeHTML=bh;
