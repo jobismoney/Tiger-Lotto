@@ -448,24 +448,27 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
       <div class="pak-lek-show" id="pak-lek-show">—</div>
       <button class="pak-close" onclick="closePak()">✕</button>
     </div>
-    <div class="pak-sec">ประเภท</div>
-    <div class="pak-type-row" id="pak-type-tabs">
-      <div class="pak-ttab on" data-type="3bon" onclick="selPakType(this)">3ตัวบน</div>
-      <div class="pak-ttab" data-type="2lang" onclick="selPakType(this)">2ตัวล่าง</div>
-    </div>
     <div class="pak-sec">ตำแหน่ง</div>
-    <div class="pak-pos-row" id="pak-pos-grid">
-      <div class="pak-pbtn" data-pos="na" onclick="selPakPos(this)">
-        <div class="pak-pbtn-lbl">หน้า</div>
-        <div class="pak-pbtn-ex" id="pak-ex-na">?_ _</div>
-      </div>
-      <div class="pak-pbtn" data-pos="mid" onclick="selPakPos(this)" id="pak-mid-btn">
-        <div class="pak-pbtn-lbl">กลาง</div>
-        <div class="pak-pbtn-ex" id="pak-ex-mid">_ ? _</div>
+    <div class="pak-pos-row" id="pak-pos-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">
+      <div class="pak-pbtn on" data-pos="bon" onclick="selPakPos(this)">
+        <div class="pak-pbtn-lbl">บน</div>
+        <div class="pak-pbtn-ex" id="pak-ex-bon">3ตัว</div>
       </div>
       <div class="pak-pbtn" data-pos="lang" onclick="selPakPos(this)">
-        <div class="pak-pbtn-lbl">หลัง</div>
-        <div class="pak-pbtn-ex" id="pak-ex-lang">_ _?</div>
+        <div class="pak-pbtn-lbl">ล่าง</div>
+        <div class="pak-pbtn-ex" id="pak-ex-lang">2ตัว</div>
+      </div>
+      <div class="pak-pbtn" data-pos="r100" onclick="selPakPos(this)">
+        <div class="pak-pbtn-lbl">ร้อย</div>
+        <div class="pak-pbtn-ex">?_ _</div>
+      </div>
+      <div class="pak-pbtn" data-pos="r10" onclick="selPakPos(this)">
+        <div class="pak-pbtn-lbl">สิบ</div>
+        <div class="pak-pbtn-ex">_ ? _</div>
+      </div>
+      <div class="pak-pbtn" data-pos="r1" onclick="selPakPos(this)">
+        <div class="pak-pbtn-lbl">หน่วย</div>
+        <div class="pak-pbtn-ex">_ _?</div>
       </div>
     </div>
     <div class="pak-sec" style="margin-top:10px;">ราคา</div>
@@ -608,7 +611,7 @@ function renderList(){
     var paks=e.paks||[];
     if(paks.length){
       var pakDesc=paks.map(function(p){
-        var pos={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
+        var pos={na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]||p.pos;
         var typ={"3bon":'บน','2lang':'ล่าง'}[p.type]||p.type;
         return 'ปัก'+pos+typ;
       }).join(', ');
@@ -877,7 +880,7 @@ function toLines(e){
   } else {if(t>0)push(lek,'ต'+fmtNum(t),t);}
   // pak lines
   (e.paks||[]).forEach(function(p){
-    var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
+    var posLbl={na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]||p.pos;
     lines.push({lek:e.lek,price:'ปัก'+posLbl+' '+(p.typeLabel||p.type),total:p.price});
   });
   return lines;
@@ -1484,7 +1487,7 @@ function addPak(){
   if(!lek){toast('กรอกเลขก่อนครับ');return;}
   if(!pakPos.length){toast('เลือกตำแหน่งด้วยครับ');return;}
   var typeLabels={'3bon':'บน','2lang':'ล่าง'};
-  var paks=pakPos.map(function(pos){return{type:pakType,pos:pos,price:price,typeLabel:typeLabels[pakType],posLabel:{na:'หน้า',mid:'กลาง',lang:'หลัง'}[pos]};});
+  var paks=pakPos.map(function(pos){return{type:pakType,pos:pos,price:price,typeLabel:typeLabels[pakType],posLabel:{na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[pos]};});
   eid++;
   entries.unshift({id:eid,lek:lek,d:1,bon:null,tod:null,lang:null,na:null,kd:{},paks:paks});
   renderList();save();
