@@ -1447,38 +1447,16 @@ function openPak(){
   document.getElementById('pak-price').value='';
   pakPos=[];
   document.querySelectorAll('#pak-pos-grid .pak-pbtn').forEach(function(b){b.classList.remove('on');});
-  updatePakUI();
   document.getElementById('pak-overlay').classList.add('show');
   setTimeout(function(){document.getElementById('pak-price').focus();},100);
 }
 function closePak(){document.getElementById('pak-overlay').classList.remove('show');}
-function selPakType(el){
-  document.querySelectorAll('#pak-type-tabs .pak-ttab').forEach(function(t){t.classList.remove('on');});
-  el.classList.add('on');
-  pakType=el.dataset.type;
-  if(pakType!=='3bon'){pakPos=pakPos.filter(function(p){return p!=='mid';});document.getElementById('pak-mid-btn').classList.remove('on');}
-  updatePakUI();
-}
 function selPakPos(el){
   var btn=el.closest('.pak-pbtn');if(!btn)return;
   var pos=btn.dataset.pos;if(!pos)return;
   var idx=pakPos.indexOf(pos);
   if(idx>=0){pakPos.splice(idx,1);btn.classList.remove('on');}
   else{pakPos.push(pos);btn.classList.add('on');}
-}
-function updatePakUI(){
-  var lek=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'')||'?';
-  var midBtn=document.getElementById('pak-mid-btn');
-  if(pakType==='3bon'){
-    midBtn.style.display='';
-    document.getElementById('pak-ex-na').textContent=lek+'_ _';
-    document.getElementById('pak-ex-mid').textContent='_ '+lek+' _';
-    document.getElementById('pak-ex-lang').textContent='_ _'+lek;
-  } else {
-    midBtn.style.display='none';
-    document.getElementById('pak-ex-na').textContent=lek+'_';
-    document.getElementById('pak-ex-lang').textContent='_'+lek;
-  }
 }
 function addPak(){
   var price=parseInt(document.getElementById('pak-price').value)||0;
