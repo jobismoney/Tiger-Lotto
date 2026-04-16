@@ -248,10 +248,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 
 /* ── MARQUEE ── */
 .marquee-wrap{background:linear-gradient(90deg,#1a1d27,#222533,#1a1d27);border-bottom:1px solid var(--border);overflow:hidden;white-space:nowrap;padding:4px 0;flex-shrink:0;}
-.marquee-track{display:inline-block;animation:marquee-scroll 18s linear infinite;}
-.marquee-track:hover{animation-play-state:paused;}
-@keyframes marquee-scroll{0%{transform:translateX(100vw);}100%{transform:translateX(-100%);}}
-.marquee-text{font-size:13px;font-weight:800;color:var(--gold);padding:0 40px;letter-spacing:1px;}
+.marquee-track{display:inline-flex;animation:marquee-scroll 20s linear infinite;}
+@keyframes marquee-scroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.marquee-text{font-size:13px;font-weight:800;color:var(--gold);padding:0 60px;letter-spacing:1px;}
 </style>
 </head>
 <body>
@@ -270,7 +269,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
   <div class="lic-err" id="lic-err"></div>
 </div>
 
-<div class="marquee-wrap"><div class="marquee-track"><span class="marquee-text" id="marquee-txt">🇹🇭 T999 ลูกค้าไทย · งวด — · ยินดีต้อนรับครับ 🐯</span></div></div>
+<div class="marquee-wrap"><div class="marquee-track"><span class="marquee-text" id="marquee-txt">🇹🇭 T999 · งวด — · 🐯</span><span class="marquee-text" id="marquee-txt2">🇹🇭 T999 · งวด — · 🐯</span></div></div>
 <div class="hdr">
   <div class="hdr-left">
     <h1>🐯 T999 ลูกค้า 🇹🇭</h1>
@@ -538,11 +537,10 @@ function updateHdr(){
   document.getElementById('hd-info').textContent=info;
   var mt=document.getElementById('marquee-txt');
   if(mt){
-    if(profile.ngod&&profile.name){
-      mt.textContent='🇹🇭 T999 ลูกค้าไทย · งวด '+profile.ngod+' · '+profile.name+' → '+( profile.agent||'?')+' 🐯';
-    } else {
-      mt.textContent='🇹🇭 T999 ลูกค้าไทย · ยินดีต้อนรับครับ 🐯';
-    }
+    var txt=profile.ngod?'🇹🇭 T999 · งวด '+profile.ngod+' · 🐯':'🇹🇭 T999 · 🐯';
+    mt.textContent=txt;
+    var mt2=document.getElementById('marquee-txt2');
+    if(mt2)mt2.textContent=txt;
   }
 }
 
