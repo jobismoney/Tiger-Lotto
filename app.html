@@ -1239,11 +1239,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   function getNextNgod(){
     var n=new Date(),d=n.getDate(),m=n.getMonth()+1,y=n.getFullYear()+543;
-    // ก่อนวันที่ 1 → งวด 1/เดือนนี้
-    if(d<1)return'1/'+m+'/'+y;
-    // วันที่ 1-15 → งวด 16/เดือนนี้
-    if(d>=1&&d<16)return'16/'+m+'/'+y;
-    // วันที่ 16+ → งวด 1/เดือนหน้า
+    // วันที่ 1-16 → งวด 16/เดือนนี้
+    if(d<=16)return'16/'+m+'/'+y;
+    // วันที่ 17+ → งวด 1/เดือนหน้า
     var nm=m+1,ny=y;if(nm>12){nm=1;ny++;}
     return'1/'+nm+'/'+ny;
   }
