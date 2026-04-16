@@ -607,15 +607,16 @@ function renderList(){
     // paks row
     var paks=e.paks||[];
     if(paks.length){
-      var pakDesc=paks.map(function(p){
+      paks.forEach(function(p,pi){
         var pos={na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]||p.pos;
-        var typ={"3bon":'บน','2lang':'ล่าง'}[p.type]||p.type;
-        return 'ปัก'+pos+typ;
-      }).join(', ');
-      var pakTotal=paks.reduce(function(s,p){return s+p.price;},0);
-      h+='<div class="bet-row"><span class="lek-cell">'+e.lek+'</span>'
-        +'<span class="cel" style="font-size:11px;color:#fb923c;text-align:left;grid-column:span 4;">📌 '+pakDesc+' ฿'+fmt(pakTotal)+'</span>'
-        +'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button></div>';
+        var typ=p.typeLabel||(p.type==='bon'?'บน':'ล่าง');
+        var desc='📌 ปัก'+pos+'('+typ+')';
+        h+='<div class="bet-row"><span class="lek-cell">'+(pi===0?e.lek:'')+'</span>'
+          +'<span class="cel" style="font-size:12px;color:#fb923c;text-align:left;grid-column:span 3;">'+desc+'</span>'
+          +'<span class="cel" style="color:#fb923c;font-weight:800;">'+fmt(p.price)+'</span>'
+          +(pi===0?'<button class="rm-btn" onclick="removeEntry('+e.id+')">✕</button>':'<span class="cel"></span>')
+          +'</div>';
+      });
     } else {
       // แสดงหลักรวม perm
       h+='<div class="bet-row"><span class="lek-cell">'+e.lek+'</span>'
