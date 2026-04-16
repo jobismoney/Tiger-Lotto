@@ -2269,7 +2269,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         });
       });
       _checkHistIdx=i;
-      openCheckOverlay(mergedEntries,ngod,i);
+      openCheckOverlay(mergedEntries,ngod,i,refNgodId);
     },
     closeNgodFromCheck:function(){doCloseNgodFromCheck();},
     saveCheckResultPending:function(){
@@ -3581,8 +3581,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(formEl)formEl.style.display='';
     setTimeout(function(){document.getElementById('r1').focus();},100);
   }
-  function openCheckOverlay(ents,ngod,histIdx){
-    _checkEntries=ents;_checkNgod=ngod;_checkHistIdx=histIdx;
+  function openCheckOverlay(ents,ngod,histIdx,ngodId){
+    _checkEntries=ents;_checkNgod=ngod;_checkHistIdx=histIdx;_checkNgodId=parseInt(ngodId)||0;
     resetCheckForm();
     document.getElementById('check-ov').classList.add('show');
   }
