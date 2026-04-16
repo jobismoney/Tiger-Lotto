@@ -245,6 +245,13 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
 .dp-day.selected{background:#f5c518;color:#111;}
 .dp-day.today{border:1px solid #f5c518;}
 .dp-day.empty{cursor:default;}
+
+/* ── MARQUEE ── */
+.marquee-wrap{background:linear-gradient(90deg,#1a1d27,#222533,#1a1d27);border-bottom:1px solid var(--border);overflow:hidden;white-space:nowrap;padding:4px 0;flex-shrink:0;}
+.marquee-track{display:inline-block;animation:marquee-scroll 18s linear infinite;}
+.marquee-track:hover{animation-play-state:paused;}
+@keyframes marquee-scroll{0%{transform:translateX(100vw);}100%{transform:translateX(-100%);}}
+.marquee-text{font-size:13px;font-weight:800;color:var(--gold);padding:0 40px;letter-spacing:1px;}
 </style>
 </head>
 <body>
@@ -263,6 +270,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
   <div class="lic-err" id="lic-err"></div>
 </div>
 
+<div class="marquee-wrap"><div class="marquee-track"><span class="marquee-text" id="marquee-txt">🇹🇭 T999 ลูกค้าไทย · งวด — · ยินดีต้อนรับครับ 🐯</span></div></div>
 <div class="hdr">
   <div class="hdr-left">
     <h1>🐯 T999 ลูกค้า 🇹🇭</h1>
@@ -526,8 +534,16 @@ fkAutoSel(2);
 if(!profile.name||!profile.agent||!profile.ngod) openSetup();
 
 function updateHdr(){
-  document.getElementById('hd-info').textContent =
-    profile.name ? (profile.name+' → '+(profile.agent||'?')+' · งวด '+(profile.ngod||'?')) : 'กรุณาตั้งค่าก่อนครับ';
+  var info=profile.name ? (profile.name+' → '+(profile.agent||'?')+' · งวด '+(profile.ngod||'?')) : 'กรุณาตั้งค่าก่อนครับ';
+  document.getElementById('hd-info').textContent=info;
+  var mt=document.getElementById('marquee-txt');
+  if(mt){
+    if(profile.ngod&&profile.name){
+      mt.textContent='🇹🇭 T999 ลูกค้าไทย · งวด '+profile.ngod+' · '+profile.name+' → '+( profile.agent||'?')+' 🐯';
+    } else {
+      mt.textContent='🇹🇭 T999 ลูกค้าไทย · ยินดีต้อนรับครับ 🐯';
+    }
+  }
 }
 
 // ══════════════════════════════════════
@@ -1175,6 +1191,7 @@ function checkNgod(gi){
   groups[ng].forEach(function(item){allEnts=allEnts.concat(item.entries||[]);});
   _checkPendingEnts=allEnts;
   _checkPendingNg=ng;
+  _checkFromHist=true;
   closeHist();
   var r6el=document.getElementById('res-1st');if(r6el)r6el.value='';
   document.getElementById('check-result-out').innerHTML='';
@@ -1212,6 +1229,11 @@ function shareResult(gi){
 }
 var _checkPendingEnts=[];
 var _checkPendingNg='';
+var _checkFromHist=false;
+function checkBack(){
+  closeCheck();
+  if(_checkFromHist){_checkFromHist=false;openHist();}
+}
 function delHist(idx){
   var hist=getHist();
   var item=hist[idx];
@@ -1238,7 +1260,7 @@ var _slipFromHist=false;
 function openGuide(){document.getElementById('guide-ov').classList.add('show');}
 function closeGuide(){document.getElementById('guide-ov').classList.remove('show');}
 
-function openCheck(){document.getElementById('check-ov').classList.add('show');}
+function openCheck(){_checkFromHist=false;_checkPendingEnts=[];_checkPendingNg='';document.getElementById('check-ov').classList.add('show');}
 function closeCheck(){document.getElementById('check-ov').classList.remove('show');}
 function fetchResult(){
   toast('📡 กำลังดึงผลรางวัล...');
@@ -1329,7 +1351,7 @@ function doCheck(){
     saveHist(hist);
     renderHistList();
   })();
-  var saveBtn='<button onclick="closeCheck()" style="width:100%;margin-top:12px;padding:12px;background:#1e2235;border:1px solid #2e3248;border-radius:12px;color:#fff;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">← กลับ</button>';
+  var saveBtn='<button onclick="checkBack()" style="width:100%;margin-top:12px;padding:12px;background:#1e2235;border:1px solid #2e3248;border-radius:12px;color:#fff;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">← กลับ</button>';
   if(!hits.length){
     el.innerHTML='<div style="text-align:center;padding:30px;color:var(--lg);">😔 ไม่ถูกรางวัลครับ</div>'+saveBtn;
     return;
