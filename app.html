@@ -2281,11 +2281,19 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       ngodId=parseInt(ngodId)||0;
       var hist=getHistory();
       var result={r1:r1,r2:r2,r3f1:r3f1,r3f2:r3f2,r3b1:r3b1,r3b2:r3b2,hits:hits||[],savedAt:getNowTime()};
+      var saved=0;
       hist.forEach(function(h){
-        if(h.isBasket&&h.ngod===ngod&&(ngodId?h.ngodId===ngodId:true)){
-          h.checkResult=result;
+        // ใช้ ngodId เป็นตัวหลัก — ตรงกว่าเปรียบ string งวด
+        if(h.isBasket&&(ngodId?h.ngodId===ngodId:h.ngod===ngod)){
+          h.checkResult=result;saved++;
         }
       });
+      // ถ้าหาจาก history ไม่เจอ ลองเทียบ string งวด (fallback)
+      if(!saved){
+        hist.forEach(function(h){
+          if(h.isBasket&&h.ngod===ngod){h.checkResult=result;saved++;}
+        });
+      }
       saveHistory(hist);
       renderHistory();
       toast('💾 บันทึกผลรางวัลแล้ว ✅',3000);
@@ -2294,6 +2302,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       nid=parseInt(nid)||0;
       var hist=getHistory();
       var allEnts=[];var si=0;
+      // ถ้าเป็นงวดกำลังใช้งาน ให้รวม entries ปัจจุบันด้วย
+      if(ngodOpen&&ngodInfo.ngod===ngod&&(nid?ngodInfo.ngodId===nid:true)&&entries.length){
+        si++;
+        entries.forEach(function(e){allEnts.push(Object.assign({},e,{_setName:'(ยังไม่เก็บ)',_setNum:si,_payRates:null}));});
+      }
       hist.forEach(function(h){
         if(h.ngod===ngod&&h.isBasket&&(nid?h.ngodId===nid:true)){
           si++;var pr=h.payRates||null;
@@ -2324,6 +2337,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       });
       _checkEntries=mergedEntries;
       _checkNgod=ngodInfo.ngod||'—';
+      _checkNgodId=ngodInfo.ngodId||0;
       _checkHistIdx=-1;
       resetCheckForm();
       var ov=document.getElementById('check-ov');
@@ -3267,7 +3281,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'<span class="hist-folder-toggle open">▼</span></div>'
         +'</div>'
         +'<div class="hist-folder-body">'+setRows+'</div>'
-        +(basketSets.length>0?'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEscQ+'">📋 ดูทั้งหมด</button><button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEscQ+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHist('+(basketSets[basketSets.length-1].id)+')">🔍 ตรวจผล</button></div>':'')
+        +(basketSets.length>0?'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEscQ+'">📋 ดูทั้งหมด</button><button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEscQ+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHistNgod(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEscQ+'" data-nid="'+curNgodId+'">🔍 ตรวจผล</button></div>':'')
         +'</div>');
     }
 
@@ -3595,12 +3609,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var f1=first6[0]||'';
         sv('r2bon',f1.length>=2?f1.slice(-2):'');
         sv('r2na',f1.length>=5?f1.slice(3,5):'');
-        // อัปเดต label งวดจาก API
+        // อัปเดต label งวดจาก API (แค่ UI label ไม่เปลี่ยน _checkNgod)
         var apiDate=res.date||'';
         if(apiDate){
           var lbl=document.getElementById('check-ngod-lbl2');
           if(lbl)lbl.textContent=apiDate;
-          _checkNgod=apiDate;
         }
         toast('✅ ดึงผลสำเร็จ งวด '+apiDate);
       }).catch(function(err){toast('⚠️ '+err.message);});
