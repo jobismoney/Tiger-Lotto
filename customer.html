@@ -448,27 +448,24 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
       <div class="pak-lek-show" id="pak-lek-show">—</div>
       <button class="pak-close" onclick="closePak()">✕</button>
     </div>
+    <div class="pak-sec">ประเภท</div>
+    <div class="pak-type-row" id="pak-type-tabs">
+      <div class="pak-ttab on" data-type="3bon" onclick="selPakType(this)">บน</div>
+      <div class="pak-ttab" data-type="2lang" onclick="selPakType(this)">ล่าง</div>
+    </div>
     <div class="pak-sec">ตำแหน่ง</div>
-    <div class="pak-pos-row" id="pak-pos-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">
-      <div class="pak-pbtn on" data-pos="bon" onclick="selPakPos(this)">
-        <div class="pak-pbtn-lbl">บน</div>
-        <div class="pak-pbtn-ex" id="pak-ex-bon">3ตัว</div>
+    <div class="pak-pos-row" id="pak-pos-grid">
+      <div class="pak-pbtn" data-pos="na" onclick="selPakPos(this)">
+        <div class="pak-pbtn-lbl">ร้อย</div>
+        <div class="pak-pbtn-ex" id="pak-ex-na">?_ _</div>
+      </div>
+      <div class="pak-pbtn" data-pos="mid" onclick="selPakPos(this)" id="pak-mid-btn">
+        <div class="pak-pbtn-lbl">สิบ</div>
+        <div class="pak-pbtn-ex" id="pak-ex-mid">_ ? _</div>
       </div>
       <div class="pak-pbtn" data-pos="lang" onclick="selPakPos(this)">
-        <div class="pak-pbtn-lbl">ล่าง</div>
-        <div class="pak-pbtn-ex" id="pak-ex-lang">2ตัว</div>
-      </div>
-      <div class="pak-pbtn" data-pos="r100" onclick="selPakPos(this)">
-        <div class="pak-pbtn-lbl">ร้อย</div>
-        <div class="pak-pbtn-ex">?_ _</div>
-      </div>
-      <div class="pak-pbtn" data-pos="r10" onclick="selPakPos(this)">
-        <div class="pak-pbtn-lbl">สิบ</div>
-        <div class="pak-pbtn-ex">_ ? _</div>
-      </div>
-      <div class="pak-pbtn" data-pos="r1" onclick="selPakPos(this)">
         <div class="pak-pbtn-lbl">หน่วย</div>
-        <div class="pak-pbtn-ex">_ _?</div>
+        <div class="pak-pbtn-ex" id="pak-ex-lang">_ _?</div>
       </div>
     </div>
     <div class="pak-sec" style="margin-top:10px;">ราคา</div>
@@ -1326,6 +1323,18 @@ function doCheck(){
     if(d===2&&r2lang&&(e.kd&&e.kd['lang']||[])){(e.kd['lang']||[]).forEach(function(x){if(x.perm===r2lang){hits.push({lek:x.perm,type:'2ตัวล่าง(กลับ)',bet:x.price,pay:x.price*70});grandPay+=x.price*70;}});}
     if(d===2&&lek===r2na&&n){hits.push({lek:lek,type:'2ตัวหน้า',bet:n,pay:n*70});grandPay+=n*70;}
     if(d===1&&vbon.indexOf(lek)>=0&&b){hits.push({lek:lek,type:'วิ่งบน',bet:b,pay:b*3});grandPay+=b*3;}
+    // ปักหลัก
+    (e.paks||[]).forEach(function(p){
+      var pos=p.pos,pr=p.price,tp=p.type||'bon';
+      var posIdx3={na:3,mid:4,lang:5}[pos]; // บน: r6[3],[4],[5]
+      var posIdx2={mid:0,lang:1}[pos];       // ล่าง: r2lang[0],[1]
+      if(tp==='bon'&&posIdx3!==undefined&&first6[posIdx3]===lek){
+        hits.push({lek:lek,type:'ปักบน('+(p.posLabel||pos)+')',bet:pr,pay:pr*4});grandPay+=pr*4;
+      }
+      if(tp==='lang'&&r2lang&&posIdx2!==undefined&&r2lang[posIdx2]===lek){
+        hits.push({lek:lek,type:'ปักล่าง('+(p.posLabel||pos)+')',bet:pr,pay:pr*4});grandPay+=pr*4;
+      }
+    });
   });
   var el=document.getElementById('check-result-out');
   _pendingCheckData={
@@ -1438,8 +1447,6 @@ function toast(msg){
 // ══════════════════════════════════════
 // PAK (ปักหลัก)
 // ══════════════════════════════════════
-var pakType='3bon', pakPos=[];
-
 function openPak(){
   var lek=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');
   if(!lek||lek.length!==1){toast('ต้องเป็นเลข 1 หลักครับ');return;}
@@ -1447,10 +1454,23 @@ function openPak(){
   document.getElementById('pak-price').value='';
   pakPos=[];
   document.querySelectorAll('#pak-pos-grid .pak-pbtn').forEach(function(b){b.classList.remove('on');});
+  updatePakUI();
   document.getElementById('pak-overlay').classList.add('show');
   setTimeout(function(){document.getElementById('pak-price').focus();},100);
 }
 function closePak(){document.getElementById('pak-overlay').classList.remove('show');}
+function selPakType(el){
+  document.querySelectorAll('#pak-type-tabs .pak-ttab').forEach(function(t){t.classList.remove('on');});
+  el.classList.add('on');
+  pakType=el.dataset.type;
+  // ล่าง: ไม่มีร้อย(na) — เหลือแค่ mid(สิบ) lang(หน่วย)
+  if(pakType!=='3bon'){
+    pakPos=pakPos.filter(function(p){return p!=='na';});
+    var naBtn2=document.querySelector('.pak-pbtn[data-pos="na"]');
+    if(naBtn2)naBtn2.classList.remove('on');
+  }
+  updatePakUI();
+}
 function selPakPos(el){
   var btn=el.closest('.pak-pbtn');if(!btn)return;
   var pos=btn.dataset.pos;if(!pos)return;
@@ -1458,14 +1478,42 @@ function selPakPos(el){
   if(idx>=0){pakPos.splice(idx,1);btn.classList.remove('on');}
   else{pakPos.push(pos);btn.classList.add('on');}
 }
+function updatePakUI(){
+  var lek=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'')||'?';
+  var naBtn=document.querySelector('[data-pos="na"]');
+  var midBtn=document.getElementById('pak-mid-btn');
+  if(pakType==='3bon'){
+    // บน: ร้อย สิบ หน่วย
+    if(naBtn)naBtn.style.display='';
+    midBtn.style.display='';
+    document.querySelector('.pak-pbtn[data-pos="na"] .pak-pbtn-lbl').textContent='ร้อย';
+    document.querySelector('#pak-mid-btn .pak-pbtn-lbl').textContent='สิบ';
+    document.getElementById('pak-ex-na').textContent=lek+'_ _';
+    document.getElementById('pak-ex-mid').textContent='_ '+lek+' _';
+    document.getElementById('pak-ex-lang').textContent='_ _'+lek;
+  } else {
+    // ล่าง: mid=สิบ, lang=หน่วย, ซ่อน na(ร้อย)
+    if(naBtn)naBtn.style.display='none';
+    midBtn.style.display='';
+    document.querySelector('#pak-mid-btn .pak-pbtn-lbl').textContent='สิบ';
+    document.getElementById('pak-ex-mid').textContent=lek+'_';
+    document.getElementById('pak-ex-lang').textContent='_'+lek;
+  }
+}
 function addPak(){
   var price=parseInt(document.getElementById('pak-price').value)||0;
   if(!price){toast('ใส่ราคาด้วยครับ');return;}
   var lek=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');
   if(!lek){toast('กรอกเลขก่อนครับ');return;}
   if(!pakPos.length){toast('เลือกตำแหน่งด้วยครับ');return;}
-  var typeLabels={'3bon':'บน','2lang':'ล่าง'};
-  var paks=pakPos.map(function(pos){return{type:pakType,pos:pos,price:price,typeLabel:typeLabels[pakType],posLabel:{na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[pos]};});
+  var typeLabels={'3bon':'bon','2lang':'lang'};
+  var paks=pakPos.map(function(pos){
+    var posLblBon={na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[pos]||pos;
+    var posLblLang={na:'สิบ',lang:'หน่วย'}[pos]||pos;
+    return{type:pakType==='3bon'?'bon':'lang',pos:pos,price:price,
+      typeLabel:pakType==='3bon'?'บน':'ล่าง',
+      posLabel:pakType==='3bon'?posLblBon:posLblLang};
+  });
   eid++;
   entries.unshift({id:eid,lek:lek,d:1,bon:null,tod:null,lang:null,na:null,kd:{},paks:paks});
   renderList();save();
