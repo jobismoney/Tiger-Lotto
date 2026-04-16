@@ -1313,7 +1313,23 @@ function doCheck(){
     hits:hits,
     ng:_checkPendingNg||profile.ngod||'—'
   };
-  var saveBtn='<button onclick="saveCheckResult()" style="width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:12px;color:#fff;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">💾 บันทึกผลรางวัลนี้</button>';
+  // auto save ทันทีหลังตรวจ
+  (function(){
+    var d=_pendingCheckData;
+    var ng=d.ng;
+    var hist=getHist();
+    hist.forEach(function(item){
+      if((item.ngod||'—')===ng)item.checkResult={
+        r6:d.r6,r2lang:d.r2lang,
+        r3na1:d.r3na1,r3na2:d.r3na2,
+        r3tail1:d.r3tail1,r3tail2:d.r3tail2,
+        hits:d.hits
+      };
+    });
+    saveHist(hist);
+    renderHistList();
+  })();
+  var saveBtn='<button onclick="closeCheck()" style="width:100%;margin-top:12px;padding:12px;background:#1e2235;border:1px solid #2e3248;border-radius:12px;color:#fff;font-family:Sarabun,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">← กลับ</button>';
   if(!hits.length){
     el.innerHTML='<div style="text-align:center;padding:30px;color:var(--lg);">😔 ไม่ถูกรางวัลครับ</div>'+saveBtn;
     return;
