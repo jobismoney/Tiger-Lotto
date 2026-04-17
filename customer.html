@@ -603,6 +603,16 @@ function openSetup(){
   },50);
   document.getElementById('setup-modal').classList.add('show');
 }
+// parse วันที่จากชื่องวด — คืน day (1-31) หรือ null ถ้า parse ไม่ได้
+function parseNgodDay(ngod){
+  if(!ngod)return null;
+  // หาเลข 1-2 หลักตัวแรก (น่าจะเป็นวันที่)
+  var m=ngod.match(/\b(\d{1,2})\b/);
+  if(!m)return null;
+  var d=parseInt(m[1],10);
+  if(isNaN(d)||d<1||d>31)return null;
+  return d;
+}
 function saveSetup(){
   var name  = document.getElementById('setup-name').value.trim();
   var agent = document.getElementById('setup-agent').value.trim();
@@ -610,6 +620,23 @@ function saveSetup(){
   if(!name){toast('กรอกชื่อด้วยครับ');return;}
   if(!agent){toast('กรอกชื่อเอเย่นต์ด้วยครับ');return;}
   if(!ngod){toast('เลือกงวดด้วยครับ');return;}
+  // เตือนถ้าวันที่ไม่ใช่ 1/16 (งวดพิเศษ)
+  var day=parseNgodDay(ngod);
+  if(day!==null&&day!==1&&day!==16){
+    showConfirm(
+      '⚠️ วันที่ <b>'+ngod+'</b> ไม่ใช่วันออกหวยปกติ<br><br>'
+      +'<span style="font-size:12px;color:#7a8aaa;">งวดปกติออกวันที่ 1 และ 16 ของเดือน<br>'
+      +'เป็นงวดพิเศษ (เช่น ปีใหม่ วันครู) ใช่ไหมครับ?</span>',
+      'ยกเลิก'
+    );
+    _cfOk=function(){
+      profile={name:name,agent:agent,ngod:ngod};
+      saveProfile();
+      document.getElementById('setup-modal').classList.remove('show');
+      updateHdr(); toast('✅ บันทึกแล้วครับ');
+    };
+    return;
+  }
   profile={name:name,agent:agent,ngod:ngod};
   saveProfile();
   document.getElementById('setup-modal').classList.remove('show');
