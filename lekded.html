@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เลขเด็ดวันนี้</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+        }
+        header {
+            background: #d32f2f;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            padding: 20px;
+        }
+        .box {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+        }
+        h2 {
+            color: #d32f2f;
+        }
+        .numbers {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background: #d32f2f;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: #222;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🔥 เลขเด็ดวันนี้ 🔥</h1>
+    <p>อัปเดตล่าสุด ทุกวัน</p>
+</header>
+
+<div class="container">
+
+    <!-- โฆษณา -->
+    <div class="box">
+        <p>📢 พื้นที่โฆษณา (ใส่ Google AdSense ที่นี่)</p>
+    </div>
+
+    <!-- เลขเด็ด -->
+    <div class="box">
+        <h2>🎯 เลขเด็ดงวดนี้</h2>
+        <p class="numbers">2 - 5 - 9</p>
+        <p>เลขรอง: 25, 59, 29</p>
+    </div>
+
+    <!-- สุ่มเลข -->
+    <div class="box">
+        <h2>🎲 สุ่มเลข</h2>
+        <p id="randomNumber" class="numbers">---</p>
+        <button class="btn" onclick="generateNumber()">สุ่มเลข</button>
+    </div>
+
+    <!-- ตรวจหวย -->
+    <div class="box">
+        <h2>🔍 ตรวจหวย</h2>
+        <input type="text" id="lotteryInput" placeholder="ใส่เลขของคุณ">
+        <button class="btn" onclick="checkLottery()">ตรวจสอบ</button>
+        <p id="result"></p>
+    </div>
+
+</div>
+
+<footer>
+    © 2026 เลขเด็ดวันนี้.com
+</footer>
+
+<script>
+function generateNumber() {
+    let num = Math.floor(Math.random() * 1000);
+    document.getElementById("randomNumber").innerText = num;
+}
+
+function checkLottery() {
+    let input = document.getElementById("lotteryInput").value;
+    if(input === "123") {
+        document.getElementById("result").innerText = "🎉 ยินดีด้วย! ถูกรางวัล!";
+    } else {
+        document.getElementById("result").innerText = "❌ ไม่ถูกรางวัล";
+    }
+}
+</script>
+
+</body>
+</html>
