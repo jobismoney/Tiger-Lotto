@@ -1337,7 +1337,7 @@ function checkNgod(gi){
   closeHist();
   var r6el=document.getElementById('res-1st');if(r6el)r6el.value='';
   document.getElementById('check-result-out').innerHTML='';
-  openCheck();
+  openCheck(true);
   setTimeout(function(){if(r6el)r6el.focus();},200);
 }
 function shareResult(gi){
@@ -1399,7 +1399,12 @@ var _slipFromHist=false;
 function openGuide(){document.getElementById('guide-ov').classList.add('show');}
 function closeGuide(){document.getElementById('guide-ov').classList.remove('show');}
 
-function openCheck(){_checkFromHist=false;_checkPendingEnts=[];_checkPendingNg='';_checkPendingNgId=0;document.getElementById('check-ov').classList.add('show');}
+function openCheck(preserveState){
+  if(!preserveState){
+    _checkFromHist=false;_checkPendingEnts=[];_checkPendingNg='';_checkPendingNgId=0;
+  }
+  document.getElementById('check-ov').classList.add('show');
+}
 function closeCheck(){document.getElementById('check-ov').classList.remove('show');}
 function fetchResult(){
   toast('📡 กำลังดึงผลรางวัล...');
