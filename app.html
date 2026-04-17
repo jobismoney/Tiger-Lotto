@@ -3255,6 +3255,49 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   // ─── HISTORY ───
+  // helper: build HTML สำหรับ list hits โดย group ตามชื่อ+ชุด
+  // ใช้ร่วมกันใน result badge ของทั้ง current folder และ history folder
+  function buildHitsHTML(hits){
+    if(!hits||!hits.length){
+      return '<div style="font-size:12px;color:#7a8aaa;padding:4px 0;border-top:1px solid #1a2a1a;">😌 ไม่มีถูกรางวัลงวดนี้</div>';
+    }
+    // group hits ตามชื่อ (setName) + ชุดที่ (setNum)
+    var groups={};var order=[];
+    hits.forEach(function(h){
+      var nm=h.setName||'ไม่ระบุชื่อ';
+      var sn=h.setNum||0;
+      var key=nm+'#'+sn;
+      if(!groups[key]){groups[key]={name:nm,setNum:sn,items:[],total:0};order.push(key);}
+      groups[key].items.push(h);
+      groups[key].total+=(h.pay||0);
+    });
+    var out='';
+    order.forEach(function(k){
+      var g=groups[k];
+      var setLbl=g.setNum?('ชุดที่ '+g.setNum):'';
+      // header: 🏆 ชื่อ · ชุดที่
+      out+='<div style="background:rgba(245,197,24,.08);border-top:1px solid #1a2a1a;border-left:3px solid var(--gold);padding:6px 10px;margin-top:4px;display:flex;justify-content:space-between;align-items:center;">'
+        +'<span style="font-size:12px;font-weight:900;color:var(--gold);">🏆 '+g.name+(setLbl?' · '+setLbl:'')+'</span>'
+        +'<span style="font-size:12px;font-weight:900;color:#34d399;">฿'+fmt(g.total)+'</span>'
+        +'</div>';
+      g.items.forEach(function(hit){
+        out+='<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 10px;">'
+          +'<div><span style="font-size:16px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>'
+          +' <span style="font-size:11px;color:#6ee7b7;">'+hit.type+'</span>'
+          +' <span style="font-size:11px;color:#7a8aaa;">ซื้อ ฿'+fmt(hit.bet)+'</span></div>'
+          +'<div style="font-size:15px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div></div>';
+      });
+    });
+    return out;
+  }
+
+  // helper: ดูว่า basket (setNum) ไหนมีเลขถูกรางวัล → return Set ของ setNum
+  function getWinningSetNums(hits){
+    var s={};
+    (hits||[]).forEach(function(h){ if(h.setNum) s[h.setNum]=true; });
+    return s;
+  }
+
   function renderHistory(){
     var hist=getHistory();
     var el=document.getElementById('hist-list');
@@ -3289,6 +3332,16 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         if(!custGroups[name]){custGroups[name]=[];custOrder.push(name);}
         custGroups[name].push(h);
       });
+      // หา check result + เลขที่ถูก เพื่อ mark 🏆/🎯
+      var curCheckResX=null;
+      basketSets.forEach(function(h){if(h.checkResult)curCheckResX=h.checkResult;});
+      var curWinSetNums=curCheckResX?getWinningSetNums(curCheckResX.hits):{};
+      var curWinNames={};
+      (curCheckResX&&curCheckResX.hits||[]).forEach(function(h){if(h.setName)curWinNames[h.setName]=true;});
+      // หา setNum ของแต่ละ basket (นับแบบเรียงจากเก่า→ใหม่ของงวดนี้)
+      var bsSorted=basketSets.slice().reverse(); // basketSets เรียงใหม่→เก่า, เราอยากได้เก่า→ใหม่
+      var basketSetNumMap={};
+      bsSorted.forEach(function(h,idx){basketSetNumMap[h.id]=idx+1;});
       custOrder.forEach(function(name){
         var custSets=custGroups[name];
         var custTotal=custSets.reduce(function(s,h){return s+h.total;},0);
@@ -3299,8 +3352,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var innerRows='';
         custSets.forEach(function(h,ci){
           var realIdx=hist.indexOf(h);
-          innerRows+='<div class="hist-set" style="padding-left:20px;">'
-            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(custSets.length-ci)+'</div>'
+          var mySetNum=basketSetNumMap[h.id]||0;
+          var isWin=mySetNum&&curWinSetNums[mySetNum];
+          innerRows+='<div class="hist-set" style="padding-left:20px;'+(isWin?'background:rgba(245,197,24,.06);':'')+'">'
+            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;'+(isWin?'color:var(--gold);':'')+'">'+(isWin?'🎯 ':'')+'ชุดที่ '+(custSets.length-ci)+'</div>'
             +'</div>'
             +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
             +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
@@ -3311,11 +3366,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         });
         var nameEsc=name.replace(/'/g,"\'");
         var ngodEscC=curNgod.replace(/'/g,"\'");
-        setRows+='<div style="border-bottom:1px solid var(--border);">'
+        var custWon=!!curWinNames[name];
+        setRows+='<div style="border-bottom:1px solid var(--border);'+(custWon?'background:rgba(245,197,24,.04);':'')+'">'
           +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);">'
           +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;" onclick="APP.toggleCustGroup(this.parentElement.parentElement)">'
           +'<div style="width:30px;height:30px;border-radius:50%;background:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:'+avatarTextColor+';flex-shrink:0;">'+firstChar+'</div>'
-          +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+name+'</div>'
+          +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+(custWon?'🏆 ':'')+name+'</div>'
           +'<div style="font-size:11px;color:var(--lg);">'+custSets.length+' ชุด · '+custSets.reduce(function(s,h){return s+h.entries.length;},0)+' รายการ</div></div></div>'
           +'<div style="display:flex;align-items:center;gap:8px;">'
           +'<div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(custTotal)+'</div>'
@@ -3352,13 +3408,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             +(r3fArr.length?'<div style="font-size:12px;color:#d1fae5;margin-bottom:2px;">หน้า3ตัว: <b>'+r3fArr.join(' · ')+'</b></div>':'')
             +(r3bArr.length?'<div style="font-size:12px;color:#d1fae5;margin-bottom:8px;">ท้าย3ตัว: <b>'+r3bArr.join(' · ')+'</b></div>':'');
           if(hitsc.length){
-            hitsc.forEach(function(hit){
-              bh+='<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-top:1px solid #1a2a1a;">'
-                +'<div><span style="font-size:16px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>'
-                +' <span style="font-size:11px;color:#6ee7b7;">'+hit.type+'</span>'
-                +' <span style="font-size:11px;color:#7a8aaa;">ซื้อ ฿'+fmt(hit.bet)+'</span></div>'
-                +'<div style="font-size:15px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div></div>';
-            });
+            bh+=buildHitsHTML(hitsc);
           } else {
             bh+='<div style="font-size:12px;color:#7a8aaa;padding:4px 0;border-top:1px solid #1a2a1a;">😌 ไม่มีถูกรางวัลงวดนี้</div>';
           }
@@ -3419,6 +3469,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         if(tm) timeSuffix=' · '+tm;
       }
       var setRows='';
+      // หา checkResult + เลขที่ถูก → เตรียม mark 🏆/🎯
+      var histCheckRes=null;
+      sets.forEach(function(s){if(s.h.checkResult)histCheckRes=s.h.checkResult;});
+      var histWinSetNums=histCheckRes?getWinningSetNums(histCheckRes.hits):{};
+      var histWinNames={};
+      (histCheckRes&&histCheckRes.hits||[]).forEach(function(h){if(h.setName)histWinNames[h.setName]=true;});
+      // map: basket.id → setNum (เรียงจากเก่า→ใหม่ใน ngodId นี้)
+      var histBasketSetNumMap={};
+      sets.slice().reverse().forEach(function(x,idx){histBasketSetNumMap[x.h.id]=idx+1;});
       // จัดกลุ่มตามชื่อลูกค้า
       var hcGroups={};var hcOrder=[];
       sets.forEach(function(x){
@@ -3436,8 +3495,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var innerRows='';
         cSets.forEach(function(x,ci){
           var h=x.h,realIdx=x.i;
-          innerRows+='<div class="hist-set" style="padding-left:20px;">'
-            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(cSets.length-ci)+'</div>'
+          var mySetNum=histBasketSetNumMap[h.id]||0;
+          var isWin=mySetNum&&histWinSetNums[mySetNum];
+          innerRows+='<div class="hist-set" style="padding-left:20px;'+(isWin?'background:rgba(245,197,24,.06);':'')+'">'
+            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;'+(isWin?'color:var(--gold);':'')+'">'+(isWin?'🎯 ':'')+'ชุดที่ '+(cSets.length-ci)+'</div>'
             +'</div>'
             +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
             +'<div class="hist-set-count">'+h.entries.length+' รายการ</div></div>'
@@ -3446,11 +3507,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         });
         var nameEscH=name.replace(/'/g,"\'");
         var ngodEscH=ngod.replace(/'/g,"\'");
-        setRows+='<div style="border-bottom:1px solid var(--border);">'
+        var custWon=!!histWinNames[name];
+        setRows+='<div style="border-bottom:1px solid var(--border);'+(custWon?'background:rgba(245,197,24,.04);':'')+'">'
           +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);">'
           +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;" onclick="APP.toggleCustGroup(this.parentElement.parentElement)">'
           +'<div style="width:30px;height:30px;border-radius:50%;background:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:'+avatarTextColor+';flex-shrink:0;">'+firstChar+'</div>'
-          +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+name+'</div>'
+          +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+(custWon?'🏆 ':'')+name+'</div>'
           +'<div style="font-size:11px;color:var(--lg);">'+cSets.length+' ชุด · '+cSets.reduce(function(s,x){return s+x.h.entries.length;},0)+' รายการ</div></div></div>'
           +'<div style="display:flex;align-items:center;gap:8px;">'
           +'<div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(cTotal)+'</div>'
@@ -3461,8 +3523,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           +'</div>';
       });
       // result badge
-      var checkRes=null;
-      sets.forEach(function(s){if(s.h.checkResult)checkRes=s.h.checkResult;});
+      var checkRes=histCheckRes;
       var ngodId=gNgodId;
       var ngodIdStr=gNgodIdStr;
       var resultBadgeHTML='';
@@ -3481,13 +3542,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           +(r3fArr.length?'<div style="font-size:12px;color:#d1fae5;margin-bottom:2px;">หน้า3ตัว: <b>'+r3fArr.join(' · ')+'</b></div>':'')
           +(r3bArr.length?'<div style="font-size:12px;color:#d1fae5;margin-bottom:8px;">ท้าย3ตัว: <b>'+r3bArr.join(' · ')+'</b></div>':'');
         if(hitsc.length){
-          hitsc.forEach(function(hit){
-            bh+='<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-top:1px solid #1a2a1a;">'
-              +'<div><span style="font-size:16px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>'
-              +' <span style="font-size:11px;color:#6ee7b7;">'+hit.type+'</span>'
-              +' <span style="font-size:11px;color:#7a8aaa;">ซื้อ ฿'+fmt(hit.bet)+'</span></div>'
-              +'<div style="font-size:15px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div></div>';
-          });
+          bh+=buildHitsHTML(hitsc);
         } else {
           bh+='<div style="font-size:12px;color:#7a8aaa;padding:4px 0;border-top:1px solid #1a2a1a;">😌 ไม่มีถูกรางวัลงวดนี้</div>';
         }
@@ -3819,12 +3874,12 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     }
     celebrate();
 
-    // จัดกลุ่มตามชื่อลูกค้า (setName)
+    // จัดกลุ่มตามชื่อลูกค้า (setName) — เก็บ setNum ไปด้วย
     var byName={};var nameOrder=[];
     results.forEach(function(r){
       var k=r._setName||('ชุดที่ '+r._setNum);
       if(!byName[k]){byName[k]=[];nameOrder.push(k);}
-      r.hits.forEach(function(h){byName[k].push({lek:r.lek,type:h.type,bet:h.bet,pay:h.pay});});
+      r.hits.forEach(function(h){byName[k].push({lek:r.lek,type:h.type,bet:h.bet,pay:h.pay,setNum:r._setNum||0});});
     });
 
     var grandPay=0;var grandItems=0;
@@ -3856,7 +3911,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'<span style="font-size:13px;font-weight:900;color:#34d399;">฿'+fmt(custPay)+'</span>'
         +'</div>';
       rows.forEach(function(x){
-        allHits.push({lek:x.lek,type:x.type,bet:x.bet,pay:x.pay,setName:name});
+        allHits.push({lek:x.lek,type:x.type,bet:x.bet,pay:x.pay,setName:name,setNum:x.setNum||0});
         html+='<div class="result-row">'
           +'<div><div class="result-lek">'+x.lek+'</div>'
           +'<div class="result-type">'+x.type+' <span style="color:#7a8aaa;font-size:11px;">ซื้อ ฿'+fmt(x.bet)+'</span></div></div>'
