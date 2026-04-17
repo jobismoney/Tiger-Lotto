@@ -1397,8 +1397,35 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     }catch(e){return false;}
   }
 
-  function getHistory(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch(e){return[];}}
+  function getHistory(){
+    try{
+      var h=JSON.parse(localStorage.getItem(HIST_KEY)||'[]');
+      // ─── MIGRATION: ทำให้ basket เก่าทุกอันมี ngodId ───
+      // basket ที่ชื่องวดเดียวกัน (และไม่มี ngodId) ให้ถือเป็นงวดเดียวกัน
+      // ใช้ชื่องวดเป็น key → gen ngodId 1 อันต่อ 1 ชื่อ (stable per name)
+      var migrated=false,nameMap={};
+      h.forEach(function(x){
+        if(!x||!x.isBasket)return;
+        if(!x.ngodId||x.ngodId===0){
+          var key=x.ngod||'__unknown__';
+          if(!nameMap[key]){
+            // ใช้ id ของ basket แรกที่เจอเป็น ngodId
+            nameMap[key]=x.id||Date.now();
+          }
+          x.ngodId=nameMap[key];
+          migrated=true;
+        }
+      });
+      if(migrated){
+        try{localStorage.setItem(HIST_KEY,JSON.stringify(h));}catch(e){}
+      }
+      return h;
+    }catch(e){return[];}
+  }
   function saveHistory(h){try{localStorage.setItem(HIST_KEY,JSON.stringify(h));}catch(e){}}
+
+  // helper: ถ้าไม่มี ngodId ใช้ชื่อเป็น fallback
+  function ngodKey(h){return h.ngodId?'id:'+h.ngodId:'ng:'+(h.ngod||'');}
 
   // ─── UI STATE ───
   function showWelcome(){
@@ -1630,7 +1657,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       'เช่น แมน, ป้าดา, ต้อม...',
       function(basketName,discRates,payRates){
         var hist2=getHistory();
-        var countBefore=hist2.filter(function(h){return h.ngod===ngod&&h.isBasket;}).length;
+        var curId=ngodInfo.ngodId||0;
+        var countBefore=hist2.filter(function(h){return h.isBasket&&(curId?h.ngodId===curId:h.ngod===ngod);}).length;
         var newCount=countBefore+1;
         var displayName=basketName||('ชุดที่ '+newCount);
         if(basketName) lastBasketName=basketName;
@@ -2223,12 +2251,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(_hPen.length)_hPages.push(_hPen);
       setTimeout(function(){_hPages.forEach(function(pg,pi){renderPageQR(pg,_hInf,pi+1);});},100);
     },
-    printMerged:function(ngod){
+    printMerged:function(ngod,nid){
+      nid=parseInt(nid)||0;
       // เตือนถ้ามีเลขค้าง
-      if(ngodOpen&&ngodInfo&&ngodInfo.ngod===ngod&&entries.length>0){
+      if(ngodOpen&&ngodInfo&&ngodInfo.ngod===ngod&&(nid?ngodInfo.ngodId===nid:true)&&entries.length>0){
         showConfirm(
           'มีเลขค้างอยู่ <b>'+entries.length+' รายการ</b> ยังไม่ได้เก็บเข้าแฟ้ม<br><br>จะทำยังไงดีครับ?',
-          function(){printMergedByNgod(ngod);},  // ยืนยัน = พิมพ์เลย
+          function(){printMergedByNgod(ngod,nid);},  // ยืนยัน = พิมพ์เลย
           false,
           '✏️ ไปเก็บก่อน',
           function(){
@@ -2237,13 +2266,18 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         );
         return;
       }
-      printMergedByNgod(ngod);
+      printMergedByNgod(ngod,nid);
     },
     closeHist:function(){document.getElementById('hist-ov').classList.remove('show');},
-    delNgod:function(ngod){
+    delNgod:function(ngod,nid){
+      nid=parseInt(nid)||0;
       showConfirm('ลบทุกชุดของงวด <b>'+ngod+'</b>?<br>ไม่สามารถกู้คืนได้',function(){
         var hist=getHistory();
-        hist=hist.filter(function(h){return h.ngod!==ngod;});
+        hist=hist.filter(function(h){
+          // เก็บรายการที่ "ไม่ใช่" งวดนี้ไว้
+          if(nid) return h.ngodId!==nid;
+          return h.ngod!==ngod;
+        });
         saveHistory(hist);renderHistory();toast('ลบแล้ว');
       },true);
     },
@@ -2264,7 +2298,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       // รวมทุกชุดของงวดนี้
       var allSets=[];
       var refNgodId=h.ngodId||0;
-      hist.forEach(function(x,xi){if(x.ngod===ngod&&x.isBasket&&(refNgodId?x.ngodId===refNgodId:true))allSets.push({h:x,i:xi});});
+      hist.forEach(function(x,xi){
+        if(!x.isBasket)return;
+        var match=refNgodId?(x.ngodId===refNgodId):(x.ngod===ngod);
+        if(match)allSets.push({h:x,i:xi});
+      });
       allSets=allSets.slice().reverse(); // เรียงจากเก่า→ใหม่
       var mergedEntries=[];
       allSets.forEach(function(s,si){
@@ -2311,7 +2349,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         entries.forEach(function(e){allEnts.push(Object.assign({},e,{_setName:'(ยังไม่เก็บ)',_setNum:si,_payRates:null}));});
       }
       hist.forEach(function(h){
-        if(h.ngod===ngod&&h.isBasket&&(nid?h.ngodId===nid:true)){
+        if(!h.isBasket)return;
+        var match=nid?(h.ngodId===nid):(h.ngod===ngod);
+        if(match){
           si++;var pr=h.payRates||null;
           (h.entries||[]).forEach(function(e){allEnts.push(Object.assign({},e,{_setName:h.basketName||'',_setNum:si,_payRates:pr}));});
         }
@@ -2349,9 +2389,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(lbl)lbl.textContent=ngodInfo.ngod||'—';
     },
     doCheck:function(){doCheck();},
-    showCollectSummary:function(ngod){
+    showCollectSummary:function(ngod,nid){
+      nid=parseInt(nid)||0;
       var hist=getHistory();
-      var sets=hist.filter(function(h){return h.ngod===ngod&&h.isBasket;});
+      var sets=hist.filter(function(h){
+        if(!h.isBasket)return false;
+        if(nid)return h.ngodId===nid;
+        return h.ngod===ngod;
+      });
       if(!sets.length){toast('ไม่มีรายการ');return;}
       // จัดกลุ่มตามชื่อลูกค้า
       var groups={};var order=[];
@@ -2415,9 +2460,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(!b)return;
       b.style.display=b.style.display==='none'?'':'none';
     },
-    viewCust:function(ngod,name){
+    viewCust:function(ngod,name,nid){
+      nid=parseInt(nid)||0;
       var hist=getHistory();
-      var custSets=hist.filter(function(h){return h.ngod===ngod&&h.isBasket&&h.basketName===name;});
+      var custSets=hist.filter(function(h){
+        if(!h.isBasket||h.basketName!==name)return false;
+        if(nid)return h.ngodId===nid;
+        return h.ngod===ngod;
+      });
       if(!custSets.length){toast('ไม่มีรายการ');return;}
       custSets=custSets.slice().reverse(); // เก่าก่อน
       var inf=custSets[0];
@@ -3318,25 +3368,56 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'</div></div>');
     }
 
-    // group ประวัติ by งวด (ไม่รวมงวดปัจจุบัน)
+    // group ประวัติ by ngodId (ไม่รวมงวดปัจจุบัน)
+    // ใช้ ngodKey() เพื่อแยกโฟลเดอร์ให้ถูกต้อง แม้ชื่องวดจะซ้ำกัน
     var groups={};var groupOrder=[];
+    var curKey=ngodOpen&&ngodInfo?ngodKey({ngodId:ngodInfo.ngodId,ngod:ngodInfo.ngod}):null;
     hist.forEach(function(h,i){
-      var ng=h.ngod;
-      if(ngodOpen&&ngodInfo&&ngodInfo.ngod===ng)return; // ข้ามงวดปัจจุบัน
-      if(!groups[ng]){groups[ng]=[];groupOrder.push(ng);}
-      groups[ng].push({h:h,i:i});
+      if(!h.isBasket)return;
+      var k=ngodKey(h);
+      if(curKey&&k===curKey)return; // ข้ามงวดปัจจุบัน
+      if(!groups[k]){groups[k]=[];groupOrder.push(k);}
+      groups[k].push({h:h,i:i});
     });
+
+    // นับชื่องวดซ้ำ → ถ้าชื่อเดียวกันโผล่หลายโฟลเดอร์ ค่อยแสดงเวลา
+    var ngodNameCount={};
+    groupOrder.forEach(function(k){
+      var nm=groups[k][0].h.ngod||'—';
+      ngodNameCount[nm]=(ngodNameCount[nm]||0)+1;
+    });
+
+    // helper: format เวลาจาก ngodId (Date.now() timestamp)
+    function fmtNgodTime(ngodId){
+      if(!ngodId)return '';
+      try{
+        var d=new Date(parseInt(ngodId));
+        if(isNaN(d.getTime()))return '';
+        var hh=('0'+d.getHours()).slice(-2);
+        var mm=('0'+d.getMinutes()).slice(-2);
+        return hh+':'+mm;
+      }catch(e){return '';}
+    }
 
     if(!groupOrder.length&&!cards.length){
       el.innerHTML='<div class="hist-empty">ยังไม่มีประวัติ</div>';return;
     }
 
-    groupOrder.forEach(function(ngod){
-      var sets=groups[ngod];
+    groupOrder.forEach(function(gkey){
+      var sets=groups[gkey];
       var groupTotal=sets.reduce(function(s,x){return s+x.h.total;},0);
       var inf=sets[0].h;
+      var ngod=inf.ngod||'—';
+      var gNgodId=inf.ngodId||0;
       var hasCheck=sets.some(function(x){return x.h.checkResult;});
       var ngodEsc=ngod.replace(/'/g,"\'");
+      var gNgodIdStr=String(gNgodId);
+      // ถ้าชื่องวดซ้ำ แสดงเวลาเพื่อแยก
+      var timeSuffix='';
+      if((ngodNameCount[ngod]||0)>1){
+        var tm=fmtNgodTime(gNgodId);
+        if(tm) timeSuffix=' · '+tm;
+      }
       var setRows='';
       // จัดกลุ่มตามชื่อลูกค้า
       var hcGroups={};var hcOrder=[];
@@ -3373,7 +3454,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           +'<div style="font-size:11px;color:var(--lg);">'+cSets.length+' ชุด · '+cSets.reduce(function(s,x){return s+x.h.entries.length;},0)+' รายการ</div></div></div>'
           +'<div style="display:flex;align-items:center;gap:8px;">'
           +'<div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(cTotal)+'</div>'
-          +'<button class="hist-set-btn" style="white-space:nowrap;" data-ng="'+ngodEscH+'" data-nm="'+nameEscH+'" onclick="APP.viewCust(this.dataset.ng,this.dataset.nm)">📋 ดูรวม</button>'
+          +'<button class="hist-set-btn" style="white-space:nowrap;" data-ng="'+ngodEscH+'" data-nm="'+nameEscH+'" data-nid="'+gNgodIdStr+'" onclick="APP.viewCust(this.dataset.ng,this.dataset.nm,this.dataset.nid)">📋 ดูรวม</button>'
           +'</div>'
           +'</div>'
           +'<div>'+innerRows+'</div>'
@@ -3382,8 +3463,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       // result badge
       var checkRes=null;
       sets.forEach(function(s){if(s.h.checkResult)checkRes=s.h.checkResult;});
-      var ngodId=sets[0]?sets[0].h.ngodId||0:0;
-      var ngodIdStr=String(ngodId);
+      var ngodId=gNgodId;
+      var ngodIdStr=gNgodIdStr;
       var resultBadgeHTML='';
       if(checkRes){
         var r1c=checkRes.r1||'';var hitsc=checkRes.hits||[];
@@ -3417,7 +3498,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       }
       cards.push('<div class="hist-folder">'
         +'<div class="hist-folder-hd" onclick="APP.toggleFolder(this)">'
-        +'<div><div class="hist-folder-ngod">📁 งวด '+ngod+'</div>'
+        +'<div><div class="hist-folder-ngod">📁 งวด '+ngod+timeSuffix+'</div>'
         +'<div class="hist-folder-meta">🔴 ปิดแล้ว · '+(inf.sender||'')+(inf.receiver?' → '+inf.receiver:'')+'</div></div>'
         +'<div style="display:flex;align-items:center"><div class="hist-folder-right"><div class="hist-folder-total">฿'+fmt(groupTotal)+'</div>'
         +'<div class="hist-folder-count">'+sets.length+' ชุด</div></div>'
@@ -3425,9 +3506,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         +'</div>'
         +'<div class="hist-folder-body collapsed">'+setRows+resultBadgeHTML
         +'<div class="hist-folder-actions">'
-        +'<button class="hist-btn del" onclick="APP.delNgod(this.dataset.ngod)" data-ngod="'+ngodEsc+'">🗑️ ลบทั้งงวด</button>'
-        +'<button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEsc+'">📋 ดูทั้งหมด</button>'
-        +'<button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEsc+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button>'
+        +'<button class="hist-btn del" onclick="APP.delNgod(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEsc+'" data-nid="'+ngodIdStr+'">🗑️ ลบทั้งงวด</button>'
+        +'<button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEsc+'" data-nid="'+ngodIdStr+'">📋 ดูทั้งหมด</button>'
+        +'<button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEsc+'" data-nid="'+ngodIdStr+'" onclick="APP.showCollectSummary(this.dataset.ng,this.dataset.nid)">💰 ยอดเก็บเงิน</button>'
         +'<button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHistNgod(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEsc+'" data-nid="'+ngodIdStr+'">'+(checkRes?'🔍 ดูผลอีกครั้ง':'🔍 ตรวจผล')+'</button>'
         +'</div></div></div>');
     });
@@ -3503,11 +3584,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       +LEGEND;
   }
 
-  function printMergedByNgod(ngod){
+  function printMergedByNgod(ngod,nid){
+    nid=parseInt(nid)||0;
     var hist=getHistory();
     var sets=[];var inf=null;
     hist.forEach(function(h){
-      if(h.ngod===ngod&&h.isBasket){
+      if(!h.isBasket)return;
+      var match=nid?h.ngodId===nid:h.ngod===ngod;
+      if(match){
         if(!inf)inf={ngod:h.ngod,date:h.date,sender:h.sender,receiver:h.receiver};
         sets.push(h);
       }
