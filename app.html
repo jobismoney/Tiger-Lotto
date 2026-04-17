@@ -3319,7 +3319,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           +'<div style="font-size:11px;color:var(--lg);">'+custSets.length+' ชุด · '+custSets.reduce(function(s,h){return s+h.entries.length;},0)+' รายการ</div></div></div>'
           +'<div style="display:flex;align-items:center;gap:8px;">'
           +'<div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(custTotal)+'</div>'
-          +'<button class="hist-set-btn" style="white-space:nowrap;" data-ng="'+ngodEscC+'" data-nm="'+nameEsc+'" onclick="APP.viewCust(this.dataset.ng,this.dataset.nm)">📋 ดูรวม</button>'
+          +'<button class="hist-set-btn" style="white-space:nowrap;" data-ng="'+ngodEscC+'" data-nm="'+nameEsc+'" data-nid="'+curNgodId+'" onclick="APP.viewCust(this.dataset.ng,this.dataset.nm,this.dataset.nid)">📋 ดูรวม</button>'
           +'</div>'
           +'</div>'
           +'<div>'+innerRows+'</div>'
@@ -3364,7 +3364,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           }
           return bh+'</div>';
         }())
-        +(basketSets.length>0?'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEscQ+'">📋 ดูทั้งหมด</button><button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEscQ+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHistNgod(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEscQ+'" data-nid="'+curNgodId+'">🔍 ตรวจผล</button></div>':'')
+        +(basketSets.length>0?'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEscQ+'" data-nid="'+curNgodId+'">📋 ดูทั้งหมด</button><button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEscQ+'" data-nid="'+curNgodId+'" onclick="APP.showCollectSummary(this.dataset.ng,this.dataset.nid)">💰 ยอดเก็บเงิน</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHistNgod(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEscQ+'" data-nid="'+curNgodId+'">🔍 ตรวจผล</button></div>':'')
         +'</div></div>');
     }
 
