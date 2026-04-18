@@ -1357,8 +1357,32 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     }catch(e){return false;}
   }
 
-  function getHistory(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch(e){return[];}}
+  function getHistory(){
+    try{
+      var h=JSON.parse(localStorage.getItem(HIST_KEY)||'[]');
+      // ─── MIGRATION: ทำให้ basket เก่าทุกอันมี ngodId ───
+      var migrated=false,nameMap={};
+      h.forEach(function(x){
+        if(!x||!x.isBasket)return;
+        if(!x.ngodId||x.ngodId===0){
+          var key=x.ngod||'__unknown__';
+          if(!nameMap[key]){
+            nameMap[key]=x.id||Date.now();
+          }
+          x.ngodId=nameMap[key];
+          migrated=true;
+        }
+      });
+      if(migrated){
+        try{localStorage.setItem(HIST_KEY,JSON.stringify(h));}catch(e){}
+      }
+      return h;
+    }catch(e){return[];}
+  }
   function saveHistory(h){try{localStorage.setItem(HIST_KEY,JSON.stringify(h));}catch(e){}}
+
+  // helper: ถ้าไม่มี ngodId ใช้ชื่อเป็น fallback
+  function ngodKey(h){return h.ngodId?'id:'+h.ngodId:'ng:'+(h.ngod||'');}
 
   // ─── UI STATE ───
   function showWelcome(){
@@ -1646,7 +1670,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       'เช่น แมน, ป้าดา, ต้อม...',
       function(basketName,discRates,payRates){
         var hist2=getHistory();
-        var countBefore=hist2.filter(function(h){return h.ngod===ngod&&h.isBasket;}).length;
+        var curId=ngodInfo.ngodId||0;
+        var countBefore=hist2.filter(function(h){return h.isBasket&&(curId?h.ngodId===curId:h.ngod===ngod);}).length;
         var newCount=countBefore+1;
         var displayName=basketName||('ชุดที่ '+newCount);
         if(basketName) lastBasketName=basketName;
@@ -2315,7 +2340,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       nid=parseInt(nid)||0;
       showConfirm('ลบทุกชุดของงวด <b>'+ngod+'</b>?<br>ไม่สามารถกู้คืนได้',function(){
         var hist=getHistory();
-        hist=hist.filter(function(h){return !(h.ngod===ngod&&(nid?h.ngodId===nid:true));});
+        hist=hist.filter(function(h){
+          if(nid) return h.ngodId!==nid;
+          return h.ngod!==ngod;
+        });
         saveHistory(hist);renderHistory();toast('ลบแล้ว');
       },true);
     },
@@ -2352,7 +2380,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var allEnts=[];
       var si=0;
       hist.forEach(function(h){
-        if(h.ngod===ngod&&h.isBasket&&(nid?h.ngodId===nid:true)){
+        if(!h.isBasket)return;
+        var match=nid?(h.ngodId===nid):(h.ngod===ngod);
+        if(match){
           si++;
           var pr=h.payRates||null;
           (h.entries||[]).forEach(function(e){
@@ -2374,7 +2404,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       // รวมทุกชุดของงวดนี้
       var allSets=[];
       var refNgodId=h.ngodId||0;
-      hist.forEach(function(x,xi){if(x.ngod===ngod&&x.isBasket&&(refNgodId?x.ngodId===refNgodId:true))allSets.push({h:x,i:xi});});
+      hist.forEach(function(x,xi){
+        if(!x.isBasket)return;
+        var match=refNgodId?(x.ngodId===refNgodId):(x.ngod===ngod);
+        if(match)allSets.push({h:x,i:xi});
+      });
       allSets=allSets.slice().reverse(); // เรียงจากเก่า→ใหม่
       // ส่งทุกชุด พร้อม setNum — ตรวจใหม่ทุกครั้ง
       var mergedEntries=[];
@@ -2405,7 +2439,11 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     showCollectSummary:function(ngod,nid){
       nid=parseInt(nid)||0;
       var hist=getHistory();
-      var sets=hist.filter(function(h){return h.ngod===ngod&&h.isBasket&&(nid?h.ngodId===nid:true);});
+      var sets=hist.filter(function(h){
+        if(!h.isBasket)return false;
+        if(nid)return h.ngodId===nid;
+        return h.ngod===ngod;
+      });
       if(!sets.length){toast('ไม่มีรายการ');return;}
       // จัดกลุ่มตามชื่อลูกค้า
       var groups={};var order=[];
@@ -2469,9 +2507,14 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       if(!b)return;
       b.style.display=b.style.display==='none'?'':'none';
     },
-    viewCust:function(ngod,name){
+    viewCust:function(ngod,name,nid){
+      nid=parseInt(nid)||0;
       var hist=getHistory();
-      var custSets=hist.filter(function(h){return h.ngod===ngod&&h.isBasket&&h.basketName===name;});
+      var custSets=hist.filter(function(h){
+        if(!h.isBasket||h.basketName!==name)return false;
+        if(nid)return h.ngodId===nid;
+        return h.ngod===ngod;
+      });
       if(!custSets.length){toast('ไม่มีรายการ');return;}
       custSets=custSets.slice().reverse(); // เก่าก่อน
       var inf=custSets[0];
@@ -3269,6 +3312,45 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
 
   // ─── HISTORY ───
+  // helper: build HTML สำหรับ list hits โดย group ตามชื่อ+ชุด
+  function buildHitsHTML(hits){
+    if(!hits||!hits.length){
+      return '<div style="font-size:12px;color:#7a8aaa;padding:4px 0;border-top:1px solid #1a2a1a;">😌 ไม่มีถูกรางวัลงวดนี้</div>';
+    }
+    var groups={};var order=[];
+    hits.forEach(function(h){
+      var nm=h.setName||'ไม่ระบุชื่อ';
+      var sn=h.setNum||0;
+      var key=nm+'#'+sn;
+      if(!groups[key]){groups[key]={name:nm,setNum:sn,items:[],total:0};order.push(key);}
+      groups[key].items.push(h);
+      groups[key].total+=(h.pay||0);
+    });
+    var out='';
+    order.forEach(function(k){
+      var g=groups[k];
+      var setLbl=g.setNum?('ชุดที่ '+g.setNum):'';
+      out+='<div style="background:rgba(245,197,24,.08);border-top:1px solid #1a2a1a;border-left:3px solid var(--gold);padding:6px 10px;margin-top:4px;display:flex;justify-content:space-between;align-items:center;">'
+        +'<span style="font-size:12px;font-weight:900;color:var(--gold);">🏆 '+g.name+(setLbl?' · '+setLbl:'')+'</span>'
+        +'<span style="font-size:12px;font-weight:900;color:#34d399;">฿'+fmt(g.total)+'</span>'
+        +'</div>';
+      g.items.forEach(function(hit){
+        out+='<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 10px;">'
+          +'<div><span style="font-size:16px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>'
+          +' <span style="font-size:11px;color:#6ee7b7;">'+hit.type+'</span>'
+          +' <span style="font-size:11px;color:#7a8aaa;">ซื้อ ฿'+fmt(hit.bet)+'</span></div>'
+          +'<div style="font-size:15px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div></div>';
+      });
+    });
+    return out;
+  }
+
+  function getWinningSetNums(hits){
+    var s={};
+    (hits||[]).forEach(function(h){ if(h.setNum) s[h.setNum]=true; });
+    return s;
+  }
+
   function renderHistory(){
     var hist=getHistory();
     var el=document.getElementById('hist-list');
@@ -3303,6 +3385,15 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         if(!custGroups[name]){custGroups[name]=[];custOrder.push(name);}
         custGroups[name].push(h);
       });
+      // หา check result + เลขที่ถูก เพื่อ mark 🏆/🎯
+      var curCheckResX=null;
+      basketSets.forEach(function(h){if(h.checkResult)curCheckResX=h.checkResult;});
+      var curWinSetNums=curCheckResX?getWinningSetNums(curCheckResX.hits):{};
+      var curWinNames={};
+      (curCheckResX&&curCheckResX.hits||[]).forEach(function(h){if(h.setName)curWinNames[h.setName]=true;});
+      var bsSorted=basketSets.slice().reverse();
+      var basketSetNumMap={};
+      bsSorted.forEach(function(h,idx){basketSetNumMap[h.id]=idx+1;});
       custOrder.forEach(function(name){
         var custSets=custGroups[name];
         var custTotal=custSets.reduce(function(s,h){return s+h.total;},0);
@@ -3313,8 +3404,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var innerRows='';
         custSets.forEach(function(h,ci){
           var realIdx=hist.indexOf(h);
-          innerRows+='<div class="hist-set" style="padding-left:20px;">'
-            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(custSets.length-ci)+'</div>'
+          var mySetNum=basketSetNumMap[h.id]||0;
+          var isWin=mySetNum&&curWinSetNums[mySetNum];
+          innerRows+='<div class="hist-set" style="padding-left:20px;'+(isWin?'background:rgba(245,197,24,.06);':'')+'">'
+            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;'+(isWin?'color:var(--gold);':'')+'">'+(isWin?'🎯 ':'')+'ชุดที่ '+(custSets.length-ci)+'</div>'
             +'<div style="font-size:11px;color:#60a5fa;font-weight:700;">'+(h.savedAt||'')+'</div>'
             +'</div>'
             +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
@@ -3326,15 +3419,16 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         });
         var nameEsc=name.replace(/'/g,"\'");
         var ngodEscC=curNgod.replace(/'/g,"\'");
-        setRows+='<div style="border-bottom:1px solid var(--border);">'
+        var custWon=!!curWinNames[name];
+        setRows+='<div style="border-bottom:1px solid var(--border);'+(custWon?'background:rgba(245,197,24,.04);':'')+'">'
           +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);">'
           +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;" onclick="APP.toggleCustGroup(this.parentElement.parentElement)">'
           +'<div style="width:30px;height:30px;border-radius:50%;background:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:'+avatarTextColor+';flex-shrink:0;">'+firstChar+'</div>'
-          +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+name+'</div>'
+          +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+(custWon?'🏆 ':'')+name+'</div>'
           +'<div style="font-size:11px;color:var(--lg);">'+custSets.length+' ชุด · '+custSets.reduce(function(s,h){return s+h.entries.length;},0)+' รายการ</div></div></div>'
           +'<div style="display:flex;align-items:center;gap:8px;">'
           +'<div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(custTotal)+'</div>'
-          +'<button class="hist-set-btn" style="white-space:nowrap;" data-ng="'+ngodEscC+'" data-nm="'+nameEsc+'" onclick="APP.viewCust(this.dataset.ng,this.dataset.nm)">📋 ดูรวม</button>'
+          +'<button class="hist-set-btn" style="white-space:nowrap;" data-ng="'+ngodEscC+'" data-nm="'+nameEsc+'" data-nid="'+curNgodId+'" onclick="APP.viewCust(this.dataset.ng,this.dataset.nm,this.dataset.nid)">📋 ดูรวม</button>'
           +'</div>'
           +'</div>'
           +'<div>'+innerRows+'</div>'
@@ -3358,14 +3452,13 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
             var r6c=curCheckRes.r6||'';var hitsc=curCheckRes.hits||[];
             curBadge='<div style="background:#0d1f12;border-top:1px solid #22c55e;padding:10px 14px;">'              +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'              +'<span style="font-size:11px;color:#22c55e;font-weight:800;">🎯 ผลรางวัล</span>'              +'<span style="font-size:18px;font-weight:900;color:#fff;letter-spacing:4px;">'+r6c+'</span></div>';
             if(r6c.length===6){curBadge+='<div style="display:flex;gap:12px;margin-bottom:6px;">'              +'<span style="font-size:10px;color:#7a8aaa;">4ตัว <b style="color:#f5c518">'+r6c.slice(2)+'</b></span>'              +'<span style="font-size:10px;color:#7a8aaa;">3ตัว <b style="color:#60a5fa">'+r6c.slice(3)+'</b></span>'              +'<span style="font-size:10px;color:#7a8aaa;">2บน <b style="color:#f472b6">'+r6c.slice(4)+'</b></span>'              +'<span style="font-size:10px;color:#7a8aaa;">2ล่าง <b style="color:#34d399">'+r6c.slice(2,4)+'</b></span>'              +'</div>';}
-            if(hitsc.length){hitsc.forEach(function(hit){curBadge+=              '<div style="display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid #1a2a1a;">'              +'<div><span style="font-size:14px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>'              +' <span style="font-size:11px;color:#60a5fa;">'+hit.type+'</span>'              +' <span style="font-size:11px;color:#7a8aaa;">×฿'+fmt(hit.bet)+'</span></div>'              +'<div style="font-size:14px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div></div>';});}
-            else{curBadge+='<div style="font-size:12px;color:#7a8aaa;padding:4px 0;">😌 ไม่มีถูกรางวัลงวดนี้</div>';}
+            curBadge+=buildHitsHTML(hitsc);
             curBadge+='</div>';
           } else {
             curBadge='<div style="padding:8px 14px;border-top:1px solid var(--border);font-size:11px;color:#f87171;">⏳ ยังไม่ได้บันทึกผลรางวัล</div>';
           }
           var _cnid=ngodInfo.ngodId||0;
-          return curBadge+'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod)" data-ngod="'+ngodEscQ+'">📋 ดูทั้งหมด</button><button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEscQ+'" onclick="APP.showCollectSummary(this.dataset.ng)">💰 ยอดเก็บเงิน</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHistNgod(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEscQ+'" data-nid="'+_cnid+'">'+(curHasResult?'🔍 ดูผลอีกครั้ง':'🔍 ตรวจผล')+'</button></div>';
+          return curBadge+'<div class="hist-folder-actions"><button class="hist-btn view" style="background:#7f1d1d;color:#fca5a5" onclick="APP.closeNgodMain()">🔒 ปิดงวด</button><button class="hist-btn view" style="background:#1d4ed8" onclick="APP.printMerged(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEscQ+'" data-nid="'+_cnid+'">📋 ดูทั้งหมด</button><button class="hist-btn view" style="background:#065f46;color:#6ee7b7" data-ng="'+ngodEscQ+'" data-nid="'+_cnid+'" onclick="APP.showCollectSummary(this.dataset.ng,this.dataset.nid)">💰 ยอดเก็บเงิน</button><button class="hist-btn view" style="background:#7c3aed" onclick="APP.checkHistNgod(this.dataset.ngod,this.dataset.nid)" data-ngod="'+ngodEscQ+'" data-nid="'+_cnid+'">'+(curHasResult?'🔍 ดูผลอีกครั้ง':'🔍 ตรวจผล')+'</button></div>';
         })():'')
         +'</div>');
     }
@@ -3381,6 +3474,23 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       groups[key].push({h:h,i:i});
     });
 
+    // นับชื่องวดซ้ำ → ถ้าซ้ำแสดงเวลา
+    var ngodNameCount={};
+    groupOrder.forEach(function(k){
+      var nm=groupMeta[k].ngod||'—';
+      ngodNameCount[nm]=(ngodNameCount[nm]||0)+1;
+    });
+    function fmtNgodTime(ngodId){
+      if(!ngodId)return '';
+      try{
+        var d=new Date(parseInt(ngodId));
+        if(isNaN(d.getTime()))return '';
+        var hh=('0'+d.getHours()).slice(-2);
+        var mm=('0'+d.getMinutes()).slice(-2);
+        return hh+':'+mm;
+      }catch(e){return '';}
+    }
+
     if(!groupOrder.length&&!cards.length){
       el.innerHTML='<div class="hist-empty">ยังไม่มีประวัติ</div>';return;
     }
@@ -3393,6 +3503,20 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var inf=sets[0].h;
       var hasCheck=sets.some(function(x){return x.h.checkResult;});
       var ngodEsc=ngod.replace(/'/g,"\'");
+      // time suffix ถ้าชื่อซ้ำ
+      var timeSuffix='';
+      if((ngodNameCount[ngod]||0)>1){
+        var tm=fmtNgodTime(ngodId);
+        if(tm) timeSuffix=' · '+tm;
+      }
+      // หา checkResult + เลขที่ถูก → mark 🏆/🎯
+      var histCheckRes=null;
+      sets.forEach(function(s){if(s.h.checkResult)histCheckRes=s.h.checkResult;});
+      var histWinSetNums=histCheckRes?getWinningSetNums(histCheckRes.hits):{};
+      var histWinNames={};
+      (histCheckRes&&histCheckRes.hits||[]).forEach(function(h){if(h.setName)histWinNames[h.setName]=true;});
+      var histBasketSetNumMap={};
+      sets.slice().reverse().forEach(function(x,idx){histBasketSetNumMap[x.h.id]=idx+1;});
       var setRows='';
       // จัดกลุ่มตามชื่อลูกค้า
       var hcGroups={};var hcOrder=[];
@@ -3411,8 +3535,10 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         var innerRows='';
         cSets.forEach(function(x,ci){
           var h=x.h,realIdx=x.i;
-          innerRows+='<div class="hist-set" style="padding-left:20px;">'
-            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;">ชุดที่ '+(cSets.length-ci)+'</div>'
+          var mySetNum=histBasketSetNumMap[h.id]||0;
+          var isWin=mySetNum&&histWinSetNums[mySetNum];
+          innerRows+='<div class="hist-set" style="padding-left:20px;'+(isWin?'background:rgba(245,197,24,.06);':'')+'">'
+            +'<div class="hist-set-left"><div class="hist-set-num" style="font-size:12px;'+(isWin?'color:var(--gold);':'')+'">'+(isWin?'🎯 ':'')+'ชุดที่ '+(cSets.length-ci)+'</div>'
             +'<div style="font-size:10px;color:var(--lg);">'+(h.savedAt||'')+'</div>'
             +'</div>'
             +'<div class="hist-set-right"><div class="hist-set-total">฿'+fmt(h.total)+'</div>'
@@ -3422,23 +3548,23 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
         });
         var nameEscH=name.replace(/'/g,"\'");
         var ngodEscH=ngod.replace(/'/g,"\'");
-        setRows+='<div style="border-bottom:1px solid var(--border);">'
+        var custWon=!!histWinNames[name];
+        setRows+='<div style="border-bottom:1px solid var(--border);'+(custWon?'background:rgba(245,197,24,.04);':'')+'">'
           +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);">'
           +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;" onclick="APP.toggleCustGroup(this.parentElement.parentElement)">'
           +'<div style="width:30px;height:30px;border-radius:50%;background:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:'+avatarTextColor+';flex-shrink:0;">'+firstChar+'</div>'
-          +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+name+'</div>'
+          +'<div><div style="font-size:15px;font-weight:900;color:var(--white);">'+(custWon?'🏆 ':'')+name+'</div>'
           +'<div style="font-size:11px;color:var(--lg);">'+cSets.length+' ชุด · '+cSets.reduce(function(s,x){return s+x.h.entries.length;},0)+' รายการ</div></div></div>'
           +'<div style="display:flex;align-items:center;gap:8px;">'
           +'<div style="font-size:15px;font-weight:900;color:var(--gold);">฿'+fmt(cTotal)+'</div>'
-          +'<button class="hist-set-btn" style="white-space:nowrap;" data-ng="'+ngodEscH+'" data-nm="'+nameEscH+'" onclick="APP.viewCust(this.dataset.ng,this.dataset.nm)">📋 ดูรวม</button>'
+          +'<button class="hist-set-btn" style="white-space:nowrap;" data-ng="'+ngodEscH+'" data-nm="'+nameEscH+'" data-nid="'+ngodId+'" onclick="APP.viewCust(this.dataset.ng,this.dataset.nm,this.dataset.nid)">📋 ดูรวม</button>'
           +'</div>'
           +'</div>'
           +'<div>'+innerRows+'</div>'
           +'</div>';
       });
       // result badge
-      var checkRes=null;
-      sets.forEach(function(s){if(s.h.checkResult)checkRes=s.h.checkResult;});
+      var checkRes=histCheckRes;
       var hasResult=!!checkRes;
       var resultBadgeHTML='';
       if(checkRes){
@@ -3453,13 +3579,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
           +'<span style="font-size:10px;color:#7a8aaa;">2บน <b style="color:#f472b6">'+r6c.slice(4)+'</b></span>'
           +'<span style="font-size:10px;color:#7a8aaa;">2ล่าง <b style="color:#34d399">'+r6c.slice(2,4)+'</b></span>'
           +'</div>';}
-        if(hitsc.length){hitsc.forEach(function(hit){
-          bh+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid #1a2a1a;">'
-            +'<div><span style="font-size:14px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>'
-            +' <span style="font-size:11px;color:#60a5fa;">'+hit.type+'</span>'
-            +' <span style="font-size:11px;color:#7a8aaa;">×฿'+fmt(hit.bet)+'</span></div>'
-            +'<div style="font-size:14px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay)+'</div></div>';
-        });}else{bh+='<div style="font-size:12px;color:#7a8aaa;padding:4px 0;">😌 ไม่มีถูกรางวัลงวดนี้</div>';}
+        bh+=buildHitsHTML(hitsc);
         bh+='</div>';
         resultBadgeHTML=bh;
       } else {
@@ -3467,7 +3587,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       }
       cards.push('<div class="hist-folder">'
         +'<div class="hist-folder-hd" onclick="APP.toggleFolder(this)">'
-        +'<div><div class="hist-folder-ngod">📁 งวด '+ngod+'</div>'
+        +'<div><div class="hist-folder-ngod">📁 งวด '+ngod+timeSuffix+'</div>'
         +'<div class="hist-folder-meta">🔴 ปิดแล้ว · '+(inf.sender||'')+(inf.receiver?' → '+inf.receiver:'')+'</div></div>'
         +'<div style="display:flex;align-items:center"><div class="hist-folder-right"><div class="hist-folder-total">฿'+fmt(groupTotal)+'</div>'
         +'<div class="hist-folder-count">'+sets.length+' ชุด</div></div>'
@@ -3545,7 +3665,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var hist=getHistory();
     var sets=[];var inf=null;
     hist.forEach(function(h){
-      if(h.ngod===ngod&&h.isBasket&&(nid?h.ngodId===nid:true)){
+      if(!h.isBasket)return;
+      var match=nid?(h.ngodId===nid):(h.ngod===ngod);
+      if(match){
         if(!inf)inf={ngod:h.ngod,date:h.date,sender:h.sender,receiver:h.receiver};
         sets.push(h);
       }
@@ -3735,8 +3857,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var lek=e.lek,d=parseInt(e.d)||lek.length,b=e.bon||0,t=e.tod||0,l=e.lang||0;
       var kd=e.kd||{};
       var sn=e._setName||'';
+      var snum=e._setNum||0;
       var PAY=Object.assign({},_defPay,e._payRates||{});
-      function ph(o){o._setName=sn;hits.push(o);}
+      function ph(o){o._setName=sn;o.setName=sn;o.setNum=snum;hits.push(o);}
       // 4ตัวบน
       if(d===4&&b>0&&lek===_laoWin4){ph({lek:lek,type:'4ตัวบน',bet:b,pay:b*PAY.p4});grandPay+=b*PAY.p4;}
       (kd['bon']||[]).forEach(function(x){if(d===4&&x.perm===_laoWin4){ph({lek:x.perm,type:'4ตัวบน(ชุด)',bet:x.price,pay:x.price*PAY.p4});grandPay+=x.price*PAY.p4;}});
