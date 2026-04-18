@@ -1267,12 +1267,8 @@ function renderHistList(){
     if(checkRes){
       var r6c=checkRes.r6||'';var hitsc=checkRes.hits||[];
       var cr=checkRes;
-      var grandPayC=hitsc.reduce(function(s,x){return s+(x.pay||0);},0);
       h+='<div style="padding:10px 14px;background:#0d1f12;border-top:1px solid #22c55e;">';
-      h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
-      h+='<span style="font-size:11px;color:#22c55e;font-weight:800;">🎯 ผลรางวัล</span>';
-      if(grandPayC>0)h+='<span style="font-size:13px;font-weight:900;color:#34d399;">฿'+fmt(grandPayC)+'</span>';
-      h+='</div>';
+      h+='<div style="font-size:11px;color:#22c55e;font-weight:800;margin-bottom:8px;">🎯 ผลรางวัล</div>';
       h+='<div style="font-size:12px;margin-bottom:3px;color:#7a8aaa;">รางวัลที่1: <b style="color:#fff;letter-spacing:2px;">'+(cr.r6||'—')+'</b></div>';
       h+='<div style="font-size:12px;margin-bottom:3px;color:#7a8aaa;">2ตัวล่าง: <b style="color:#34d399;">'+(cr.r2lang||'—')+'</b></div>';
       h+='<div style="font-size:12px;margin-bottom:3px;color:#7a8aaa;">หน้า3ตัว: <b style="color:#60a5fa;">'+(cr.r3na1||'—')+' · '+(cr.r3na2||'—')+'</b></div>';
@@ -1287,20 +1283,19 @@ function renderHistList(){
         });
         itemOrder.forEach(function(itemIdx){
           var rows=hitsByItem[itemIdx];
-          var sumPay=rows.reduce(function(s,x){return s+(x.pay||0);},0);
-          h+='<div style="background:rgba(245,197,24,.08);border-left:3px solid #f5c518;padding:5px 8px;margin-top:4px;display:flex;justify-content:space-between;align-items:center;border-radius:3px;">';
-          h+='<span style="font-size:11px;font-weight:900;color:#f5c518;">🏆 แผ่น '+itemIdx+'</span>';
-          h+='<span style="font-size:11px;font-weight:900;color:#34d399;">฿'+fmt(sumPay)+'</span>';
+          h+='<div style="background:rgba(245,197,24,.08);border-left:3px solid #f5c518;padding:5px 8px;margin-top:4px;border-radius:3px;">';
+          h+='<span style="font-size:11px;font-weight:900;color:#f5c518;">🏆 แผ่น '+itemIdx+' · ถูก '+rows.length+' รายการ</span>';
           h+='</div>';
           rows.forEach(function(hit){
-            h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:3px 8px;">';
-            h+='<div><span style="font-size:14px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>';
-            h+=' <span style="font-size:11px;color:#60a5fa;">'+hit.type+'</span>';
-            h+=' <span style="font-size:11px;color:#7a8aaa;">ซื้อ ฿'+fmt(hit.bet)+'</span></div>';
-            h+='<div style="font-size:13px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay||0)+'</div>';
+            h+='<div style="display:flex;align-items:center;gap:8px;padding:3px 8px;">';
+            h+='<span style="font-size:14px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>';
+            h+='<span style="font-size:11px;color:#60a5fa;">'+hit.type+'</span>';
+            h+='<span style="font-size:11px;color:#7a8aaa;">ซื้อ ฿'+fmt(hit.bet)+'</span>';
+            h+='<span style="font-size:14px;color:#34d399;margin-left:auto;">⭐</span>';
             h+='</div>';
           });
         });
+        h+='<div style="margin-top:8px;padding:6px 8px;background:rgba(52,211,153,.08);border-radius:4px;font-size:11px;color:#7a8aaa;text-align:center;">💡 ติดต่อเอเย่นต์เพื่อเช็คยอดเงินรางวัล</div>';
       } else {
         h+='<div style="font-size:12px;color:#7a8aaa;">😌 ไม่มีถูกรางวัลงวดนี้</div>';
       }
@@ -1558,8 +1553,10 @@ function doCheck(){
     h+='<span style="font-size:18px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>';
     h+='<span style="font-size:12px;color:#60a5fa;">'+hit.type+'</span>';
     h+='<span style="font-size:13px;font-weight:800;color:#fff;">ซื้อ ฿'+fmt(hit.bet)+'</span>';
+    h+='<span style="font-size:16px;color:#34d399;margin-left:auto;">⭐</span>';
     h+='</div></div>';
   });
+  h+='<div style="margin-top:10px;padding:8px 10px;background:rgba(52,211,153,.08);border-radius:6px;font-size:12px;color:#7a8aaa;text-align:center;">💡 ติดต่อเอเย่นต์เพื่อเช็คยอดเงินรางวัล</div>';
   h+=saveBtn;
   el.innerHTML=h;
 }

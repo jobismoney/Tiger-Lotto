@@ -1199,17 +1199,13 @@ function renderHistList(){
     isFirst=false;
     var foldId='fold-'+gi;
     h+='<div style="background:#13161f;border:1px solid #2e3248;border-radius:12px;margin-bottom:10px;overflow:hidden;">';
-    // header
-    h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#1a1d2e;cursor:pointer;" onclick="toggleFold('+gi+')">';
-    h+='<div>';
-    h+='<div style="font-size:15px;font-weight:900;color:#f5c518;">📁 งวด '+ng+timeSuffix+'</div>';
+    h+='<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#1a1d2e;">';
+    h+='<button onclick="event.stopPropagation();delNgod('+gi+')" style="padding:6px 8px;background:#7f1d1d;border:none;border-radius:8px;color:#fca5a5;font-family:Sarabun,sans-serif;font-size:13px;cursor:pointer;flex-shrink:0;">🗑️</button>';
+    h+='<div style="flex:1;cursor:pointer;" onclick="toggleFold('+gi+')">';
+    h+='<div style="font-size:15px;font-weight:900;color:#f5c518;">📁 งวด '+ng+timeSuffix+' <span class="fold-arrow" style="color:#7a8aaa;font-size:12px;">'+(isOpen?'▼':'▶')+'</span></div>';
     h+='<div style="font-size:11px;color:#7a8aaa;">'+items.length+' แผ่น · ฿'+fmt(ngTotal)+'</div></div>';
-    h+='<div style="display:flex;align-items:center;gap:6px;">';
-    h+='<button onclick="event.stopPropagation();delNgod('+gi+')" style="padding:5px 8px;background:#7f1d1d;border:none;border-radius:8px;color:#fca5a5;font-family:Sarabun,sans-serif;font-size:11px;font-weight:800;cursor:pointer;">🗑️</button>';
-    h+='<button onclick="event.stopPropagation();checkNgod('+gi+')" style="padding:5px 8px;background:#7c3aed;border:none;border-radius:8px;color:#fff;font-family:Sarabun,sans-serif;font-size:11px;font-weight:800;cursor:pointer;">🔍</button>';
-    h+='<span style="font-size:11px;font-weight:800;color:'+(checkRes?'#22c55e':'#f87171')+'">'+(checkRes?'✅ ตรวจผลแล้ว':'⏳ ยังไม่ได้ตรวจผล')+'</span>';
-    h+='<span class="fold-arrow" style="color:#7a8aaa;font-size:12px;">'+(isOpen?'▼':'▶')+'</span>';
-    h+='</div></div>';
+    h+='<button onclick="event.stopPropagation();checkNgod('+gi+')" style="padding:8px 14px;background:#7c3aed;border:none;border-radius:10px;color:#fff;font-family:Sarabun,sans-serif;font-size:13px;font-weight:800;cursor:pointer;flex-shrink:0;">'+(checkRes?'🔍 ดูผลอีกครั้ง':'🔍 ตรวจรางวัล')+'</button>';
+    h+='</div>';
     // body
     h+='<div id="'+foldId+'" style="display:'+(isOpen?'block':'none')+';">';
     // แต่ละแผ่น
@@ -1230,13 +1226,10 @@ function renderHistList(){
     // result badge
     if(checkRes){
       var r6c=checkRes.r6||'';var hitsc=checkRes.hits||[];
-      var grandPayC=hitsc.reduce(function(s,x){return s+(x.pay||0);},0);
       h+='<div style="padding:10px 14px;background:#0d1f12;border-top:1px solid #22c55e;">';
-      h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
-      h+='<div style="display:flex;align-items:center;gap:8px;">';
+      h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
       h+='<span style="font-size:11px;color:#22c55e;font-weight:800;">🎯 ผลรางวัล</span>';
-      h+='<span style="font-size:16px;font-weight:900;color:#fff;letter-spacing:4px;">'+r6c+'</span></div>';
-      if(grandPayC>0)h+='<span style="font-size:13px;font-weight:900;color:#34d399;">฿'+fmt(grandPayC)+'</span>';
+      h+='<span style="font-size:16px;font-weight:900;color:#fff;letter-spacing:4px;">'+r6c+'</span>';
       h+='</div>';
       if(hitsc.length){
         // group hits by itemIdx
@@ -1248,20 +1241,19 @@ function renderHistList(){
         });
         itemOrder.forEach(function(itemIdx){
           var rows=hitsByItem[itemIdx];
-          var sumPay=rows.reduce(function(s,x){return s+(x.pay||0);},0);
-          h+='<div style="background:rgba(245,197,24,.08);border-left:3px solid #f5c518;padding:5px 8px;margin-top:4px;display:flex;justify-content:space-between;align-items:center;border-radius:3px;">';
-          h+='<span style="font-size:11px;font-weight:900;color:#f5c518;">🏆 แผ่น '+itemIdx+'</span>';
-          h+='<span style="font-size:11px;font-weight:900;color:#34d399;">฿'+fmt(sumPay)+'</span>';
+          h+='<div style="background:rgba(245,197,24,.08);border-left:3px solid #f5c518;padding:5px 8px;margin-top:4px;border-radius:3px;">';
+          h+='<span style="font-size:11px;font-weight:900;color:#f5c518;">🏆 แผ่น '+itemIdx+' · ถูก '+rows.length+' รายการ</span>';
           h+='</div>';
           rows.forEach(function(hit){
-            h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:3px 8px;">';
-            h+='<div><span style="font-size:14px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>';
-            h+=' <span style="font-size:11px;color:#60a5fa;">'+hit.type+'</span>';
-            h+=' <span style="font-size:11px;color:#7a8aaa;">ซื้อ ฿'+fmt(hit.bet)+'</span></div>';
-            h+='<div style="font-size:13px;font-weight:900;color:#34d399;">฿'+fmt(hit.pay||0)+'</div>';
+            h+='<div style="display:flex;align-items:center;gap:8px;padding:3px 8px;">';
+            h+='<span style="font-size:14px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>';
+            h+='<span style="font-size:11px;color:#60a5fa;">'+hit.type+'</span>';
+            h+='<span style="font-size:11px;color:#7a8aaa;">ซื้อ ฿'+fmt(hit.bet)+'</span>';
+            h+='<span style="font-size:14px;color:#34d399;margin-left:auto;">⭐</span>';
             h+='</div>';
           });
         });
+        h+='<div style="margin-top:8px;padding:6px 8px;background:rgba(52,211,153,.08);border-radius:4px;font-size:11px;color:#7a8aaa;text-align:center;">💡 ติดต่อเอเย่นต์เพื่อเช็คยอดเงินรางวัล</div>';
       } else {
         h+='<div style="font-size:12px;color:#7a8aaa;">😌 ไม่มีถูกรางวัลงวดนี้</div>';
       }
@@ -1525,15 +1517,17 @@ function _doCheckNgod(allEnts){
     el.innerHTML='<div style="text-align:center;padding:24px;color:var(--lg);">😔 ไม่ถูกรางวัลครับ</div>'+saveBtn;
     return;
   }
-  var h='<div class="check-result-total"><span class="lbl">🎉 ถูกรางวัล</span><span class="val">'+hits.length+' รายการ · ฿'+fmt(grandPay)+'</span></div>';
+  var h='<div class="check-result-total"><span class="lbl">🎉 ถูกรางวัล</span><span class="val">'+hits.length+' รายการ</span></div>';
   hits.forEach(function(hit){
     h+='<div class="check-hit" style="padding:8px 10px;background:#1a1d2e;border-radius:8px;margin-bottom:4px;">';
     h+='<div style="display:flex;align-items:center;gap:10px;">';
     h+='<span style="font-size:20px;font-weight:900;color:#f5c518;">'+hit.lek+'</span>';
     h+='<span style="font-size:12px;color:#60a5fa;">'+hit.type+'</span>';
     h+='<span style="font-size:13px;font-weight:800;color:#fff;">ซื้อ ฿'+fmt(hit.bet)+'</span>';
+    h+='<span style="font-size:16px;color:#34d399;margin-left:auto;">⭐</span>';
     h+='</div></div>';
   });
+  h+='<div style="margin-top:10px;padding:8px 10px;background:rgba(52,211,153,.08);border-radius:6px;font-size:12px;color:#7a8aaa;text-align:center;">💡 ติดต่อเอเย่นต์เพื่อเช็คยอดเงินรางวัล</div>';
   h+=saveBtn;
   el.innerHTML=h;
 }
