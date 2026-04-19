@@ -1158,6 +1158,60 @@ function deskFKToggleMode(){
   }
 }
 
+// ════════════════════════════════════════
+// Physical Keyboard Support for FK
+// ════════════════════════════════════════
+(function setupFKKeyboard(){
+  document.addEventListener('keydown', function(e){
+    // ข้าม ถ้า focus อยู่ใน input/textarea
+    var tag=(e.target.tagName||'').toLowerCase();
+    if(tag==='input'||tag==='textarea'||tag==='select')return;
+    if(e.target.isContentEditable)return;
+
+    // ข้าม ถ้ามี modal เปิดอยู่ (ไม่ให้ไปรบกวน)
+    var openModals = document.querySelectorAll('.modal.show, .pak-modal.show');
+    if(openModals.length>0)return;
+
+    var k=e.key;
+    // ตัวเลข 0-9 (รวม numpad)
+    if(/^[0-9]$/.test(k)){
+      e.preventDefault();
+      deskFKNum(k);
+      return;
+    }
+    // separator / (หรือ , เผื่อใช้ numpad comma)
+    if(k==='/'||k===','){
+      e.preventDefault();
+      deskFKSep();
+      return;
+    }
+    // multiply × / x / *
+    if(k==='*'||k==='x'||k==='X'||k==='×'){
+      e.preventDefault();
+      deskFKMul();
+      return;
+    }
+    // backspace
+    if(k==='Backspace'){
+      e.preventDefault();
+      deskFKDel();
+      return;
+    }
+    // enter / = / NumpadEnter
+    if(k==='Enter'||k==='='){
+      e.preventDefault();
+      deskFKEq();
+      return;
+    }
+    // escape = ล้าง
+    if(k==='Escape'){
+      e.preventDefault();
+      deskFKReset();
+      return;
+    }
+  });
+})();
+
 // pak
 var pakType='3bon', pakPos='na';
 
