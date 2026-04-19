@@ -49,29 +49,43 @@ function licVerify(keyStr, requiredLv){
 
 function licInit(){
   var saved=localStorage.getItem(_LIC_KEY)||'';
+  var licScreen=document.getElementById('lic-screen');
+  if(!licScreen){
+    // DOM ยังไม่โหลด → รอแล้ว retry
+    if(document.readyState==='loading'){
+      document.addEventListener('DOMContentLoaded', licInit);
+    }
+    return;
+  }
   if(saved){
     var r=licVerify(saved,3);
     if(r.ok){
-      document.getElementById('lic-screen').classList.add('hide');
+      licScreen.classList.add('hide');
       return;
     }
   }
   if(saved){
-    document.getElementById('lic-inp').value=saved;
-    document.getElementById('lic-change').style.display='block';
+    var inp=document.getElementById('lic-inp');
+    var change=document.getElementById('lic-change');
+    if(inp) inp.value=saved;
+    if(change) change.style.display='block';
   }
 }
 
 function licSubmit(){
-  var key=document.getElementById('lic-inp').value.trim().toUpperCase();
+  var inp=document.getElementById('lic-inp');
+  if(!inp)return;
+  var key=inp.value.trim().toUpperCase();
   var r=licVerify(key,3);
   if(r.ok){
     try{localStorage.setItem(_LIC_KEY,key);}catch(e){}
-    document.getElementById('lic-screen').classList.add('hide');
-    document.getElementById('lic-err').textContent='';
+    var ls=document.getElementById('lic-screen');
+    if(ls) ls.classList.add('hide');
+    var er=document.getElementById('lic-err');
+    if(er) er.textContent='';
   } else {
-    document.getElementById('lic-err').textContent='❌ '+r.reason;
-    var inp=document.getElementById('lic-inp');
+    var er2=document.getElementById('lic-err');
+    if(er2) er2.textContent='❌ '+r.reason;
     inp.style.borderColor='#f87171';
     setTimeout(function(){inp.style.borderColor='';},1500);
   }
@@ -79,12 +93,20 @@ function licSubmit(){
 
 function licClear(){
   try{localStorage.removeItem(_LIC_KEY);}catch(e){}
-  document.getElementById('lic-inp').value='';
-  document.getElementById('lic-change').style.display='none';
-  document.getElementById('lic-err').textContent='';
+  var inp=document.getElementById('lic-inp');
+  var change=document.getElementById('lic-change');
+  var er=document.getElementById('lic-err');
+  if(inp) inp.value='';
+  if(change) change.style.display='none';
+  if(er) er.textContent='';
 }
 
-licInit();
+// รอ DOM ready ก่อนเรียก licInit
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', licInit);
+} else {
+  licInit();
+}
 
 </script>
 <style>
@@ -471,6 +493,10 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 /* ── DESK FK ── */
 .desk-fk-area{display:none;padding:8px 6px 0;}
 .desk-fk-area.show{display:block;}
+/* กลับ/ชุด ปุ่มชัดเจนขึ้น */
+.dfk-klb{background:#2a2000!important;border:1.5px solid #d4a017!important;color:#d4a017!important;font-weight:900!important;}
+.dfk-klb.on{background:linear-gradient(135deg,#f5c518,#d4a500)!important;color:#111!important;box-shadow:0 0 8px rgba(245,197,24,.4);}
+.desk-fk-area.show{display:block;}
 .desk-fk-display{background:#0d0f1a;border:2px solid var(--border);border-radius:10px;padding:6px 12px;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
 #dfk-text{font-family:'Sarabun',sans-serif;font-size:26px;font-weight:900;color:#555;letter-spacing:2px;flex:1;word-break:break-all;line-height:1.1;}
 #dfk-hint{font-size:10px;color:var(--lg);text-align:right;line-height:1.5;flex-shrink:0;}
@@ -595,31 +621,49 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <div class="zbody" id="kp-zone-body">
       <!-- FK AREA -->
       <div class="desk-fk-area" id="desk-fk-area">
+        <!-- marquee บอกลูกค้า (เฉพาะ FK mode) -->
+        <div id="fk-marquee-wrap" style="background:#0d0f1a;border-radius:6px;padding:4px 8px;margin-bottom:6px;overflow:hidden;white-space:nowrap;">
+          <span id="fk-marquee-text" style="font-size:11px;color:#888;">⌨️ เลือกลูกค้าก่อนครับ</span>
+        </div>
+        <!-- Display buffer -->
         <div class="desk-fk-display">
           <div id="dfk-text">—<span class="dfk-cursor"></span></div>
           <div id="dfk-hint">กดเลข<br>แล้ว =</div>
         </div>
-        <div class="desk-fk-types">
-          <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-bon" onclick="deskFKToggle('bon')">บน</button><button class="dfk-klb" id="dfkk-bon" onclick="deskFKToggleKlb('bon')"></button></div>
-          <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-tod" onclick="deskFKToggle('tod')">โต๊ด</button><div style="height:22px;"></div></div>
-          <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-lang" onclick="deskFKToggle('lang')">ล่าง</button><button class="dfk-klb" id="dfkk-lang" onclick="deskFKToggleKlb('lang')"></button></div>
-          <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-na" onclick="deskFKToggle('na')">หน้า</button><button class="dfk-klb" id="dfkk-na" onclick="deskFKToggleKlb('na')"></button></div>
+        <!-- Hint บอก syntax ย่อ -->
+        <div style="font-size:10px;color:#556;text-align:center;margin-bottom:4px;line-height:1.4;">
+          <span style="color:#f5c518;">ตัวอย่าง:</span> 
+          <span style="color:#8899bb;">12/30=50</span> = 2เลข ราคา50
+          · <span style="color:#d4a017;">กลับ</span>/<span style="color:#d4a017;">ชุด</span> = กดปุ่มใต้ บน/ล่าง/หน้า
         </div>
+        <!-- ประเภท: บน / โต๊ด / ล่าง / หน้า -->
+        <div class="desk-fk-types">
+          <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-bon" onclick="deskFKToggle('bon')">บน</button><button class="dfk-klb" id="dfkk-bon" onclick="deskFKToggleKlb('bon')" title="เปิด/ปิด กลับ ของ บน">กลับ</button></div>
+          <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-tod" onclick="deskFKToggle('tod')">โต๊ด</button><div style="height:22px;"></div></div>
+          <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-lang" onclick="deskFKToggle('lang')">ล่าง</button><button class="dfk-klb" id="dfkk-lang" onclick="deskFKToggleKlb('lang')" title="เปิด/ปิด กลับ ของ ล่าง">กลับ</button></div>
+          <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-na" onclick="deskFKToggle('na')">หน้า</button><button class="dfk-klb" id="dfkk-na" onclick="deskFKToggleKlb('na')" title="เปิด/ปิด กลับ ของ หน้า">กลับ</button></div>
+        </div>
+        <!-- Numpad -->
         <div class="desk-fk-pad">
           <button class="dfk-btn" onclick="deskFKNum('1')">1</button>
           <button class="dfk-btn" onclick="deskFKNum('2')">2</button>
           <button class="dfk-btn" onclick="deskFKNum('3')">3</button>
-          <button class="dfk-btn dfk-del" onclick="deskFKDel()">⌫</button>
+          <button class="dfk-btn dfk-del" onclick="deskFKDel()" title="ลบ (Backspace)">⌫</button>
           <button class="dfk-btn" onclick="deskFKNum('4')">4</button>
           <button class="dfk-btn" onclick="deskFKNum('5')">5</button>
           <button class="dfk-btn" onclick="deskFKNum('6')">6</button>
-          <button class="dfk-btn dfk-sep" onclick="deskFKSep()">/</button>
+          <button class="dfk-btn dfk-sep" onclick="deskFKSep()" title="แยกเลข (/)">/</button>
           <button class="dfk-btn" onclick="deskFKNum('7')">7</button>
           <button class="dfk-btn" onclick="deskFKNum('8')">8</button>
           <button class="dfk-btn" onclick="deskFKNum('9')">9</button>
-          <button class="dfk-btn dfk-mul" onclick="deskFKMul()">×</button>
+          <button class="dfk-btn dfk-mul" onclick="deskFKMul()" title="คั่นราคา (*)">×</button>
           <button class="dfk-btn" style="grid-column:span 2;" onclick="deskFKNum('0')">0</button>
-          <button class="dfk-btn dfk-eq" style="grid-column:span 2;" onclick="deskFKEq()">= OK</button>
+          <button class="dfk-btn dfk-eq" style="grid-column:span 2;" onclick="deskFKEq()" title="= / Enter">= OK</button>
+        </div>
+        <!-- Action -->
+        <div style="display:flex;gap:4px;margin-top:6px;">
+          <button onclick="deskFKReset()" title="ล้างทั้งหมด (Esc)" style="flex:1;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#f87171;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:800;padding:8px 4px;cursor:pointer;">✕ ล้าง</button>
+          <button id="dfk-pak-btn" onclick="deskFKOpenPak()" style="display:none;flex:1;background:rgba(251,146,60,.12);border:1.5px solid rgba(251,146,60,.4);border-radius:8px;color:#fb923c;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:900;padding:8px 4px;cursor:pointer;">📌 ปัก</button>
         </div>
       </div>
       <div class="kp-body" id="kp-inner">
@@ -1661,6 +1705,13 @@ window.addEventListener('DOMContentLoaded', function(){
   setupResize();
   // auto ngod suggestion
   autoNgodDate();
+  // เปิด FK เป็น default
+  setTimeout(function(){
+    var area=document.getElementById('desk-fk-area');
+    if(area && !area.classList.contains('show')){
+      if(typeof deskFKToggleMode==='function') deskFKToggleMode();
+    }
+  }, 100);
 });
 
 function autoNgodDate(){
@@ -4237,13 +4288,19 @@ function deleteCust(cid){
 
 function updateMarquee(){
   var el = document.getElementById('marquee-text');
-  if(!el) return;
+  var fkEl = document.getElementById('fk-marquee-text');
   var cust = customers.find(function(c){return c.id===curCustId;});
-  if(!cust){ el.textContent='⌨️ เลือกลูกค้าก่อนครับ'; return; }
-  var sets = (custSets[curCustId]||[]).length;
-  var setNum = sets + 1;
-  var ngod = ngodInfo&&ngodInfo.ngod ? ' · งวด '+ngodInfo.ngod : '';
-  el.textContent = '⌨️ กำลังคีย์เลขของ '+cust.name+' · ชุดที่ '+setNum+ngod;
+  var text;
+  if(!cust){
+    text = '⌨️ เลือกลูกค้าก่อนครับ';
+  } else {
+    var sets = (custSets[curCustId]||[]).length;
+    var setNum = sets + 1;
+    var ngod = ngodInfo&&ngodInfo.ngod ? ' · งวด '+ngodInfo.ngod : '';
+    text = '⌨️ กำลังคีย์เลขของ '+cust.name+' · ชุดที่ '+setNum+ngod;
+  }
+  if(el) el.textContent = text;
+  if(fkEl) fkEl.textContent = text;
 }
 
 function switchCrTab(tab, btn){
