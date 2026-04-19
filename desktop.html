@@ -942,6 +942,239 @@ var DIGIT_RULES = {
   5: ['tod']
 };
 
+// ════════════════════════════════════════════════════
+// FK (Flexible Keyboard) — keyboard แบบพิมพ์เป็น string
+// ════════════════════════════════════════════════════
+var FK_DEFAULT_THAI = {1:['bon','lang'],2:['bon','lang'],3:['bon','tod'],4:['tod'],5:['tod']};
+var FK_KLB_TYPES    = ['bon','lang','na'];
+var FK_COLOR        = {bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
+var FK_LABEL        = {bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
+
+var fkBuf = '';
+var fkSel = {bon:false,tod:false,lang:false,na:false};
+var fkKlb = {bon:false,lang:false,na:false};
+var fkUserOverride = false;
+
+function deskFKAutoSel(d){
+  d=d||2;
+  if(d>=4){
+    ['bon','tod','lang','na'].forEach(function(t){
+      fkSel[t]=(t==='tod');
+      var btn=document.getElementById('dfkt-'+t);
+      if(btn)btn.className='dfk-tbtn'+(fkSel[t]?' on-'+t:'');
+    });
+    fkKlb={bon:false,lang:false,na:false};
+  } else if(!fkUserOverride){
+    var def=FK_DEFAULT_THAI[d]||['bon','lang'];
+    ['bon','tod','lang','na'].forEach(function(t){
+      fkSel[t]=def.indexOf(t)>=0;
+      var btn=document.getElementById('dfkt-'+t);
+      if(btn)btn.className='dfk-tbtn'+(fkSel[t]?' on-'+t:'');
+    });
+  }
+  deskFKUpdateKlbBtns(d);
+}
+
+function deskFKUpdateKlbBtns(d){
+  d=d||2;
+  var lbl=d===2?'กลับ':'ชุด';
+  FK_KLB_TYPES.forEach(function(t){
+    var btn=document.getElementById('dfkk-'+t); if(!btn)return;
+    var show=fkSel[t]&&(d>=2&&d<=3);
+    btn.style.display=show?'block':'none';
+    if(show){btn.textContent=lbl;btn.className='dfk-klb'+(fkKlb[t]?' on':'');}
+  });
+}
+
+function deskFKToggle(t){
+  var d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
+  if(d>=4)return;
+  fkUserOverride=true;
+  fkSel[t]=!fkSel[t];
+  if(!fkSel[t])fkKlb[t]=false;
+  var btn=document.getElementById('dfkt-'+t);
+  if(btn)btn.className='dfk-tbtn'+(fkSel[t]?' on-'+t:'');
+  deskFKUpdateKlbBtns(d); deskFKRender();
+}
+
+function deskFKToggleKlb(t){
+  if(!fkSel[t])return;
+  fkKlb[t]=!fkKlb[t];
+  var btn=document.getElementById('dfkk-'+t);
+  if(btn)btn.className='dfk-klb'+(fkKlb[t]?' on':'');
+  deskFKRender();
+}
+
+function deskFKRender(){
+  var el=document.getElementById('dfk-text');
+  var hint=document.getElementById('dfk-hint');
+  if(!el)return;
+  if(!fkBuf){
+    el.innerHTML='—<span class="dfk-cursor"></span>';
+    el.style.color='#555';
+    el.style.fontSize='26px';
+    if(hint) hint.innerHTML='กดเลข<br>แล้ว =';
+    return;
+  }
+  el.style.color='var(--gold)';
+  el.innerHTML=fkBuf.replace(/x/gi,'×')+'<span class="dfk-cursor"></span>';
+  var len=fkBuf.length;
+  el.style.fontSize=len<=8?'26px':len<=12?'22px':len<=16?'18px':'14px';
+  var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
+  var d2=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||2;
+  var klbWord=d2===2?'ก':'ช';
+  if(hint){
+    hint.innerHTML=types.map(function(t){
+      return '<span style="color:'+FK_COLOR[t]+'">'+FK_LABEL[t]+(fkKlb[t]?klbWord:'')+'</span>';
+    }).join(' <span style="color:#555">×</span> ');
+  }
+}
+
+function deskFKNum(n){
+  if(fkBuf.indexOf('=')>=0){
+    fkBuf+=n;
+  } else {
+    var parts=fkBuf.split('/');
+    var last=parts[parts.length-1];
+    if(last.length>=5)return;
+    if(parts.length>1&&last.length>0){
+      var newLen=last.length+1;
+      if(newLen>parts[0].length){toast('เลขคนละประเภท');return;}
+    }
+    var prevLen=fkBuf.split('=')[0].split('/')[0].length;
+    fkBuf+=n;
+    var fl=fkBuf.split('=')[0].split('/')[0];
+    if(fl.length!==prevLen)fkUserOverride=false;
+    if(fl.length>=1)deskFKAutoSel(fl.length);
+  }
+  deskFKUpdateKlbBtns(); deskFKRender();
+}
+
+function deskFKSep(){
+  if(fkBuf.indexOf('=')>=0)return;
+  var parts=fkBuf.split('/');
+  var last=parts[parts.length-1];
+  if(!last||!last.length)return;
+  if(parts.length>0&&parts[0].length!==last.length){toast('เลขคนละประเภท');return;}
+  fkBuf+='/'; deskFKRender();
+}
+
+function deskFKMul(){
+  if(fkBuf.indexOf('=')>=0){
+    var pp=fkBuf.split('=')[1]||'';
+    var ps=pp.split('x');
+    if(!pp||!ps[ps.length-1])return;
+    var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
+    var d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
+    if(ps.length>=types.length){
+      if(d>=4)return;
+      var allOrder=['bon','tod','lang','na'];
+      var next=null;
+      for(var i=0;i<allOrder.length;i++){if(!fkSel[allOrder[i]]){next=allOrder[i];break;}}
+      if(!next)return;
+      fkSel[next]=true; fkUserOverride=true;
+      var btn=document.getElementById('dfkt-'+next);
+      if(btn)btn.className='dfk-tbtn on-'+next;
+      deskFKUpdateKlbBtns();
+    }
+    fkBuf+='x'; deskFKRender();
+  }
+}
+
+function deskFKDel(){
+  if(!fkBuf)return;
+  var prevLen2=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length;
+  fkBuf=fkBuf.slice(0,-1);
+  if(!fkBuf){fkUserOverride=false;deskFKAutoSel(2);}
+  else{
+    var fl=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');
+    if(fl.length!==prevLen2)fkUserOverride=false;
+    if(fl.length>=1)deskFKAutoSel(fl.length);
+  }
+  deskFKUpdateKlbBtns(); deskFKRender();
+}
+
+function deskFKEq(){
+  if(fkBuf.indexOf('=')<0){
+    var leks=fkBuf.split('/').filter(function(s){return s.replace(/\D/g,'').length>0;});
+    if(!leks.length){toast('กรอกเลขก่อนครับ');return;}
+    fkBuf+='='; deskFKUpdateKlbBtns(); deskFKRender(); return;
+  }
+  deskFKCommit();
+}
+
+function deskFKCommit(){
+  if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');return;}
+  if(!curCustId){openAddCust();return;}
+  var parts=fkBuf.split('=');
+  var lekPart=parts[0]; var pricePart=parts[1]||'';
+  var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
+  var ps=pricePart.split('x').map(function(s){return parseInt(s.replace(/\D/g,''))||0;});
+  if(!leks.length){toast('ไม่มีเลขครับ');return;}
+  if(!ps[0]){toast('ใส่ราคาก่อนครับ');return;}
+  var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
+  if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
+  if(ps.length<types.length){toast('ราคายังไม่ครบครับ');return;}
+  var pm={};types.forEach(function(t,i){pm[t]=ps[i]>0?ps[i]:0;});
+
+  if(!custEntries[curCustId]) custEntries[curCustId]=[];
+  if(!custEid[curCustId]) custEid[curCustId]=0;
+
+  var added=0;
+  leks.forEach(function(l){
+    var kd={bon:[],lang:[],na:[]};
+    FK_KLB_TYPES.forEach(function(t){
+      if(fkSel[t]&&fkKlb[t]&&pm[t]){
+        var perms=getPerms(l).filter(function(p){return p!==l;});
+        if(perms.length)kd[t]=perms.map(function(p){return{perm:p,price:pm[t]};});
+      }
+    });
+    custEid[curCustId]++;
+    custEntries[curCustId].unshift({
+      id:Date.now()+added,lek:l,d:l.length,
+      bon:pm.bon||null,tod:pm.tod||null,lang:pm.lang||null,na:pm.na||null,
+      kd:kd,paks:[]
+    });
+    added++;
+  });
+  if(added>0){
+    save();
+    if(typeof renderHist==='function') renderHist();
+    if(typeof renderCustList==='function') renderCustList();
+    if(typeof updateSummary==='function') updateSummary();
+    toast('✅ เพิ่ม '+added+' รายการ');
+  }
+  deskFKReset();
+}
+
+function deskFKReset(){
+  fkBuf=''; fkSel={bon:false,tod:false,lang:false,na:false}; fkKlb={bon:false,lang:false,na:false};
+  fkUserOverride=false;
+  ['bon','tod','lang','na'].forEach(function(t){
+    var btn=document.getElementById('dfkt-'+t);
+    if(btn)btn.className='dfk-tbtn';
+  });
+  deskFKAutoSel(2); deskFKUpdateKlbBtns(2); deskFKRender();
+}
+
+function deskFKToggleMode(){
+  var area=document.getElementById('desk-fk-area');
+  var pfields=document.getElementById('pfields');
+  var kpBtns=document.getElementById('kp-action-btns');
+  if(!area)return;
+  var isOn=area.classList.contains('show');
+  if(isOn){
+    area.classList.remove('show');
+    if(pfields)pfields.style.display='';
+    if(kpBtns)kpBtns.style.display='';
+  } else {
+    area.classList.add('show');
+    if(pfields)pfields.style.display='none';
+    if(kpBtns)kpBtns.style.display='none';
+    deskFKReset();
+  }
+}
+
 // pak
 var pakType='3bon', pakPos='na';
 
