@@ -469,7 +469,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
 
 /* ── DESK FK ── */
-.desk-fk-area{display:block;padding:8px 6px 0;}
+.desk-fk-area{display:none;padding:8px 6px 0;}
 .desk-fk-area.show{display:block;}
 .desk-fk-display{background:#0d0f1a;border:2px solid var(--border);border-radius:10px;padding:6px 12px;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
 #dfk-text{font-family:'Sarabun',sans-serif;font-size:26px;font-weight:900;color:#555;letter-spacing:2px;flex:1;word-break:break-all;line-height:1.1;}
@@ -588,16 +588,13 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <div class="zhdr">
       <span class="ztitle">⌨️ คีย์เลข — <span id="kp-cust-name" style="color:var(--gold);font-size:17px;font-weight:900;">—</span></span>
       <div style="display:flex;gap:6px;">
+        <button onclick="deskFKToggleMode()" id="dfk-toggle-btn" style="background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.3);border-radius:6px;color:var(--gold);font-family:'Sarabun',sans-serif;font-size:11px;font-weight:800;padding:3px 8px;cursor:pointer;">⚡ FK</button>
         <button class="float-toggle" onclick="toggleFloat()" title="ลอย/ฝัง">⤢</button>
       </div>
     </div>
     <div class="zbody" id="kp-zone-body">
       <!-- FK AREA -->
       <div class="desk-fk-area" id="desk-fk-area">
-        <!-- marquee บอกชื่อลูกค้า -->
-        <div class="marquee-wrap" id="marquee-wrap" style="margin-bottom:6px;">
-          <span class="marquee-inner" id="marquee-text">⌨️ เลือกลูกค้าก่อนครับ</span>
-        </div>
         <div class="desk-fk-display">
           <div id="dfk-text">—<span class="dfk-cursor"></span></div>
           <div id="dfk-hint">กดเลข<br>แล้ว =</div>
@@ -624,14 +621,59 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
           <button class="dfk-btn" style="grid-column:span 2;" onclick="deskFKNum('0')">0</button>
           <button class="dfk-btn dfk-eq" style="grid-column:span 2;" onclick="deskFKEq()">= OK</button>
         </div>
-        <!-- action buttons -->
-        <div style="display:flex;gap:4px;margin-top:6px;">
-          <button onclick="deskFKReset()" style="flex:1;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#f87171;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:800;padding:8px 4px;cursor:pointer;">✕ ล้าง</button>
-          <button id="pak-open-btn" onclick="deskFKOpenPak()" style="display:none;flex:1;background:rgba(251,146,60,.12);border:1.5px solid rgba(251,146,60,.4);border-radius:8px;color:#fb923c;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:900;padding:8px 4px;cursor:pointer;">📌 ปัก</button>
-        </div>
       </div>
-      <div class="kp-body" id="kp-inner" style="display:none;">
-        <!-- เก็บไว้เผื่อ script อ้างอิง แต่ซ่อน -->
+      <div class="kp-body" id="kp-inner">
+
+        <!-- เลขที่กำลังคีย์ -->
+        <div class="marquee-wrap" id="marquee-wrap">
+          <span class="marquee-inner" id="marquee-text">⌨️ เลือกลูกค้าก่อนครับ</span>
+        </div>
+        <div class="lek-display">
+          <div class="lek-big" id="kp-lek-show">—<span class="cursor"></span></div>
+          <div class="lek-hint" id="kp-lek-hint">กด Numpad เพื่อคีย์เลข</div>
+        </div>
+
+        <!-- price fields -->
+        <div class="pfields" id="pfields">
+          <div class="field-block disabled" id="pf-bon">
+            <div class="field-main" id="fm-bon">
+              <span class="field-lbl lbl-bon">บน</span>
+              <span class="field-val empty" id="pv-bon">—</span>
+              <button class="klb-btn" id="klb-bon" onclick="toggleKlb('bon')">กลับ</button>
+            </div>
+            <div class="perm-rows" id="pr-bon"></div>
+          </div>
+          <div class="field-block disabled" id="pf-tod">
+            <div class="field-main" id="fm-tod">
+              <span class="field-lbl lbl-tod">โต๊ด</span>
+              <span class="field-val empty" id="pv-tod">—</span>
+              </div>
+          </div>
+          <div class="field-block disabled" id="pf-lang">
+            <div class="field-main" id="fm-lang">
+              <span class="field-lbl lbl-lang">ล่าง</span>
+              <span class="field-val empty" id="pv-lang">—</span>
+              <button class="klb-btn" id="klb-lang" onclick="toggleKlb('lang')">กลับ</button>
+            </div>
+            <div class="perm-rows" id="pr-lang"></div>
+          </div>
+          <div class="field-block disabled" id="pf-na">
+            <div class="field-main" id="fm-na">
+              <span class="field-lbl lbl-na">หน้า</span>
+              <span class="field-val empty" id="pv-na">—</span>
+              <button class="klb-btn" id="klb-na" onclick="toggleKlb('na')">ชุด</button>
+            </div>
+            <div class="perm-rows" id="pr-na"></div>
+          </div>
+        </div>
+
+        <!-- action -->
+        <div class="kp-btns" id="kp-action-btns">
+          <button class="kp-btn clr" id="btn-clr" onclick="resetNp();this.blur()">✕ ล้าง</button>
+          <button class="kp-btn pak" id="btn-pak" onclick="openPak();this.blur()" onkeydown="if(event.key==='Enter'||event.code==='NumpadEnter'){event.preventDefault();openPak();}">📌 ปัก</button>
+          <button class="kp-btn ok" id="btn-ok" onclick="addEntry();this.blur()">✓ OK</button>
+        </div>
+
       </div>
     </div>
   </div>
@@ -931,21 +973,9 @@ function deskFKAutoSel(d){
     });
   }
   deskFKUpdateKlbBtns(d);
-  // pak button โชว์เฉพาะ d=1 และไม่มี / หรือ =
-  var pakBtn=document.getElementById('pak-open-btn');
+  var pakBtn=document.getElementById('dfk-pak-btn');
   var _hasSep=fkBuf.indexOf('/')>=0||fkBuf.indexOf('=')>=0;
   if(pakBtn) pakBtn.style.display=(d===1&&!_hasSep)?'block':'none';
-}
-
-function deskFKOpenPak(){
-  if(!ngodOpen){toast('กรุณาเปิดงวดก่อนครับ');return;}
-  if(!curCustId){openAddCust();return;}
-  // เอา lek จาก fkBuf
-  var lek=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');
-  if(!lek||lek.length!==1){toast('กรอกเลข 1 หลักก่อนครับ');return;}
-  // ตั้ง npLek เพื่อให้ openPak() รู้ว่าใช้ lek ไหน
-  window.npLek = lek;
-  if(typeof openPak==='function') openPak();
 }
 
 function deskFKUpdateKlbBtns(d){
@@ -1021,9 +1051,8 @@ function deskFKNum(n){
     if(fl.length>=1)deskFKAutoSel(fl.length);
   }
   deskFKUpdateKlbBtns(); deskFKRender();
-  // pak button
   var _d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length;
-  var _pb=document.getElementById('pak-open-btn');
+  var _pb=document.getElementById('dfk-pak-btn');
   if(_pb)_pb.style.display=(_d===1&&fkBuf.indexOf('/')<0&&fkBuf.indexOf('=')<0)?'block':'none';
 }
 
@@ -1069,9 +1098,8 @@ function deskFKDel(){
     if(fl.length>=1)deskFKAutoSel(fl.length);
   }
   deskFKUpdateKlbBtns(); deskFKRender();
-  // pak button
   var _d2=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length;
-  var _pb2=document.getElementById('pak-open-btn');
+  var _pb2=document.getElementById('dfk-pak-btn');
   if(_pb2)_pb2.style.display=(_d2===1&&fkBuf.indexOf('/')<0&&fkBuf.indexOf('=')<0)?'block':'none';
 }
 
@@ -1136,79 +1164,66 @@ function deskFKReset(){
     if(btn)btn.className='dfk-tbtn';
   });
   deskFKAutoSel(2); deskFKUpdateKlbBtns(2); deskFKRender();
-  var _pb3=document.getElementById('pak-open-btn');
+  var _pb3=document.getElementById('dfk-pak-btn');
   if(_pb3)_pb3.style.display='none';
+}
+
+function deskFKIsActive(){
+  var area=document.getElementById('desk-fk-area');
+  return !!(area && area.classList.contains('show'));
 }
 
 function deskFKToggleMode(){
   var area=document.getElementById('desk-fk-area');
   var pfields=document.getElementById('pfields');
   var kpBtns=document.getElementById('kp-action-btns');
+  var marquee=document.getElementById('marquee-wrap');
+  var lekDisp=document.querySelector('.lek-display');
+  var fkToggleBtn=document.getElementById('dfk-toggle-btn');
   if(!area)return;
   var isOn=area.classList.contains('show');
   if(isOn){
+    // ปิด FK — กลับไปใช้ numpad เก่า
     area.classList.remove('show');
     if(pfields)pfields.style.display='';
     if(kpBtns)kpBtns.style.display='';
+    if(marquee)marquee.style.display='';
+    if(lekDisp)lekDisp.style.display='';
+    if(fkToggleBtn){fkToggleBtn.style.background='rgba(245,197,24,.1)';fkToggleBtn.textContent='⚡ FK';}
   } else {
+    // เปิด FK — ซ่อน numpad
     area.classList.add('show');
     if(pfields)pfields.style.display='none';
     if(kpBtns)kpBtns.style.display='none';
+    if(marquee)marquee.style.display='none';
+    if(lekDisp)lekDisp.style.display='none';
+    if(fkToggleBtn){fkToggleBtn.style.background='rgba(245,197,24,.3)';fkToggleBtn.textContent='⚡ FK ✓';}
     deskFKReset();
   }
 }
 
 // ════════════════════════════════════════
-// Physical Keyboard Support for FK
+// Physical Keyboard Support (เฉพาะตอน FK เปิด)
 // ════════════════════════════════════════
 (function setupFKKeyboard(){
   document.addEventListener('keydown', function(e){
+    // ทำงานเฉพาะตอน FK เปิดอยู่เท่านั้น
+    if(!deskFKIsActive())return;
     // ข้าม ถ้า focus อยู่ใน input/textarea
     var tag=(e.target.tagName||'').toLowerCase();
     if(tag==='input'||tag==='textarea'||tag==='select')return;
     if(e.target.isContentEditable)return;
-
-    // ข้าม ถ้ามี modal เปิดอยู่ (ไม่ให้ไปรบกวน)
+    // ข้าม ถ้ามี modal เปิด
     var openModals = document.querySelectorAll('.modal.show, .pak-modal.show');
     if(openModals.length>0)return;
 
     var k=e.key;
-    // ตัวเลข 0-9 (รวม numpad)
-    if(/^[0-9]$/.test(k)){
-      e.preventDefault();
-      deskFKNum(k);
-      return;
-    }
-    // separator / (หรือ , เผื่อใช้ numpad comma)
-    if(k==='/'||k===','){
-      e.preventDefault();
-      deskFKSep();
-      return;
-    }
-    // multiply × / x / *
-    if(k==='*'||k==='x'||k==='X'||k==='×'){
-      e.preventDefault();
-      deskFKMul();
-      return;
-    }
-    // backspace
-    if(k==='Backspace'){
-      e.preventDefault();
-      deskFKDel();
-      return;
-    }
-    // enter / = / NumpadEnter
-    if(k==='Enter'||k==='='){
-      e.preventDefault();
-      deskFKEq();
-      return;
-    }
-    // escape = ล้าง
-    if(k==='Escape'){
-      e.preventDefault();
-      deskFKReset();
-      return;
-    }
+    if(/^[0-9]$/.test(k)){e.preventDefault();deskFKNum(k);return;}
+    if(k==='/'||k===','){e.preventDefault();deskFKSep();return;}
+    if(k==='*'||k==='x'||k==='X'||k==='×'){e.preventDefault();deskFKMul();return;}
+    if(k==='Backspace'){e.preventDefault();deskFKDel();return;}
+    if(k==='Enter'||k==='='){e.preventDefault();deskFKEq();return;}
+    if(k==='Escape'){e.preventDefault();deskFKReset();return;}
   });
 })();
 
@@ -2383,7 +2398,6 @@ function resetNp(){
 
 function renderKpFields(){
   var lekEl=document.getElementById('kp-lek-show');
-  if(!lekEl) return; // ไม่มี numpad UI เก่า (FK mode)
   var queueDisplay=npLekQueue.length>0?npLekQueue.join('/')+'/'+(npLek||''):(npLek||'—');
   lekEl.innerHTML=queueDisplay+(npPhase==='lek'?'<span class="cursor"></span>':'');
 
