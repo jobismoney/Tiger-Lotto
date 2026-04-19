@@ -15,23 +15,6 @@ var rateOverrides = {};
 var flaggedLeks = {};
 var _qrQueue = [];
 var _globalPgNum = 0; // global counter สำหรับ QR id unique
-(function(){
-  var key=localStorage.getItem('t999_key');
-  var code=localStorage.getItem('t999_code');
-  if(!key||!code){window.location.href='index.html';return;}
-  var now=new Date(),validList=[];
-  for(var m=-1;m<=0;m++){
-    var d=new Date(now.getFullYear(),now.getMonth()+m,1);
-    var mm=String(d.getMonth()+1).padStart(2,'0');
-    var yy=String(d.getFullYear()).slice(-2);
-    validList.push(mm+yy[1]+yy[0]);
-  }
-  if(validList.indexOf(code)===-1){
-    localStorage.removeItem('t999_key');
-    localStorage.removeItem('t999_code');
-    window.location.href='index.html';
-  }
-})();
 
 // ================================================================
 // LICENSE (T999_LIC) — POS ตรงกับ admin-5.html
