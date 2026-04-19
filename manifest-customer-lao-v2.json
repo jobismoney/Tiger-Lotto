@@ -1,0 +1,16 @@
+{
+  "name": "Tiger999 ລູກຄ້າ v2 — Lao",
+  "short_name": "🐯 ລູກຄ້າ+",
+  "description": "แอพลูกค้าหวยลาว รุ่นใหม่ พร้อมทำนายฝัน",
+  "start_url": "/customer-lao-v2.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0c14",
+  "theme_color": "#f5c518",
+  "lang": "lo",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
