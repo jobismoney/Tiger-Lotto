@@ -1,5 +1,6 @@
 {
-  "name": "Tiger999 ລູກຄ້າ — Lao",
+  "id": "/customer-lao.html",
+  "name": "Tiger999 ລູກຄ້າ (ลาว)",
   "short_name": "🐯 ລູກຄ້າ",
   "description": "จดเลขหวยลาว สำหรับลูกค้า",
   "start_url": "/customer-lao.html",
@@ -10,7 +11,17 @@
   "theme_color": "#f5c518",
   "lang": "lo",
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
