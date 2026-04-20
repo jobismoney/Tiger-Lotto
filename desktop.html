@@ -631,10 +631,12 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
           <div id="dfk-hint">กดเลข<br>แล้ว =</div>
         </div>
         <!-- Hint บอก syntax ย่อ -->
-        <div style="font-size:10px;color:#556;text-align:center;margin-bottom:4px;line-height:1.4;">
-          <span style="color:#f5c518;">ตัวอย่าง:</span> 
-          <span style="color:#8899bb;">12/30=50</span> = 2เลข ราคา50
-          · <span style="color:#d4a017;">กลับ</span>/<span style="color:#d4a017;">ชุด</span> = กดปุ่มใต้ บน/ล่าง/หน้า
+        <div style="font-size:10px;color:#556;text-align:center;margin-bottom:4px;line-height:1.5;">
+          <span style="color:#60a5fa;">12=50⏎</span> บน50
+          · <span style="color:#34d399;">12=+50⏎</span> ล่าง50
+          · <span style="color:#f472b6;">12=50+30⏎</span> บน50 ล่าง30
+          <br><span style="color:#d4a017;">12=50++⏎</span> บน50+กลับ
+          · <span style="color:#888;">12356598=50⏎</span> (auto-/) 4เลขบน50
         </div>
         <!-- ประเภท: บน / โต๊ด / ล่าง / หน้า -->
         <div class="desk-fk-types">
@@ -656,7 +658,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
           <button class="dfk-btn" onclick="deskFKNum('7')">7</button>
           <button class="dfk-btn" onclick="deskFKNum('8')">8</button>
           <button class="dfk-btn" onclick="deskFKNum('9')">9</button>
-          <button class="dfk-btn dfk-mul" onclick="deskFKMul()" title="คั่นราคา (*)">×</button>
+          <button class="dfk-btn dfk-mul" onclick="deskFKPlus()" title="เลือกประเภท / ข้ามประเภท (+)">+</button>
           <button class="dfk-btn" style="grid-column:span 2;" onclick="deskFKNum('0')">0</button>
           <button class="dfk-btn dfk-eq" style="grid-column:span 2;" onclick="deskFKEq()" title="= / Enter">= OK</button>
         </div>
@@ -987,44 +989,81 @@ var DIGIT_RULES = {
 };
 
 // ════════════════════════════════════════════════════
-// FK (Flexible Keyboard) — keyboard แบบพิมพ์เป็น string
+// FK (Flexible Keyboard) — NEW SPEC
 // ════════════════════════════════════════════════════
-var FK_DEFAULT_THAI = {1:['bon','lang'],2:['bon','lang'],3:['bon','tod'],4:['tod'],5:['tod']};
+// Flow:
+//   1. กด 0-9 → ใส่เลข + auto "/" ทุก N หลัก (N = length เลขแรก)
+//   2. กด = → switch เป็น price phase + เปิด "บน" auto (ถ้าไม่ได้ override)
+//   3. กด + หลัง = → ปิด type ปัจจุบัน, เปิด type ถัดไป + ใส่ × คั่นราคา
+//   4. กด + ก่อน = → manual toggle type (override auto)
+//   5. กด ++ ติดกัน (หลังใส่ราคาแล้ว) → เปิดกลับ/ชุดของประเภทปัจจุบัน
+//   6. Order: บน → ล่าง → โต๊ด → หน้า (Thai)
+// ════════════════════════════════════════════════════
+
 var FK_KLB_TYPES    = ['bon','lang','na'];
 var FK_COLOR        = {bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
 var FK_LABEL        = {bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
+// ลำดับ type เมื่อกด + หลัง =
+var FK_TYPE_ORDER_THAI = ['bon','lang','tod','na'];
+// สำหรับ 4-5 หลัก: โต๊ดเท่านั้น
+var FK_TYPE_ORDER_4_5 = ['tod'];
 
 var fkBuf = '';
 var fkSel = {bon:false,tod:false,lang:false,na:false};
 var fkKlb = {bon:false,lang:false,na:false};
-var fkUserOverride = false;
+var fkUserOverride = false;   // user เลือก type เองก่อน =
+var fkActiveType = null;       // type ที่ active ล่าสุด (สำหรับ ++ = กลับ/ชุด)
 
-function deskFKAutoSel(d){
-  d=d||2;
-  if(d>=4){
-    ['bon','tod','lang','na'].forEach(function(t){
-      fkSel[t]=(t==='tod');
+// ฟังก์ชันช่วย: ได้จำนวนหลักของ lek แรก
+function deskFKFirstLekLen(){
+  var lekPart = fkBuf.split('=')[0];
+  var first = lekPart.split('/')[0] || '';
+  return first.replace(/\D/g,'').length;
+}
+
+// ฟังก์ชันช่วย: เลข lek ล่าสุด (ที่กำลังพิมพ์)
+function deskFKCurrentLekLen(){
+  var lekPart = fkBuf.split('=')[0];
+  var parts = lekPart.split('/');
+  var last = parts[parts.length-1] || '';
+  return last.replace(/\D/g,'').length;
+}
+
+// เปิด type ตาม order (ข้าม type ที่เปิดอยู่แล้ว)
+function deskFKOpenNextType(){
+  var d = deskFKFirstLekLen();
+  var order = (d>=4) ? FK_TYPE_ORDER_4_5 : FK_TYPE_ORDER_THAI;
+  for(var i=0;i<order.length;i++){
+    var t = order[i];
+    if(!fkSel[t]){
+      fkSel[t]=true;
+      fkActiveType=t;
       var btn=document.getElementById('dfkt-'+t);
-      if(btn)btn.className='dfk-tbtn'+(fkSel[t]?' on-'+t:'');
-    });
-    fkKlb={bon:false,lang:false,na:false};
-  } else if(!fkUserOverride){
-    var def=FK_DEFAULT_THAI[d]||['bon','lang'];
-    ['bon','tod','lang','na'].forEach(function(t){
-      fkSel[t]=def.indexOf(t)>=0;
-      var btn=document.getElementById('dfkt-'+t);
-      if(btn)btn.className='dfk-tbtn'+(fkSel[t]?' on-'+t:'');
-    });
+      if(btn) btn.className='dfk-tbtn on-'+t;
+      deskFKUpdateKlbBtns(d);
+      deskFKRender();
+      return t;
+    }
   }
+  return null;
+}
+
+// เปิด type แรก (ตอนกด = ครั้งแรก ถ้าไม่มี override)
+function deskFKOpenFirstType(){
+  if(fkUserOverride) return; // user เลือกเองแล้ว ไม่ auto
+  var d = deskFKFirstLekLen();
+  var order = (d>=4) ? FK_TYPE_ORDER_4_5 : FK_TYPE_ORDER_THAI;
+  var first = order[0];
+  fkSel[first]=true;
+  fkActiveType=first;
+  var btn=document.getElementById('dfkt-'+first);
+  if(btn) btn.className='dfk-tbtn on-'+first;
   deskFKUpdateKlbBtns(d);
-  var pakBtn=document.getElementById('dfk-pak-btn');
-  var _hasSep=fkBuf.indexOf('/')>=0||fkBuf.indexOf('=')>=0;
-  if(pakBtn) pakBtn.style.display=(d===1&&!_hasSep)?'block':'none';
 }
 
 function deskFKUpdateKlbBtns(d){
-  d=d||2;
-  var lbl=d===2?'กลับ':'ชุด';
+  d=d||deskFKFirstLekLen()||2;
+  var lbl=d===2?'กลับ':(d===3?'ชุด':'กลับ');
   FK_KLB_TYPES.forEach(function(t){
     var btn=document.getElementById('dfkk-'+t); if(!btn)return;
     var show=fkSel[t]&&(d>=2&&d<=3);
@@ -1033,12 +1072,15 @@ function deskFKUpdateKlbBtns(d){
   });
 }
 
+// กดปุ่ม type (mouse/click) — ก่อน = = manual toggle
 function deskFKToggle(t){
-  var d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
-  if(d>=4)return;
+  var d=deskFKFirstLekLen();
+  if(d>=4 && t!=='tod') return;  // 4-5 หลัก อนุญาตแค่ tod
   fkUserOverride=true;
   fkSel[t]=!fkSel[t];
   if(!fkSel[t])fkKlb[t]=false;
+  if(fkSel[t]) fkActiveType=t;
+  else if(fkActiveType===t) fkActiveType=null;
   var btn=document.getElementById('dfkt-'+t);
   if(btn)btn.className='dfk-tbtn'+(fkSel[t]?' on-'+t:'');
   deskFKUpdateKlbBtns(d); deskFKRender();
@@ -1064,95 +1106,218 @@ function deskFKRender(){
     return;
   }
   el.style.color='var(--gold)';
-  el.innerHTML=fkBuf.replace(/x/gi,'×')+'<span class="dfk-cursor"></span>';
+  // แสดง × แทน x ใน price phase
+  var displayBuf = fkBuf.replace(/x/gi,'×');
+  el.innerHTML = displayBuf + '<span class="dfk-cursor"></span>';
   var len=fkBuf.length;
-  el.style.fontSize=len<=8?'26px':len<=12?'22px':len<=16?'18px':'14px';
-  var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
-  var d2=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||2;
-  var klbWord=d2===2?'ก':'ช';
+  el.style.fontSize=len<=10?'26px':len<=14?'22px':len<=18?'18px':'14px';
+  var types=FK_TYPE_ORDER_THAI.filter(function(t){return fkSel[t];});
+  var d2 = deskFKFirstLekLen() || 2;
+  var klbWord = d2===2 ? 'ก' : 'ช';
   if(hint){
-    hint.innerHTML=types.map(function(t){
+    hint.innerHTML = types.length ? types.map(function(t){
       return '<span style="color:'+FK_COLOR[t]+'">'+FK_LABEL[t]+(fkKlb[t]?klbWord:'')+'</span>';
-    }).join(' <span style="color:#555">×</span> ');
+    }).join(' <span style="color:#555">×</span> ') : '<span style="color:#555">เลือกประเภท</span>';
   }
 }
 
+// ═══ NUM: ใส่เลข 0-9 ═══
 function deskFKNum(n){
-  if(fkBuf.indexOf('=')>=0){
-    fkBuf+=n;
+  var hasEq = fkBuf.indexOf('=') >= 0;
+
+  if(hasEq){
+    // price phase — ใส่ตัวเลขต่อไปเลย
+    fkBuf += n;
   } else {
-    var parts=fkBuf.split('/');
-    var last=parts[parts.length-1];
-    if(last.length>=5)return;
-    if(parts.length>1&&last.length>0){
-      var newLen=last.length+1;
-      if(newLen>parts[0].length){toast('เลขคนละประเภท');return;}
+    // lek phase — auto "/" ทุก N หลัก
+    var firstLen = deskFKFirstLekLen();
+    var lekPart = fkBuf;
+
+    if(firstLen === 0){
+      // ยังไม่มีเลข — ใส่เลขแรก
+      fkBuf += n;
+    } else {
+      var curLen = deskFKCurrentLekLen();
+      if(curLen >= firstLen){
+        // lek ล่าสุดครบ length แล้ว → auto / แล้วเริ่มใหม่
+        fkBuf += '/' + n;
+      } else {
+        fkBuf += n;
+      }
     }
-    var prevLen=fkBuf.split('=')[0].split('/')[0].length;
-    fkBuf+=n;
-    var fl=fkBuf.split('=')[0].split('/')[0];
-    if(fl.length!==prevLen)fkUserOverride=false;
-    if(fl.length>=1)deskFKAutoSel(fl.length);
+
+    // เช็คว่าเกิน 5 หลักต่อ lek ไหม (safety)
+    var lastLek = fkBuf.split('/').pop();
+    if(lastLek.length > 5){
+      fkBuf = fkBuf.slice(0, -1);  // undo
+      return;
+    }
   }
-  deskFKUpdateKlbBtns(); deskFKRender();
-  var _d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length;
+
+  // update active types เมื่ออยู่ใน lek phase และ digit เปลี่ยน
+  if(!hasEq){
+    var d = deskFKFirstLekLen();
+    if(d===4 || d===5){
+      // 4-5 หลัก: force tod only
+      if(!fkUserOverride){
+        ['bon','lang','na'].forEach(function(t){
+          fkSel[t]=false;
+          var btn=document.getElementById('dfkt-'+t);
+          if(btn) btn.className='dfk-tbtn';
+        });
+      }
+    }
+  }
+
+  deskFKUpdateKlbBtns();
+  deskFKRender();
+  // pak button
+  var _d=deskFKFirstLekLen();
   var _pb=document.getElementById('dfk-pak-btn');
-  if(_pb)_pb.style.display=(_d===1&&fkBuf.indexOf('/')<0&&fkBuf.indexOf('=')<0)?'block':'none';
+  if(_pb) _pb.style.display=(_d===1 && fkBuf.indexOf('/')<0 && fkBuf.indexOf('=')<0) ? 'block' : 'none';
 }
 
+// ═══ / : manual separator (user override) ═══
 function deskFKSep(){
   if(fkBuf.indexOf('=')>=0)return;
-  var parts=fkBuf.split('/');
-  var last=parts[parts.length-1];
-  if(!last||!last.length)return;
-  if(parts.length>0&&parts[0].length!==last.length){toast('เลขคนละประเภท');return;}
-  fkBuf+='/'; deskFKRender();
+  var lastLek = fkBuf.split('/').pop();
+  if(!lastLek || !lastLek.length) return;
+  // ตรวจว่า lek ปัจจุบันยาวเท่าเลขแรกไหม (consistency)
+  var firstLen = deskFKFirstLekLen();
+  if(firstLen > 0 && lastLek.length !== firstLen){
+    toast('เลขต้อง '+firstLen+' หลัก');
+    return;
+  }
+  fkBuf += '/'; deskFKRender();
 }
 
-function deskFKMul(){
-  if(fkBuf.indexOf('=')>=0){
-    var pp=fkBuf.split('=')[1]||'';
-    var ps=pp.split('x');
-    if(!pp||!ps[ps.length-1])return;
-    var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
-    var d=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length||0;
-    if(ps.length>=types.length){
-      if(d>=4)return;
-      var allOrder=['bon','tod','lang','na'];
-      var next=null;
-      for(var i=0;i<allOrder.length;i++){if(!fkSel[allOrder[i]]){next=allOrder[i];break;}}
-      if(!next)return;
-      fkSel[next]=true; fkUserOverride=true;
-      var btn=document.getElementById('dfkt-'+next);
-      if(btn)btn.className='dfk-tbtn on-'+next;
-      deskFKUpdateKlbBtns();
+// ═══ + : smart key (ก่อน = toggle manual, หลัง = open next type + ×) ═══
+function deskFKPlus(){
+  var hasEq = fkBuf.indexOf('=') >= 0;
+
+  if(!hasEq){
+    // ก่อน = : manual toggle next type
+    fkUserOverride = true;
+    var d = deskFKFirstLekLen() || 2;
+    var order = (d>=4) ? FK_TYPE_ORDER_4_5 : FK_TYPE_ORDER_THAI;
+    // ถ้ายังไม่มี type เปิด → เปิดตัวแรก
+    var anyOpen = order.some(function(t){return fkSel[t];});
+    if(!anyOpen){
+      var first = order[0];
+      fkSel[first]=true;
+      fkActiveType=first;
+      var btn1=document.getElementById('dfkt-'+first);
+      if(btn1) btn1.className='dfk-tbtn on-'+first;
+    } else {
+      // มี type เปิดอยู่ → ปิดตัวปัจจุบัน + เปิดตัวถัดไป
+      if(fkActiveType){
+        fkSel[fkActiveType]=false;
+        var btn2=document.getElementById('dfkt-'+fkActiveType);
+        if(btn2) btn2.className='dfk-tbtn';
+      }
+      // หา index ปัจจุบัน
+      var idx = fkActiveType ? order.indexOf(fkActiveType) : -1;
+      var next = order[(idx+1) % order.length];
+      fkSel[next]=true;
+      fkActiveType=next;
+      var btn3=document.getElementById('dfkt-'+next);
+      if(btn3) btn3.className='dfk-tbtn on-'+next;
     }
-    fkBuf+='x'; deskFKRender();
+    deskFKUpdateKlbBtns(d);
+    deskFKRender();
+    return;
+  }
+
+  // หลัง = 
+  var pricePart = fkBuf.split('=')[1] || '';
+  var lastChar = fkBuf.charAt(fkBuf.length - 1);
+
+  // กรณีที่ + ต่อกัน (ติดกันไม่มีเลขคั่น) → toggle กลับ/ชุด ของ active type
+  if(lastChar === '+'){
+    // ++ = toggle klb
+    if(fkActiveType && FK_KLB_TYPES.indexOf(fkActiveType)>=0){
+      fkKlb[fkActiveType] = !fkKlb[fkActiveType];
+      var kb = document.getElementById('dfkk-'+fkActiveType);
+      if(kb) kb.className = 'dfk-klb' + (fkKlb[fkActiveType] ? ' on' : '');
+      // remove last + (เพราะเราแปลเป็น klb ไม่ใช่ operator)
+      fkBuf = fkBuf.slice(0, -1);
+      deskFKRender();
+    }
+    return;
+  }
+
+  // + ปกติ (หลัง = มีเลขราคาแล้ว) → ข้าม type + ใส่ × (สำหรับราคาใหม่)
+  if(!pricePart){
+    // ยังไม่มีราคา → ข้าม type เฉยๆ (ไม่ใส่ × ใน buffer)
+    // close current, open next
+    var d2 = deskFKFirstLekLen() || 2;
+    var order2 = (d2>=4) ? FK_TYPE_ORDER_4_5 : FK_TYPE_ORDER_THAI;
+    if(fkActiveType){
+      fkSel[fkActiveType]=false;
+      var btn4=document.getElementById('dfkt-'+fkActiveType);
+      if(btn4) btn4.className='dfk-tbtn';
+    }
+    var idx2 = fkActiveType ? order2.indexOf(fkActiveType) : -1;
+    var next2 = order2[(idx2+1) % order2.length];
+    if(next2){
+      fkSel[next2]=true;
+      fkActiveType=next2;
+      var btn5=document.getElementById('dfkt-'+next2);
+      if(btn5) btn5.className='dfk-tbtn on-'+next2;
+    }
+    deskFKUpdateKlbBtns(d2);
+    deskFKRender();
+    return;
+  }
+
+  // มีราคาอยู่แล้ว → เปิด type ถัดไป + ใส่ × คั่นราคา
+  var d3 = deskFKFirstLekLen() || 2;
+  var order3 = (d3>=4) ? FK_TYPE_ORDER_4_5 : FK_TYPE_ORDER_THAI;
+  var idx3 = fkActiveType ? order3.indexOf(fkActiveType) : -1;
+  var next3 = order3[(idx3+1) % order3.length];
+  if(next3){
+    fkSel[next3]=true;
+    fkActiveType=next3;
+    var btn6=document.getElementById('dfkt-'+next3);
+    if(btn6) btn6.className='dfk-tbtn on-'+next3;
+    fkBuf += 'x';   // คั่นราคา
+    deskFKUpdateKlbBtns(d3);
+    deskFKRender();
   }
 }
 
 function deskFKDel(){
   if(!fkBuf)return;
-  var prevLen2=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length;
   fkBuf=fkBuf.slice(0,-1);
-  if(!fkBuf){fkUserOverride=false;deskFKAutoSel(2);}
-  else{
-    var fl=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'');
-    if(fl.length!==prevLen2)fkUserOverride=false;
-    if(fl.length>=1)deskFKAutoSel(fl.length);
+  if(!fkBuf){
+    fkUserOverride=false;
+    fkActiveType=null;
+    fkSel={bon:false,tod:false,lang:false,na:false};
+    fkKlb={bon:false,lang:false,na:false};
+    ['bon','tod','lang','na'].forEach(function(t){
+      var btn=document.getElementById('dfkt-'+t);
+      if(btn) btn.className='dfk-tbtn';
+    });
   }
   deskFKUpdateKlbBtns(); deskFKRender();
-  var _d2=fkBuf.split('=')[0].split('/')[0].replace(/\D/g,'').length;
+  var _d2=deskFKFirstLekLen();
   var _pb2=document.getElementById('dfk-pak-btn');
-  if(_pb2)_pb2.style.display=(_d2===1&&fkBuf.indexOf('/')<0&&fkBuf.indexOf('=')<0)?'block':'none';
+  if(_pb2) _pb2.style.display=(_d2===1 && fkBuf.indexOf('/')<0 && fkBuf.indexOf('=')<0) ? 'block' : 'none';
 }
 
 function deskFKEq(){
-  if(fkBuf.indexOf('=')<0){
+  var hasEq = fkBuf.indexOf('=') >= 0;
+  if(!hasEq){
+    // switch to price phase
     var leks=fkBuf.split('/').filter(function(s){return s.replace(/\D/g,'').length>0;});
     if(!leks.length){toast('กรอกเลขก่อนครับ');return;}
-    fkBuf+='='; deskFKUpdateKlbBtns(); deskFKRender(); return;
+    fkBuf += '=';
+    // auto open first type (บน) ถ้ายังไม่มี override
+    deskFKOpenFirstType();
+    deskFKRender();
+    return;
   }
+  // มี = แล้ว → commit
   deskFKCommit();
 }
 
@@ -1162,13 +1327,20 @@ function deskFKCommit(){
   var parts=fkBuf.split('=');
   var lekPart=parts[0]; var pricePart=parts[1]||'';
   var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
-  var ps=pricePart.split('x').map(function(s){return parseInt(s.replace(/\D/g,''))||0;});
+  // strip trailing + ออกก่อน parse ราคา
+  pricePart = pricePart.replace(/\+$/,'');
+  var ps=pricePart.split('x').map(function(s){return parseInt(s.replace(/\D/g,''))||0;}).filter(function(v,i,a){return !(i===a.length-1 && v===0);});
   if(!leks.length){toast('ไม่มีเลขครับ');return;}
-  if(!ps[0]){toast('ใส่ราคาก่อนครับ');return;}
-  var types=['bon','tod','lang','na'].filter(function(t){return fkSel[t];});
-  if(!types.length){toast('เลือกประเภทก่อนครับ');return;}
-  if(ps.length<types.length){toast('ราคายังไม่ครบครับ');return;}
-  var pm={};types.forEach(function(t,i){pm[t]=ps[i]>0?ps[i]:0;});
+  if(!ps.length || !ps[0]){toast('ใส่ราคาก่อนครับ');return;}
+  // types ที่ active + มีราคา
+  var activeTypes = FK_TYPE_ORDER_THAI.filter(function(t){return fkSel[t];});
+  if(!activeTypes.length){toast('เลือกประเภทก่อนครับ');return;}
+  // map ราคาให้ type ตามลำดับ
+  var pm = {};
+  activeTypes.forEach(function(t, i){
+    if(ps[i] && ps[i] > 0) pm[t] = ps[i];
+  });
+  if(!Object.keys(pm).length){toast('ใส่ราคาให้ประเภทอย่างน้อย 1 ช่อง');return;}
 
   if(!custEntries[curCustId]) custEntries[curCustId]=[];
   if(!custEid[curCustId]) custEid[curCustId]=0;
@@ -1201,13 +1373,17 @@ function deskFKCommit(){
 }
 
 function deskFKReset(){
-  fkBuf=''; fkSel={bon:false,tod:false,lang:false,na:false}; fkKlb={bon:false,lang:false,na:false};
+  fkBuf='';
+  fkSel={bon:false,tod:false,lang:false,na:false};
+  fkKlb={bon:false,lang:false,na:false};
   fkUserOverride=false;
+  fkActiveType=null;
   ['bon','tod','lang','na'].forEach(function(t){
     var btn=document.getElementById('dfkt-'+t);
     if(btn)btn.className='dfk-tbtn';
   });
-  deskFKAutoSel(2); deskFKUpdateKlbBtns(2); deskFKRender();
+  deskFKUpdateKlbBtns(2);
+  deskFKRender();
   var _pb3=document.getElementById('dfk-pak-btn');
   if(_pb3)_pb3.style.display='none';
 }
@@ -1264,7 +1440,7 @@ function deskFKToggleMode(){
     var k=e.key;
     if(/^[0-9]$/.test(k)){e.preventDefault();deskFKNum(k);return;}
     if(k==='/'||k===','){e.preventDefault();deskFKSep();return;}
-    if(k==='*'||k==='x'||k==='X'||k==='×'){e.preventDefault();deskFKMul();return;}
+    if(k==='+'||k==='*'||k==='x'||k==='X'){e.preventDefault();deskFKPlus();return;}
     if(k==='Backspace'){e.preventDefault();deskFKDel();return;}
     if(k==='Enter'||k==='='){e.preventDefault();deskFKEq();return;}
     if(k==='Escape'){e.preventDefault();deskFKReset();return;}
