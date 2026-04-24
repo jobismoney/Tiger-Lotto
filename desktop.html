@@ -638,7 +638,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         <div style="font-size:10px;color:#556;text-align:center;margin-bottom:4px;line-height:1.5;">
           <span style="color:#60a5fa;">⏎</span>ข้ามประเภท
           · <span style="color:#d4a017;">.</span>/<span style="color:#d4a017;">*</span>กลับ/ชุด
-          · <span style="color:#34d399;">+</span>/<span style="color:#f5c518;">−</span>ขึ้นรายการ
+          · <span style="color:#34d399;">+</span>ขึ้นรายการ
+          · <span style="color:#f87171;">−</span>ลบ
           <br><span style="color:#888;">45⏎100+</span> 45บน=100
           · <span style="color:#888;">12/3456⏎50+</span> 3เลขบน=50
         </div>
@@ -651,10 +652,10 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         </div>
         <!-- Numpad เหมือน Keyboard จริง -->
         <div class="desk-fk-pad">
-          <!-- Row 1: /, *, -, ⌫ -->
+          <!-- Row 1: /, *, −, ⌫ -->
           <button class="dfk-btn dfk-sep" onclick="deskFKSep()" title="คั่นเลข (/)">/</button>
           <button class="dfk-btn dfk-star" onclick="deskFKDot()" title="กลับ/ชุด (*)">*</button>
-          <button class="dfk-btn dfk-minus" onclick="deskFKPlus()" title="ขึ้นรายการ (-)">−</button>
+          <button class="dfk-btn dfk-minus" onclick="deskFKDel()" title="ลบทีละตัว (−)">−</button>
           <button class="dfk-btn dfk-del" onclick="deskFKDel()" title="ลบ (Backspace)">⌫</button>
           <!-- Row 2: 7, 8, 9, +(span 2 rows) -->
           <button class="dfk-btn" onclick="deskFKNum('7')">7</button>
@@ -1019,16 +1020,19 @@ var FK_KLB_TYPES    = ['bon','lang','na'];
 var FK_COLOR        = {bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
 var FK_LABEL        = {bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
 // ลำดับ type เมื่อกด Enter วน (แต่ละจำนวนหลักต่างกัน)
-var FK_TYPE_ORDER_1 = ['bon','lang'];              // 1 หลัก = วิ่งบน/ล่าง เท่านั้น
-var FK_TYPE_ORDER_THAI = ['bon','lang','tod','na']; // 2-3 หลัก = ครบ
-var FK_TYPE_ORDER_4_5 = ['tod'];                     // 4-5 หลัก = โต๊ดเท่านั้น
+var FK_TYPE_ORDER_1 = ['bon','lang'];              // 1 หลัก: บน → ล่าง
+var FK_TYPE_ORDER_2 = ['bon','lang','tod','na'];   // 2 หลัก: บน → ล่าง → โต๊ด → หน้า
+var FK_TYPE_ORDER_3 = ['bon','tod','lang','na'];   // 3 หลัก: บน → โต๊ด → ล่าง → หน้า
+var FK_TYPE_ORDER_4_5 = ['tod'];                    // 4-5 หลัก: โต๊ดเท่านั้น
 
 // helper: get order ตาม digit count
 function deskFKGetOrder(){
   var d = deskFKFirstLekLen() || 2;
   if(d===1) return FK_TYPE_ORDER_1;
+  if(d===2) return FK_TYPE_ORDER_2;
+  if(d===3) return FK_TYPE_ORDER_3;
   if(d>=4) return FK_TYPE_ORDER_4_5;
-  return FK_TYPE_ORDER_THAI;
+  return FK_TYPE_ORDER_2;
 }
 
 var fkBuf = '';
@@ -1425,10 +1429,10 @@ function deskFKToggleMode(){
     if(k==='Enter'){e.preventDefault();deskFKEnter();return;}
     // . หรือ * = toggle กลับ/ชุด
     if(k==='.'||k==='*'){e.preventDefault();deskFKDot();return;}
-    // + หรือ - = commit ขึ้นรายการ
-    if(k==='+'||k==='-'||k==='='){e.preventDefault();deskFKPlus();return;}
-    // Backspace = ลบ
-    if(k==='Backspace'){e.preventDefault();deskFKDel();return;}
+    // + หรือ = = commit ขึ้นรายการ
+    if(k==='+'||k==='='){e.preventDefault();deskFKPlus();return;}
+    // Backspace หรือ - = ลบทีละตัว
+    if(k==='Backspace'||k==='-'){e.preventDefault();deskFKDel();return;}
     // Escape = ล้าง
     if(k==='Escape'){e.preventDefault();deskFKReset();return;}
   });
