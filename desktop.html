@@ -509,13 +509,17 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .dfk-tbtn.on-na{background:rgba(251,146,60,.15);border-color:#fb923c;color:#fb923c;}
 .dfk-klb{width:100%;background:#2a2000;border:1px solid #d4a017;border-radius:5px;color:#d4a017;font-family:'Sarabun',sans-serif;font-size:10px;font-weight:800;padding:2px;cursor:pointer;text-align:center;display:none;}
 .dfk-klb.on{background:#d4a017;color:#000;}
-.desk-fk-pad{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
-.dfk-btn{background:var(--card);border:1px solid var(--border);border-radius:6px;color:#fff;font-family:'Sarabun',sans-serif;font-size:17px;font-weight:900;padding:8px 4px;cursor:pointer;text-align:center;}
+.desk-fk-pad{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(5,1fr);gap:3px;}
+.dfk-btn{background:var(--card);border:1px solid var(--border);border-radius:6px;color:#fff;font-family:'Sarabun',sans-serif;font-size:17px;font-weight:900;padding:8px 4px;cursor:pointer;text-align:center;min-height:38px;}
 .dfk-btn:active{background:#2a2d3a;}
 .dfk-del{color:var(--red);}
-.dfk-sep{color:var(--purple);font-size:15px;}
-.dfk-mul{background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.3);color:var(--gold);font-size:13px;}
-.dfk-eq{background:linear-gradient(135deg,var(--green),#1a7a3e);color:#fff;font-size:14px;}
+.dfk-sep{color:var(--purple);}
+.dfk-dot{background:rgba(212,160,23,.12);border-color:rgba(212,160,23,.4);color:#d4a017;}
+.dfk-enter{background:rgba(96,165,250,.12);border-color:rgba(96,165,250,.4);color:#60a5fa;grid-row:span 2;}
+.dfk-plus{background:linear-gradient(135deg,var(--green),#1a7a3e);color:#fff;grid-row:span 2;}
+.dfk-minus{background:rgba(245,197,24,.12);border-color:rgba(245,197,24,.4);color:var(--gold);}
+.dfk-star{background:rgba(212,160,23,.08);border-color:rgba(212,160,23,.3);color:#d4a017;}
+.dfk-zero{grid-column:span 2;}
 .dfk-cursor{display:inline-block;width:2px;height:1em;background:var(--gold);margin-left:2px;vertical-align:middle;animation:dfkblink .8s step-end infinite;}
 @keyframes dfkblink{0%,100%{opacity:1;}50%{opacity:0;}}
 
@@ -632,11 +636,11 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         </div>
         <!-- Hint บอก syntax ย่อ -->
         <div style="font-size:10px;color:#556;text-align:center;margin-bottom:4px;line-height:1.5;">
-          <span style="color:#60a5fa;">45⏎100+</span> บน=100
-          · <span style="color:#34d399;">45⏎100⏎50+</span> บน=100 ล่าง=50
-          · <span style="color:#d4a017;">45⏎100.+</span> บน=100ก(กลับ)
-          <br><span style="color:#888;">12356598⏎50+</span> 4เลข บน=50 (auto-/)
-          · <span style="color:#888;">+</span> = commit
+          <span style="color:#60a5fa;">⏎</span>ข้ามประเภท
+          · <span style="color:#d4a017;">.</span>/<span style="color:#d4a017;">*</span>กลับ/ชุด
+          · <span style="color:#34d399;">+</span>/<span style="color:#f5c518;">−</span>ขึ้นรายการ
+          <br><span style="color:#888;">45⏎100+</span> 45บน=100
+          · <span style="color:#888;">12/3456⏎50+</span> 3เลขบน=50
         </div>
         <!-- ประเภท: บน / โต๊ด / ล่าง / หน้า -->
         <div class="desk-fk-types">
@@ -645,23 +649,30 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
           <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-lang" onclick="deskFKToggle('lang')">ล่าง</button><button class="dfk-klb" id="dfkk-lang" onclick="deskFKToggleKlb('lang')" title="เปิด/ปิด กลับ ของ ล่าง">กลับ</button></div>
           <div class="desk-fk-col"><button class="dfk-tbtn" id="dfkt-na" onclick="deskFKToggle('na')">หน้า</button><button class="dfk-klb" id="dfkk-na" onclick="deskFKToggleKlb('na')" title="เปิด/ปิด กลับ ของ หน้า">กลับ</button></div>
         </div>
-        <!-- Numpad -->
+        <!-- Numpad เหมือน Keyboard จริง -->
         <div class="desk-fk-pad">
-          <button class="dfk-btn" onclick="deskFKNum('1')">1</button>
-          <button class="dfk-btn" onclick="deskFKNum('2')">2</button>
-          <button class="dfk-btn" onclick="deskFKNum('3')">3</button>
-          <button class="dfk-btn dfk-del" onclick="deskFKDel()" title="ลบ (Backspace)">⌫</button>
-          <button class="dfk-btn" onclick="deskFKNum('4')">4</button>
-          <button class="dfk-btn" onclick="deskFKNum('5')">5</button>
-          <button class="dfk-btn" onclick="deskFKNum('6')">6</button>
+          <!-- Row 1: /, *, -, ⌫ -->
           <button class="dfk-btn dfk-sep" onclick="deskFKSep()" title="คั่นเลข (/)">/</button>
+          <button class="dfk-btn dfk-star" onclick="deskFKDot()" title="กลับ/ชุด (*)">*</button>
+          <button class="dfk-btn dfk-minus" onclick="deskFKPlus()" title="ขึ้นรายการ (-)">−</button>
+          <button class="dfk-btn dfk-del" onclick="deskFKDel()" title="ลบ (Backspace)">⌫</button>
+          <!-- Row 2: 7, 8, 9, +(span 2 rows) -->
           <button class="dfk-btn" onclick="deskFKNum('7')">7</button>
           <button class="dfk-btn" onclick="deskFKNum('8')">8</button>
           <button class="dfk-btn" onclick="deskFKNum('9')">9</button>
-          <button class="dfk-btn dfk-dot" onclick="deskFKDot()" title="กลับ/ชุด (.)" style="background:rgba(212,160,23,.12);border-color:rgba(212,160,23,.4);color:#d4a017;font-weight:900;">.</button>
-          <button class="dfk-btn" onclick="deskFKNum('0')">0</button>
-          <button class="dfk-btn dfk-enter" onclick="deskFKEnter()" title="ข้ามประเภท / เริ่มใส่ราคา (Enter)" style="background:rgba(96,165,250,.12);border-color:rgba(96,165,250,.4);color:#60a5fa;font-weight:900;">⏎</button>
-          <button class="dfk-btn dfk-eq" style="grid-column:span 2;" onclick="deskFKPlus()" title="บวกขึ้นรายการ (+)">+ ขึ้นรายการ</button>
+          <button class="dfk-btn dfk-plus" onclick="deskFKPlus()" title="ขึ้นรายการ (+)">+</button>
+          <!-- Row 3: 4, 5, 6 -->
+          <button class="dfk-btn" onclick="deskFKNum('4')">4</button>
+          <button class="dfk-btn" onclick="deskFKNum('5')">5</button>
+          <button class="dfk-btn" onclick="deskFKNum('6')">6</button>
+          <!-- Row 4: 1, 2, 3, ⏎(span 2 rows) -->
+          <button class="dfk-btn" onclick="deskFKNum('1')">1</button>
+          <button class="dfk-btn" onclick="deskFKNum('2')">2</button>
+          <button class="dfk-btn" onclick="deskFKNum('3')">3</button>
+          <button class="dfk-btn dfk-enter" onclick="deskFKEnter()" title="ข้ามประเภท (Enter)">⏎</button>
+          <!-- Row 5: 0(span 2), . -->
+          <button class="dfk-btn dfk-zero" onclick="deskFKNum('0')">0</button>
+          <button class="dfk-btn dfk-dot" onclick="deskFKDot()" title="กลับ/ชุด (.)">.</button>
         </div>
         <!-- Action -->
         <div style="display:flex;gap:4px;margin-top:6px;">
@@ -1144,19 +1155,25 @@ function deskFKNum(n){
   if(hasEq){
     fkBuf += n;
   } else {
-    var firstLen = deskFKFirstLekLen();
-    if(firstLen === 0){
+    var hasSlash = fkBuf.indexOf('/') >= 0;
+    if(!hasSlash){
+      // ยังอยู่ใน lek แรก → พิมพ์ต่อไปเรื่อยๆ (ไม่ auto /)
+      // safety: ห้ามเกิน 5 หลัก
+      if(fkBuf.length >= 5) return;
       fkBuf += n;
     } else {
+      // มี / แล้ว → รู้ length เลขแรก → auto /
+      var firstLen = deskFKFirstLekLen();
       var curLen = deskFKCurrentLekLen();
       if(curLen >= firstLen){
         fkBuf += '/' + n;
       } else {
         fkBuf += n;
       }
+      var lastLek = fkBuf.split('/').pop();
+      if(lastLek.length > 5){ fkBuf = fkBuf.slice(0, -1); return; }
     }
-    var lastLek = fkBuf.split('/').pop();
-    if(lastLek.length > 5){ fkBuf = fkBuf.slice(0, -1); return; }
+    // Auto switch type area for 4-5 digits (single lek mode)
     var d = deskFKFirstLekLen();
     if((d===4||d===5) && !fkUserOverride){
       ['bon','lang','na'].forEach(function(t){
@@ -1382,14 +1399,14 @@ function deskFKToggleMode(){
     var k=e.key;
     // ตัวเลข 0-9
     if(/^[0-9]$/.test(k)){e.preventDefault();deskFKNum(k);return;}
-    // / = คั่นเลขเอง (manual), comma ก็ใช้ได้
+    // / = คั่นเลข
     if(k==='/'||k===','){e.preventDefault();deskFKSep();return;}
     // Enter = ข้ามประเภท / switch phase
     if(k==='Enter'){e.preventDefault();deskFKEnter();return;}
-    // . = toggle กลับ/ชุด
-    if(k==='.'){e.preventDefault();deskFKDot();return;}
-    // + (หรือ =, * เป็น alias) = commit ขึ้นรายการ
-    if(k==='+'||k==='='||k==='*'){e.preventDefault();deskFKPlus();return;}
+    // . หรือ * = toggle กลับ/ชุด
+    if(k==='.'||k==='*'){e.preventDefault();deskFKDot();return;}
+    // + หรือ - = commit ขึ้นรายการ
+    if(k==='+'||k==='-'||k==='='){e.preventDefault();deskFKPlus();return;}
     // Backspace = ลบ
     if(k==='Backspace'){e.preventDefault();deskFKDel();return;}
     // Escape = ล้าง
