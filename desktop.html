@@ -1232,7 +1232,7 @@ function deskFKEnter(){
   deskFKRender();
 }
 
-// ═══ . : toggle กลับ/ชุด ของ active type ═══
+// ═══ . : toggle กลับ/ชุด + auto ข้ามประเภท + ใส่ × คั่นราคา ═══
 function deskFKDot(){
   if(fkBuf.indexOf('=') < 0){ toast('กด ⏎ ก่อนครับ'); return; }
   var pricePart = fkBuf.split('=')[1] || '';
@@ -1242,9 +1242,13 @@ function deskFKDot(){
   if(!fkActiveType || FK_KLB_TYPES.indexOf(fkActiveType) < 0){
     toast('โต๊ดไม่มีกลับ/ชุด'); return;
   }
+  // 1) toggle กลับ/ชุด ของ active type
   fkKlb[fkActiveType] = !fkKlb[fkActiveType];
   var kb = document.getElementById('dfkk-'+fkActiveType);
   if(kb) kb.className = 'dfk-klb' + (fkKlb[fkActiveType] ? ' on' : '');
+  // 2) auto ข้ามประเภท + ใส่ × คั่นราคา (เหมือนกด Enter)
+  fkBuf += 'x';
+  deskFKNextType();
   deskFKRender();
 }
 
@@ -2320,6 +2324,8 @@ function setupNumpad(){
     if(document.getElementById('modal-ngod').classList.contains('show')) return;
     if(document.getElementById('modal-cust').classList.contains('show')) return;
     if(e.target.tagName==='INPUT') return;
+    // ถ้า FK เปิดอยู่ → ปล่อยให้ FK keyboard listener จัดการ
+    if(typeof deskFKIsActive==='function' && deskFKIsActive()) return;
 
     if(e.key>='0'&&e.key<='9'){
       e.preventDefault();
