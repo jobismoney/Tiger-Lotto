@@ -1018,9 +1018,18 @@ var DIGIT_RULES = {
 var FK_KLB_TYPES    = ['bon','lang','na'];
 var FK_COLOR        = {bon:'#60a5fa',tod:'#f472b6',lang:'#34d399',na:'#fb923c'};
 var FK_LABEL        = {bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
-// ลำดับ type เมื่อกด Enter วน
-var FK_TYPE_ORDER_THAI = ['bon','lang','tod','na'];
-var FK_TYPE_ORDER_4_5 = ['tod'];
+// ลำดับ type เมื่อกด Enter วน (แต่ละจำนวนหลักต่างกัน)
+var FK_TYPE_ORDER_1 = ['bon','lang'];              // 1 หลัก = วิ่งบน/ล่าง เท่านั้น
+var FK_TYPE_ORDER_THAI = ['bon','lang','tod','na']; // 2-3 หลัก = ครบ
+var FK_TYPE_ORDER_4_5 = ['tod'];                     // 4-5 หลัก = โต๊ดเท่านั้น
+
+// helper: get order ตาม digit count
+function deskFKGetOrder(){
+  var d = deskFKFirstLekLen() || 2;
+  if(d===1) return FK_TYPE_ORDER_1;
+  if(d>=4) return FK_TYPE_ORDER_4_5;
+  return FK_TYPE_ORDER_THAI;
+}
 
 var fkBuf = '';
 var fkSel = {bon:false,tod:false,lang:false,na:false};
@@ -1045,41 +1054,36 @@ function deskFKCurrentLekLen(){
 // ── เปิด type แรก (ตอน Enter ครั้งแรก) ──
 function deskFKOpenFirstType(){
   if(fkUserOverride) return; // user override แล้ว ไม่ auto
-  var d = deskFKFirstLekLen();
-  var order = (d>=4) ? FK_TYPE_ORDER_4_5 : FK_TYPE_ORDER_THAI;
+  var order = deskFKGetOrder();
   var first = order[0];
+  if(!first) return;
   fkSel[first]=true;
   fkActiveType=first;
   var btn=document.getElementById('dfkt-'+first);
   if(btn) btn.className='dfk-tbtn on-'+first;
-  deskFKUpdateKlbBtns(d);
+  deskFKUpdateKlbBtns();
 }
 
-// ── ข้ามประเภท (Enter ในครัว price phase) ──
+// ── ข้ามประเภท — เปิดตัวถัดไป โดย"ไม่ปิด"ตัวเดิม ──
+// type ทุกตัวที่เปิดแล้วค้างไว้จนกว่า commit (เพราะต้องใช้แมปราคา)
 function deskFKNextType(){
-  var d = deskFKFirstLekLen() || 2;
-  var order = (d>=4) ? FK_TYPE_ORDER_4_5 : FK_TYPE_ORDER_THAI;
+  var order = deskFKGetOrder();
   if(!order.length) return;
-
-  // ปิด active เดิม
-  if(fkActiveType){
-    fkSel[fkActiveType]=false;
-    fkKlb[fkActiveType]=false;
-    var btn0=document.getElementById('dfkt-'+fkActiveType);
-    if(btn0) btn0.className='dfk-tbtn';
-    var kb0=document.getElementById('dfkk-'+fkActiveType);
-    if(kb0) kb0.className='dfk-klb';
-  }
-
-  // หาตัวถัดไป (วน)
+  // หา type ถัดไปจาก active ปัจจุบัน (ที่ยังไม่เปิด)
   var idx = fkActiveType ? order.indexOf(fkActiveType) : -1;
-  var next = order[(idx+1) % order.length];
-
+  // next = หาตัวถัดไปที่ยังไม่เปิด
+  var next = null;
+  for(var step=1; step<=order.length; step++){
+    var cand = order[(idx+step) % order.length];
+    if(!fkSel[cand]){ next = cand; break; }
+  }
+  // ถ้า type ครบแล้ว → วนกลับไปที่ active (toggle กลับ/ชุด?) - ไม่ทำอะไร
+  if(!next){ return; }
   fkSel[next]=true;
   fkActiveType=next;
   var btn=document.getElementById('dfkt-'+next);
   if(btn) btn.className='dfk-tbtn on-'+next;
-  deskFKUpdateKlbBtns(d);
+  deskFKUpdateKlbBtns();
 }
 
 // ── Update ปุ่ม กลับ/ชุด ──
@@ -1088,7 +1092,8 @@ function deskFKUpdateKlbBtns(d){
   var lbl = d===2 ? 'กลับ' : (d===3 ? 'ชุด' : 'กลับ');
   FK_KLB_TYPES.forEach(function(t){
     var btn=document.getElementById('dfkk-'+t); if(!btn)return;
-    var show=fkSel[t]&&(d>=2&&d<=3);
+    // 1 หลัก = ไม่มีกลับ/ชุด, 2-3 หลัก = ได้, 4-5 หลัก = ไม่ได้
+    var show = fkSel[t] && (d>=2 && d<=3);
     btn.style.display=show?'block':'none';
     if(show){btn.textContent=lbl;btn.className='dfk-klb'+(fkKlb[t]?' on':'');}
   });
@@ -1097,7 +1102,10 @@ function deskFKUpdateKlbBtns(d){
 // ── Mouse click type (manual) ──
 function deskFKToggle(t){
   var d = deskFKFirstLekLen();
-  if(d>=4 && t!=='tod') return;
+  // 1 หลัก = เฉพาะ บน/ล่าง
+  if(d===1 && t!=='bon' && t!=='lang'){ toast('1 หลักใช้ได้แค่ บน/ล่าง'); return; }
+  // 4-5 หลัก = เฉพาะโต๊ด
+  if(d>=4 && t!=='tod'){ toast('4-5 หลักใช้ได้แค่โต๊ด'); return; }
   fkUserOverride=true;
   fkSel[t]=!fkSel[t];
   if(!fkSel[t]){
@@ -1137,7 +1145,9 @@ function deskFKRender(){
   el.innerHTML = displayBuf + '<span class="dfk-cursor"></span>';
   var len=fkBuf.length;
   el.style.fontSize=len<=10?'26px':len<=14?'22px':len<=18?'18px':'14px';
-  var types=FK_TYPE_ORDER_THAI.filter(function(t){return fkSel[t];});
+  // แสดง type ที่เปิดไว้ตาม order
+  var order = deskFKGetOrder();
+  var types=order.filter(function(t){return fkSel[t];});
   var d2 = deskFKFirstLekLen() || 2;
   var klbWord = d2===2 ? 'ก' : 'ช';
   if(hint){
@@ -1177,6 +1187,14 @@ function deskFKNum(n){
     var d = deskFKFirstLekLen();
     if((d===4||d===5) && !fkUserOverride){
       ['bon','lang','na'].forEach(function(t){
+        fkSel[t]=false;
+        var btn=document.getElementById('dfkt-'+t);
+        if(btn) btn.className='dfk-tbtn';
+      });
+    }
+    // 1 หลัก → ลบ tod/na อัตโนมัติ
+    if(d===1 && !fkUserOverride){
+      ['tod','na'].forEach(function(t){
         fkSel[t]=false;
         var btn=document.getElementById('dfkt-'+t);
         if(btn) btn.className='dfk-tbtn';
@@ -1286,19 +1304,17 @@ function deskFKCommit(){
   var parts=fkBuf.split('=');
   var lekPart=parts[0]; var pricePart=parts[1]||'';
   var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
-  // strip trailing x (ถ้ามี)
+  // strip trailing x (ถ้ามี เพราะอาจมาจาก . ที่เปิด type แต่ไม่ใส่ราคา)
   pricePart = pricePart.replace(/x+$/,'');
   var ps=pricePart.split('x').map(function(s){return parseInt(s.replace(/\D/g,''))||0;});
   if(!leks.length){toast('ไม่มีเลขครับ');return;}
   if(!ps.length || !ps[0]){toast('ใส่ราคาก่อนครับ');return;}
 
-  var activeTypes = FK_TYPE_ORDER_THAI.filter(function(t){return fkSel[t];});
-  if(!activeTypes.length){toast('เลือกประเภทก่อนครับ');return;}
-
-  // map ราคาให้ type ตามลำดับที่เปิด
-  // ใช้ order เดียวกับที่ user กด Enter (บน → ล่าง → โต๊ด → หน้า)
-  var order = FK_TYPE_ORDER_THAI;
+  // map ราคาให้ type ตาม order ที่เปิด
+  var order = deskFKGetOrder();
   var orderedTypes = order.filter(function(t){return fkSel[t];});
+  if(!orderedTypes.length){toast('เลือกประเภทก่อนครับ');return;}
+
   var pm = {};
   orderedTypes.forEach(function(t, i){
     if(ps[i] && ps[i] > 0) pm[t] = ps[i];
@@ -1312,7 +1328,7 @@ function deskFKCommit(){
   leks.forEach(function(l){
     var kd={bon:[],lang:[],na:[]};
     FK_KLB_TYPES.forEach(function(t){
-      if(fkSel[t]&&fkKlb[t]&&pm[t]){
+      if(fkSel[t]&&fkKlb[t]&&pm[t]&&l.length>=2&&l.length<=3){
         var perms=getPerms(l).filter(function(p){return p!==l;});
         if(perms.length)kd[t]=perms.map(function(p){return{perm:p,price:pm[t]};});
       }
