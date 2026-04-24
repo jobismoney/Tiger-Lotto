@@ -1145,7 +1145,10 @@ function deskFKRender(){
     return;
   }
   el.style.color='var(--gold)';
-  var displayBuf = fkBuf.replace(/x/gi,'×');
+  // แทน x → × และ _ → ช่องว่างจางๆ
+  var displayBuf = fkBuf
+    .replace(/x/gi,'×')
+    .replace(/_/g,'<span style="color:#444;">_</span>');
   el.innerHTML = displayBuf + '<span class="dfk-cursor"></span>';
   var len=fkBuf.length;
   el.style.fontSize=len<=10?'26px':len<=14?'22px':len<=18?'18px':'14px';
@@ -1227,7 +1230,7 @@ function deskFKSep(){
 }
 
 // ═══ Enter : lek phase = switch to price + open บน 
-//            price phase = ข้ามประเภท (ใส่ × คั่น) ═══
+//            price phase = ข้ามประเภท (ใส่ _x ถ้ายังไม่มีราคา, หรือ x ถ้ามีราคา) ═══
 function deskFKEnter(){
   var hasEq = fkBuf.indexOf('=') >= 0;
   if(!hasEq){
@@ -1239,17 +1242,24 @@ function deskFKEnter(){
     deskFKRender();
     return;
   }
-  // price phase
+  // price phase → ข้ามประเภท
   var pricePart = fkBuf.split('=')[1] || '';
   var lastChar = fkBuf.charAt(fkBuf.length - 1);
 
-  // Enter ตอนไม่มีราคา → toast
-  if(!pricePart || lastChar === '=' || lastChar === 'x'){
-    toast('ใส่ราคาก่อนครับ');
+  // เช็คว่า type ครบหรือยัง — ถ้าครบแล้วไม่ให้เพิ่ม
+  var order = deskFKGetOrder();
+  var selectedCount = order.filter(function(t){return fkSel[t];}).length;
+  if(selectedCount >= order.length){
+    toast('เปิดครบทุกประเภทแล้ว');
     return;
   }
-  // มีราคาแล้ว → ข้ามประเภท + ใส่ × คั่น
-  fkBuf += 'x';
+
+  // ถ้ายังไม่มีราคาที่ slot ปัจจุบัน → ใส่ _ แทน แล้ว x
+  if(!pricePart || lastChar === '=' || lastChar === 'x'){
+    fkBuf += '_x';
+  } else {
+    fkBuf += 'x';
+  }
   deskFKNextType();
   deskFKRender();
 }
@@ -1258,19 +1268,27 @@ function deskFKEnter(){
 function deskFKDot(){
   if(fkBuf.indexOf('=') < 0){ toast('กด ⏎ ก่อนครับ'); return; }
   var pricePart = fkBuf.split('=')[1] || '';
-  if(!pricePart){ toast('ใส่ราคาก่อนครับ'); return; }
   var lastChar = fkBuf.charAt(fkBuf.length-1);
-  if(lastChar === 'x' || lastChar === '='){ toast('ใส่ราคาก่อนครับ'); return; }
+  if(!pricePart || lastChar === 'x' || lastChar === '=' || lastChar === '_'){
+    toast('ใส่ราคาก่อนครับ'); return;
+  }
   if(!fkActiveType || FK_KLB_TYPES.indexOf(fkActiveType) < 0){
     toast('โต๊ดไม่มีกลับ/ชุด'); return;
   }
+  var d = deskFKFirstLekLen();
+  if(d<2 || d>3){ toast('1, 4-5 หลักไม่มีกลับ/ชุด'); return; }
+
   // 1) toggle กลับ/ชุด ของ active type
   fkKlb[fkActiveType] = !fkKlb[fkActiveType];
   var kb = document.getElementById('dfkk-'+fkActiveType);
   if(kb) kb.className = 'dfk-klb' + (fkKlb[fkActiveType] ? ' on' : '');
-  // 2) auto ข้ามประเภท + ใส่ × คั่นราคา (เหมือนกด Enter)
-  fkBuf += 'x';
-  deskFKNextType();
+  // 2) auto ข้ามประเภท + ใส่ × คั่นราคา (ถ้ายังมี type ว่าง)
+  var order = deskFKGetOrder();
+  var selectedCount = order.filter(function(t){return fkSel[t];}).length;
+  if(selectedCount < order.length){
+    fkBuf += 'x';
+    deskFKNextType();
+  }
   deskFKRender();
 }
 
@@ -1279,10 +1297,47 @@ function deskFKPlus(){
   deskFKCommit();
 }
 
-// ═══ Backspace: ลบทีละตัว ═══
+// ═══ Backspace / − : ลบทีละตัว + unwind type ═══
 function deskFKDel(){
   if(!fkBuf)return;
-  fkBuf=fkBuf.slice(0,-1);
+  var lastChar = fkBuf.charAt(fkBuf.length-1);
+  var removed = fkBuf.slice(-1);
+  fkBuf = fkBuf.slice(0, -1);
+
+  // ถ้าลบ x หรือ _ (แยก type) → ปิด active type ล่าสุด
+  if(removed === 'x' || removed === '_'){
+    // ถ้าลบ x → ต้องปิด active type (ล่าสุด) เพราะ x คือ "คั่นก่อนเริ่ม type ใหม่"
+    // ถ้าลบ _ → _ คู่กับ x ลบตัว _ ก่อน ไม่ต้องปิดอะไร (รอลบ x ต่อ)
+    if(removed === 'x'){
+      // หา active type ปัจจุบันแล้วปิด
+      if(fkActiveType){
+        fkSel[fkActiveType] = false;
+        fkKlb[fkActiveType] = false;
+        var btn=document.getElementById('dfkt-'+fkActiveType);
+        if(btn) btn.className='dfk-tbtn';
+        var kb2=document.getElementById('dfkk-'+fkActiveType);
+        if(kb2) kb2.className='dfk-klb';
+      }
+      // หา active type ก่อนหน้า (จาก order + fkSel)
+      var order = deskFKGetOrder();
+      var stillOpen = order.filter(function(t){return fkSel[t];});
+      fkActiveType = stillOpen.length ? stillOpen[stillOpen.length-1] : null;
+    }
+  }
+  // ถ้าลบ = → reset เข้า lek phase
+  if(removed === '='){
+    fkSel={bon:false,tod:false,lang:false,na:false};
+    fkKlb={bon:false,lang:false,na:false};
+    fkActiveType=null;
+    fkUserOverride=false;
+    ['bon','tod','lang','na'].forEach(function(t){
+      var btn=document.getElementById('dfkt-'+t);
+      if(btn) btn.className='dfk-tbtn';
+      var kb=document.getElementById('dfkk-'+t);
+      if(kb) kb.className='dfk-klb';
+    });
+  }
+
   if(!fkBuf){
     fkUserOverride=false;
     fkActiveType=null;
@@ -1308,11 +1363,17 @@ function deskFKCommit(){
   var parts=fkBuf.split('=');
   var lekPart=parts[0]; var pricePart=parts[1]||'';
   var leks=lekPart.split('/').map(function(s){return s.replace(/\D/g,'');}).filter(function(s){return s.length>=1&&s.length<=5;});
-  // strip trailing x (ถ้ามี เพราะอาจมาจาก . ที่เปิด type แต่ไม่ใส่ราคา)
-  pricePart = pricePart.replace(/x+$/,'');
-  var ps=pricePart.split('x').map(function(s){return parseInt(s.replace(/\D/g,''))||0;});
+  // strip trailing x/_ (ถ้ามี)
+  pricePart = pricePart.replace(/[x_]+$/,'');
+  // split by x → แต่ละ slot อาจเป็น "_" (skip) หรือ "100" (ราคา)
+  var psRaw = pricePart.split('x');
+  var ps = psRaw.map(function(s){
+    s = s.replace(/_/g,'');  // strip underscore
+    return parseInt(s.replace(/\D/g,'')) || 0;
+  });
   if(!leks.length){toast('ไม่มีเลขครับ');return;}
-  if(!ps.length || !ps[0]){toast('ใส่ราคาก่อนครับ');return;}
+  // ต้องมีราคาอย่างน้อย 1 slot ที่ > 0
+  if(!ps.some(function(v){return v>0;})){toast('ใส่ราคาก่อนครับ');return;}
 
   // map ราคาให้ type ตาม order ที่เปิด
   var order = deskFKGetOrder();
