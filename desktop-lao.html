@@ -639,7 +639,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         <!-- Hint บอก syntax ย่อ -->
         <div style="font-size:10px;color:#556;text-align:center;margin-bottom:4px;line-height:1.5;">
           <span style="color:#60a5fa;">⏎</span>ข้ามประเภท
-          · <span style="color:#d4a017;">.</span>/<span style="color:#d4a017;">*</span>กลับ/ชุด
+          · <span style="color:#d4a017;">.</span>กลับ/ชุด
+          · <span style="color:#fb923c;">*</span>📌ปัก
           · <span style="color:#34d399;">+</span>ขึ้นรายการ
           · <span style="color:#f87171;">−</span>ลบ
           <br><span style="color:#888;">45⏎100+</span> 45บน=100
@@ -656,7 +657,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         <div class="desk-fk-pad">
           <!-- Row 1: /, *, −, ⌫ -->
           <button class="dfk-btn dfk-sep" onclick="deskFKSep()" title="คั่นเลข (/)">/</button>
-          <button class="dfk-btn dfk-star" onclick="deskFKDot()" title="กลับ/ชุด (*)">*</button>
+          <button class="dfk-btn dfk-star" onclick="deskFKOpenPak()" title="ปักหลัก (เลข 1 หลัก)" style="background:rgba(251,146,60,.12);border-color:rgba(251,146,60,.4);color:#fb923c;font-size:13px;">📌</button>
           <button class="dfk-btn dfk-minus" onclick="deskFKDel()" title="ลบทีละตัว (−)">−</button>
           <button class="dfk-btn dfk-del" onclick="deskFKDel()" title="ลบ (Backspace)">⌫</button>
           <!-- Row 2: 7, 8, 9, +(span 2 rows) -->
@@ -1454,6 +1455,24 @@ function deskFKIsActive(){
   return !!(area && area.classList.contains('show'));
 }
 
+// เปิด popup ปัก (สำหรับเลข 1 หลัก)
+function deskFKOpenPak(){
+  if(fkPhase !== 'lek'){ toast('ใช้ปักได้เฉพาะตอนใส่เลข'); return; }
+  if(!fkLekStr || fkLekStr.indexOf('/') >= 0){ toast('ปักใช้ได้เฉพาะ 1 เลข'); return; }
+  if(fkLekStr.length !== 1){ toast('ปักใช้ได้เฉพาะเลข 1 หลัก'); return; }
+  if(typeof npLek !== 'undefined'){
+    npLek = fkLekStr;
+  }
+  document.getElementById('pak-lek-show').textContent = fkLekStr;
+  document.getElementById('pak-price').value = '';
+  if(typeof updatePakUI === 'function') updatePakUI();
+  document.getElementById('pak-overlay').classList.add('show');
+  setTimeout(function(){
+    var p = document.getElementById('pak-price');
+    if(p) p.focus();
+  }, 100);
+}
+
 function deskFKToggleMode(){
   var area=document.getElementById('desk-fk-area');
   var pfields=document.getElementById('pfields');
@@ -1505,8 +1524,10 @@ function deskFKToggleMode(){
     if(k==='/'||k===','){e.preventDefault();deskFKSep();return;}
     // Enter = ข้ามประเภท / switch phase
     if(k==='Enter'){e.preventDefault();deskFKEnter();return;}
-    // . หรือ * = toggle กลับ/ชุด
-    if(k==='.'||k==='*'){e.preventDefault();deskFKDot();return;}
+    // . = กลับ/ชุด (ใน price phase)
+    if(k==='.'){e.preventDefault();deskFKDot();return;}
+    // * = ปักหลัก (เลข 1 หลัก, lek phase)
+    if(k==='*'){e.preventDefault();deskFKOpenPak();return;}
     // + หรือ = = commit ขึ้นรายการ
     if(k==='+'||k==='='){e.preventDefault();deskFKPlus();return;}
     // Backspace หรือ - = ลบทีละตัว
@@ -3478,12 +3499,19 @@ function addPak(){
   var price=parseInt(document.getElementById('pak-price').value)||0;
   if(!price){toast('ใส่ราคาด้วยครับ');return;}
   if(!curCustId){closePak();openAddCust();return;}
-  // อ่าน positions ที่ถูก toggle .on
   var selPositions=[];
   document.querySelectorAll('#pak-pos-grid .pbtn.on').forEach(function(b){
     selPositions.push(b.dataset.pos);
   });
   if(!selPositions.length){toast('เลือกตำแหน่งด้วยครับ');return;}
+  var lekToUse;
+  var fkActive = (typeof deskFKIsActive==='function' && deskFKIsActive());
+  if(fkActive && typeof fkLekStr !== 'undefined' && fkLekStr){
+    lekToUse = fkLekStr;
+  } else {
+    lekToUse = npLek;
+  }
+  if(!lekToUse){toast('ไม่มีเลขครับ');return;}
   var tl={'3bon':'3ตัวบน','2bon':'2ตัวบน','2lang':'2ตัวล่าง'};
   var pl={'na':'หน้า','mid':'กลาง','lang':'หลัง'};
   if(!custEntries[curCustId]) custEntries[curCustId]=[];
@@ -3491,10 +3519,16 @@ function addPak(){
     return {type:pakType,pos:pos,price:price,typeLabel:tl[pakType],posLabel:pl[pos]};
   });
   custEntries[curCustId].unshift({
-    id:Date.now(),lek:npLek,d:npLek.length,
+    id:Date.now(),lek:lekToUse,d:lekToUse.length,
     bon:null,tod:null,lang:null,na:null,kd:{},paks:paks
   });
-  closePak(); resetNp(); save(); renderHist(); renderCustList(); updateSummary();
+  closePak();
+  if(fkActive){
+    if(typeof deskFKReset === 'function') deskFKReset();
+  } else {
+    if(typeof resetNp === 'function') resetNp();
+  }
+  save(); renderHist(); renderCustList(); updateSummary();
   toast('เพิ่มปักหลัก '+selPositions.length+' ตำแหน่ง ✅');
 }
 
