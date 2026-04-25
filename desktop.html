@@ -508,6 +508,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .dfk-tbtn.on-lang{background:rgba(52,211,153,.15);border-color:#34d399;color:#34d399;}
 .dfk-tbtn.on-na{background:rgba(251,146,60,.15);border-color:#fb923c;color:#fb923c;}
 .dfk-tbtn.skipped{opacity:.3;filter:saturate(.4);}
+.dfk-klb.skipped{opacity:.3;filter:saturate(.4);}
 .dfk-klb{width:100%;background:#2a2000;border:1px solid #d4a017;border-radius:5px;color:#d4a017;font-family:'Sarabun',sans-serif;font-size:10px;font-weight:800;padding:2px;cursor:pointer;text-align:center;display:none;}
 .dfk-klb.on{background:#d4a017;color:#000;}
 .desk-fk-pad{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(5,1fr);gap:3px;}
@@ -1098,10 +1099,14 @@ function deskFKUpdateKlbBtns(d){
   var lbl = d===2 ? 'กลับ' : (d===3 ? 'ชุด' : 'กลับ');
   FK_KLB_TYPES.forEach(function(t){
     var btn=document.getElementById('dfkk-'+t); if(!btn)return;
-    // 1 หลัก = ไม่มีกลับ/ชุด, 2-3 หลัก = ได้, 4-5 หลัก = ไม่ได้
     var show = fkSel[t] && (d>=2 && d<=3);
     btn.style.display=show?'block':'none';
-    if(show){btn.textContent=lbl;btn.className='dfk-klb'+(fkKlb[t]?' on':'');}
+    if(show){
+      btn.textContent=lbl;
+      var cls = 'dfk-klb' + (fkKlb[t]?' on':'');
+      if(fkSkipped[t]) cls += ' skipped';
+      btn.className=cls;
+    }
   });
 }
 
@@ -1112,6 +1117,17 @@ function deskFKToggle(t){
   if(d===1 && t!=='bon' && t!=='lang'){ toast('1 หลักใช้ได้แค่ บน/ล่าง'); return; }
   // 4-5 หลัก = เฉพาะโต๊ด
   if(d>=4 && t!=='tod'){ toast('4-5 หลักใช้ได้แค่โต๊ด'); return; }
+
+  // ── ถ้ามี = แล้ว (อยู่ใน price phase) ──
+  // คลิก type ที่ skipped → ย้อน cursor ไป slot นั้น (กรณีย้อนคลิก)
+  if(fkBuf.indexOf('=') >= 0 && fkSel[t] && fkSkipped[t]){
+    // หา position ของ slot นั้น แล้ว rearrange buffer
+    // วิธี: สลับ "_" ที่ตรงกับ type นี้ มาท้าย เพื่อให้ใส่ราคาต่อได้
+    deskFKMoveCursorToType(t);
+    return;
+  }
+
+  // ก่อน = (lek phase): manual toggle
   fkUserOverride=true;
   // ถ้าปุ่มถูก mark skipped → un-mark + active กลับ
   if(fkSkipped[t]){
@@ -1133,9 +1149,93 @@ function deskFKToggle(t){
   } else {
     fkActiveType=t;
   }
-  var btn=document.getElementById('dfkt-'+t);
-  if(btn)btn.className='dfk-tbtn'+(fkSel[t]?' on-'+t:'');
+  var btn2=document.getElementById('dfkt-'+t);
+  if(btn2)btn2.className='dfk-tbtn'+(fkSel[t]?' on-'+t:'');
   deskFKUpdateKlbBtns(d); deskFKRender();
+}
+
+// ── ย้าย cursor ไปที่ type ที่ระบุ (สำหรับคลิกย้อนกลับ) ──
+function deskFKMoveCursorToType(t){
+  // วิธีง่าย: สลับ slot ของ t กับ slot ล่าสุดใน buffer
+  // เพื่อให้กดเลขต่อ → ใส่ราคา t
+  var order = deskFKGetOrder();
+  var orderedTypes = order.filter(function(tp){return fkSel[tp];});
+  var targetIdx = orderedTypes.indexOf(t);
+  if(targetIdx < 0) return;
+
+  // parse buffer: split price part เป็น slots
+  var parts = fkBuf.split('=');
+  var lekPart = parts[0];
+  var pricePart = parts[1] || '';
+  // strip trailing x/_
+  pricePart = pricePart.replace(/[x_]+$/,'');
+  var slots = pricePart.split('x').map(function(s){return s.replace(/_/g,'');});
+  // ensure slot count = orderedTypes count
+  while(slots.length < orderedTypes.length) slots.push('');
+
+  // หา slot สุดท้ายที่มีราคา (current cursor)
+  var lastWithPriceIdx = -1;
+  for(var i=slots.length-1; i>=0; i--){
+    if(slots[i] && parseInt(slots[i])>0){ lastWithPriceIdx = i; break; }
+  }
+
+  // swap target กับ lastWithPriceIdx (หรือ trim ถ้า last ว่าง)
+  // ง่ายกว่า: ตัด slot[targetIdx] ออก แล้วเอามาต่อท้าย
+  var targetVal = slots[targetIdx] || '';
+  // ลบ slot target → reorder array
+  // Approach: rebuild buffer โดยให้ target slot ว่าง + อยู่ท้าย
+  // จริงๆแล้ววิธีนี้ซับซ้อน — ใช้วิธีง่ายๆ: 
+  // 1. ตั้ง fkActiveType = t (ให้ตัวเลขที่จะพิมพ์ต่อไปไป update slot นี้ผ่าน skipped logic)
+  // 2. แต่ buffer ยังคงเดิม — ผู้ใช้พิมพ์เลขจะเข้าท้าย buffer (ผิด slot)
+  // ⚡ ทำเลย: สลับ trailing _x ให้ตรง slot ที่ขาด
+
+  // วิธีที่ทำได้จริง: 
+  // - เคลียร์ trailing แล้ว append slot ใหม่ที่ active = t
+  // - ตอน commit จะ map ตาม fkSel order — แต่ cursor ใส่ราคาท้าย buffer = ราคา type ล่าสุด
+  // 
+  // ข้อจำกัด: เพราะใช้ append-only, การย้อนกลับต้องสะท้อนใน parser ตอน commit
+  // ⚡ Solution simple: เปลี่ยน fkActiveType เฉยๆ + ใส่ flag ว่ากำลังใส่ราคา type ใด
+  //   ตอน commit → parse ตามลำดับ slot, แต่ละ slot ตามลำดับ orderedTypes
+
+  // ⏩ Simplest implementation: จัดเรียงให้ slot ของ t อยู่ท้าย โดยย้าย slot ที่ตามมาขึ้น
+  var newSlots = [];
+  for(var j=0; j<orderedTypes.length; j++){
+    if(j === targetIdx) continue;  // ข้ามตัวที่จะย้าย
+    newSlots.push(slots[j] || '');
+  }
+  newSlots.push(targetVal);  // ใส่ตัวที่ย้ายไปท้าย
+
+  // แต่ parser ตอน commit ใช้ orderedTypes สำหรับ map → ต้องเปลี่ยน orderedTypes ด้วย
+  // วิธีง่ายสุด: track override mapping
+  if(!window._fkSlotOrder) window._fkSlotOrder = null;
+  // สร้าง slot order ใหม่: ทุก type ตาม order ดั้งเดิม ยกเว้น t ไปท้าย
+  var newOrder = orderedTypes.filter(function(x){return x!==t;}).concat([t]);
+  window._fkSlotOrder = newOrder;
+
+  // rebuild buffer
+  var newBuf = lekPart + '=';
+  for(var k=0; k<newSlots.length; k++){
+    var v = newSlots[k];
+    newBuf += (v ? v : '_');
+    if(k < newSlots.length-1) newBuf += 'x';
+    else if(!v) newBuf = newBuf.slice(0,-1);  // ถ้าตัวสุดท้ายว่าง → ลบ _ ออก ให้ผู้ใช้พิมพ์เลข
+  }
+  // ถ้าตัวสุดท้ายว่าง → ใส่ x ต่อจาก slot ก่อนหน้า เพื่อ user พิมพ์ราคา
+  if(!targetVal && newBuf.charAt(newBuf.length-1) !== '='){
+    // ลำดับ: ...50x → user พิมพ์ → 50x100 (ราคาของ t)
+    if(newBuf.charAt(newBuf.length-1) !== 'x') newBuf += 'x';
+  }
+
+  fkBuf = newBuf;
+
+  // อัพเดต state: t ไม่ skipped แล้ว (เป็น active)
+  fkSkipped[t] = false;
+  fkActiveType = t;
+  var ub = document.getElementById('dfkt-'+t);
+  if(ub) ub.classList.remove('skipped');
+
+  deskFKUpdateKlbBtns();
+  deskFKRender();
 }
 
 // ── Click กลับ/ชุด (mouse) ──
@@ -1434,6 +1534,10 @@ function deskFKCommit(){
   // map ราคาให้ type ตาม order ที่เปิด
   var order = deskFKGetOrder();
   var orderedTypes = order.filter(function(t){return fkSel[t];});
+  // ถ้ามี slot order override (จากการคลิกย้อน) → ใช้แทน
+  if(window._fkSlotOrder && window._fkSlotOrder.length){
+    orderedTypes = window._fkSlotOrder.filter(function(t){return fkSel[t];});
+  }
   if(!orderedTypes.length){toast('เลือกประเภทก่อนครับ');return;}
 
   var pm = {};
@@ -1479,6 +1583,7 @@ function deskFKReset(){
   fkSkipped={bon:false,tod:false,lang:false,na:false};
   fkUserOverride=false;
   fkActiveType=null;
+  window._fkSlotOrder = null;
   ['bon','tod','lang','na'].forEach(function(t){
     var btn=document.getElementById('dfkt-'+t);
     if(btn)btn.className='dfk-tbtn';
@@ -1551,6 +1656,25 @@ function deskFKToggleMode(){
     if(k==='+'||k==='='){e.preventDefault();deskFKPlus();return;}
     // Backspace หรือ - = ลบทีละตัว
     if(k==='Backspace'||k==='-'){e.preventDefault();deskFKDel();return;}
+    // ลูกศรซ้าย/ขวา = เปลี่ยน active type (ใน price phase)
+    if(k==='ArrowLeft'||k==='ArrowRight'){
+      e.preventDefault();
+      if(fkBuf.indexOf('=') < 0) return;
+      var ord = deskFKGetOrder();
+      var openTypes = ord.filter(function(t){return fkSel[t];});
+      if(!openTypes.length) return;
+      var curIdx = fkActiveType ? openTypes.indexOf(fkActiveType) : 0;
+      var nextIdx = k==='ArrowRight' ? (curIdx+1) % openTypes.length : (curIdx-1+openTypes.length) % openTypes.length;
+      var nextType = openTypes[nextIdx];
+      // คลิก type เพื่อย้ายไปที่นั่น (reuse logic)
+      if(fkSkipped[nextType]){
+        deskFKMoveCursorToType(nextType);
+      } else {
+        fkActiveType = nextType;
+        deskFKRender();
+      }
+      return;
+    }
     // Escape = ล้าง
     if(k==='Escape'){e.preventDefault();deskFKReset();return;}
   });
