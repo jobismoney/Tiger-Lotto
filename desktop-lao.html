@@ -3866,6 +3866,28 @@ function toLines(e){
         xd.forEach(function(x){ push(x.perm,lbl+slipFmt(x.price),x.price); });
       }
     });
+  } else if(d===4){
+    // d=4: บน + ชุด + โต๊ด (ลาว)
+    var kbon4=kd['bon']||[];
+    var hasKb4=kbon4.length>0;
+    var mps4=[], mtot4=0;
+    if(b>0&&!hasKb4){ mps4.push('บ'+slipFmt(b)); mtot4+=b; }
+    if(t>0&&!hasKb4){ mps4.push('ต'+slipFmt(t)); mtot4+=t; }
+    if(mps4.length) push(lek,pstr(mps4),mtot4);
+    if(hasKb4){
+      var totalP4=permCount(lek);
+      var allP4=[]; if(b>0) allP4.push(b);
+      kbon4.forEach(function(x){ allP4.push(x.price); });
+      var tot44=allP4.reduce(function(s,p){ return s+p; },0);
+      var hasFull4=(b>0?1:0)+kbon4.length===totalP4;
+      var allSame4=allP4.length>0&&allP4.every(function(p){ return p===allP4[0]; });
+      if(hasFull4&&allSame4){ push(lek,'ช'+slipFmt(allP4[0]),tot44); }
+      else{
+        if(b>0) push(lek,'บ'+slipFmt(b),b);
+        kbon4.forEach(function(x){ push(x.perm,'บ'+slipFmt(x.price),x.price); });
+      }
+      if(t>0) push(lek,'ต'+slipFmt(t),t);
+    }
   } else {
     if(t>0) push(lek,'ต'+slipFmt(t),t);
   }
