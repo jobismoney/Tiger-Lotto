@@ -538,6 +538,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <div class="ngod-badge" id="ngod-badge">— เปิดงวดก่อน —</div>
   </div>
   <div class="hdr-btns">
+    <button class="hbtn" onclick="window.location.href='/desktop.html'" title="ไปหวยไทย" style="background:rgba(245,197,24,.12);border-color:rgba(245,197,24,.4);color:#f5c518;"><span class="hbtn-icon">🇹🇭</span><span class="hbtn-lbl">ไทย</span></button>
     <button class="hbtn" onclick="openAnalyze()"><span class="hbtn-icon">📊</span><span class="hbtn-lbl">วิเคราะห์</span></button>
     <button class="hbtn" onclick="openSettings()"><span class="hbtn-icon">⚙️</span><span class="hbtn-lbl">ตั้งค่า</span></button>
     <button class="hbtn" onclick="showSlip()"><span class="hbtn-icon">📋</span><span class="hbtn-lbl">ดูโพย</span></button>
@@ -1019,7 +1020,8 @@ var FK_LABEL        = {bon:'บน',tod:'โต๊ด',lang:'ล่าง'};
 var FK_TYPE_ORDER_1   = ['bon','lang'];
 var FK_TYPE_ORDER_2   = ['bon','lang','tod'];        // Lao: ไม่มี na
 var FK_TYPE_ORDER_3   = ['bon','tod'];                // Lao: ไม่มี lang, na
-var FK_TYPE_ORDER_4_5 = ['tod'];
+var FK_TYPE_ORDER_4   = ['bon','tod'];                // Lao 4หลัก: บน → โต๊ด (มีชุดของบน)
+var FK_TYPE_ORDER_5   = ['tod'];                       // Lao 5หลัก: โต๊ด เท่านั้น
 
 // ── State ──
 var fkLekStr = '';
@@ -1041,7 +1043,8 @@ function deskFKGetOrder(){
   if(d===1) return FK_TYPE_ORDER_1;
   if(d===2) return FK_TYPE_ORDER_2;
   if(d===3) return FK_TYPE_ORDER_3;
-  if(d>=4) return FK_TYPE_ORDER_4_5;
+  if(d===4) return FK_TYPE_ORDER_4;
+  if(d>=5) return FK_TYPE_ORDER_5;
   return FK_TYPE_ORDER_2;
 }
 function deskFKActiveSlot(){
@@ -1151,7 +1154,7 @@ function deskFKRenderTypeButtons(){
     for(var i=0; i<fkPriceSlots.length; i++){
       if(fkPriceSlots[i].type === t){ slot = fkPriceSlots[i]; slotIdx = i; break; }
     }
-    var show = !!slot && (d>=2 && d<=3);
+    var show = !!slot && (d>=2 && d<=4) && (t==='bon' || (d===2 && t==='lang'));
     btn.style.display = show ? 'block' : 'none';
     if(show){
       btn.textContent = (d===2 ? 'กลับ' : 'ชุด');
