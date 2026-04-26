@@ -525,6 +525,25 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 .dfk-cursor{display:inline-block;width:2px;height:1em;background:var(--gold);margin-left:2px;vertical-align:middle;animation:dfkblink .8s step-end infinite;}
 @keyframes dfkblink{0%,100%{opacity:1;}50%{opacity:0;}}
 
+/* Date Picker Component */
+.dp-wrap{position:relative;}
+.dp-input{width:100%;background:#1a1a2e;border:1.5px solid var(--border);border-radius:10px;color:var(--gold);font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;padding:10px 14px;box-sizing:border-box;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;}
+.dp-input:hover{border-color:var(--gold);}
+.dp-cal{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#1a1d2e;border:1.5px solid var(--border);border-radius:14px;z-index:9999;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,.5);}
+.dp-cal.show{display:block;}
+.dp-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.dp-nav-btn{background:none;border:none;color:var(--gold);font-size:20px;cursor:pointer;padding:4px 10px;border-radius:8px;}
+.dp-nav-btn:hover{background:rgba(245,197,24,.15);}
+.dp-month-lbl{font-size:15px;font-weight:900;color:#fff;font-family:'Sarabun',sans-serif;}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.dp-dow{font-size:11px;font-weight:800;color:#7a8aaa;text-align:center;padding:4px 0;}
+.dp-day{font-size:14px;font-weight:700;color:#fff;text-align:center;padding:7px 2px;border-radius:8px;cursor:pointer;font-family:'Sarabun',sans-serif;}
+.dp-day:hover{background:rgba(245,197,24,.2);}
+.dp-day.selected{background:var(--gold);color:#111;}
+.dp-day.today{border:1.5px solid var(--gold);color:var(--gold);}
+.dp-day.empty{cursor:default;}
+.dp-day.empty:hover{background:transparent;}
+
 </style>
 <!-- build:20260312_160439 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -538,7 +557,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <div class="ngod-badge" id="ngod-badge">— เปิดงวดก่อน —</div>
   </div>
   <div class="hdr-btns">
-    <button class="hbtn" onclick="window.location.href='/desktop.html'" title="ไปหวยไทย" style="background:rgba(245,197,24,.12);border-color:rgba(245,197,24,.4);color:#f5c518;"><span class="hbtn-icon">🇹🇭</span><span class="hbtn-lbl">ไทย</span></button>
+    <button class="hbtn" onclick="window.location.href='/desktop.html'" title="ไปหวยไทย" style="background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.25);color:#888;"><span class="hbtn-icon">🇹🇭</span><span class="hbtn-lbl">ไทย</span></button>
+    <button class="hbtn" onclick="window.location.href='/desktop-lao.html'" title="หวยลาว" style="background:rgba(220,38,38,.25);border-color:#ef4444;color:#fca5a5;box-shadow:0 0 12px rgba(220,38,38,.4);"><span class="hbtn-icon">🇱🇦</span><span class="hbtn-lbl">ลาว</span></button>
     <button class="hbtn" onclick="openHistoryModal()" title="ดูงวดเก่า"><span class="hbtn-icon">🗄️</span><span class="hbtn-lbl">ประวัติ</span></button>
     <button class="hbtn" onclick="openAnalyze()"><span class="hbtn-icon">📊</span><span class="hbtn-lbl">วิเคราะห์</span></button>
     <button class="hbtn" onclick="openSettings()"><span class="hbtn-icon">⚙️</span><span class="hbtn-lbl">ตั้งค่า</span></button>
@@ -947,7 +967,11 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
       <button class="mbtn" style="background:linear-gradient(135deg,#7f1d1d,#991b1b);color:#fca5a5;width:100%;" onclick="closeNgod()">🔒 ปิดงวด</button>
     </div>
     <div id="ngod-open-section">
-      <input class="modal-inp" id="inp-ngod" placeholder="งวด เช่น 16/03/68">
+      <div class="dp-wrap" style="margin-bottom:8px;">
+        <button type="button" class="dp-input" id="dp-ngod-btn">เลือกงวด 📅</button>
+        <div class="dp-cal" id="dp-ngod-cal"></div>
+        <input type="hidden" id="inp-ngod">
+      </div>
       <input class="modal-inp" id="inp-sender" placeholder="ชื่อผู้ส่ง (ไม่บังคับ)">
       <input class="modal-inp" id="inp-receiver" placeholder="ชื่อผู้รับ (ไม่บังคับ)">
     </div>
@@ -1415,7 +1439,7 @@ function deskFKCommit(){
   leks.forEach(function(l){
     var kd = {bon:[], lang:[], na:[]};
     FK_KLB_TYPES.forEach(function(t){
-      if(klbMap[t] && pm[t] && l.length>=2 && l.length<=3){
+      if(klbMap[t] && pm[t] && l.length>=2 && l.length<=4){
         var perms = getPerms(l).filter(function(p){return p!==l;});
         if(perms.length) kd[t] = perms.map(function(p){return {perm:p, price:pm[t]};});
       }
@@ -2220,7 +2244,6 @@ function confirmAddCust(){
 // NGOD
 // ================================================================
 function openNgodModal(){
-  // ถ้างวดเปิดอยู่ → แสดงส่วนปิดงวด
   var closeSection=document.getElementById('ngod-close-section');
   var openSection=document.getElementById('ngod-open-section');
   var confirmBtn=document.getElementById('ngod-confirm-btn');
@@ -2239,9 +2262,13 @@ function openNgodModal(){
     document.getElementById('inp-ngod').value='';
     document.getElementById('inp-sender').value=ngodInfo.sender||'';
     document.getElementById('inp-receiver').value=ngodInfo.receiver||'';
+    setTimeout(function(){
+      if(typeof initDatePicker==='function'){
+        initDatePicker('dp-ngod-btn','dp-ngod-cal','inp-ngod');
+      }
+    },50);
   }
   document.getElementById('modal-ngod').classList.add('show');
-  setTimeout(function(){if(!ngodOpen)document.getElementById('inp-ngod').focus();},100);
 }
 function closeNgodModal(){document.getElementById('modal-ngod').classList.remove('show');}
 function closeNgod(){
@@ -5800,6 +5827,82 @@ function showConfirm2(msg, btn1Label, cb1, btn2Label, cb2){
 function closeConfirm2(){ document.getElementById('modal-confirm2').classList.remove('show'); }
 function confirm2Action1(){ closeConfirm2(); if(_confirm2Cb1) _confirm2Cb1(); }
 function confirm2Action2(){ closeConfirm2(); if(_confirm2Cb2) _confirm2Cb2(); }
+
+// ── Date Picker Component ──
+(function(){
+  var MONTHS_TH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  var DOWS=['อา','จ','อ','พ','พฤ','ศ','ส'];
+  function thYear(y){return y+543;}
+  function pad(n){return n<10?'0'+n:''+n;}
+  function formatNgod(d,m,y){return pad(d)+'/'+pad(m)+'/'+(thYear(y)%100);}
+
+  function initPicker(inputId,calId,hidId){
+    var inp=document.getElementById(inputId);
+    var cal=document.getElementById(calId);
+    var hid=hidId?document.getElementById(hidId):null;
+    if(!inp||!cal)return;
+
+    var now=new Date();
+    var curY=now.getFullYear();
+    var curM=now.getMonth();
+    var selD=null,selM=null,selY=null;
+
+    function render(){
+      var daysInMonth=new Date(curY,curM+1,0).getDate();
+      var firstDow=new Date(curY,curM,1).getDay();
+      var html='<div class="dp-nav">'
+        +'<button class="dp-nav-btn" type="button" onclick="dpPrev(\''+inputId+'\')">‹</button>'
+        +'<div class="dp-month-lbl">'+MONTHS_TH[curM]+' '+thYear(curY)+'</div>'
+        +'<button class="dp-nav-btn" type="button" onclick="dpNext(\''+inputId+'\')">›</button>'
+        +'</div><div class="dp-grid">';
+      DOWS.forEach(function(d){html+='<div class="dp-dow">'+d+'</div>';});
+      for(var i=0;i<firstDow;i++)html+='<div class="dp-day empty"></div>';
+      for(var d=1;d<=daysInMonth;d++){
+        var isSel=selD===d&&selM===curM&&selY===curY;
+        var isToday=d===now.getDate()&&curM===now.getMonth()&&curY===now.getFullYear();
+        var cls='dp-day'+(isSel?' selected':'')+(isToday?' today':'');
+        html+='<div class="'+cls+'" onclick="dpPick(\''+inputId+'\','+d+','+curM+','+curY+')">'+d+'</div>';
+      }
+      html+='</div>';
+      cal.innerHTML=html;
+    }
+
+    window['dpPrev_'+inputId]=function(){curM--;if(curM<0){curM=11;curY--;}render();};
+    window['dpNext_'+inputId]=function(){curM++;if(curM>11){curM=0;curY++;}render();};
+    window['dpPick_'+inputId]=function(d,m,y){
+      selD=d;selM=m;selY=y;
+      var val=formatNgod(d,m+1,y);
+      inp.textContent=val+' 📅';
+      inp.dataset.val=val;
+      if(hid)hid.value=val;
+      cal.classList.remove('show');
+    };
+
+    inp.onclick=function(e){
+      e.stopPropagation();
+      cal.classList.toggle('show');
+      if(cal.classList.contains('show'))render();
+    };
+    if(!window._dpDocBound){
+      document.addEventListener('click',function(){
+        document.querySelectorAll('.dp-cal.show').forEach(function(c){c.classList.remove('show');});
+      });
+      window._dpDocBound=true;
+    }
+    cal.onclick=function(e){e.stopPropagation();};
+
+    if(hid&&hid.value){
+      inp.textContent=hid.value+' 📅';
+    } else {
+      inp.textContent='เลือกงวด 📅';
+    }
+  }
+
+  window.dpPrev=function(id){if(window['dpPrev_'+id])window['dpPrev_'+id]();};
+  window.dpNext=function(id){if(window['dpNext_'+id])window['dpNext_'+id]();};
+  window.dpPick=function(id,d,m,y){if(window['dpPick_'+id])window['dpPick_'+id](d,m,y);};
+  window.initDatePicker=initPicker;
+})();
 </script>
 </body>
 </html>
