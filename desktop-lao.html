@@ -649,8 +649,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
       <!-- FK AREA -->
       <div class="desk-fk-area" id="desk-fk-area">
         <!-- marquee บอกลูกค้า (เฉพาะ FK mode) -->
-        <div id="fk-marquee-wrap" style="background:#0d0f1a;border-radius:6px;padding:4px 8px;margin-bottom:6px;overflow:hidden;white-space:nowrap;">
-          <span id="fk-marquee-text" style="font-size:11px;color:#888;">⌨️ เลือกลูกค้าก่อนครับ</span>
+        <div class="marquee-wrap" id="fk-marquee-wrap" style="margin-bottom:6px;">
+          <span class="marquee-inner" id="fk-marquee-text">⌨️ เลือกลูกค้าก่อนครับ</span>
         </div>
         <!-- Display buffer -->
         <div class="desk-fk-display">
@@ -2295,10 +2295,18 @@ function closeNgod(){
 function doCloseNgod(){
   archiveCurrentNgod();
   ngodOpen=false;
-  document.getElementById('ngod-badge').textContent='ยังไม่เปิดงวด';
+  // ── เคลียข้อมูลทุกอย่าง พร้อมเปิดงวดใหม่ ──
+  customers.forEach(function(cu){
+    custEntries[cu.id]=[];
+    custEid[cu.id]=0;
+    custSets[cu.id]=[];
+  });
+  ngodInfo = {ngod:'',sender:'',receiver:'',date:''};
+  if(typeof lastCheckResult !== 'undefined') lastCheckResult = {};
+  document.getElementById('ngod-badge').textContent='— เปิดงวดก่อน —';
   closeNgodModal();
   save(); renderCustList(); renderHist(); updateSummary();
-  toast('ปิดงวด '+ngodInfo.ngod+' แล้ว ✅ (เก็บเข้าประวัติ)');
+  toast('ปิดงวดแล้ว ✅ พร้อมเปิดงวดใหม่');
 }
 
 // ════════════════════════════════════════════════════
@@ -3790,6 +3798,7 @@ function permCount(lek){
     });});});
     return s.size;
   }
+  if(d>=4) return getPerms(lek).length;
   return 1;
 }
 
