@@ -943,13 +943,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         </div>
       </div>
       <div class="pop-lbl">ราคา</div>
-      <div class="pop-presets">
-        <div class="pop-preset" onclick="setPakPreset(10)">10</div>
-        <div class="pop-preset" onclick="setPakPreset(20)">20</div>
-        <div class="pop-preset" onclick="setPakPreset(50)">50</div>
-        <div class="pop-preset" onclick="setPakPreset(100)">100</div>
-      </div>
-      <input class="pop-price-inp" type="tel" id="pak-price" placeholder="0" inputmode="numeric">
+      <input class="pop-price-inp" type="tel" id="pak-price" placeholder="0" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();addPak();}">
       <div class="pop-btns">
         <button class="pbtn-cancel" onclick="closePak()">ยกเลิก</button>
         <button class="pbtn-add" onclick="addPak()">+ เพิ่มรายการ</button>
@@ -972,8 +966,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         <div class="dp-cal" id="dp-ngod-cal"></div>
         <input type="hidden" id="inp-ngod">
       </div>
-      <input class="modal-inp" id="inp-sender" placeholder="ชื่อลูกค้า (ไม่บังคับ)">
-      <input class="modal-inp" id="inp-receiver" placeholder="ชื่อเอเยนต์ (ไม่บังคับ)">
+      <input class="modal-inp" id="inp-sender" placeholder="ชื่อลูกค้า (ไม่บังคับ)" onkeydown="if(event.key==='Enter')document.getElementById('inp-receiver').focus()">
+      <input class="modal-inp" id="inp-receiver" placeholder="ชื่อเอเยนต์ (ไม่บังคับ)" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmNgod();}">
     </div>
     <div class="modal-btns">
       <button class="mbtn cancel" onclick="closeNgodModal()">ยกเลิก</button>
@@ -986,7 +980,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 <div class="modal-overlay" id="modal-cust">
   <div class="modal">
     <div class="modal-title">👤 เพิ่มเอเยนต์</div>
-    <input class="modal-inp" id="inp-cust-name" placeholder="ชื่อเอเยนต์">
+    <input class="modal-inp" id="inp-cust-name" placeholder="ชื่อเอเยนต์" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmAddCust();}">
     <div class="modal-btns">
       <button class="mbtn cancel" onclick="closeCustModal()">ยกเลิก</button>
       <button class="mbtn ok" onclick="confirmAddCust()">เพิ่ม →</button>
@@ -2350,17 +2344,30 @@ function openHistoryModal(){
     ov.id = 'hist-overlay';
     ov.className = 'overlay';
     ov.innerHTML = '<div class="modal" style="max-width:520px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;">'
-      + '<div class="modal-title">📅 ประวัติงวดที่ปิดแล้ว</div>'
+      + '<div class="modal-title">📅 ประวัติงวด</div>'
       + '<div id="hist-list" style="overflow-y:auto;flex:1;padding:0 4px;"></div>'
       + '<div class="modal-btns" style="margin-top:10px;"><button class="modal-btn" onclick="closeHistoryModal()">ปิด</button></div>'
       + '</div>';
     document.body.appendChild(ov);
   }
   var listEl = document.getElementById('hist-list');
-  if(!hist.length){
-    listEl.innerHTML = '<div style="text-align:center;padding:30px;color:#666;">ยังไม่มีประวัติงวด</div>';
+  var html='';
+  if(_viewingHistIdx >= 0 && _savedCurrentNgod){
+    html += '<div onclick="returnToCurrentNgod()" style="background:rgba(34,197,94,.10);border:2px solid #22c55e;border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;">'
+      + '<div style="font-size:14px;font-weight:900;color:#22c55e;margin-bottom:4px;">↩️ กลับงวดปัจจุบัน '+(_savedCurrentNgod.ngodInfo.ngod||'')+'</div>'
+      + '</div>';
+  } else if(ngodOpen){
+    var totC=customers.length, totE=0;
+    customers.forEach(function(c){ totE+=(custEntries[c.id]||[]).length; (custSets[c.id]||[]).forEach(function(s){totE+=(s.entries||[]).length;}); });
+    html += '<div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:12px;margin-bottom:8px;">'
+      + '<div style="font-size:14px;font-weight:900;color:#22c55e;margin-bottom:4px;">▶️ งวด '+ngodInfo.ngod+' <span style="color:#aaa;font-weight:normal;font-size:11px;">(งวดปัจจุบัน)</span></div>'
+      + '<div style="font-size:11px;color:#aaa;">'+totC+' เอเยนต์ · '+totE+' รายการ</div>'
+      + '</div>';
+  }
+  if(!hist.length && !ngodOpen){
+    html += '<div style="text-align:center;padding:30px;color:#666;">ยังไม่มีประวัติงวด</div>';
   } else {
-    listEl.innerHTML = hist.map(function(h, idx){
+    html += hist.map(function(h, idx){
       var totalCust = (h.customers||[]).length;
       var totalEntries = 0;
       Object.keys(h.custEntries||{}).forEach(function(k){ totalEntries += (h.custEntries[k]||[]).length; });
@@ -2370,24 +2377,64 @@ function openHistoryModal(){
       return '<div onclick="loadHistoryNgod('+idx+')" style="background:#0f1220;border:1px solid #1a2040;border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;">'
         + '<div style="font-size:14px;font-weight:900;color:var(--gold);margin-bottom:4px;">📅 งวด '+h.ngod+'</div>'
         + '<div style="font-size:11px;color:#888;">ปิดเมื่อ '+(h.closedAt||'-')+'</div>'
-        + '<div style="font-size:11px;color:#aaa;margin-top:4px;">'+totalCust+' ลูกค้า · '+totalEntries+' รายการ</div>'
+        + '<div style="font-size:11px;color:#aaa;margin-top:4px;">'+totalCust+' เอเยนต์ · '+totalEntries+' รายการ</div>'
         + '</div>';
     }).join('');
   }
+  listEl.innerHTML = html;
   ov.classList.add('show');
 }
 function closeHistoryModal(){
   var ov = document.getElementById('hist-overlay');
   if(ov) ov.classList.remove('show');
 }
+
+var _viewingHistIdx = -1;
+var _savedCurrentNgod = null;
+
+function _saveCurrentNgodSnapshot(){
+  _savedCurrentNgod = {
+    ngodInfo: JSON.parse(JSON.stringify(ngodInfo)),
+    ngodOpen: ngodOpen,
+    customers: JSON.parse(JSON.stringify(customers)),
+    custEntries: JSON.parse(JSON.stringify(custEntries)),
+    custSets: JSON.parse(JSON.stringify(custSets)),
+    settings: JSON.parse(JSON.stringify(settings)),
+    rateOverrides: JSON.parse(JSON.stringify(rateOverrides||{})),
+    flaggedLeks: JSON.parse(JSON.stringify(flaggedLeks||{})),
+    curCustId: curCustId,
+    lastCheckResult: typeof lastCheckResult !== 'undefined' ? JSON.parse(JSON.stringify(lastCheckResult)) : null
+  };
+}
+
+function returnToCurrentNgod(){
+  if(!_savedCurrentNgod){ closeHistoryModal(); return; }
+  ngodInfo = _savedCurrentNgod.ngodInfo;
+  ngodOpen = _savedCurrentNgod.ngodOpen;
+  customers = _savedCurrentNgod.customers;
+  custEntries = _savedCurrentNgod.custEntries;
+  custSets = _savedCurrentNgod.custSets;
+  settings = _savedCurrentNgod.settings;
+  rateOverrides = _savedCurrentNgod.rateOverrides;
+  flaggedLeks = _savedCurrentNgod.flaggedLeks;
+  curCustId = _savedCurrentNgod.curCustId;
+  if(typeof lastCheckResult !== 'undefined') lastCheckResult = _savedCurrentNgod.lastCheckResult || {};
+  _viewingHistIdx = -1;
+  _savedCurrentNgod = null;
+  document.getElementById('ngod-badge').textContent = ngodOpen ? ('งวด '+ngodInfo.ngod) : '— เปิดงวดก่อน —';
+  closeHistoryModal();
+  renderCustList(); renderHist(); updateSummary();
+  toast('กลับงวดปัจจุบันแล้ว ✅');
+}
+
 function loadHistoryNgod(idx){
   var hist = getHistory();
   var h = hist[idx];
   if(!h){toast('ไม่พบงวด');return;}
-  if(ngodOpen){
-    if(!confirm('งวดปัจจุบันยังเปิดอยู่ — โหลดงวดเก่าจะแทนที่งวดปัจจุบันชั่วคราว\n(ข้อมูลปัจจุบันถูก archive แล้ว)\n\nดำเนินการต่อ?')) return;
-    archiveCurrentNgod();
+  if(_viewingHistIdx < 0){
+    _saveCurrentNgodSnapshot();
   }
+  _viewingHistIdx = idx;
   ngodInfo = {ngod:h.ngod, sender:h.sender, receiver:h.receiver, date:h.date};
   customers = (h.customers||[]).map(function(c){return Object.assign({},c);});
   custEntries = JSON.parse(JSON.stringify(h.custEntries||{}));
@@ -2398,10 +2445,10 @@ function loadHistoryNgod(idx){
   if(h.lastCheckResult && typeof lastCheckResult !== 'undefined') lastCheckResult = JSON.parse(JSON.stringify(h.lastCheckResult));
   ngodOpen = false;
   curCustId = customers.length>0 ? customers[0].id : null;
-  document.getElementById('ngod-badge').textContent = '📅 ดูงวด '+h.ngod+' (อ่านอย่างเดียว)';
+  document.getElementById('ngod-badge').textContent = '📅 งวด '+h.ngod+' (อ่านอย่างเดียว)';
   closeHistoryModal();
   renderCustList(); renderHist(); updateSummary();
-  toast('โหลดงวด '+h.ngod+' สำเร็จ ✅');
+  toast('ดูงวด '+h.ngod+' • กดปุ่มประวัติเพื่อกลับ');
 }
 function confirmNgod(){
   var ngod=document.getElementById('inp-ngod').value.trim();
@@ -2458,12 +2505,11 @@ function showSlipSet(cid, idx){
 }
 
 function deleteSet(cid, idx){
-  showConfirm('ลบชุดที่ '+(idx+1)+' ออก?', function(){
-    if(!custSets[cid]) return;
-    custSets[cid].splice(idx,1);
-    save(); renderHist(); renderCustList(); updateSummary();
-    toast('ลบชุดแล้ว ✅');
-  });
+  if(!confirm('ลบชุดที่ '+(idx+1)+' ออก?')) return;
+  if(!custSets[cid]) return;
+  custSets[cid].splice(idx,1);
+  save(); renderHist(); renderCustList(); updateSummary();
+  toast('ลบชุดแล้ว ✅');
 }
 
 var _editSetCid=null, _editSetIdx=-1, _editSetSender='';
