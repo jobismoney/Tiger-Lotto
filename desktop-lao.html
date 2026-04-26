@@ -4738,25 +4738,51 @@ function getCustDisc(cid, key){
   var f=settings.normal.find(function(x){return x.key===key;});
   return f?f.disc:0;
 }
+function getCustPay(cid, key){
+  var cust=customers.find(function(c){return c.id===cid;});
+  if(cust&&cust.pays){var v=cust.pays[key];if(v!==undefined&&v!==null&&v!=='')return parseFloat(v);}
+  var f=settings.normal.find(function(x){return x.key===key;});
+  return f?f.pay:0;
+}
 function openCustRate(cid){
   _crCustId=cid;
   var cust=customers.find(function(c){return c.id===cid;});
   if(!cust) return;
   document.getElementById('cr-cust-name').textContent=cust.name;
-  var r=cust.rates||{};
-  ['3bon','2bon','vbon','tod3','tod2','tod4','tod5','3lang'].forEach(function(k){
-    var el=document.getElementById('cr-'+k);
-    if(el) el.value=(r[k]!==undefined&&r[k]!==null&&r[k]!=='')?r[k]:'';
-  });
+  var r = (cust.rates) || {};
+  var p = (cust.pays)  || {};
+  var rowsEl = document.getElementById('cr-rate-rows');
+  if(rowsEl){
+    rowsEl.innerHTML = (settings.normal||[]).map(function(item){
+      var disc = (r[item.key]!==undefined && r[item.key]!==null && r[item.key]!=='') ? r[item.key] : '';
+      var pay  = (p[item.key]!==undefined && p[item.key]!==null && p[item.key]!=='') ? p[item.key] : '';
+      var inputStyle = "background:#080b14;border:1px solid #1a2040;border-radius:6px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;padding:6px;outline:none;box-sizing:border-box;width:100%;text-align:center;";
+      return '<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:6px;align-items:center;">'
+        + '<div style="font-size:13px;color:#f0f2ff;font-weight:700;padding-left:4px;">'+item.lbl+'</div>'
+        + '<input type="number" min="0" max="100" placeholder="'+item.disc+'" data-cr-disc="'+item.key+'" value="'+disc+'" style="'+inputStyle+'">'
+        + '<input type="number" min="0" placeholder="'+item.pay+'" data-cr-pay="'+item.key+'" value="'+pay+'" style="'+inputStyle+'">'
+        + '</div>';
+    }).join('');
+  }
   document.getElementById('modal-cust-rate').classList.add('show');
 }
 function saveCustRate(){
   var cust=customers.find(function(c){return c.id===_crCustId;});
   if(!cust) return;
-  function gv(k){var el=document.getElementById('cr-'+k);return(el&&el.value.trim()!=='')?parseFloat(el.value):null;}
-  var r={'3bon':gv('3bon'),'2bon':gv('2bon'),'vbon':gv('vbon'),'tod3':gv('tod3'),'tod2':gv('tod2'),'tod4':gv('tod4'),'tod5':gv('tod5'),'3lang':gv('3lang')};
-  cust.rates=Object.values(r).some(function(v){return v!==null;})?r:null;
-  save();renderCustList();
+  var rates={}, pays={};
+  document.querySelectorAll('[data-cr-disc]').forEach(function(el){
+    var k = el.getAttribute('data-cr-disc');
+    var v = el.value.trim();
+    if(v!=='') rates[k] = parseFloat(v);
+  });
+  document.querySelectorAll('[data-cr-pay]').forEach(function(el){
+    var k = el.getAttribute('data-cr-pay');
+    var v = el.value.trim();
+    if(v!=='') pays[k] = parseFloat(v);
+  });
+  cust.rates = Object.keys(rates).length ? rates : null;
+  cust.pays  = Object.keys(pays).length  ? pays  : null;
+  save(); renderCustList();
   document.getElementById('modal-cust-rate').classList.remove('show');
   toast('บันทึกเรทของ '+cust.name+' แล้ว ✅');
 }
@@ -4764,6 +4790,7 @@ function clearCustRate(){
   var cust=customers.find(function(c){return c.id===_crCustId;});
   if(!cust) return;
   cust.rates=null;
+  cust.pays =null;
   save();renderCustList();
   document.getElementById('modal-cust-rate').classList.remove('show');
   toast('ล้างเรทพิเศษของ '+cust.name+' แล้ว');
@@ -5242,18 +5269,12 @@ selectCust = function(id){
       <button onclick="switchCrTab('arn',this)" id="cr-tab-arn" style="flex:1;padding:6px;background:none;border:1px solid #334;border-radius:6px;color:#556;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:800;cursor:pointer;">ตั้งอั้น</button>
     </div>
     <div id="cr-panel-rate">
-    <div style="font-size:11px;color:#556;margin-bottom:10px;font-family:'Sarabun',sans-serif;">ปล่อยว่างไว้ = ใช้เรท global</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">3ตัว ลด%</div><input id="cr-3bon" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
-      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">2ตัว ลด%</div><input id="cr-2bon" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
-      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">วิ่ง ลด%</div><input id="cr-vbon" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
-      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">โต๊ด 3ต ลด%</div><input id="cr-tod3" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
-      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">โต๊ด 2ต ลด%</div><input id="cr-tod2" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
-      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">โต๊ด 4ต ลด%</div><input id="cr-tod4" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
-      <div><div style="font-size:12px;color:#888;margin-bottom:4px;">โต๊ด 5ต ลด%</div><input id="cr-tod5" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
-      <div style="grid-column:1/-1;"><div style="font-size:12px;color:#888;margin-bottom:4px;">3ล่าง ลด%</div><input id="cr-3lang" type="number" min="0" max="100" placeholder="global" style="width:100%;background:#080b14;border:1px solid #1a2040;border-radius:8px;color:#f0f2ff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;padding:8px;outline:none;box-sizing:border-box;"></div>
+    <div style="font-size:11px;color:#556;margin-bottom:10px;font-family:'Sarabun',sans-serif;">ปล่อยว่างไว้ = ใช้ค่า global</div>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:6px;font-size:11px;color:#888;margin-bottom:6px;font-weight:800;padding:0 4px;">
+      <div>ประเภท</div><div style="text-align:center;">ลด%</div><div style="text-align:center;">จ่าย</div>
     </div>
-    </div><!-- end cr-panel-rate -->
+    <div id="cr-rate-rows" style="max-height:50vh;overflow-y:auto;display:flex;flex-direction:column;gap:5px;margin-bottom:14px;"></div>
+    </div>
     <div id="cr-panel-arn" style="display:none;">
       <div style="font-size:11px;color:#556;margin-bottom:8px;font-family:'Sarabun',sans-serif;">default = 100% ทุกเลข · ตั้งเฉพาะเลขที่ต้องการลด</div>
       <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center;">
