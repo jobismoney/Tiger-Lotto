@@ -1288,7 +1288,7 @@ function deskFKDot(){
   if(!slot){ toast('เลือกประเภทก่อน'); return; }
   if(FK_KLB_TYPES.indexOf(slot.type) < 0){ toast('โต๊ดไม่มีกลับ/ชุด'); return; }
   var d = deskFKFirstLekLen();
-  if(d<2 || d>3){ toast('1, 4-5 หลักไม่มีกลับ/ชุด'); return; }
+  if(d<2 || d>4){ toast('1, 5 หลักไม่มีกลับ/ชุด'); return; }
   if(slot.price === null || slot.price === 0){ toast('ใส่ราคาก่อน'); return; }
   slot.klb = !slot.klb;
   // auto next slot
