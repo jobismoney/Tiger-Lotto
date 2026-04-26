@@ -539,6 +539,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   </div>
   <div class="hdr-btns">
     <button class="hbtn" onclick="window.location.href='/desktop-lao.html'" title="ไปหวยลาว" style="background:rgba(220,38,38,.12);border-color:rgba(220,38,38,.4);color:#fca5a5;"><span class="hbtn-icon">🇱🇦</span><span class="hbtn-lbl">ลาว</span></button>
+    <button class="hbtn" onclick="openHistoryModal()" title="ดูงวดเก่า"><span class="hbtn-icon">🗄️</span><span class="hbtn-lbl">ประวัติ</span></button>
     <button class="hbtn" onclick="openAnalyze()"><span class="hbtn-icon">📊</span><span class="hbtn-lbl">วิเคราะห์</span></button>
     <button class="hbtn" onclick="openSettings()"><span class="hbtn-icon">⚙️</span><span class="hbtn-lbl">ตั้งค่า</span></button>
     <button class="hbtn" onclick="showSlip()"><span class="hbtn-icon">📋</span><span class="hbtn-lbl">ดูโพย</span></button>
@@ -2269,11 +2270,113 @@ function closeNgod(){
   doCloseNgod();
 }
 function doCloseNgod(){
+  // ── archive ก่อนล้าง ──
+  archiveCurrentNgod();
   ngodOpen=false;
   document.getElementById('ngod-badge').textContent='ยังไม่เปิดงวด';
   closeNgodModal();
   save(); renderCustList(); renderHist(); updateSummary();
-  toast('ปิดงวด '+ngodInfo.ngod+' แล้ว ✅');
+  toast('ปิดงวด '+ngodInfo.ngod+' แล้ว ✅ (เก็บเข้าประวัติ)');
+}
+
+// ════════════════════════════════════════════════════
+// HISTORY / ARCHIVE SYSTEM
+// ════════════════════════════════════════════════════
+var HIST_KEY = 't999_history_v1';
+function getHistory(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch(e){return[];}}
+function saveHistory(list){try{localStorage.setItem(HIST_KEY,JSON.stringify(list));}catch(e){}}
+
+function archiveCurrentNgod(){
+  if(!ngodOpen || !ngodInfo.ngod) return;
+  // เก็บข้อมูลทั้งหมดของงวดปัจจุบัน
+  var snapshot = {
+    ngod: ngodInfo.ngod,
+    sender: ngodInfo.sender||'',
+    receiver: ngodInfo.receiver||'',
+    date: ngodInfo.date||'',
+    closedAt: new Date().toLocaleString('th-TH'),
+    customers: customers.map(function(c){return {id:c.id, name:c.name};}),
+    custEntries: JSON.parse(JSON.stringify(custEntries)),
+    custSets: JSON.parse(JSON.stringify(custSets)),
+    settings: JSON.parse(JSON.stringify(settings)),
+    rateOverrides: JSON.parse(JSON.stringify(rateOverrides||{})),
+    flaggedLeks: JSON.parse(JSON.stringify(flaggedLeks||{})),
+    lastCheckResult: typeof lastCheckResult !== 'undefined' ? JSON.parse(JSON.stringify(lastCheckResult)) : null
+  };
+  // ตรวจว่ามีข้อมูลจริงไหม
+  var hasData = customers.some(function(c){
+    return (custEntries[c.id]||[]).length>0 || (custSets[c.id]||[]).length>0;
+  });
+  if(!hasData) return;  // งวดเปล่า ไม่ archive
+  var hist = getHistory();
+  hist.unshift(snapshot);
+  // เก็บไม่เกิน 50 งวด
+  if(hist.length > 50) hist = hist.slice(0, 50);
+  saveHistory(hist);
+}
+
+function openHistoryModal(){
+  var hist = getHistory();
+  var ov = document.getElementById('hist-overlay');
+  if(!ov){
+    // สร้าง overlay
+    ov = document.createElement('div');
+    ov.id = 'hist-overlay';
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal" style="max-width:520px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;">'
+      + '<div class="modal-title">📅 ประวัติงวดที่ปิดแล้ว</div>'
+      + '<div id="hist-list" style="overflow-y:auto;flex:1;padding:0 4px;"></div>'
+      + '<div class="modal-btns" style="margin-top:10px;"><button class="modal-btn" onclick="closeHistoryModal()">ปิด</button></div>'
+      + '</div>';
+    document.body.appendChild(ov);
+  }
+  var listEl = document.getElementById('hist-list');
+  if(!hist.length){
+    listEl.innerHTML = '<div style="text-align:center;padding:30px;color:#666;">ยังไม่มีประวัติงวด</div>';
+  } else {
+    listEl.innerHTML = hist.map(function(h, idx){
+      var totalCust = (h.customers||[]).length;
+      var totalEntries = 0;
+      Object.keys(h.custEntries||{}).forEach(function(k){ totalEntries += (h.custEntries[k]||[]).length; });
+      Object.keys(h.custSets||{}).forEach(function(k){
+        (h.custSets[k]||[]).forEach(function(s){ totalEntries += (s.entries||[]).length; });
+      });
+      return '<div onclick="loadHistoryNgod('+idx+')" style="background:#0f1220;border:1px solid #1a2040;border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;">'
+        + '<div style="font-size:14px;font-weight:900;color:var(--gold);margin-bottom:4px;">📅 งวด '+h.ngod+'</div>'
+        + '<div style="font-size:11px;color:#888;">ปิดเมื่อ '+(h.closedAt||'-')+'</div>'
+        + '<div style="font-size:11px;color:#aaa;margin-top:4px;">'+totalCust+' ลูกค้า · '+totalEntries+' รายการ</div>'
+        + '</div>';
+    }).join('');
+  }
+  ov.classList.add('show');
+}
+function closeHistoryModal(){
+  var ov = document.getElementById('hist-overlay');
+  if(ov) ov.classList.remove('show');
+}
+function loadHistoryNgod(idx){
+  var hist = getHistory();
+  var h = hist[idx];
+  if(!h){toast('ไม่พบงวด');return;}
+  if(ngodOpen){
+    if(!confirm('งวดปัจจุบันยังเปิดอยู่ — โหลดงวดเก่าจะแทนที่งวดปัจจุบันชั่วคราว\n(ข้อมูลปัจจุบันถูก archive แล้ว)\n\nดำเนินการต่อ?')) return;
+    archiveCurrentNgod();
+  }
+  // โหลดข้อมูลจาก snapshot
+  ngodInfo = {ngod:h.ngod, sender:h.sender, receiver:h.receiver, date:h.date};
+  customers = (h.customers||[]).map(function(c){return Object.assign({},c);});
+  custEntries = JSON.parse(JSON.stringify(h.custEntries||{}));
+  custSets = JSON.parse(JSON.stringify(h.custSets||{}));
+  if(h.settings) settings = JSON.parse(JSON.stringify(h.settings));
+  if(h.rateOverrides) rateOverrides = JSON.parse(JSON.stringify(h.rateOverrides));
+  if(h.flaggedLeks) flaggedLeks = JSON.parse(JSON.stringify(h.flaggedLeks));
+  if(h.lastCheckResult && typeof lastCheckResult !== 'undefined') lastCheckResult = JSON.parse(JSON.stringify(h.lastCheckResult));
+  ngodOpen = false;  // อ่านอย่างเดียว
+  curCustId = customers.length>0 ? customers[0].id : null;
+  document.getElementById('ngod-badge').textContent = '📅 ดูงวด '+h.ngod+' (อ่านอย่างเดียว)';
+  closeHistoryModal();
+  renderCustList(); renderHist(); updateSummary();
+  toast('โหลดงวด '+h.ngod+' สำเร็จ ✅');
 }
 function confirmNgod(){
   var ngod=document.getElementById('inp-ngod').value.trim();
