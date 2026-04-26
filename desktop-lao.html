@@ -598,7 +598,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     </div>
     <div class="zbody">
       <div style="margin-bottom:4px;display:flex;gap:5px;">
-        <div class="cadd" style="flex:1;" onclick="openAddCust()">➕ เพิ่มลูกค้า</div>
+        <div class="cadd" style="flex:1;" onclick="openAddCust()">➕ เพิ่มเอเยนต์</div>
         <button onclick="openScanPopup()" style="background:linear-gradient(135deg,#0f766e,#0d9488);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:800;padding:0 10px;cursor:pointer;font-family:'Sarabun',sans-serif;white-space:nowrap;">📷 สแกน</button>
         <button onclick="showSlipAll()" style="background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:800;padding:0 10px;cursor:pointer;font-family:'Sarabun',sans-serif;white-space:nowrap;">📋 โพยรวม</button>
       </div>
@@ -972,8 +972,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         <div class="dp-cal" id="dp-ngod-cal"></div>
         <input type="hidden" id="inp-ngod">
       </div>
-      <input class="modal-inp" id="inp-sender" placeholder="ชื่อผู้ส่ง (ไม่บังคับ)">
-      <input class="modal-inp" id="inp-receiver" placeholder="ชื่อผู้รับ (ไม่บังคับ)">
+      <input class="modal-inp" id="inp-sender" placeholder="ชื่อลูกค้า (ไม่บังคับ)">
+      <input class="modal-inp" id="inp-receiver" placeholder="ชื่อเอเยนต์ (ไม่บังคับ)">
     </div>
     <div class="modal-btns">
       <button class="mbtn cancel" onclick="closeNgodModal()">ยกเลิก</button>
@@ -985,8 +985,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 <!-- MODAL เพิ่มลูกค้า -->
 <div class="modal-overlay" id="modal-cust">
   <div class="modal">
-    <div class="modal-title">👤 เพิ่มลูกค้า</div>
-    <input class="modal-inp" id="inp-cust-name" placeholder="ชื่อลูกค้า">
+    <div class="modal-title">👤 เพิ่มเอเยนต์</div>
+    <input class="modal-inp" id="inp-cust-name" placeholder="ชื่อเอเยนต์">
     <div class="modal-btns">
       <button class="mbtn cancel" onclick="closeCustModal()">ยกเลิก</button>
       <button class="mbtn ok" onclick="confirmAddCust()">เพิ่ม →</button>
@@ -1856,7 +1856,7 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
     var ni = document.getElementById('imp-banner-input');
     if(cid === '__new__'){
       var nm = ni.value.trim();
-      if(!nm){ toast('กรุณาใส่ชื่อลูกค้าครับ'); return; }
+      if(!nm){ toast('กรุณาใส่ชื่อเอเยนต์ครับ'); return; }
       cid = 'c'+Date.now();
       customers.push({id:cid, name:nm});
       custEntries[cid]=[]; custEid[cid]=0; custSets[cid]=[];
@@ -1909,7 +1909,7 @@ function showImportBanner(data, fp, log, dupMsg){
     var ni = document.getElementById('imp-banner-input');
     if(cid === '__new__'){
       var nm = ni.value.trim();
-      if(!nm){ toast('กรุณาใส่ชื่อลูกค้าครับ'); return; }
+      if(!nm){ toast('กรุณาใส่ชื่อเอเยนต์ครับ'); return; }
       cid = 'c'+Date.now();
       customers.push({id:cid, name:nm});
       custEntries[cid]=[]; custEid[cid]=0; custSets[cid]=[];
@@ -2231,7 +2231,7 @@ function confirmAddCust(){
   var name=document.getElementById('inp-cust-name').value.trim();
   if(!name){toast('กรุณาใส่ชื่อ');return;}
   var dup=customers.find(function(c){return c.name===name;});
-  if(dup){showAlert('⚠️ ชื่อ <b>"'+name+'"</b> มีอยู่ในระบบแล้วครับ<br><br>ถ้าต้องการเพิ่มลูกค้าใหม่ กรุณาใช้ชื่ออื่นที่ไม่ซ้ำกันครับ');return;}
+  if(dup){showAlert('⚠️ ชื่อ <b>"'+name+'"</b> มีอยู่ในระบบแล้วครับ<br><br>ถ้าต้องการเพิ่มเอเยนต์ใหม่ กรุณาใช้ชื่ออื่นที่ไม่ซ้ำกันครับ');return;}
   var id='c'+Date.now();
   customers.push({id:id,name:name});
   custEntries[id]=[]; custEid[id]=0; custSets[id]=[];
@@ -2501,15 +2501,33 @@ function _doEditSet(cid, idx){
 }
 
 var SENDER_HIST_KEY='t999lao_sender_hist';
-function getSenderHist(){try{return JSON.parse(localStorage.getItem(SENDER_HIST_KEY)||'[]');}catch(e){return[];}}
-function saveSenderHist(list){try{localStorage.setItem(SENDER_HIST_KEY,JSON.stringify(list));}catch(e){}}
-function addSenderHist(name){
+function _rawHist(){
+  try{ return JSON.parse(localStorage.getItem(SENDER_HIST_KEY)||'{}'); }catch(e){ return {}; }
+}
+function _saveRawHist(h){ try{ localStorage.setItem(SENDER_HIST_KEY,JSON.stringify(h)); }catch(e){} }
+function getSenderHist(receiverName){
+  var raw = _rawHist();
+  if(Array.isArray(raw)){
+    var migrated = {'_legacy': raw};
+    _saveRawHist(migrated);
+    raw = migrated;
+  }
+  if(!receiverName) return raw['_legacy'] || [];
+  return raw[receiverName] || [];
+}
+function saveSenderHist(receiverName, list){
+  var raw = _rawHist();
+  if(Array.isArray(raw)) raw = {'_legacy': raw};
+  raw[receiverName||'_legacy'] = list;
+  _saveRawHist(raw);
+}
+function addSenderHist(name, receiverName){
   if(!name) return;
-  var list=getSenderHist();
-  list=list.filter(function(x){return x!==name;});
+  var list = getSenderHist(receiverName);
+  list = list.filter(function(x){return x!==name;});
   list.unshift(name);
   if(list.length>10) list=list.slice(0,10);
-  saveSenderHist(list);
+  saveSenderHist(receiverName, list);
 }
 
 function lockSet(){
@@ -2517,7 +2535,9 @@ function lockSet(){
   var entries=custEntries[curCustId]||[];
   if(!entries.length){toast('ยังไม่มีรายการในชุดนี้ครับ');return;}
   if(!custSets[curCustId]) custSets[curCustId]=[];
-  var hist=getSenderHist();
+  var _lsCust = customers.find(function(c){return c.id===curCustId;});
+  var receiverName = _lsCust ? _lsCust.name : '';
+  var hist=getSenderHist(receiverName);
   var chipsEl=document.getElementById('lockset-chips');
   if(hist.length){
     chipsEl.innerHTML=hist.map(function(n){
@@ -2526,18 +2546,11 @@ function lockSet(){
   } else {
     chipsEl.innerHTML='';
   }
-  // ถ้ากำลัง edit ใส่ sender เดิมล่วงหน้า
-  var prefill='';
-  if(_editSetCid===curCustId && _editSetIdx>=0 && custSets[curCustId]){
-    // ชุดเดิมถูก splice ออกแล้ว ดึงจาก _editSetSender
-  }
-  document.getElementById('inp-lockset-sender').value=_editSetSender||prefill;
-  var _lsCust = customers.find(function(c){return c.id===curCustId;});
-  document.getElementById('lockset-cust-name').textContent = _lsCust ? _lsCust.name : '';
+  document.getElementById('inp-lockset-sender').value=_editSetSender||'';
+  document.getElementById('lockset-cust-name').textContent = receiverName;
+  var rl = document.getElementById('lockset-receiver-name');
+  if(rl) rl.textContent = receiverName;
   document.getElementById('inp-lockset-setnum').value = '';
-  var _lsCust=customers.find(function(c){return c.id===curCustId;});
-  document.getElementById('lockset-cust-name').textContent=_lsCust?_lsCust.name:'';
-  document.getElementById('inp-lockset-setnum').value='';
   document.getElementById('modal-lockset').classList.add('show');
   setTimeout(function(){document.getElementById('inp-lockset-sender').focus();},100);
 }
@@ -2557,7 +2570,8 @@ function confirmLockSet(){
     toast('เก็บชุดที่ '+(custSets[curCustId].length)+' แล้ว ✅'+(sender?' ('+sender+')':''));
   }
   custEntries[curCustId]=[];
-  addSenderHist(sender);
+  var _custObj = customers.find(function(c){return c.id===curCustId;});
+  addSenderHist(sender, _custObj ? _custObj.name : '');
   save(); renderHist(); renderCustList(); updateSummary();
 }
 
@@ -4054,8 +4068,8 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
   return '<div class="slip-hd">'
     +'<div class="slip-hd-row1"><h2>🐯 TIGER 999 · LA LAO</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
     +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span>'
-    +'<span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span>'
-    +'<span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span>'
+    +'<span>ลูกค้า <strong>'+(inf.sender||'—')+'</strong></span>'
+    +'<span>เอเยนต์ <strong>'+(inf.receiver||'—')+'</strong></span>'
     +(inf.setNum?'<span>ชุดที่ <strong>'+inf.setNum+'</strong></span>':'')
     +(inf.setTime?'<span>เวลา <strong>'+inf.setTime+'</strong></span>':'')
     +'<span>วันที่ <strong>'+(inf.date||'—')+'</strong></span></div>'
@@ -4146,8 +4160,8 @@ function buildSlipHTML(cid){
   var sumHTML='<div class="slip-hd">'
     +'<div class="slip-hd-row1"><h2>📊 สรุปรวม — '+cust.name+'</h2><span class="pg">'+totalPages+' แผ่น</span></div>'
     +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span>'
-    +'<span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span>'
-    +'<span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
+    +'<span>ลูกค้า <strong>'+(inf.sender||'—')+'</strong></span>'
+    +'<span>เอเยนต์ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
     +'</div>'
     +sumTableHTML(allSumRows)
     +'<div class="slip-ft"><span class="fl">ยอดรวมทั้งหมด (หลังลด%)</span><span class="fv">฿'+fmtN(netTotal)+'</span></div>';
@@ -5154,7 +5168,7 @@ selectCust = function(id){
   <div id="imp-banner-subtitle" style="font-size:16px;font-weight:900;color:var(--gold);text-align:center;margin-bottom:12px;">รับโพยใหม่</div>
   <div id="imp-banner-info"></div>
   <select id="imp-banner-sel" onchange="impBannerSelChange(this)" style="display:none;"></select>
-  <input id="imp-banner-input" type="text" placeholder="ชื่อลูกค้าใหม่">
+  <input id="imp-banner-input" type="text" placeholder="ชื่อเอเยนต์ใหม่">
   <div class="imp-banner-btns">
     <button id="imp-banner-ok">✅ รับเข้าระบบ</button>
     <button id="imp-banner-cancel">ยกเลิก</button>
@@ -5814,7 +5828,7 @@ function renderAnalyze(view){
 <div class="modal-overlay" id="modal-lockset" style="z-index:9999;">
   <div style="background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid var(--gold);border-radius:16px;padding:24px 20px;width:90%;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.7);" onclick="event.stopPropagation()">
     <div style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:14px;font-family:'Sarabun',sans-serif;">📂 เก็บเข้าแฟ้ม — <span id="lockset-cust-name" style="color:#f0f2ff;"></span></div>
-    <div style="font-size:13px;color:#888;margin-bottom:6px;font-family:'Sarabun',sans-serif;">ชื่อผู้ส่ง (ไม่บังคับ)</div>
+    <div style="font-size:13px;color:#888;margin-bottom:6px;font-family:'Sarabun',sans-serif;">ชื่อลูกค้าของเอเยนต์ <span id="lockset-receiver-name" style="color:var(--gold);"></span> <span style="color:#556;font-size:11px;">(ไม่บังคับ)</span></div>
     <div id="lockset-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;"></div>
     <input id="inp-lockset-sender" type="text" placeholder="พิมพ์ชื่อ..."
       onkeydown="if(event.key==='Enter')document.getElementById('inp-lockset-setnum').focus()"
