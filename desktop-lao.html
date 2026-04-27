@@ -1025,6 +1025,192 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
 
 <script>
 // ================================================================
+// TIGER STORE — USB Mode / Local Fallback
+// ================================================================
+var TigerStore = (function(){
+  var mode = null;        // 'usb' | 'local' | null
+  var dirHandle = null;   // FileSystemDirectoryHandle (USB mode)
+  var fileHandle = null;  // FileSystemFileHandle ของ tiger999.json
+  var memCache = {};      // in-memory ของ USB mode
+  var saveTimer = null;
+  var saveBatch = false;
+  var devId = 'master';   // 'master' / 'sub-N'  (ใช้ตั้งชื่อไฟล์)
+  var disconnectCb = null;
+
+  function _supportsUSB(){
+    return typeof window.showDirectoryPicker === 'function';
+  }
+
+  // ── INIT: เลือกโหมด ──
+  function init(deviceId, opts){
+    devId = deviceId || 'master';
+    opts = opts || {};
+    disconnectCb = opts.onDisconnect || null;
+    var saved = localStorage.getItem('tiger_mode');
+    if(saved === 'usb' && _supportsUSB()){
+      // ลอง resume ถ้ามี handle เดิม
+      // (FileSystemHandle ไม่ persist ระหว่าง session — ต้องขอใหม่)
+      return _showModeSelector(true);
+    }
+    if(saved === 'local'){
+      mode = 'local';
+      return Promise.resolve('local');
+    }
+    return _showModeSelector(false);
+  }
+
+  function _showModeSelector(prevWasUSB){
+    return new Promise(function(resolve){
+      var ov = document.createElement('div');
+      ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99999;display:flex;align-items:center;justify-content:center;';
+      var supportsUSB = _supportsUSB();
+      ov.innerHTML = '<div style="background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid #f5c518;border-radius:18px;padding:24px;max-width:420px;width:90%;font-family:\'Sarabun\',sans-serif;">'
+        + '<div style="font-size:18px;font-weight:900;color:#f5c518;margin-bottom:6px;text-align:center;">🐯 เลือกโหมดการเก็บข้อมูล</div>'
+        + '<div style="font-size:12px;color:#888;margin-bottom:18px;text-align:center;">ระบบจะเก็บข้อมูลตามโหมดที่เลือก</div>'
+        + (supportsUSB
+          ? '<button id="ts-btn-usb" style="width:100%;padding:14px;margin-bottom:10px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;text-align:left;">'
+            + '🔐 USB Drive Mode (แนะนำ)<br>'
+            + '<span style="font-size:11px;font-weight:normal;opacity:.85;">ข้อมูลใน USB เท่านั้น • ถอดแล้วเครื่องว่างเปล่า</span>'
+            + '</button>'
+          : '<div style="background:rgba(244,114,182,.1);border:1px solid rgba(244,114,182,.3);border-radius:10px;padding:10px;margin-bottom:10px;font-size:12px;color:#f472b6;">'
+            + '⚠️ Browser นี้ไม่รองรับ USB Mode (ใช้ Chrome/Edge บน desktop เท่านั้น)'
+            + '</div>')
+        + '<button id="ts-btn-local" style="width:100%;padding:14px;background:#1a2040;border:1px solid #2a3050;border-radius:12px;color:#f0f2ff;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;text-align:left;">'
+          + '💾 Local Mode<br>'
+          + '<span style="font-size:11px;font-weight:normal;color:#7a8aaa;">ข้อมูลในเครื่อง (ใช้กับ iPad/Tablet ได้)</span>'
+          + '</button>'
+        + '</div>';
+      document.body.appendChild(ov);
+      document.getElementById('ts-btn-local').onclick = function(){
+        mode = 'local';
+        try{ localStorage.setItem('tiger_mode','local'); }catch(e){}
+        document.body.removeChild(ov);
+        resolve('local');
+      };
+      var usbBtn = document.getElementById('ts-btn-usb');
+      if(usbBtn){
+        usbBtn.onclick = function(){
+          _pickUSB().then(function(){
+            mode = 'usb';
+            try{ localStorage.setItem('tiger_mode','usb'); }catch(e){}
+            document.body.removeChild(ov);
+            _watchUSB();
+            resolve('usb');
+          }).catch(function(err){
+            alert('เลือก USB ไม่สำเร็จ: '+err.message);
+          });
+        };
+      }
+    });
+  }
+
+  function _pickUSB(){
+    return window.showDirectoryPicker({mode:'readwrite',startIn:'documents'})
+      .then(function(h){
+        dirHandle = h;
+        return _ensureFile();
+      });
+  }
+
+  function _ensureFile(){
+    var fname = 'tiger999_'+devId+'.json';
+    return dirHandle.getFileHandle(fname,{create:true}).then(function(fh){
+      fileHandle = fh;
+      return fh.getFile();
+    }).then(function(file){
+      return file.text();
+    }).then(function(text){
+      try{ memCache = JSON.parse(text||'{}'); }catch(e){ memCache = {}; }
+      return memCache;
+    });
+  }
+
+  function _watchUSB(){
+    if(!dirHandle) return;
+    setInterval(function(){
+      // ตรวจว่า dir ยังเข้าถึงได้
+      dirHandle.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p !== 'granted'){
+          if(disconnectCb) disconnectCb();
+        }
+      }).catch(function(){
+        if(disconnectCb) disconnectCb();
+      });
+    }, 5000);
+  }
+
+  // ── API ──
+  function get(key){
+    if(mode === 'usb'){
+      var v = memCache[key];
+      return v === undefined ? null : v;
+    }
+    if(mode === 'local'){
+      return localStorage.getItem(key);
+    }
+    return null;
+  }
+  function set(key, value){
+    if(mode === 'usb'){
+      memCache[key] = value;
+      _scheduleSave();
+      return;
+    }
+    if(mode === 'local'){
+      try{ localStorage.setItem(key, value); }catch(e){}
+    }
+  }
+  function remove(key){
+    if(mode === 'usb'){
+      delete memCache[key];
+      _scheduleSave();
+      return;
+    }
+    if(mode === 'local'){
+      localStorage.removeItem(key);
+    }
+  }
+  function _scheduleSave(){
+    if(saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(_saveUSB, 300);
+  }
+  function _saveUSB(){
+    if(!fileHandle) return;
+    saveBatch = true;
+    fileHandle.createWritable().then(function(w){
+      return w.write(JSON.stringify(memCache)).then(function(){return w.close();});
+    }).then(function(){
+      saveBatch = false;
+    }).catch(function(err){
+      console.error('USB save failed:', err);
+      saveBatch = false;
+      if(disconnectCb) disconnectCb();
+    });
+  }
+  function getMode(){ return mode; }
+  function isUSB(){ return mode === 'usb'; }
+  function clearMemory(){
+    if(mode === 'usb'){
+      memCache = {};
+      mode = null;
+      dirHandle = null;
+      fileHandle = null;
+      try{ localStorage.removeItem('tiger_mode'); }catch(e){}
+    }
+  }
+
+  return {
+    init: init,
+    get: get,
+    set: set,
+    remove: remove,
+    getMode: getMode,
+    isUSB: isUSB,
+    clearMemory: clearMemory
+  };
+})();
+
+// ================================================================
 // DATA
 // ================================================================
 var STORE_KEY = 't999lao_desktop_v1';
@@ -1697,12 +1883,12 @@ function makeQRFingerprint(data){
 }
 
 function getScannedLog(){
-  try{ return JSON.parse(localStorage.getItem('t999lao_qr_log')||'[]'); }
+  try{ return JSON.parse(TigerStore.get('t999lao_qr_log')||'[]'); }
   catch(e){ return []; }
 }
 
 function saveScannedLog(log){
-  localStorage.setItem('t999lao_qr_log', JSON.stringify(log));
+  TigerStore.set('t999lao_qr_log', JSON.stringify(log));
 }
 
 function openScanForCust(cid){
@@ -1738,6 +1924,17 @@ window.addEventListener('message', function(ev){
       try{
         var json = decodeURIComponent(escape(atob(imp)));
         var data = JSON.parse(json);
+        // ── ตรวจภาษา: รับเฉพาะ Lao ──
+        if(data.lng && data.lng !== 'la'){
+          var lngName = data.lng === 'th' ? 'ไทย' : data.lng;
+          dupWarnings.push('⛔ โพย'+lngName+' ใช้ใน Lao ไม่ได้');
+          return;
+        }
+        // ถ้าไม่มี lng → reject เพราะของเก่าก่อน update เป็น Thai หมด
+        if(!data.lng){
+          dupWarnings.push('⛔ โพยเก่า (ก่อน update) ใช้ไม่ได้');
+          return;
+        }
         data = normalizeQRData(data);
         if(!data.entries||!data.entries.length) return;
         var fp = makeQRFingerprint(data);
@@ -1746,7 +1943,7 @@ window.addEventListener('message', function(ev){
           var prevCust=customers.find(function(cu){return cu.id===prev.cid;})||{};
           var prevName=prevCust.name||prev.sender||'ไม่ทราบ';
           dupWarnings.push('แผ่น '+data.pg+' ⚠️ สแกนซ้ำ! (ของ '+prevName+')');
-        } // log จะถูก save ตอน import จริงเท่านั้น
+        }
         validDataList.push(data);
       } catch(err){ toast('อ่าน QR ไม่ได้: '+err.message); }
     });
@@ -2014,22 +2211,34 @@ function doImport(data, fp, log, cid){
 }
 
 window.addEventListener('DOMContentLoaded', function(){
-  loadSettings();
-  setTimeout(handleImportParam, 800);
-  load();
-  renderCfgRows();
-  setupNumpad();
-  setupFloat();
-  setupResize();
-  // auto ngod suggestion
-  autoNgodDate();
-  // เปิด FK เป็น default
-  setTimeout(function(){
-    var area=document.getElementById('desk-fk-area');
-    if(area && !area.classList.contains('show')){
-      if(typeof deskFKToggleMode==='function') deskFKToggleMode();
+  TigerStore.init('master-lao', {
+    onDisconnect: function(){
+      if(confirm('⚠️ USB ถูกถอดออก\n\nระบบจะล้างข้อมูลในหน่วยความจำ\nต้องการเปิดงวดใหม่หรือเลือก USB อันใหม่?\n\nกด OK เพื่อ reload หน้าจอ')){
+        TigerStore.clearMemory();
+        location.reload();
+      }
     }
-  }, 100);
+  }).then(function(mode){
+    console.log('Tiger999 Lao storage mode:', mode);
+    var badge = document.createElement('div');
+    badge.style.cssText = 'position:fixed;bottom:8px;right:8px;background:'+(mode==='usb'?'rgba(34,197,94,.15)':'rgba(96,165,250,.15)')+';color:'+(mode==='usb'?'#22c55e':'#60a5fa')+';font-size:11px;padding:3px 10px;border-radius:12px;z-index:99;font-family:Sarabun,sans-serif;font-weight:800;border:1px solid '+(mode==='usb'?'rgba(34,197,94,.3)':'rgba(96,165,250,.3)')+';';
+    badge.textContent = mode==='usb' ? '🔐 USB Mode' : '💾 Local Mode';
+    document.body.appendChild(badge);
+    loadSettings();
+    setTimeout(handleImportParam, 800);
+    load();
+    renderCfgRows();
+    setupNumpad();
+    setupFloat();
+    setupResize();
+    autoNgodDate();
+    setTimeout(function(){
+      var area=document.getElementById('desk-fk-area');
+      if(area && !area.classList.contains('show')){
+        if(typeof deskFKToggleMode==='function') deskFKToggleMode();
+      }
+    }, 100);
+  });
 });
 
 function autoNgodDate(){
@@ -2051,14 +2260,14 @@ function autoNgodDate(){
 // ================================================================
 function save(){
   try{
-    localStorage.setItem(STORE_KEY, JSON.stringify({
+    TigerStore.set(STORE_KEY, JSON.stringify({
       customers,curCustId,custEntries,custEid,custSets,ngodInfo,ngodOpen
     }));
   }catch(e){ toast('⚠️ บันทึกข้อมูลไม่ได้: '+e.message); }
 }
 function load(){
   try{
-    var raw = localStorage.getItem(STORE_KEY);
+    var raw = TigerStore.get(STORE_KEY);
     if(!raw) return;
     var d = JSON.parse(raw);
     customers = d.customers||[]; curCustId = d.curCustId||null;
@@ -2078,12 +2287,12 @@ function saveSettings(){
       if(pi) item.pay=parseFloat(pi.value)||0;
     });
   });
-  localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));
+  TigerStore.set(SETTINGS_KEY,JSON.stringify(settings));
   toast('บันทึกตั้งค่าแล้ว ✅');
 }
 function loadSettings(){
   try{
-    var r=localStorage.getItem(SETTINGS_KEY);
+    var r=TigerStore.get(SETTINGS_KEY);
     if(r){
       var saved=JSON.parse(r);
       // merge: เพิ่ม key ใหม่จาก default ถ้า key นั้นยังไม่มีใน saved
@@ -2340,8 +2549,8 @@ function doCloseNgod(){
 // HISTORY / ARCHIVE SYSTEM (Lao)
 // ════════════════════════════════════════════════════
 var HIST_KEY = 't999lao_history_v1';
-function getHistory(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch(e){return[];}}
-function saveHistory(list){try{localStorage.setItem(HIST_KEY,JSON.stringify(list));}catch(e){}}
+function getHistory(){try{return JSON.parse(TigerStore.get(HIST_KEY)||'[]');}catch(e){return[];}}
+function saveHistory(list){try{TigerStore.set(HIST_KEY,JSON.stringify(list));}catch(e){}}
 
 function archiveCurrentNgod(){
   if(!ngodOpen || !ngodInfo.ngod) return;
@@ -2581,9 +2790,9 @@ function _doEditSet(cid, idx){
 
 var SENDER_HIST_KEY='t999lao_sender_hist';
 function _rawHist(){
-  try{ return JSON.parse(localStorage.getItem(SENDER_HIST_KEY)||'{}'); }catch(e){ return {}; }
+  try{ return JSON.parse(TigerStore.get(SENDER_HIST_KEY)||'{}'); }catch(e){ return {}; }
 }
-function _saveRawHist(h){ try{ localStorage.setItem(SENDER_HIST_KEY,JSON.stringify(h)); }catch(e){} }
+function _saveRawHist(h){ try{ TigerStore.set(SENDER_HIST_KEY,JSON.stringify(h)); }catch(e){} }
 function getSenderHist(receiverName){
   var raw = _rawHist();
   if(Array.isArray(raw)){
@@ -4386,7 +4595,7 @@ function paginateEntriesDesk(sorted,inf){
   return pages;
 }
 function encodePageDataDesk(pEntries, inf, pgNum){
-  var data={s:inf.sender||'',r:inf.receiver||'',e:encodeQREntriesDesk(pEntries)};
+  var data={lng:'la',s:inf.sender||'',r:inf.receiver||'',e:encodeQREntriesDesk(pEntries)};
   return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
 }
 function renderDesktopQR(el, pEntries, inf, pgNum){
@@ -5288,10 +5497,10 @@ function getCfg(key){
 var RATE_STORE = 't999lao_rates_v1';
 
 function loadRates(){
-  try{ rateOverrides=JSON.parse(localStorage.getItem(RATE_STORE)||'null')||{}; }catch(e){ rateOverrides={}; }
+  try{ rateOverrides=JSON.parse(TigerStore.get(RATE_STORE)||'null')||{}; }catch(e){ rateOverrides={}; }
 }
 function saveRates(){
-  try{ localStorage.setItem(RATE_STORE,JSON.stringify(rateOverrides)); }catch(e){}
+  try{ TigerStore.set(RATE_STORE,JSON.stringify(rateOverrides)); }catch(e){}
 }
 function getRateKey(){ return ngodInfo&&ngodInfo.ngod?ngodInfo.ngod:'_'; }
 
