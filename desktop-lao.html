@@ -559,6 +559,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <div class="hdr-btns">
     <button class="hbtn" onclick="window.location.href='/desktop.html'" title="ไปหวยไทย" style="background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.25);color:#888;"><span class="hbtn-icon">🇹🇭</span><span class="hbtn-lbl">ไทย</span></button>
     <button class="hbtn" onclick="window.location.href='/desktop-lao.html'" title="หวยลาว" style="background:rgba(220,38,38,.25);border-color:#ef4444;color:#fca5a5;box-shadow:0 0 12px rgba(220,38,38,.4);"><span class="hbtn-icon">🇱🇦</span><span class="hbtn-lbl">ลาว</span></button>
+    <button class="hbtn" onclick="openSubKeyManager()" title="จัดการ Sub Keys ลูกน้อง" style="background:rgba(168,139,250,.12);border-color:rgba(168,139,250,.4);color:#a78bfa;"><span class="hbtn-icon">👥</span><span class="hbtn-lbl">Sub Key</span></button>
     <button class="hbtn" onclick="importFromSubkey()" title="นำเข้าข้อมูลจากลูกน้อง" style="background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.4);color:#22c55e;"><span class="hbtn-icon">📥</span><span class="hbtn-lbl">นำเข้า</span></button>
     <button class="hbtn" onclick="openHistoryModal()" title="ดูงวดเก่า"><span class="hbtn-icon">🗄️</span><span class="hbtn-lbl">ประวัติ</span></button>
     <button class="hbtn" onclick="openAnalyze()"><span class="hbtn-icon">📊</span><span class="hbtn-lbl">วิเคราะห์</span></button>
@@ -1042,15 +1043,88 @@ var TigerStore = (function(){
   }
 
   // ── INIT: เลือกโหมด ──
+  // ── IndexedDB สำหรับเก็บ FileSystemHandle ──
+  function _idbOpen(){
+    return new Promise(function(resolve, reject){
+      var req = indexedDB.open('tiger999_handles', 1);
+      req.onupgradeneeded = function(){
+        req.result.createObjectStore('handles');
+      };
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = function(){ reject(req.error); };
+    });
+  }
+  function _idbSave(key, handle){
+    return _idbOpen().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx = db.transaction('handles','readwrite');
+        tx.objectStore('handles').put(handle, key);
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(){ reject(tx.error); };
+      });
+    });
+  }
+  function _idbLoad(key){
+    return _idbOpen().then(function(db){
+      return new Promise(function(resolve){
+        var tx = db.transaction('handles','readonly');
+        var req = tx.objectStore('handles').get(key);
+        req.onsuccess = function(){ resolve(req.result || null); };
+        req.onerror = function(){ resolve(null); };
+      });
+    });
+  }
+  function _idbClear(key){
+    return _idbOpen().then(function(db){
+      return new Promise(function(resolve){
+        var tx = db.transaction('handles','readwrite');
+        tx.objectStore('handles').delete(key);
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(){ resolve(); };
+      });
+    });
+  }
+
   function init(deviceId, opts){
     devId = deviceId || 'master';
     opts = opts || {};
     disconnectCb = opts.onDisconnect || null;
     var saved = localStorage.getItem('tiger_mode');
+
     if(saved === 'usb' && _supportsUSB()){
-      // ลอง resume ถ้ามี handle เดิม
-      // (FileSystemHandle ไม่ persist ระหว่าง session — ต้องขอใหม่)
-      return _showModeSelector(true);
+      // ลอง resume USB handle จาก IndexedDB
+      return _idbLoad('dirHandle_'+devId).then(function(h){
+        if(!h){
+          // ไม่มี handle เก่า → ถามใหม่
+          return _showModeSelector(false);
+        }
+        // มี handle — ขอ permission
+        return h.queryPermission({mode:'readwrite'}).then(function(p){
+          if(p === 'granted'){
+            dirHandle = h;
+            return _ensureFile().then(function(){
+              mode = 'usb';
+              _watchUSB();
+              return 'usb';
+            });
+          }
+          // ขอ permission ใหม่
+          return h.requestPermission({mode:'readwrite'}).then(function(p2){
+            if(p2 === 'granted'){
+              dirHandle = h;
+              return _ensureFile().then(function(){
+                mode = 'usb';
+                _watchUSB();
+                return 'usb';
+              });
+            }
+            // user ปฏิเสธ — ถามใหม่
+            return _showModeSelector(false);
+          });
+        }).catch(function(){
+          return _showModeSelector(false);
+        });
+      });
     }
     if(saved === 'local'){
       mode = 'local';
@@ -1066,7 +1140,7 @@ var TigerStore = (function(){
       var supportsUSB = _supportsUSB();
       ov.innerHTML = '<div style="background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid #f5c518;border-radius:18px;padding:24px;max-width:420px;width:90%;font-family:\'Sarabun\',sans-serif;">'
         + '<div style="font-size:18px;font-weight:900;color:#f5c518;margin-bottom:6px;text-align:center;">🐯 เลือกโหมดการเก็บข้อมูล</div>'
-        + '<div style="font-size:12px;color:#888;margin-bottom:18px;text-align:center;">ระบบจะเก็บข้อมูลตามโหมดที่เลือก</div>'
+        + '<div style="font-size:12px;color:#888;margin-bottom:18px;text-align:center;">เลือกครั้งเดียว ระบบจะจำ</div>'
         + (supportsUSB
           ? '<button id="ts-btn-usb" style="width:100%;padding:14px;margin-bottom:10px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;text-align:left;">'
             + '🔐 USB Drive Mode (แนะนำ)<br>'
@@ -1093,6 +1167,8 @@ var TigerStore = (function(){
           _pickUSB().then(function(){
             mode = 'usb';
             try{ localStorage.setItem('tiger_mode','usb'); }catch(e){}
+            // เก็บ handle ลง IndexedDB
+            _idbSave('dirHandle_'+devId, dirHandle).catch(function(){});
             document.body.removeChild(ov);
             _watchUSB();
             resolve('usb');
@@ -1102,6 +1178,13 @@ var TigerStore = (function(){
         };
       }
     });
+  }
+
+  // ปุ่ม "เปลี่ยนโหมด" — เรียกจาก settings
+  function changeMode(){
+    try{ localStorage.removeItem('tiger_mode'); }catch(e){}
+    _idbClear('dirHandle_'+devId).catch(function(){});
+    location.reload();
   }
 
   function _pickUSB(){
@@ -1206,7 +1289,8 @@ var TigerStore = (function(){
     remove: remove,
     getMode: getMode,
     isUSB: isUSB,
-    clearMemory: clearMemory
+    clearMemory: clearMemory,
+    changeMode: changeMode
   };
 })();
 
@@ -6558,6 +6642,167 @@ function confirm2Action2(){ closeConfirm2(); if(_confirm2Cb2) _confirm2Cb2(); }
   window.dpPick=function(id,d,m,y){if(window['dpPick_'+id])window['dpPick_'+id](d,m,y);};
   window.initDatePicker=initPicker;
 })();
+
+// ════════════════════════════════════════════════════════════════
+// SUB KEY MANAGER (เจ้ามือลาวสร้าง/จัดการ Sub Keys)
+// ════════════════════════════════════════════════════════════════
+var SUBKEYS_STORE = 't999lao_subkeys_v1';
+
+function getSubKeys(){
+  try{ return JSON.parse(TigerStore.get(SUBKEYS_STORE)||'[]'); }catch(e){ return []; }
+}
+function saveSubKeys(list){ TigerStore.set(SUBKEYS_STORE, JSON.stringify(list)); }
+
+function _genSubKey(){
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var groups = [];
+  for(var g=0; g<4; g++){
+    var s = '';
+    for(var i=0; i<4; i++) s += chars[Math.floor(Math.random()*chars.length)];
+    groups.push(s);
+  }
+  return 'SUB-' + groups.join('-');
+}
+
+function openSubKeyManager(){
+  var ov = document.getElementById('subkey-mgr-overlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'subkey-mgr-overlay';
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal" style="max-width:580px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;">'
+      + '<div class="modal-title">👥 จัดการ Sub Keys (ลาว)</div>'
+      + '<div style="font-size:12px;color:#888;margin-bottom:12px;">ออกรหัสให้ลูกน้องคีย์ที่เครื่องอื่น</div>'
+      + '<div id="subkey-list" style="overflow-y:auto;flex:1;padding:0 4px;margin-bottom:10px;"></div>'
+      + '<div style="display:flex;gap:6px;margin-top:8px;">'
+      +   '<button class="modal-btn" onclick="closeSubKeyManager()" style="flex:1;">ปิด</button>'
+      +   '<button onclick="addNewSubKey()" style="flex:2;padding:11px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:10px;color:#fff;font-family:Sarabun,sans-serif;font-size:14px;font-weight:900;cursor:pointer;">➕ สร้าง Sub Key ใหม่</button>'
+      + '</div>'
+      + '</div>';
+    document.body.appendChild(ov);
+  }
+  renderSubKeyList();
+  ov.classList.add('show');
+}
+function closeSubKeyManager(){
+  var ov = document.getElementById('subkey-mgr-overlay');
+  if(ov) ov.classList.remove('show');
+}
+
+function renderSubKeyList(){
+  var list = getSubKeys();
+  var el = document.getElementById('subkey-list');
+  if(!el) return;
+  if(!list.length){
+    el.innerHTML = '<div style="text-align:center;padding:30px;color:#666;">ยังไม่มี Sub Key</div>';
+    return;
+  }
+  el.innerHTML = list.map(function(sk, idx){
+    var statusBadge = '';
+    var bg = '#0f1220';
+    var border = '#1a2040';
+    if(sk.status === 'active') statusBadge = '<span style="background:rgba(34,197,94,.15);color:#22c55e;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:800;">🟢 Active</span>';
+    else if(sk.status === 'pending') statusBadge = '<span style="background:rgba(251,191,36,.15);color:#fbbf24;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:800;">🟡 ยังไม่เคยเข้า</span>';
+    else if(sk.status === 'disabled'){ statusBadge = '<span style="background:rgba(244,114,182,.15);color:#f472b6;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:800;">🔴 Disabled</span>'; bg = '#0a0d18'; }
+    else if(sk.status === 'expired'){ statusBadge = '<span style="background:rgba(107,114,128,.15);color:#9ca3af;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:800;">⌛ หมดอายุ</span>'; bg = '#0a0d18'; }
+    var actionBtns = sk.status === 'disabled'
+      ? '<button onclick="enableSubKey(\''+sk.id+'\')" style="background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#22c55e;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;margin-right:4px;">▶️ Enable</button>'
+      : '<button onclick="disableSubKey(\''+sk.id+'\')" style="background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);color:#fbbf24;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;margin-right:4px;">⏸️ Disable</button>';
+    actionBtns += '<button onclick="copySubKey(\''+sk.id+'\')" style="background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.3);color:#60a5fa;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;margin-right:4px;">📋 Copy</button>';
+    actionBtns += '<button onclick="showSubKeyQR(\''+sk.id+'\')" style="background:rgba(168,139,250,.12);border:1px solid rgba(168,139,250,.3);color:#a78bfa;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;margin-right:4px;">📱 QR</button>';
+    actionBtns += '<button onclick="deleteSubKey(\''+sk.id+'\')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ef4444;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;">🗑️</button>';
+    var lastSeen = sk.lastSeen ? new Date(sk.lastSeen).toLocaleString('th-TH') : '—';
+    var expiresInfo = sk.expiresAt ? ('หมดอายุ: '+new Date(sk.expiresAt).toLocaleDateString('th-TH')) : 'ไม่หมดอายุ';
+    return '<div style="background:'+bg+';border:1px solid '+border+';border-radius:10px;padding:12px;margin-bottom:8px;">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+      +   '<div style="font-size:14px;font-weight:900;color:#f5c518;">#'+(idx+1)+' '+(sk.name||'(ไม่ระบุชื่อ)')+'</div>'
+      +   statusBadge
+      + '</div>'
+      + '<div style="font-family:Bebas Neue,sans-serif;font-size:18px;color:#60a5fa;letter-spacing:1px;margin-bottom:6px;cursor:pointer;" onclick="copySubKey(\''+sk.id+'\')">'+sk.id+'</div>'
+      + '<div style="font-size:11px;color:#888;margin-bottom:6px;">📅 '+expiresInfo+' · 👁 Last seen: '+lastSeen+'</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:4px;">'+actionBtns+'</div>'
+      + '</div>';
+  }).join('');
+}
+
+function addNewSubKey(){
+  var name = prompt('ชื่อลูกน้อง:');
+  if(!name) return;
+  var expDays = prompt('จำนวนวันที่ใช้ได้ (default 90 วัน, 0 = ไม่หมดอายุ):', '90');
+  if(expDays === null) return;
+  var days = parseInt(expDays)||0;
+  var newKey = {
+    id: _genSubKey(),
+    name: name.trim(),
+    masterDevice: 'master-lao',
+    masterLng: 'la',
+    createdAt: Date.now(),
+    expiresAt: days > 0 ? Date.now() + (days*86400000) : null,
+    status: 'pending',
+    lastSeen: null,
+    activatedAt: null
+  };
+  var list = getSubKeys();
+  list.push(newKey);
+  saveSubKeys(list);
+  renderSubKeyList();
+  toast('✅ สร้าง Sub Key: '+newKey.id);
+  setTimeout(function(){ copySubKey(newKey.id); }, 100);
+}
+
+function disableSubKey(id){
+  if(!confirm('ปิดใช้งาน Sub Key นี้?')) return;
+  var list = getSubKeys();
+  var sk = list.find(function(x){return x.id===id;});
+  if(sk){ sk.status = 'disabled'; saveSubKeys(list); renderSubKeyList(); toast('🔴 Disabled'); }
+}
+function enableSubKey(id){
+  var list = getSubKeys();
+  var sk = list.find(function(x){return x.id===id;});
+  if(sk){ sk.status = sk.activatedAt ? 'active' : 'pending'; saveSubKeys(list); renderSubKeyList(); toast('🟢 Enabled'); }
+}
+function deleteSubKey(id){
+  if(!confirm('ลบ Sub Key นี้ถาวร?')) return;
+  var list = getSubKeys();
+  list = list.filter(function(x){return x.id!==id;});
+  saveSubKeys(list);
+  renderSubKeyList();
+  toast('🗑️ ลบแล้ว');
+}
+function copySubKey(id){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(id).then(function(){toast('📋 คัดลอก: '+id);});
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = id;
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand('copy'); toast('📋 คัดลอกแล้ว'); }catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+function showSubKeyQR(id){
+  var ov = document.getElementById('subkey-qr-overlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'subkey-qr-overlay';
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal" style="max-width:340px;text-align:center;">'
+      + '<div class="modal-title">📱 สแกน Sub Key</div>'
+      + '<div id="subkey-qr-canvas" style="background:#fff;padding:14px;border-radius:10px;display:inline-block;margin-bottom:12px;"></div>'
+      + '<div id="subkey-qr-text" style="font-family:Bebas Neue,sans-serif;font-size:18px;color:#60a5fa;letter-spacing:1px;margin-bottom:12px;"></div>'
+      + '<button class="modal-btn" onclick="document.getElementById(\'subkey-qr-overlay\').classList.remove(\'show\');" style="width:100%;">ปิด</button>'
+      + '</div>';
+    document.body.appendChild(ov);
+  }
+  var canvas = document.getElementById('subkey-qr-canvas');
+  canvas.innerHTML = '';
+  if(typeof QRCode !== 'undefined'){
+    new QRCode(canvas, {text:'TIGERSUBKEY:'+id, width:220, height:220, correctLevel: QRCode.CorrectLevel.M});
+  } else canvas.textContent = id;
+  document.getElementById('subkey-qr-text').textContent = id;
+  ov.classList.add('show');
+}
 </script>
 </body>
 </html>

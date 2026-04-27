@@ -17,52 +17,62 @@ var _qrQueue = [];
 var _globalPgNum = 0; // global counter สำหรับ QR id unique
 
 // ================================================================
-// LICENSE (T999_LIC) — POS ตรงกับ admin-5.html
 // ================================================================
-var _LIC_POS = {M1:5, LV:6, M2:8, Y1:12, Y2:16};
-var _LIC_KEY = 't999sub_lic_v1';
+// SUB KEY AUTH — ตรวจ Sub Key ที่เจ้ามือออกให้
+// ================================================================
+var _SUBKEY_STORE = 't999sub_subkey_v1';   // Sub Key ของ sub นี้
+var _SUBKEY_DATA  = 't999sub_keydata_v1';  // ข้อมูล key (offline cache)
 
-function licVerify(keyStr, requiredLv){
-  if(!keyStr||keyStr.length!==19) return {ok:false,reason:'รูปแบบ key ไม่ถูกต้อง'};
-  if(keyStr.slice(0,4)!=='T999') return {ok:false,reason:'ไม่ใช่ T999 key'};
-  var lv=parseInt(keyStr[_LIC_POS.LV])||0;
-  if(requiredLv&&lv!==requiredLv) return {ok:false,reason:'Level ไม่ตรง (ต้องการ L'+requiredLv+')'};
-  var M1=keyStr[_LIC_POS.M1], M2=keyStr[_LIC_POS.M2];
-  var Y1=keyStr[_LIC_POS.Y1], Y2=keyStr[_LIC_POS.Y2];
-  var mm=M1+M2;
-  var yy=Y2+Y1; // สลับกลับ เช่น Y2=2,Y1=6 → "26"
-  var mmInt=parseInt(mm)||0, yyInt=parseInt(yy)||0;
-  if(mmInt<1||mmInt>12) return {ok:false,reason:'เดือนใน key ไม่ถูกต้อง'};
-  var now=new Date();
-  var curMM=now.getMonth()+1;
-  var curYY=parseInt(String(now.getFullYear()).slice(-2));
-  var valid=false;
-  for(var delta=-1;delta<=1;delta++){
-    var chkMM=curMM+delta, chkYY=curYY;
-    if(chkMM<1){chkMM+=12;chkYY--;}
-    if(chkMM>12){chkMM-=12;chkYY++;}
-    if(mmInt===chkMM&&yyInt===chkYY){valid=true;break;}
-  }
-  if(!valid) return {ok:false,reason:'Key หมดอายุแล้วครับ ('+mm+'/20'+yy+')'};
-  return {ok:true,lv:lv,mm:mm,yy:yy};
+function _subKeyValid(keyStr){
+  // รูปแบบ: SUB-XXXX-XXXX-XXXX-XXXX (19 chars)
+  if(!keyStr) return false;
+  return /^SUB-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(keyStr);
 }
 
 function licInit(){
-  var saved=localStorage.getItem(_LIC_KEY)||'';
-  var licScreen=document.getElementById('lic-screen');
+  var saved = localStorage.getItem(_SUBKEY_STORE) || '';
+  var licScreen = document.getElementById('lic-screen');
   if(!licScreen){
-    // DOM ยังไม่โหลด → รอแล้ว retry
     if(document.readyState==='loading'){
       document.addEventListener('DOMContentLoaded', licInit);
     }
     return;
   }
-  if(saved){
-    var r=licVerify(saved,3);
-    if(r.ok){
-      licScreen.classList.add('hide');
-      return;
+  // ปรับ UI ให้เป็น Sub Key
+  var lcTitle = document.querySelector('#lic-screen .lic-title');
+  if(lcTitle) lcTitle.innerHTML = '🔑 ใส่ Sub Key';
+  var lcSub = document.querySelector('#lic-screen .lic-sub');
+  if(lcSub) lcSub.innerHTML = 'รหัสที่ได้รับจากเจ้ามือ<br><span style="color:#888;font-size:11px;">SUB-XXXX-XXXX-XXXX-XXXX</span>';
+  var lcInp = document.getElementById('lic-inp');
+  if(lcInp){
+    lcInp.placeholder = 'SUB-XXXX-XXXX-XXXX-XXXX';
+    lcInp.maxLength = 24;
+    lcInp.style.fontSize = '14px';
+  }
+
+  if(saved && _subKeyValid(saved)){
+    // มี key แล้ว — ตรวจ offline data
+    var dataRaw = localStorage.getItem(_SUBKEY_DATA);
+    if(dataRaw){
+      try{
+        var data = JSON.parse(dataRaw);
+        // ตรวจ status
+        if(data.status === 'disabled'){
+          showLicError('🔴 Sub Key ถูก disable โดยเจ้ามือ');
+          return;
+        }
+        if(data.status === 'expired' || (data.expiresAt && data.expiresAt < Date.now())){
+          showLicError('⌛ Sub Key หมดอายุแล้ว');
+          return;
+        }
+        // ✅ ผ่าน
+        licScreen.classList.add('hide');
+        return;
+      } catch(e){}
     }
+    // ไม่มี data — accept ก่อน (จะ verify ตอนต่อ WiFi)
+    licScreen.classList.add('hide');
+    return;
   }
   if(saved){
     var inp=document.getElementById('lic-inp');
@@ -72,27 +82,48 @@ function licInit(){
   }
 }
 
+function showLicError(msg){
+  var lic = document.getElementById('lic-screen');
+  if(lic) lic.classList.remove('hide');
+  var er = document.getElementById('lic-err');
+  if(er) er.textContent = msg;
+}
+
 function licSubmit(){
   var inp=document.getElementById('lic-inp');
   if(!inp)return;
   var key=inp.value.trim().toUpperCase();
-  var r=licVerify(key,3);
-  if(r.ok){
-    try{localStorage.setItem(_LIC_KEY,key);}catch(e){}
+  // accept QR scan format too: TIGERSUBKEY:SUB-XXXX-...
+  if(key.indexOf('TIGERSUBKEY:') === 0) key = key.substring(12);
+  if(_subKeyValid(key)){
+    try{
+      localStorage.setItem(_SUBKEY_STORE, key);
+      // Cache initial state — pending จนกว่าจะต่อ master
+      localStorage.setItem(_SUBKEY_DATA, JSON.stringify({
+        id: key,
+        status: 'pending',
+        activatedAt: Date.now(),
+        lastVerifiedAt: null
+      }));
+    }catch(e){}
     var ls=document.getElementById('lic-screen');
     if(ls) ls.classList.add('hide');
     var er=document.getElementById('lic-err');
     if(er) er.textContent='';
+    if(typeof toast === 'function') setTimeout(function(){toast('✅ Activate สำเร็จ');}, 500);
   } else {
     var er2=document.getElementById('lic-err');
-    if(er2) er2.textContent='❌ '+r.reason;
+    if(er2) er2.textContent='❌ รูปแบบไม่ถูกต้อง (SUB-XXXX-XXXX-XXXX-XXXX)';
     inp.style.borderColor='#f87171';
     setTimeout(function(){inp.style.borderColor='';},1500);
   }
 }
 
 function licClear(){
-  try{localStorage.removeItem(_LIC_KEY);}catch(e){}
+  try{
+    localStorage.removeItem(_SUBKEY_STORE);
+    localStorage.removeItem(_SUBKEY_DATA);
+  }catch(e){}
   var inp=document.getElementById('lic-inp');
   var change=document.getElementById('lic-change');
   var er=document.getElementById('lic-err');
@@ -101,7 +132,10 @@ function licClear(){
   if(er) er.textContent='';
 }
 
-// รอ DOM ready ก่อนเรียก licInit
+// ── Compatibility: เก็บ _LIC_KEY ไว้ — ตอนนี้ไม่ใช้แล้ว ──
+var _LIC_KEY = _SUBKEY_STORE;
+function licVerify(){ return {ok:true}; } // dummy
+
 if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded', licInit);
 } else {
@@ -557,6 +591,8 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <div class="ngod-badge" id="ngod-badge">— เปิดงวดก่อน —</div>
   </div>
   <div class="hdr-btns">
+    <button class="hbtn" onclick="window.location.href='/subkey.html'" title="Sub Thai" style="background:rgba(245,197,24,.25);border-color:#f5c518;color:#f5c518;box-shadow:0 0 12px rgba(245,197,24,.4);"><span class="hbtn-icon">🇹🇭</span><span class="hbtn-lbl">ไทย</span></button>
+    <button class="hbtn" onclick="window.location.href='/subkey-lao.html'" title="Sub Lao" style="background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.25);color:#888;"><span class="hbtn-icon">🇱🇦</span><span class="hbtn-lbl">ลาว</span></button>
     <button class="hbtn" onclick="showSlip()"><span class="hbtn-icon">📋</span><span class="hbtn-lbl">ดูโพย</span></button>
     <button class="hbtn" onclick="exportToFlash()" title="ส่งออกไฟล์ไปให้เจ้ามือ" style="background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.4);color:#22c55e;"><span class="hbtn-icon">📤</span><span class="hbtn-lbl">ส่งออก</span></button>
     <button class="hbtn gold" onclick="openNgodModal()"><span class="hbtn-icon">📅</span><span class="hbtn-lbl">งวดใหม่</span></button>
@@ -1041,15 +1077,88 @@ var TigerStore = (function(){
   }
 
   // ── INIT: เลือกโหมด ──
+  // ── IndexedDB สำหรับเก็บ FileSystemHandle ──
+  function _idbOpen(){
+    return new Promise(function(resolve, reject){
+      var req = indexedDB.open('tiger999_handles', 1);
+      req.onupgradeneeded = function(){
+        req.result.createObjectStore('handles');
+      };
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = function(){ reject(req.error); };
+    });
+  }
+  function _idbSave(key, handle){
+    return _idbOpen().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx = db.transaction('handles','readwrite');
+        tx.objectStore('handles').put(handle, key);
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(){ reject(tx.error); };
+      });
+    });
+  }
+  function _idbLoad(key){
+    return _idbOpen().then(function(db){
+      return new Promise(function(resolve){
+        var tx = db.transaction('handles','readonly');
+        var req = tx.objectStore('handles').get(key);
+        req.onsuccess = function(){ resolve(req.result || null); };
+        req.onerror = function(){ resolve(null); };
+      });
+    });
+  }
+  function _idbClear(key){
+    return _idbOpen().then(function(db){
+      return new Promise(function(resolve){
+        var tx = db.transaction('handles','readwrite');
+        tx.objectStore('handles').delete(key);
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(){ resolve(); };
+      });
+    });
+  }
+
   function init(deviceId, opts){
     devId = deviceId || 'master';
     opts = opts || {};
     disconnectCb = opts.onDisconnect || null;
     var saved = localStorage.getItem('tiger_mode');
+
     if(saved === 'usb' && _supportsUSB()){
-      // ลอง resume ถ้ามี handle เดิม
-      // (FileSystemHandle ไม่ persist ระหว่าง session — ต้องขอใหม่)
-      return _showModeSelector(true);
+      // ลอง resume USB handle จาก IndexedDB
+      return _idbLoad('dirHandle_'+devId).then(function(h){
+        if(!h){
+          // ไม่มี handle เก่า → ถามใหม่
+          return _showModeSelector(false);
+        }
+        // มี handle — ขอ permission
+        return h.queryPermission({mode:'readwrite'}).then(function(p){
+          if(p === 'granted'){
+            dirHandle = h;
+            return _ensureFile().then(function(){
+              mode = 'usb';
+              _watchUSB();
+              return 'usb';
+            });
+          }
+          // ขอ permission ใหม่
+          return h.requestPermission({mode:'readwrite'}).then(function(p2){
+            if(p2 === 'granted'){
+              dirHandle = h;
+              return _ensureFile().then(function(){
+                mode = 'usb';
+                _watchUSB();
+                return 'usb';
+              });
+            }
+            // user ปฏิเสธ — ถามใหม่
+            return _showModeSelector(false);
+          });
+        }).catch(function(){
+          return _showModeSelector(false);
+        });
+      });
     }
     if(saved === 'local'){
       mode = 'local';
@@ -1065,7 +1174,7 @@ var TigerStore = (function(){
       var supportsUSB = _supportsUSB();
       ov.innerHTML = '<div style="background:linear-gradient(135deg,#1a1d27,#12151f);border:2px solid #f5c518;border-radius:18px;padding:24px;max-width:420px;width:90%;font-family:\'Sarabun\',sans-serif;">'
         + '<div style="font-size:18px;font-weight:900;color:#f5c518;margin-bottom:6px;text-align:center;">🐯 เลือกโหมดการเก็บข้อมูล</div>'
-        + '<div style="font-size:12px;color:#888;margin-bottom:18px;text-align:center;">ระบบจะเก็บข้อมูลตามโหมดที่เลือก</div>'
+        + '<div style="font-size:12px;color:#888;margin-bottom:18px;text-align:center;">เลือกครั้งเดียว ระบบจะจำ</div>'
         + (supportsUSB
           ? '<button id="ts-btn-usb" style="width:100%;padding:14px;margin-bottom:10px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;text-align:left;">'
             + '🔐 USB Drive Mode (แนะนำ)<br>'
@@ -1092,6 +1201,8 @@ var TigerStore = (function(){
           _pickUSB().then(function(){
             mode = 'usb';
             try{ localStorage.setItem('tiger_mode','usb'); }catch(e){}
+            // เก็บ handle ลง IndexedDB
+            _idbSave('dirHandle_'+devId, dirHandle).catch(function(){});
             document.body.removeChild(ov);
             _watchUSB();
             resolve('usb');
@@ -1101,6 +1212,13 @@ var TigerStore = (function(){
         };
       }
     });
+  }
+
+  // ปุ่ม "เปลี่ยนโหมด" — เรียกจาก settings
+  function changeMode(){
+    try{ localStorage.removeItem('tiger_mode'); }catch(e){}
+    _idbClear('dirHandle_'+devId).catch(function(){});
+    location.reload();
   }
 
   function _pickUSB(){
@@ -1205,7 +1323,8 @@ var TigerStore = (function(){
     remove: remove,
     getMode: getMode,
     isUSB: isUSB,
-    clearMemory: clearMemory
+    clearMemory: clearMemory,
+    changeMode: changeMode
   };
 })();
 
