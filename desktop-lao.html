@@ -1858,6 +1858,8 @@ function deskFKToggleMode(){
     if(k==='ArrowRight'){e.preventDefault();deskFKMoveActiveSlot(1);return;}
     // Escape = ล้าง
     if(k==='Escape'){e.preventDefault();deskFKReset();return;}
+    // Insert = เก็บเข้าแฟ้ม (lockSet)
+    if(k==='Insert'){e.preventDefault();if(typeof lockSet==='function')lockSet();return;}
   });
 })();
 

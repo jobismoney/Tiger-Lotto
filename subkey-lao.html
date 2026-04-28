@@ -788,25 +788,22 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
   <div class="zone z4" id="zone4">
     <div class="rtabs">
       <div class="rtab on" onclick="switchTab('sum',this)">สรุป</div>
-      <div class="rtab" onclick="switchTab('check',this)">ตรวจ</div>
-      <div class="rtab" onclick="switchTab('rate',this)">ตั้งอั้น</div>
-      <div class="rtab" onclick="switchTab('cfg',this)">เรท</div>
     </div>
     <div class="zbody">
 
       <!-- TAB สรุป -->
       <div id="tab-sum" class="rscroll">
-        <!-- ยอดรวม + Net -->
+        <!-- ยอดรวม -->
         <div class="sum-total-box">
-          <div class="sum-total-lbl">ยอดรวมทั้งงวด</div>
+          <div class="sum-total-lbl">ยอดรวมที่คีย์</div>
           <div class="sum-total-num" id="sum-total">฿0</div>
-          <div id="sum-net-line" style="font-size:12px;color:#7a8aaa;margin-top:3px;">หลังหัก% <span id="sum-net" style="color:#34d399;font-weight:900;">฿0</span></div>
-          <div id="sum-profit-line" style="display:none;font-size:13px;font-weight:900;margin-top:4px;padding:4px 8px;border-radius:6px;"></div>
+          <div id="sum-net-line" style="display:none;"><span id="sum-net"></span></div>
+          <div id="sum-profit-line" style="display:none;"></div>
         </div>
 
         <!-- 3 การ์ด -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">
-          <div onclick="openAnalyzePane('cust')" style="background:#0f1220;border:1px solid #1a2040;border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer;">
+          <div style="background:#0f1220;border:1px solid #1a2040;border-radius:8px;padding:8px 4px;text-align:center;">
             <div style="font-size:11px;color:#7a8aaa;">เอเยนต์</div>
             <div id="sum-cnt-agent" style="font-size:18px;font-weight:900;color:#60a5fa;font-family:'Bebas Neue',sans-serif;">0</div>
           </div>
@@ -820,21 +817,13 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
           </div>
         </div>
 
-        <!-- แท่งแยกประเภท + % -->
+        <!-- แท่งแยกประเภท -->
         <div class="sum-sec">แยกประเภท</div>
         <div id="sum-bars" style="margin-bottom:10px;"></div>
 
-        <!-- เปรียบเทียบงวดที่แล้ว -->
-        <div id="sum-compare-prev" style="display:none;margin-bottom:10px;background:#0f1220;border:1px solid #1a2040;border-radius:8px;padding:8px 10px;">
-          <div style="font-size:11px;color:#7a8aaa;margin-bottom:3px;">📈 เปรียบเทียบงวดที่แล้ว</div>
-          <div id="sum-compare-content" style="font-size:13px;color:#f0f2ff;"></div>
-        </div>
-
-        <!-- คาดคะเน -->
-        <div id="sum-risk-preview" style="display:none;margin-bottom:10px;background:rgba(244,114,182,.06);border:1px solid rgba(244,114,182,.18);border-radius:8px;padding:8px 10px;">
-          <div style="font-size:11px;color:#f472b6;margin-bottom:5px;font-weight:800;">🔮 คาดคะเน — Top 3 เลขเสี่ยง</div>
-          <div id="sum-risk-content" style="font-size:12px;"></div>
-        </div>
+        <!-- placeholder -->
+        <div id="sum-compare-prev" style="display:none;"><span id="sum-compare-content"></span></div>
+        <div id="sum-risk-preview" style="display:none;"><span id="sum-risk-content"></span></div>
 
         <!-- ปุ่มหลัก -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
@@ -1842,6 +1831,8 @@ function deskFKToggleMode(){
     if(k==='ArrowRight'){e.preventDefault();deskFKMoveActiveSlot(1);return;}
     // Escape = ล้าง
     if(k==='Escape'){e.preventDefault();deskFKReset();return;}
+    // Insert = เก็บเข้าแฟ้ม (lockSet)
+    if(k==='Insert'){e.preventDefault();if(typeof lockSet==='function')lockSet();return;}
   });
 })();
 
