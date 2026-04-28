@@ -992,13 +992,13 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
       <div class="pop-lbl">ตำแหน่ง</div>
       <div class="pos-grid" id="pak-pos-grid">
         <div class="pbtn on" data-pos="na" onclick="selPakPos(this)">
-          <div class="pbtn-lbl">หน้า</div><div class="pbtn-ex" id="pak-ex-na">3XX</div>
+          <div class="pbtn-lbl" id="pak-lbl-na">ร้อย</div><div class="pbtn-ex" id="pak-ex-na">3XX</div>
         </div>
         <div class="pbtn" data-pos="mid" onclick="selPakPos(this)" id="pak-mid-btn">
-          <div class="pbtn-lbl">กลาง</div><div class="pbtn-ex" id="pak-ex-mid">X3X</div>
+          <div class="pbtn-lbl" id="pak-lbl-mid">สิบ</div><div class="pbtn-ex" id="pak-ex-mid">X3X</div>
         </div>
         <div class="pbtn" data-pos="lang" onclick="selPakPos(this)">
-          <div class="pbtn-lbl">หลัง</div><div class="pbtn-ex" id="pak-ex-lang">XX3</div>
+          <div class="pbtn-lbl" id="pak-lbl-lang">หน่วย</div><div class="pbtn-ex" id="pak-ex-lang">XX3</div>
         </div>
       </div>
       <div class="pop-lbl">ราคา</div>
@@ -4317,15 +4317,18 @@ function updatePakUI(){
   var lek=npLek;
   var mid=document.getElementById('pak-mid-btn');
   if(pakType==='3bon'){
-    // บน: 8XX / X8X / XX8
     mid.style.display='';
+    document.getElementById('pak-lbl-na').textContent='ร้อย';
+    document.getElementById('pak-lbl-mid').textContent='สิบ';
+    document.getElementById('pak-lbl-lang').textContent='หน่วย';
     document.getElementById('pak-ex-na').textContent=(lek[0]||'8')+'XX';
     document.getElementById('pak-ex-mid').textContent='X'+(lek[0]||'8')+'X';
     document.getElementById('pak-ex-lang').textContent='XX'+(lek[0]||'8');
   } else {
-    // ล่าง: 8X / X8
     mid.style.display='none';
     document.getElementById('pak-mid-btn').classList.remove('on');
+    document.getElementById('pak-lbl-na').textContent='สิบ';
+    document.getElementById('pak-lbl-lang').textContent='หน่วย';
     document.getElementById('pak-ex-na').textContent=(lek[0]||'8')+'X';
     document.getElementById('pak-ex-lang').textContent='X'+(lek[0]||'8');
   }
@@ -4589,12 +4592,15 @@ function toLines(e){
     if(t>0) push(lek,'ต'+slipFmt(t),t);
   }
   // ปักหลัก
-  var tl={'3bon':'บน','2bon':'บน','2lang':'ล่าง'};
-  var pl={'na':'หน้า','mid':'กลาง','lang':'หลัง'};
   (e.paks||[]).forEach(function(p){
-    var posLbl={na:'หน้า',mid:'กลาง',lang:'หลัง'}[p.pos]||p.pos;
     var typeLbl={'3bon':'บน','2bon':'บน','2lang':'ล่าง'}[p.type]||p.type;
-    lines.push({lek:lek, price:'ปัก'+posLbl+' '+typeLbl, total:p.price});
+    var posLbl;
+    if(p.type==='3bon'||p.type==='2bon'){
+      posLbl={na:'ร้อย',mid:'สิบ',lang:'หน่วย'}[p.pos]||p.pos;
+    } else {
+      posLbl={na:'สิบ',lang:'หน่วย'}[p.pos]||p.pos;
+    }
+    lines.push({lek:lek, price:'ปัก'+typeLbl+' '+posLbl+' '+slipFmt(p.price), total:p.price});
   });
   return lines;
 }
