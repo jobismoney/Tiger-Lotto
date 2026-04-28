@@ -1964,8 +1964,11 @@ function normalizeQRData(data){
   return data;
 }
 function makeQRFingerprint(data){
-  var leks = (data.entries||[]).map(function(e){ return e.lek; }).join(',');
-  return (data.sender||'') + '|' + (data.ngod||'') + '|' + (data.pg||'') + '|' + leks;
+  var sig = (data.entries||[]).map(function(e){
+    return e.lek + ':' + (e.bon||0) + ',' + (e.tod||0) + ',' + (e.lang||0) + ',' + (e.na||0)
+      + ',p' + ((e.paks||[]).reduce(function(s,p){return s+(p.price||0);},0));
+  }).join(';');
+  return (data.sender||'') + '|' + (data.receiver||'') + '|' + (data.ngod||'') + '|' + (data.pg||'') + '|' + sig;
 }
 
 function getScannedLog(){
