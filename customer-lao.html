@@ -984,7 +984,7 @@ function encodeQREntries(pEntries){
 }
 var QR_MAX_CHARS=400;
 function encodePageData(pEntries,inf,pgNum){
-  var data={lng:'la',s:inf.sender||'',r:inf.receiver||'',e:encodeQREntries(pEntries)};
+  var data={lng:'la',sid:inf.sid||'',s:inf.sender||'',r:inf.receiver||'',e:encodeQREntries(pEntries)};
   return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
 }
 function paginateEntries(sorted,inf){
@@ -1037,7 +1037,8 @@ function makePageHTML(pEntries,pgNum,totalPages,inf){
 function buildSlip(entsToUse){
   var ents=entsToUse||entries;
   if(!ents.length)return null;
-  var inf={sender:profile.name||'—',receiver:profile.agent||'—',ngod:profile.ngod||'—'};
+  var sid = Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2,3).toUpperCase();
+  var inf={sender:profile.name||'—',receiver:profile.agent||'—',ngod:profile.ngod||'—',sid:sid};
   var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
   var pages=paginateEntries(sorted,inf);
   var totalPages=pages.length,grandTotal=ents.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});(e.paks||[]).forEach(function(p){t+=p.price;});return s+t;},0);

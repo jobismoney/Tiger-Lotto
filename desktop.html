@@ -1900,6 +1900,7 @@ var settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 function normalizeQRData(data){
   if(data.e){
     return {
+      sid: data.sid||'',
       ngod: data.g||'',
       sender: data.s||'',
       receiver: data.r||data.receiver||'',
@@ -1972,8 +1973,10 @@ function normalizeQRData(data){
   return data;
 }
 function makeQRFingerprint(data){
+  // ถ้ามี sid (slip ID จากต้นทาง) → ใช้เป็น fingerprint หลัก = แม่นยำที่สุด
+  if(data.sid) return 'SID:' + data.sid;
+  // fallback: ของเก่าไม่มี sid → ใช้ content
   var sig = (data.entries||[]).map(function(e){
-    // รวม lek + ราคาทุกประเภท เพื่อแยกโพยที่เลขเดียวกันแต่ราคาต่างกัน
     return e.lek + ':' + (e.bon||0) + ',' + (e.tod||0) + ',' + (e.lang||0) + ',' + (e.na||0)
       + ',p' + ((e.paks||[]).reduce(function(s,p){return s+(p.price||0);},0));
   }).join(';');

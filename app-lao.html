@@ -285,6 +285,7 @@ function fkEq(){
 function normalizeQRData(data){
   if(data.e){
     return {
+      sid: data.sid||'',
       sender: data.s||'', receiver: data.r||'', pg: data.p||1,
       entries: (data.e||[]).map(function(e){
         var lekVal=e.l||e.lek||'';
@@ -1892,6 +1893,18 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     if(ls)ls.scrollTop=0;
   };
   window.addScanBasket=function(data, ents){
+    // ── ตรวจซ้ำด้วย sid ──
+    var sid = data.sid || '';
+    if(sid){
+      var hist0 = getHistory();
+      var dup = hist0.find(function(x){
+        return x.isBasket && x.sid === sid && x.ngodId === (ngodInfo.ngodId||0);
+      });
+      if(dup){
+        toast('⚠️ โพยซ้ำ — สแกน QR ใบนี้แล้ว');
+        return;
+      }
+    }
     // เก็บแต่ละ QR เป็น basket แยก ไม่รวมกับ entries ปัจจุบัน
     var sender=data.sender||'scan';
     var now=getNowTime();
@@ -1913,6 +1926,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     },0);
     hist.unshift({
       id:Date.now()+Math.random(),
+      sid:sid,
       ngodId:ngodInfo.ngodId||0,
       ngod:ngodInfo.ngod||data.ngod||'—',
       date:ngodInfo.date||'',
@@ -2299,7 +2313,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       entries=h.entries;eid=h.eid;pageBreakIds=h.pageBreakIds||[];
       // inject ชื่อลูกค้าและชุดที่เข้า ngodInfo ชั่วคราว
       ngodInfo={sender:h.sender,receiver:h.receiver,ngod:h.ngod,date:h.date,
-                savedAt:h.savedAt||'',basketName:h.basketName,_viewLabel:h.basketName||''};
+                savedAt:h.savedAt||'',basketName:h.basketName,_viewLabel:h.basketName||'',
+                sid:h.sid||''};
       document.getElementById('hist-ov').classList.remove('show');
       var html=buildAllSlipsWithLabel(h.basketName||'');
       entries=tmpE;eid=tmpEid;pageBreakIds=tmpPb;ngodInfo=tmpNI;
@@ -2920,7 +2935,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
   var QR_MAX_CHARS=700;
   function encodePageData(pEntries,inf,pgNum){
-    var data={lng:'la',s:inf.sender||'',r:inf.receiver||'',e:encodeQREntries(pEntries)};
+    var data={lng:'la',sid:inf.sid||'',s:inf.sender||'',r:inf.receiver||'',e:encodeQREntries(pEntries)};
     return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
   }
   function paginateEntries(sorted,inf){
@@ -3095,7 +3110,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
   var QR_MAX_CHARS=400;
   function encodePageData(pEntries,inf,pgNum){
-    var data={lng:'la',s:inf.sender||'',r:inf.receiver||'',e:encodeQREntries(pEntries)};
+    var data={lng:'la',sid:inf.sid||'',s:inf.sender||'',r:inf.receiver||'',e:encodeQREntries(pEntries)};
     return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
   }
   function paginateEntries(sorted,inf){
@@ -3148,7 +3163,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   }
   function buildAllSlips(custName){
     if(!entries.length){toast('ยังไม่มีรายการ');return null;}
-    var inf=Object.assign({},ngodInfo,{sender:custName||lastBasketName||'—',receiver:ngodInfo.sender||'—'});
+    var inheritedSid = ngodInfo.sid || '';
+    var sid = inheritedSid || (Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2,3).toUpperCase());
+    var inf=Object.assign({},ngodInfo,{sender:custName||lastBasketName||'—',receiver:ngodInfo.sender||'—',sid:sid});
     var sorted=entries.slice().sort(function(a,b){return a.id-b.id;});
     var pages=paginateEntries(sorted,inf);
     var totalPages=pages.length;
@@ -3186,7 +3203,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
 
   // buildAllSlipsWithLabel: เหมือน buildAllSlips แต่ใส่ชื่อลูกค้าในหัว
   function buildAllSlipsWithLabel(label){
-    var inf={sender:label||ngodInfo.basketName||'—',receiver:ngodInfo.sender||'—',ngod:ngodInfo.ngod,date:ngodInfo.date,savedAt:ngodInfo.savedAt||'',label:label};
+    var inheritedSid = ngodInfo.sid || '';
+    var sid = inheritedSid || (Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2,3).toUpperCase());
+    var inf={sender:label||ngodInfo.basketName||'—',receiver:ngodInfo.sender||'—',ngod:ngodInfo.ngod,date:ngodInfo.date,savedAt:ngodInfo.savedAt||'',label:label,sid:sid};
     var MAX_ROWS_V=20;
     if(!entries.length)return '';
     // paginate entries
