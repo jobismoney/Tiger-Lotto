@@ -2408,9 +2408,10 @@ function calcCustBreakdown(cid){
       g.t3+=(e.bon||0); g.tod+=(e.tod||0);
       (kd.bon||[]).forEach(function(x){g.t3+=x.price;});
     } else if(d===2){
-      g.t2+=(e.bon||0)+(e.lang||0); g.tod+=(e.tod||0);
+      g.t2+=(e.bon||0)+(e.lang||0)+(e.na||0); g.tod+=(e.tod||0);
       (kd.bon||[]).forEach(function(x){g.t2+=x.price;});
       (kd.lang||[]).forEach(function(x){g.t2+=x.price;});
+      (kd.na||[]).forEach(function(x){g.t2+=x.price;});
     } else if(d===1){ g.vb+=(e.bon||0); g.vl+=(e.lang||0);
     } else if(d>=5){ g.tod+=(e.tod||0); }
     (e.paks||[]).forEach(function(p){
@@ -3943,9 +3944,10 @@ function updateSummary(){
         g.t3+=(e.bon||0); g.tod+=(e.tod||0);
         (kd.bon||[]).forEach(function(x){g.t3+=x.price;});
       } else if(d===2){
-        g.t2+=(e.bon||0)+(e.lang||0); g.tod+=(e.tod||0);
+        g.t2+=(e.bon||0)+(e.lang||0)+(e.na||0); g.tod+=(e.tod||0);
         (kd.bon||[]).forEach(function(x){g.t2+=x.price;});
         (kd.lang||[]).forEach(function(x){g.t2+=x.price;});
+        (kd.na||[]).forEach(function(x){g.t2+=x.price;});
       } else if(d===1){ g.vb+=(e.bon||0); g.vl+=(e.lang||0);
       } else if(d>=5){ g.tod+=(e.tod||0); }
       (e.paks||[]).forEach(function(p){
@@ -4692,7 +4694,7 @@ function renderDesktopQR(el, pEntries, inf, pgNum){
     el.innerHTML='<div style="font-size:10px;color:#f87171;text-align:center;">QR ข้อมูลเกิน</div>';
     return;
   }
-  new QRCode(el,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.L});
+  new QRCode(el,{text:url,width:110,height:110,correctLevel:QRCode.CorrectLevel.L});
 }
 function renderDesktopPageQR(pEntries, inf, gid){
   var el=document.getElementById('desk-qr-g-'+gid) || document.getElementById('desk-qr-pg-'+gid);
@@ -4700,7 +4702,7 @@ function renderDesktopPageQR(pEntries, inf, gid){
   el.innerHTML='';
   var url=encodePageDataDesk(pEntries,inf,gid);
   if(!url||url.length>1800){ el.innerHTML='<div style="font-size:9px;color:#999;text-align:center;">QR เกิน</div>'; return; }
-  try{ new QRCode(el,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.L}); }catch(ex){}
+  try{ new QRCode(el,{text:url,width:110,height:110,correctLevel:QRCode.CorrectLevel.L}); }catch(ex){}
 }
 function renderQRQueue(pages, inf){
   if(!pages||!pages.length) return;
@@ -4733,10 +4735,9 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
         +'<td class="td-eq">=</td>'
         +'<td class="td-price">'+line.price+'</td>'
         +'<td class="td-brace-empty"></td>'
-        +'<td class="td-total">'+fmtN(line.total)+'</td>'
         +'</tr>';
     });
-    bodyRows+='<tr class="row-sep"><td colspan="5"></td></tr>';
+    bodyRows+='<tr class="row-sep"><td colspan="4"></td></tr>';
   });
   var ps=pageSumTotals(pEntries);
   var pt=pEntries.reduce(function(s,e){return s+toLines(e).reduce(function(ss,l){return ss+l.total;},0);},0);
@@ -4746,12 +4747,11 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
     +'<span>ลูกค้า <strong>'+(inf.sender||'—')+'</strong></span>'
     +'<span>เอเยนต์ <strong>'+(inf.receiver||'—')+'</strong></span>'
     +(inf.setNum?'<span>ชุดที่ <strong>'+inf.setNum+'</strong></span>':'')
-    +(inf.setTime?'<span>เวลา <strong>'+inf.setTime+'</strong></span>':'')
-    +'<span>วันที่ <strong>'+(inf.date||'—')+'</strong></span></div>'
+    +'</div>'
     +'</div>'
     +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup>'
     +'<col style="width:52px"><col style="width:10px"><col style="width:110px">'
-    +'<col style="width:12px"><col style="width:auto"></colgroup><tbody>'+bodyRows+'</tbody></table>'
+    +'<col style="width:12px"></colgroup><tbody>'+bodyRows+'</tbody></table>'
     +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
     +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmtN(pt)+'</span></div>'
     +(function(){
