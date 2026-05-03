@@ -4747,7 +4747,7 @@ function paginateEntriesDesk(sorted,inf){
   return pages;
 }
 function encodePageDataDesk(pEntries, inf, pgNum){
-  var data={lng:'th',s:inf.sender||'',r:inf.receiver||'',e:encodeQREntriesDesk(pEntries)};
+  var data={lng:'th',sid:inf.sid||'',s:inf.sender||'',r:inf.receiver||'',e:encodeQREntriesDesk(pEntries)};
   return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
 }
 function renderDesktopQR(el, pEntries, inf, pgNum){
@@ -4811,6 +4811,7 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
     +'<span>ลูกค้า <strong>'+(inf.sender||'—')+'</strong></span>'
     +'<span>เอเยนต์ <strong>'+(inf.receiver||'—')+'</strong></span>'
     +(inf.setNum?'<span>ชุดที่ <strong>'+inf.setNum+'</strong></span>':'')
+    +(inf.sid?'<span style="font-family:Bebas Neue,sans-serif;color:#888;font-size:11px;letter-spacing:1px;margin-left:auto;">🆔 '+inf.sid+'</span>':'')
     +'</div>'
     +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup>'
     +'<col style="width:52px"><col style="width:10px"><col style="width:110px">'
@@ -6745,6 +6746,7 @@ function openSubKeyManager(){
       + '<div id="subkey-list" style="overflow-y:auto;flex:1;padding:0 4px;margin-bottom:10px;"></div>'
       + '<div style="display:flex;gap:6px;margin-top:8px;">'
       +   '<button class="modal-btn" onclick="closeSubKeyManager()" style="flex:1;">ปิด</button>'
+      +   '<button onclick="openMasterConfig()" style="flex:1;padding:11px;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.4);border-radius:10px;color:#60a5fa;font-family:Sarabun,sans-serif;font-size:13px;font-weight:900;cursor:pointer;">🌐 Master Config</button>'
       +   '<button onclick="addNewSubKey()" style="flex:2;padding:11px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:10px;color:#fff;font-family:Sarabun,sans-serif;font-size:14px;font-weight:900;cursor:pointer;">➕ สร้าง Sub Key ใหม่</button>'
       + '</div>'
       + '</div>';
@@ -6789,6 +6791,7 @@ function renderSubKeyList(){
     }
     actionBtns += '<button onclick="copySubKey(\''+sk.id+'\')" style="background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.3);color:#60a5fa;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;margin-right:4px;">📋 Copy</button>';
     actionBtns += '<button onclick="showSubKeyQR(\''+sk.id+'\')" style="background:rgba(168,139,250,.12);border:1px solid rgba(168,139,250,.3);color:#a78bfa;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;margin-right:4px;">📱 QR</button>';
+    actionBtns += '<button onclick="createSubUSB(\''+sk.id+'\')" style="background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#22c55e;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;margin-right:4px;">💾 USB</button>';
     actionBtns += '<button onclick="deleteSubKey(\''+sk.id+'\')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ef4444;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;">🗑️</button>';
 
     var lastSeen = sk.lastSeen ? new Date(sk.lastSeen).toLocaleString('th-TH') : '—';
@@ -6888,6 +6891,155 @@ function showSubKeyQR(id){
   }
   document.getElementById('subkey-qr-text').textContent = id;
   ov.classList.add('show');
+}
+
+// ════════════════════════════════════════════════════════════════
+// MASTER CONFIG (สำหรับ WiFi sync)
+// ════════════════════════════════════════════════════════════════
+var MASTER_CONFIG_KEY = 't999_master_config_v1';
+
+function getMasterConfig(){
+  try{
+    var c = JSON.parse(TigerStore.get(MASTER_CONFIG_KEY)||'{}');
+    return {
+      master_id: c.master_id || ('T999-MASTER-'+Math.random().toString(36).substr(2,6).toUpperCase()),
+      master_ip: c.master_ip || '',
+      master_port: c.master_port || 3000,
+      master_lng: c.master_lng || 'th'
+    };
+  } catch(e){
+    return {master_id:'', master_ip:'', master_port:3000, master_lng:'th'};
+  }
+}
+function saveMasterConfig(cfg){
+  TigerStore.set(MASTER_CONFIG_KEY, JSON.stringify(cfg));
+}
+
+function openMasterConfig(){
+  var cfg = getMasterConfig();
+  // สร้าง modal
+  var ov = document.getElementById('master-cfg-overlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'master-cfg-overlay';
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal" style="max-width:420px;">'
+      + '<div class="modal-title">🌐 ตั้งค่า Master (WiFi Sync)</div>'
+      + '<div class="modal-field">'
+      +   '<label>Master ID (auto)</label>'
+      +   '<input id="cfg-master-id" type="text" readonly style="background:#1a2040;color:#888;font-family:Bebas Neue,sans-serif;letter-spacing:1px;">'
+      + '</div>'
+      + '<div class="modal-field">'
+      +   '<label>Master IP (เช่น 192.168.1.100)</label>'
+      +   '<input id="cfg-master-ip" type="text" placeholder="192.168.1.100">'
+      +   '<div style="font-size:11px;color:#888;margin-top:3px;">⚠️ ต้องเป็น Static IP ในเราเตอร์</div>'
+      + '</div>'
+      + '<div class="modal-field">'
+      +   '<label>Master Port (default 3000)</label>'
+      +   '<input id="cfg-master-port" type="number" value="3000">'
+      + '</div>'
+      + '<div style="display:flex;gap:6px;margin-top:14px;">'
+      +   '<button class="modal-btn" onclick="closeMasterConfig()" style="flex:1;">ปิด</button>'
+      +   '<button onclick="saveMasterConfigBtn()" style="flex:2;padding:11px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:10px;color:#fff;font-family:Sarabun,sans-serif;font-size:14px;font-weight:900;cursor:pointer;">💾 บันทึก</button>'
+      + '</div>'
+      + '</div>';
+    document.body.appendChild(ov);
+  }
+  document.getElementById('cfg-master-id').value = cfg.master_id;
+  document.getElementById('cfg-master-ip').value = cfg.master_ip;
+  document.getElementById('cfg-master-port').value = cfg.master_port;
+  // save master_id ครั้งแรกถ้ายังไม่มี
+  saveMasterConfig(cfg);
+  ov.classList.add('show');
+}
+function closeMasterConfig(){
+  var ov = document.getElementById('master-cfg-overlay');
+  if(ov) ov.classList.remove('show');
+}
+function saveMasterConfigBtn(){
+  var cfg = {
+    master_id: document.getElementById('cfg-master-id').value.trim(),
+    master_ip: document.getElementById('cfg-master-ip').value.trim(),
+    master_port: parseInt(document.getElementById('cfg-master-port').value) || 3000,
+    master_lng: 'th'
+  };
+  saveMasterConfig(cfg);
+  closeMasterConfig();
+  toast('✅ บันทึก config แล้ว');
+}
+
+// ════════════════════════════════════════════════════════════════
+// CREATE SUB USB (เจ้ามือสร้างไฟล์ใน USB ให้ลูกน้อง)
+// ════════════════════════════════════════════════════════════════
+async function createSubUSB(subKeyId){
+  // ตรวจ master config
+  var mcfg = getMasterConfig();
+  if(!mcfg.master_ip){
+    if(!confirm('⚠️ ยังไม่ได้ตั้ง Master IP\n\nต้องการตั้งตอนนี้?')) return;
+    openMasterConfig();
+    return;
+  }
+  // หา sub key
+  var sk = getSubKeys().find(function(x){return x.id===subKeyId;});
+  if(!sk){ toast('ไม่พบ Sub Key'); return; }
+
+  // ตรวจ browser support
+  if(typeof window.showDirectoryPicker !== 'function'){
+    alert('❌ Browser นี้ไม่รองรับ\nกรุณาใช้ Chrome/Edge บน desktop');
+    return;
+  }
+
+  try {
+    // เลือก folder USB
+    toast('📁 เลือก folder ของ USB ที่จะแจกให้ '+sk.name);
+    var dirHandle = await window.showDirectoryPicker({mode:'readwrite'});
+
+    // สร้าง config.json
+    var config = {
+      type: 't999_sub_config_v1',
+      sub_id: sk.id,
+      sub_name: sk.name,
+      sub_lng: 'th',
+      master_id: mcfg.master_id,
+      master_ip: mcfg.master_ip,
+      master_port: mcfg.master_port,
+      master_lng: mcfg.master_lng,
+      createdAt: Date.now(),
+      createdBy: mcfg.master_id
+    };
+
+    // เขียน config.json
+    var cfgFile = await dirHandle.getFileHandle('tiger999_config.json', {create:true});
+    var w = await cfgFile.createWritable();
+    await w.write(JSON.stringify(config, null, 2));
+    await w.close();
+
+    // เขียน tiger999_sub.json (เปล่า) ถ้ายังไม่มี
+    try {
+      await dirHandle.getFileHandle('tiger999_sub-1.json', {create:false});
+      // มีแล้ว — ไม่ overwrite
+    } catch(e){
+      // ยังไม่มี — สร้างเปล่า
+      var dataFile = await dirHandle.getFileHandle('tiger999_sub-1.json', {create:true});
+      var w2 = await dataFile.createWritable();
+      await w2.write('{}');
+      await w2.close();
+    }
+
+    // อัพเดต sub key — บันทึกว่าสร้าง USB แล้ว
+    var list = getSubKeys();
+    var sk2 = list.find(function(x){return x.id===subKeyId;});
+    if(sk2){
+      sk2.usbCreatedAt = Date.now();
+      saveSubKeys(list);
+    }
+
+    toast('✅ สร้าง USB สำหรับ '+sk.name+' เรียบร้อย\n\nถอด USB แล้วส่งให้ลูกน้องได้เลย');
+    renderSubKeyList();
+  } catch(err){
+    if(err.name === 'AbortError') return; // user cancel
+    alert('❌ สร้าง USB ไม่สำเร็จ: '+err.message);
+  }
 }
 
 // ตรวจหมดอายุ — เรียกตอนโหลด

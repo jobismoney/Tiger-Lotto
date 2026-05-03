@@ -1181,6 +1181,21 @@ var TigerStore = (function(){
     });
   }
 
+  function readSubConfig(){
+    if(!dirHandle) return Promise.resolve(null);
+    return dirHandle.getFileHandle('tiger999_config.json', {create:false})
+      .then(function(fh){ return fh.getFile(); })
+      .then(function(f){ return f.text(); })
+      .then(function(t){
+        try{
+          var c = JSON.parse(t);
+          if(c.type === 't999_sub_config_v1') return c;
+          return null;
+        } catch(e){ return null; }
+      })
+      .catch(function(){ return null; });
+  }
+
   function _watchUSB(){
     if(!dirHandle) return;
     setInterval(function(){
@@ -1263,7 +1278,8 @@ var TigerStore = (function(){
     getMode: getMode,
     isUSB: isUSB,
     clearMemory: clearMemory,
-    changeMode: changeMode
+    changeMode: changeMode,
+    readSubConfig: readSubConfig
   };
 })();
 
@@ -2288,20 +2304,56 @@ window.addEventListener('DOMContentLoaded', function(){
     badge.style.cssText = 'position:fixed;bottom:8px;right:8px;background:'+(mode==='usb'?'rgba(34,197,94,.15)':'rgba(96,165,250,.15)')+';color:'+(mode==='usb'?'#22c55e':'#60a5fa')+';font-size:11px;padding:3px 10px;border-radius:12px;z-index:99;font-family:Sarabun,sans-serif;font-weight:800;border:1px solid '+(mode==='usb'?'rgba(34,197,94,.3)':'rgba(96,165,250,.3)')+';';
     badge.textContent = mode==='usb' ? '🔐 USB Mode' : '💾 Local Mode';
     document.body.appendChild(badge);
-    loadSettings();
-    setTimeout(handleImportParam, 800);
-    load();
-    renderCfgRows();
-    setupNumpad();
-    setupFloat();
-    setupResize();
-    autoNgodDate();
-    setTimeout(function(){
-      var area=document.getElementById('desk-fk-area');
-      if(area && !area.classList.contains('show')){
-        if(typeof deskFKToggleMode==='function') deskFKToggleMode();
+
+    var configPromise = (mode === 'usb' && TigerStore.readSubConfig)
+      ? TigerStore.readSubConfig()
+      : Promise.resolve(null);
+
+    configPromise.then(function(cfg){
+      if(cfg && cfg.sub_id){
+        // ถ้า config ระบุภาษาไทย → redirect
+        if(cfg.sub_lng === 'th'){
+          if(confirm('USB นี้สำหรับ Sub Thai\n\nไปยังหน้า subkey?')) {
+            location.href = '/subkey.html';
+            return;
+          }
+        }
+        try{
+          localStorage.setItem('t999sublao_subkey_v1', cfg.sub_id);
+          var existingData = localStorage.getItem('t999sublao_keydata_v1');
+          if(!existingData){
+            localStorage.setItem('t999sublao_keydata_v1', JSON.stringify({
+              id: cfg.sub_id,
+              status: 'pending',
+              activatedAt: Date.now(),
+              lastVerifiedAt: null,
+              master_id: cfg.master_id,
+              master_ip: cfg.master_ip,
+              master_port: cfg.master_port
+            }));
+          }
+        }catch(e){}
+        var ls = document.getElementById('lic-screen');
+        if(ls) ls.classList.add('hide');
+        badge.textContent = '🔐 ' + (cfg.sub_name || 'Sub') + ' · USB';
+        badge.title = 'Master: ' + cfg.master_ip;
       }
-    }, 100);
+
+      loadSettings();
+      setTimeout(handleImportParam, 800);
+      load();
+      renderCfgRows();
+      setupNumpad();
+      setupFloat();
+      setupResize();
+      autoNgodDate();
+      setTimeout(function(){
+        var area=document.getElementById('desk-fk-area');
+        if(area && !area.classList.contains('show')){
+          if(typeof deskFKToggleMode==='function') deskFKToggleMode();
+        }
+      }, 100);
+    });
   });
 });
 
@@ -4707,7 +4759,7 @@ function paginateEntriesDesk(sorted,inf){
   return pages;
 }
 function encodePageDataDesk(pEntries, inf, pgNum){
-  var data={lng:'la',s:inf.sender||'',r:inf.receiver||'',e:encodeQREntriesDesk(pEntries)};
+  var data={lng:'la',sid:inf.sid||'',s:inf.sender||'',r:inf.receiver||'',e:encodeQREntriesDesk(pEntries)};
   return 'T999:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
 }
 function renderDesktopQR(el, pEntries, inf, pgNum){
@@ -4771,6 +4823,7 @@ function makePageHTML(pEntries,pgNum,totalPages,inf,custLabel){
     +'<span>ลูกค้า <strong>'+(inf.sender||'—')+'</strong></span>'
     +'<span>เอเยนต์ <strong>'+(inf.receiver||'—')+'</strong></span>'
     +(inf.setNum?'<span>ชุดที่ <strong>'+inf.setNum+'</strong></span>':'')
+    +(inf.sid?'<span style="font-family:Bebas Neue,sans-serif;color:#888;font-size:11px;letter-spacing:1px;margin-left:auto;">🆔 '+inf.sid+'</span>':'')
     +'</div>'
     +'</div>'
     +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup>'
