@@ -6923,16 +6923,20 @@ function openMasterConfig(){
     ov = document.createElement('div');
     ov.id = 'master-cfg-overlay';
     ov.className = 'overlay';
-    ov.innerHTML = '<div class="modal" style="max-width:420px;">'
+    ov.innerHTML = '<div class="modal" style="max-width:480px;">'
       + '<div class="modal-title">🌐 ตั้งค่า Master (WiFi Sync)</div>'
       + '<div class="modal-field">'
       +   '<label>Master ID (auto)</label>'
       +   '<input id="cfg-master-id" type="text" readonly style="background:#1a2040;color:#888;font-family:Bebas Neue,sans-serif;letter-spacing:1px;">'
       + '</div>'
       + '<div class="modal-field">'
-      +   '<label>Master IP (เช่น 192.168.1.100)</label>'
-      +   '<input id="cfg-master-ip" type="text" placeholder="192.168.1.100">'
-      +   '<div style="font-size:11px;color:#888;margin-top:3px;">⚠️ ต้องเป็น Static IP ในเราเตอร์</div>'
+      +   '<label>Master IP</label>'
+      +   '<div style="display:flex;gap:6px;">'
+      +     '<input id="cfg-master-ip" type="text" placeholder="192.168.1.100" style="flex:1;">'
+      +     '<button onclick="detectMasterIP()" style="padding:8px 12px;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.4);border-radius:8px;color:#60a5fa;font-family:Sarabun,sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">🔍 ตรวจ</button>'
+      +   '</div>'
+      +   '<div id="ip-detect-result" style="font-size:11px;color:#888;margin-top:4px;">⚠️ ต้องเป็น Static IP ในเราเตอร์</div>'
+      +   '<a href="javascript:void(0)" onclick="showStaticIPGuide()" style="font-size:11px;color:#60a5fa;margin-top:3px;display:inline-block;text-decoration:underline;">📖 ไม่รู้จักทำยังไง? คลิกที่นี่</a>'
       + '</div>'
       + '<div class="modal-field">'
       +   '<label>Master Port (default 3000)</label>'
@@ -6948,10 +6952,116 @@ function openMasterConfig(){
   document.getElementById('cfg-master-id').value = cfg.master_id;
   document.getElementById('cfg-master-ip').value = cfg.master_ip;
   document.getElementById('cfg-master-port').value = cfg.master_port;
-  // save master_id ครั้งแรกถ้ายังไม่มี
   saveMasterConfig(cfg);
   ov.classList.add('show');
 }
+
+// ตรวจ IP ของเครื่อง master ผ่าน WebRTC
+function detectMasterIP(){
+  var resultEl = document.getElementById('ip-detect-result');
+  resultEl.style.color = '#fbbf24';
+  resultEl.textContent = '⏳ กำลังตรวจ...';
+  
+  try {
+    var pc = new RTCPeerConnection({iceServers:[]});
+    pc.createDataChannel('');
+    var ips = [];
+    var done = false;
+    
+    pc.onicecandidate = function(e){
+      if(!e.candidate || done) return;
+      var m = e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+      if(m){
+        var ip = m[1];
+        // กรอง local network only (192.168.x, 10.x, 172.16-31.x)
+        if(/^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(ip)){
+          if(ips.indexOf(ip) === -1) ips.push(ip);
+        }
+      }
+    };
+    
+    pc.createOffer().then(function(offer){
+      return pc.setLocalDescription(offer);
+    }).catch(function(){});
+    
+    setTimeout(function(){
+      done = true;
+      pc.close();
+      if(ips.length === 0){
+        resultEl.style.color = '#ef4444';
+        resultEl.innerHTML = '❌ หา IP ไม่เจอ — ลองเปิด USB เสียบเครื่อง แล้ว run find-my-ip.bat';
+      } else if(ips.length === 1){
+        document.getElementById('cfg-master-ip').value = ips[0];
+        resultEl.style.color = '#22c55e';
+        resultEl.innerHTML = '✅ พบ IP: <strong>'+ips[0]+'</strong> (ใส่ให้แล้ว)';
+      } else {
+        // หลาย IP — ให้เลือก
+        var html = '🔎 พบ '+ips.length+' IPs — กดเลือก: ';
+        ips.forEach(function(ip){
+          html += '<a href="javascript:void(0)" onclick="document.getElementById(\'cfg-master-ip\').value=\''+ip+'\';this.parentNode.innerHTML=\'✅ เลือก '+ip+'\';this.parentNode.style.color=\'#22c55e\';" style="color:#60a5fa;text-decoration:underline;margin:0 6px;">'+ip+'</a>';
+        });
+        resultEl.style.color = '#fbbf24';
+        resultEl.innerHTML = html;
+      }
+    }, 1500);
+  } catch(err){
+    resultEl.style.color = '#ef4444';
+    resultEl.textContent = '❌ Browser ไม่รองรับ WebRTC';
+  }
+}
+
+// คู่มือตั้ง Static IP
+function showStaticIPGuide(){
+  var ov = document.getElementById('static-ip-guide-overlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'static-ip-guide-overlay';
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal" style="max-width:560px;max-height:85vh;overflow-y:auto;">'
+      + '<div class="modal-title">📖 ตั้ง Static IP ในเราเตอร์</div>'
+      + '<div style="font-size:13px;color:#bbb;line-height:1.7;">'
+      +   '<p style="font-size:13px;color:#fbbf24;margin-bottom:12px;">⚠️ <strong>ทำไมต้องตั้ง Static IP?</strong><br>'
+      +     '<span style="color:#888;font-size:12px;">เพราะปกติ IP จะเปลี่ยนทุกครั้งที่ปิด-เปิดเครื่อง ทำให้ลูกน้องเชื่อมต่อไม่ได้</span></p>'
+      
+      +   '<div style="background:#0f1220;padding:12px;border-radius:8px;margin-bottom:12px;">'
+      +     '<div style="color:#22c55e;font-weight:800;margin-bottom:6px;">📋 ขั้นตอนทั่วไป (ทุกยี่ห้อ):</div>'
+      +     '<ol style="margin:0;padding-left:20px;font-size:12px;color:#bbb;">'
+      +       '<li>เปิด browser → ใส่ <code style="background:#000;padding:1px 6px;border-radius:3px;color:#60a5fa;">192.168.1.1</code> หรือ <code style="background:#000;padding:1px 6px;border-radius:3px;color:#60a5fa;">192.168.0.1</code></li>'
+      +       '<li>ใส่ username/password ของ router (ดูใต้เครื่อง)</li>'
+      +       '<li>หาเมนู: <strong>"DHCP" → "Address Reservation"</strong> หรือ <strong>"Static DHCP"</strong></li>'
+      +       '<li>เพิ่ม:<br>&nbsp;&nbsp;Device: เครื่อง Master<br>&nbsp;&nbsp;IP: <code style="background:#000;padding:1px 6px;border-radius:3px;color:#fbbf24;">192.168.1.100</code> (เลือกเอง)</li>'
+      +       '<li>Save → รีบูทเราเตอร์ → ✅</li>'
+      +     '</ol>'
+      +   '</div>'
+      
+      +   '<div style="background:#0f1220;padding:12px;border-radius:8px;margin-bottom:12px;">'
+      +     '<div style="color:#60a5fa;font-weight:800;margin-bottom:6px;">🔵 TP-Link:</div>'
+      +     '<div style="font-size:12px;color:#bbb;">Advanced → Network → DHCP Server → Address Reservation</div>'
+      +   '</div>'
+      
+      +   '<div style="background:#0f1220;padding:12px;border-radius:8px;margin-bottom:12px;">'
+      +     '<div style="color:#a78bfa;font-weight:800;margin-bottom:6px;">🟣 Tenda:</div>'
+      +     '<div style="font-size:12px;color:#bbb;">System Settings → DHCP Reservation</div>'
+      +   '</div>'
+      
+      +   '<div style="background:#0f1220;padding:12px;border-radius:8px;margin-bottom:12px;">'
+      +     '<div style="color:#f472b6;font-weight:800;margin-bottom:6px;">🟥 ASUS:</div>'
+      +     '<div style="font-size:12px;color:#bbb;">LAN → DHCP Server → Manually Assigned IP</div>'
+      +   '</div>'
+      
+      +   '<div style="background:rgba(34,197,94,.08);padding:12px;border-radius:8px;border:1px solid rgba(34,197,94,.3);">'
+      +     '<div style="color:#22c55e;font-weight:800;margin-bottom:6px;">💡 ทางเลือก: ถ้าทำไม่เป็น</div>'
+      +     '<div style="font-size:12px;color:#bbb;">ใช้ <code style="background:#000;padding:1px 6px;border-radius:3px;color:#fbbf24;">find-my-ip.bat</code> ที่อยู่ใน USB ของคุณ — double-click จะเห็น IP ปัจจุบัน แล้วเอามาใส่ในช่อง<br>'
+      +     '<strong style="color:#fbbf24;">⚠️ แต่ต้องอัพเดท IP ทุกครั้งที่เปิดเครื่อง!</strong></div>'
+      +   '</div>'
+      + '</div>'
+      + '<button class="modal-btn" onclick="document.getElementById(\'static-ip-guide-overlay\').classList.remove(\'show\');" style="margin-top:14px;width:100%;">เข้าใจแล้ว</button>'
+      + '</div>';
+    document.body.appendChild(ov);
+  }
+  ov.classList.add('show');
+}
+
 function closeMasterConfig(){
   var ov = document.getElementById('master-cfg-overlay');
   if(ov) ov.classList.remove('show');
@@ -7025,6 +7135,66 @@ async function createSubUSB(subKeyId){
       await w2.write('{}');
       await w2.close();
     }
+
+    // เพิ่ม find-my-ip.bat — helper สำหรับ user หา IP ของเครื่อง master
+    try {
+      var batFile = await dirHandle.getFileHandle('find-my-ip.bat', {create:true});
+      var wb = await batFile.createWritable();
+      var batContent = '@echo off\r\n'
+        + 'chcp 65001 > nul\r\n'
+        + 'title Tiger999 - หา IP ของเครื่องนี้\r\n'
+        + 'color 0E\r\n'
+        + 'echo ==========================================\r\n'
+        + 'echo   Tiger999 - หา IP ของเครื่องนี้\r\n'
+        + 'echo ==========================================\r\n'
+        + 'echo.\r\n'
+        + 'echo IP Address ที่พบ:\r\n'
+        + 'echo.\r\n'
+        + 'ipconfig | findstr /C:"IPv4"\r\n'
+        + 'echo.\r\n'
+        + 'echo ==========================================\r\n'
+        + 'echo เลือก IP ที่ขึ้นต้นด้วย:\r\n'
+        + 'echo   192.168.x.x  (WiFi ทั่วไป)\r\n'
+        + 'echo   10.0.x.x     (บางเราเตอร์)\r\n'
+        + 'echo ==========================================\r\n'
+        + 'echo.\r\n'
+        + 'pause\r\n';
+      await wb.write(batContent);
+      await wb.close();
+    } catch(e){ console.log('skip find-my-ip.bat'); }
+
+    // เพิ่ม README.txt
+    try {
+      var readmeFile = await dirHandle.getFileHandle('README.txt', {create:true});
+      var wr = await readmeFile.createWritable();
+      var readmeContent = 'Tiger999 - USB ของลูกน้อง\r\n'
+        + '====================================\r\n\r\n'
+        + 'สำหรับ: ' + sk.name + '\r\n'
+        + 'Sub Key: ' + sk.id + '\r\n'
+        + 'สร้างเมื่อ: ' + new Date().toLocaleString('th-TH') + '\r\n\r\n'
+        + '------------------------------------\r\n'
+        + 'วิธีใช้งาน:\r\n'
+        + '------------------------------------\r\n\r\n'
+        + '1. เสียบ USB เข้าเครื่อง\r\n'
+        + '2. เปิด browser (Chrome/Edge) → ไปที่ tiger999.online/subkey.html\r\n'
+        + '3. กดปุ่ม "USB Mode" → เลือก folder USB นี้\r\n'
+        + '4. ระบบจะอ่านการตั้งค่าอัตโนมัติ → ใช้งานได้เลย\r\n\r\n'
+        + '------------------------------------\r\n'
+        + 'ไฟล์ในนี้:\r\n'
+        + '------------------------------------\r\n\r\n'
+        + '- tiger999_config.json     => การตั้งค่า (ห้ามลบ!)\r\n'
+        + '- tiger999_sub-1.json      => ข้อมูลโพย\r\n'
+        + '- find-my-ip.bat           => ใช้หา IP ของเครื่อง master\r\n'
+        + '- README.txt               => ไฟล์นี้\r\n\r\n'
+        + '------------------------------------\r\n'
+        + 'ข้อควรระวัง:\r\n'
+        + '------------------------------------\r\n\r\n'
+        + '- อย่าลบไฟล์ใน USB\r\n'
+        + '- backup ข้อมูลด้วยการ copy folder นี้บ่อยๆ\r\n'
+        + '- ถ้าเปลี่ยน Master IP → ขอ USB ใหม่จากเจ้ามือ\r\n';
+      await wr.write(readmeContent);
+      await wr.close();
+    } catch(e){ console.log('skip README'); }
 
     // อัพเดต sub key — บันทึกว่าสร้าง USB แล้ว
     var list = getSubKeys();

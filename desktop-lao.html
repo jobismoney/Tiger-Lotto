@@ -6847,10 +6847,17 @@ function openMasterConfig(){
     ov = document.createElement('div');
     ov.id = 'master-cfg-overlay';
     ov.className = 'overlay';
-    ov.innerHTML = '<div class="modal" style="max-width:420px;">'
-      + '<div class="modal-title">🌐 ตั้งค่า Master (WiFi Sync)</div>'
+    ov.innerHTML = '<div class="modal" style="max-width:480px;">'
+      + '<div class="modal-title">🌐 ตั้งค่า Master (WiFi Sync) - ลาว</div>'
       + '<div class="modal-field"><label>Master ID (auto)</label><input id="cfg-master-id" type="text" readonly style="background:#1a2040;color:#888;font-family:Bebas Neue,sans-serif;letter-spacing:1px;"></div>'
-      + '<div class="modal-field"><label>Master IP (เช่น 192.168.1.100)</label><input id="cfg-master-ip" type="text" placeholder="192.168.1.100"><div style="font-size:11px;color:#888;margin-top:3px;">⚠️ ต้องเป็น Static IP</div></div>'
+      + '<div class="modal-field"><label>Master IP</label>'
+      +   '<div style="display:flex;gap:6px;">'
+      +     '<input id="cfg-master-ip" type="text" placeholder="192.168.1.100" style="flex:1;">'
+      +     '<button onclick="detectMasterIP()" style="padding:8px 12px;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.4);border-radius:8px;color:#60a5fa;font-family:Sarabun,sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">🔍 ตรวจ</button>'
+      +   '</div>'
+      +   '<div id="ip-detect-result" style="font-size:11px;color:#888;margin-top:4px;">⚠️ ต้องเป็น Static IP</div>'
+      +   '<a href="javascript:void(0)" onclick="showStaticIPGuide()" style="font-size:11px;color:#60a5fa;margin-top:3px;display:inline-block;text-decoration:underline;">📖 ไม่รู้จักทำยังไง?</a>'
+      + '</div>'
       + '<div class="modal-field"><label>Master Port</label><input id="cfg-master-port" type="number" value="3000"></div>'
       + '<div style="display:flex;gap:6px;margin-top:14px;">'
       +   '<button class="modal-btn" onclick="closeMasterConfig()" style="flex:1;">ปิด</button>'
@@ -6864,6 +6871,80 @@ function openMasterConfig(){
   saveMasterConfig(cfg);
   ov.classList.add('show');
 }
+
+function detectMasterIP(){
+  var resultEl = document.getElementById('ip-detect-result');
+  resultEl.style.color = '#fbbf24';
+  resultEl.textContent = '⏳ กำลังตรวจ...';
+  try {
+    var pc = new RTCPeerConnection({iceServers:[]});
+    pc.createDataChannel('');
+    var ips = [];
+    var done = false;
+    pc.onicecandidate = function(e){
+      if(!e.candidate || done) return;
+      var m = e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+      if(m){
+        var ip = m[1];
+        if(/^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(ip)){
+          if(ips.indexOf(ip) === -1) ips.push(ip);
+        }
+      }
+    };
+    pc.createOffer().then(function(offer){ return pc.setLocalDescription(offer); }).catch(function(){});
+    setTimeout(function(){
+      done = true; pc.close();
+      if(ips.length === 0){
+        resultEl.style.color = '#ef4444';
+        resultEl.innerHTML = '❌ หา IP ไม่เจอ — ใช้ find-my-ip.bat';
+      } else if(ips.length === 1){
+        document.getElementById('cfg-master-ip').value = ips[0];
+        resultEl.style.color = '#22c55e';
+        resultEl.innerHTML = '✅ พบ IP: <strong>'+ips[0]+'</strong>';
+      } else {
+        var html = '🔎 พบ '+ips.length+' IPs: ';
+        ips.forEach(function(ip){
+          html += '<a href="javascript:void(0)" onclick="document.getElementById(\'cfg-master-ip\').value=\''+ip+'\';this.parentNode.innerHTML=\'✅ เลือก '+ip+'\';this.parentNode.style.color=\'#22c55e\';" style="color:#60a5fa;text-decoration:underline;margin:0 6px;">'+ip+'</a>';
+        });
+        resultEl.style.color = '#fbbf24';
+        resultEl.innerHTML = html;
+      }
+    }, 1500);
+  } catch(err){
+    resultEl.style.color = '#ef4444';
+    resultEl.textContent = '❌ Browser ไม่รองรับ WebRTC';
+  }
+}
+
+function showStaticIPGuide(){
+  var ov = document.getElementById('static-ip-guide-overlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'static-ip-guide-overlay';
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal" style="max-width:560px;max-height:85vh;overflow-y:auto;">'
+      + '<div class="modal-title">📖 ตั้ง Static IP</div>'
+      + '<div style="font-size:13px;color:#bbb;line-height:1.7;">'
+      +   '<p style="color:#fbbf24;">⚠️ ทำไมต้องตั้ง Static IP?<br><span style="color:#888;font-size:12px;">เพราะ IP เปลี่ยนทุกครั้งที่ปิด-เปิดเครื่อง</span></p>'
+      +   '<div style="background:#0f1220;padding:12px;border-radius:8px;margin-bottom:12px;">'
+      +     '<div style="color:#22c55e;font-weight:800;margin-bottom:6px;">📋 ขั้นตอน:</div>'
+      +     '<ol style="margin:0;padding-left:20px;font-size:12px;">'
+      +       '<li>เปิด browser → ใส่ <code style="background:#000;padding:1px 6px;border-radius:3px;color:#60a5fa;">192.168.1.1</code></li>'
+      +       '<li>Login router (รหัสใต้เครื่อง)</li>'
+      +       '<li>หา <strong>"DHCP Reservation"</strong> หรือ <strong>"Static DHCP"</strong></li>'
+      +       '<li>เลือกเครื่อง Master → ตั้ง IP เช่น <code style="color:#fbbf24;">192.168.1.100</code></li>'
+      +       '<li>Save → รีบูทเราเตอร์ ✅</li>'
+      +     '</ol>'
+      +   '</div>'
+      +   '<div style="font-size:12px;color:#888;">TP-Link: Advanced → Network → DHCP Server → Address Reservation<br>Tenda: System Settings → DHCP Reservation<br>ASUS: LAN → DHCP Server → Manually Assigned IP</div>'
+      + '</div>'
+      + '<button class="modal-btn" onclick="document.getElementById(\'static-ip-guide-overlay\').classList.remove(\'show\');" style="margin-top:14px;width:100%;">เข้าใจแล้ว</button>'
+      + '</div>';
+    document.body.appendChild(ov);
+  }
+  ov.classList.add('show');
+}
+
 function closeMasterConfig(){
   var ov = document.getElementById('master-cfg-overlay');
   if(ov) ov.classList.remove('show');
@@ -6919,6 +7000,20 @@ async function createSubUSB(subKeyId){
       await w2.write('{}');
       await w2.close();
     }
+    // find-my-ip.bat
+    try {
+      var batFile = await dirHandle.getFileHandle('find-my-ip.bat', {create:true});
+      var wb = await batFile.createWritable();
+      await wb.write('@echo off\r\nchcp 65001 > nul\r\ntitle Tiger999 - IP\r\ncolor 0E\r\necho ==========================================\r\necho   Tiger999 - หา IP ของเครื่องนี้\r\necho ==========================================\r\necho.\r\nipconfig | findstr /C:"IPv4"\r\necho.\r\necho เลือก IP 192.168.x.x หรือ 10.x.x.x\r\npause\r\n');
+      await wb.close();
+    } catch(e){}
+    // README
+    try {
+      var rf = await dirHandle.getFileHandle('README.txt', {create:true});
+      var wr = await rf.createWritable();
+      await wr.write('Tiger999 USB - ' + sk.name + '\r\nSub Key: ' + sk.id + '\r\n\r\nวิธีใช้:\r\n1. เสียบ USB\r\n2. เปิด tiger999.online/subkey-lao.html\r\n3. USB Mode → เลือก folder นี้ → ใช้งาน\r\n');
+      await wr.close();
+    } catch(e){}
     var list = getSubKeys();
     var sk2 = list.find(function(x){return x.id===subKeyId;});
     if(sk2){ sk2.usbCreatedAt = Date.now(); saveSubKeys(list); }
