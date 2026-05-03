@@ -1215,13 +1215,17 @@ var TigerStore = (function(){
   function _watchUSB(){
     if(!dirHandle) return;
     setInterval(function(){
-      // ตรวจว่า dir ยังเข้าถึงได้
       dirHandle.queryPermission({mode:'readwrite'}).then(function(p){
         if(p !== 'granted'){
-          if(disconnectCb) disconnectCb();
+          if(disconnectCb) { disconnectCb(); disconnectCb = null; }
+          return;
         }
+        return dirHandle.values().next().then(function(){
+        }).catch(function(){
+          if(disconnectCb) { disconnectCb(); disconnectCb = null; }
+        });
       }).catch(function(){
-        if(disconnectCb) disconnectCb();
+        if(disconnectCb) { disconnectCb(); disconnectCb = null; }
       });
     }, 5000);
   }
@@ -6794,6 +6798,7 @@ function renderSubKeyList(){
     actionBtns += '<button onclick="copySubKey(\''+sk.id+'\')" style="background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.3);color:#60a5fa;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;margin-right:4px;">📋 Copy</button>';
     actionBtns += '<button onclick="showSubKeyQR(\''+sk.id+'\')" style="background:rgba(168,139,250,.12);border:1px solid rgba(168,139,250,.3);color:#a78bfa;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;margin-right:4px;">📱 QR</button>';
     actionBtns += '<button onclick="createSubUSB(\''+sk.id+'\')" style="background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#22c55e;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;margin-right:4px;">💾 USB</button>';
+    actionBtns += '<button onclick="importFromSubUSB(\''+sk.id+'\')" style="background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);color:#fbbf24;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;margin-right:4px;">📥 Import</button>';
     actionBtns += '<button onclick="deleteSubKey(\''+sk.id+'\')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ef4444;font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;">🗑️</button>';
 
     var lastSeen = sk.lastSeen ? new Date(sk.lastSeen).toLocaleString('th-TH') : '—';
@@ -7127,6 +7132,129 @@ function saveMasterConfigBtn(){
   saveMasterConfig(cfg);
   closeMasterConfig();
   toast('✅ บันทึก config แล้ว');
+}
+
+// ════════════════════════════════════════════════════════════════
+// IMPORT FROM SUB USB (เจ้ามือเสียบ USB ของลูกน้อง → import ข้อมูล)
+// ════════════════════════════════════════════════════════════════
+async function importFromSubUSB(subKeyId){
+  var sk = getSubKeys().find(function(x){return x.id===subKeyId;});
+  if(!sk){ toast('ไม่พบ Sub Key'); return; }
+
+  if(typeof window.showDirectoryPicker !== 'function'){
+    alert('❌ Browser นี้ไม่รองรับ\nกรุณาใช้ Chrome/Edge บน desktop');
+    return;
+  }
+
+  try {
+    toast('📁 เลือก folder ของ USB จาก '+sk.name);
+    var dirHandle = await window.showDirectoryPicker({mode:'read'});
+
+    // อ่าน config ก่อน — ตรวจว่าเป็น USB ของ sub คนนี้จริง
+    var config = null;
+    try {
+      var cfgFile = await dirHandle.getFileHandle('tiger999_config.json', {create:false});
+      var cfgText = await (await cfgFile.getFile()).text();
+      config = JSON.parse(cfgText);
+    } catch(e){
+      alert('❌ ไม่พบ tiger999_config.json\n\nUSB นี้อาจไม่ใช่ USB ของลูกน้อง');
+      return;
+    }
+
+    if(config.sub_id !== sk.id){
+      if(!confirm('⚠️ USB นี้ไม่ตรงกับ '+sk.name+'\n\n'
+        + 'sub_id ใน USB: '+config.sub_id+'\n'
+        + 'ที่เลือก: '+sk.id+'\n\n'
+        + 'ต้องการ import ต่อมั้ย?')) return;
+    }
+
+    // อ่านไฟล์ข้อมูล tiger999_sub-1.json
+    var subData = null;
+    try {
+      var dataFile = await dirHandle.getFileHandle('tiger999_sub-1.json', {create:false});
+      var dataText = await (await dataFile.getFile()).text();
+      subData = JSON.parse(dataText||'{}');
+    } catch(e){
+      alert('❌ ไม่พบ tiger999_sub-1.json\nลูกน้องอาจยังไม่ได้คีย์อะไร');
+      return;
+    }
+
+    if(!subData || Object.keys(subData).length === 0){
+      toast('⚠️ USB นี้ยังไม่มีข้อมูล');
+      return;
+    }
+
+    // ── หาคีย์ history ของ sub ──
+    // sub ใช้ key 't999sub_history_v1'
+    var histKey = 't999sub_history_v1';
+    var subHist = [];
+    try {
+      var raw = subData[histKey];
+      if(raw){
+        subHist = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      }
+    } catch(e){ subHist = []; }
+
+    if(!Array.isArray(subHist) || !subHist.length){
+      toast('⚠️ ไม่มี history ใน USB');
+      return;
+    }
+
+    // ── รวมเข้า master history ('t999_history_v1') ──
+    var masterHistKey = 't999_history_v1';
+    var masterHist = [];
+    try {
+      masterHist = JSON.parse(TigerStore.get(masterHistKey)||'[]');
+    } catch(e){ masterHist = []; }
+
+    // กันซ้ำด้วย sid (ถ้ามี) หรือ id
+    var existingSids = new Set();
+    var existingIds = new Set();
+    masterHist.forEach(function(h){
+      if(h.sid) existingSids.add(h.sid);
+      if(h.id) existingIds.add(h.id);
+    });
+
+    var imported = 0;
+    var skipped = 0;
+    subHist.forEach(function(h){
+      if(h.sid && existingSids.has(h.sid)){ skipped++; return; }
+      if(h.id && existingIds.has(h.id)){ skipped++; return; }
+      // tag ว่ามาจาก sub ไหน
+      h._fromSub = sk.name;
+      h._fromSubId = sk.id;
+      h._importedAt = Date.now();
+      masterHist.unshift(h);
+      imported++;
+    });
+
+    if(imported === 0){
+      toast('ℹ️ ข้อมูลทั้งหมดเคย import แล้ว ('+skipped+' รายการ)');
+      return;
+    }
+
+    TigerStore.set(masterHistKey, JSON.stringify(masterHist));
+
+    // อัพเดท sub key — บันทึก last imported
+    var list = getSubKeys();
+    var sk2 = list.find(function(x){return x.id===subKeyId;});
+    if(sk2){
+      sk2.lastImportedAt = Date.now();
+      sk2.lastImportCount = imported;
+      saveSubKeys(list);
+    }
+
+    alert('✅ Import สำเร็จ!\n\n'
+      + 'จาก: '+sk.name+'\n'
+      + 'รายการใหม่: '+imported+'\n'
+      + (skipped > 0 ? 'ข้ามที่ซ้ำ: '+skipped+'\n' : '')
+      + '\nกด OK แล้วระบบจะ refresh หน้าจอ');
+    location.reload();
+
+  } catch(err){
+    if(err.name === 'AbortError') return;
+    alert('❌ Import ไม่สำเร็จ: '+err.message);
+  }
 }
 
 // ════════════════════════════════════════════════════════════════
