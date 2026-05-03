@@ -2310,10 +2310,12 @@ window.addEventListener('DOMContentLoaded', function(){
   // ── INIT TIGER STORE FIRST ──
   TigerStore.init('master', {
     onDisconnect: function(){
-      if(confirm('⚠️ USB ถูกถอดออก\n\nระบบจะล้างข้อมูลในหน่วยความจำ\nต้องการเปิดงวดใหม่หรือเลือก USB อันใหม่?\n\nกด OK เพื่อ reload หน้าจอ')){
+      try { toast('⚠️ USB ถูกถอดออก — กำลังล้างหน้าจอ...'); } catch(e){}
+      setTimeout(function(){
         TigerStore.clearMemory();
+        try { localStorage.removeItem('tiger_mode'); } catch(e){}
         location.reload();
-      }
+      }, 1500);
     }
   }).then(function(mode){
     console.log('Tiger999 storage mode:', mode);
