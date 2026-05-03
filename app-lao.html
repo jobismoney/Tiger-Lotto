@@ -2312,7 +2312,8 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       var tmpE=entries,tmpEid=eid,tmpPb=pageBreakIds,tmpNI=ngodInfo;
       entries=h.entries;eid=h.eid;pageBreakIds=h.pageBreakIds||[];
       // inject ชื่อลูกค้าและชุดที่เข้า ngodInfo ชั่วคราว
-      ngodInfo={sender:h.sender,receiver:h.receiver,ngod:h.ngod,date:h.date,
+      var realReceiver = (h.receiver && h.receiver !== h.sender) ? h.receiver : (tmpNI && tmpNI.sender || '—');
+      ngodInfo={sender:h.sender,receiver:realReceiver,ngod:h.ngod,date:h.date,
                 savedAt:h.savedAt||'',basketName:h.basketName,_viewLabel:h.basketName||'',
                 sid:h.sid||''};
       document.getElementById('hist-ov').classList.remove('show');
@@ -2565,7 +2566,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       pages.forEach(function(pg){var pgE=pg.filter(function(x){return x.type==='entry';}).map(function(x){return x.e;});var s=pageSumTotals(pgE);grandS.c4+=s.c4;grandS.c3+=s.c3;grandS.c2+=s.c2;grandS.c1+=s.c1;grandS.ct+=s.ct;});
       allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
       var sumHTML='<div class="slip-hd"><div class="slip-hd-row1"><h2>📊 สรุป · '+name+'</h2><span class="pg">'+totalPages+' แผ่น · '+custSets.length+' ชุด</span></div>'
-        +'<div class="slip-hd-row2"><span>งวด <strong>'+infO.ngod+'</strong></span><span>ผู้ส่ง <strong>'+name+'</strong></span><span>ผู้รับ <strong>'+(infO.sender||'—')+'</strong></span></div>'
+        +'<div class="slip-hd-row2"><span>งวด <strong>'+infO.ngod+'</strong></span><span>ลูกค้า <strong>'+name+'</strong></span><span>เอเยนต์ <strong>'+(infO.sender||'—')+'</strong></span>'+(infO.sid?'<span style="font-family:Bebas Neue,sans-serif;color:#888;font-size:11px;letter-spacing:1px;margin-left:auto;">🆔 '+infO.sid+'</span>':'')+'</div>'
         +'</div>'+sumTableHTML(allSumRows)+'<div class="slip-ft"><span class="fl">ยอดรวม '+name+'</span><span class="fv">฿'+fmt(grandTotal)+'</span></div>';
       var allHTML='';
       for(var pi=0;pi<pageHTMLs.length;pi++){
@@ -3155,7 +3156,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       return s+t;
     },0);
     return '<div class="slip-hd"><div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇱🇦 LAO</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
-      +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div></div>'
+      +'<div class="slip-hd-row2"><span>ลูกค้า <strong>'+(inf.sender||'—')+'</strong></span><span>เอเยนต์ <strong>'+(inf.receiver||'—')+'</strong></span></div>'+(inf.sid?'<span style="font-family:Bebas Neue,sans-serif;color:#888;font-size:11px;letter-spacing:1px;margin-left:auto;">🆔 '+inf.sid+'</span>':'')+'</div>'
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:120px"></colgroup><tbody>'+bodyRows+'</tbody></table>'
       +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
       +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmtNum(pt)+'</span></div>'
@@ -3188,7 +3189,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
     var sumHTML='<div class="slip-hd">'
       +'<div class="slip-hd-row1"><h2>📊 สรุปรวมทุกแผ่น</h2><span class="pg">'+totalPages+' แผ่น</span></div>'
-      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
+      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ลูกค้า <strong>'+(inf.sender||'—')+'</strong></span><span>เอเยนต์ <strong>'+(inf.receiver||'—')+'</strong></span>'+(inf.sid?'<span style="font-family:Bebas Neue,sans-serif;color:#888;font-size:11px;letter-spacing:1px;margin-left:auto;">🆔 '+inf.sid+'</span>':'')+'</div>'
       +'</div>'
       +sumTableHTML(allSumRows)
       +'<div class="slip-ft"><span class="fl">ยอดรวมทั้งหมด</span><span class="fv">฿'+fmt(grandTotal)+'</span></div>';
@@ -3205,7 +3206,9 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
   function buildAllSlipsWithLabel(label){
     var inheritedSid = ngodInfo.sid || '';
     var sid = inheritedSid || (Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2,3).toUpperCase());
-    var inf={sender:label||ngodInfo.basketName||'—',receiver:ngodInfo.sender||'—',ngod:ngodInfo.ngod,date:ngodInfo.date,savedAt:ngodInfo.savedAt||'',label:label,sid:sid};
+    var myAgentName = (typeof getMyAgentName === 'function') ? getMyAgentName() : (ngodInfo._myName || '');
+    var receiver = ngodInfo.receiver || myAgentName || '—';
+    var inf={sender:label||ngodInfo.basketName||'—',receiver:receiver,ngod:ngodInfo.ngod,date:ngodInfo.date,savedAt:ngodInfo.savedAt||'',label:label,sid:sid};
     var MAX_ROWS_V=20;
     if(!entries.length)return '';
     // paginate entries
@@ -3237,7 +3240,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
       return '<div class="slip-hd">'
         +'<div class="slip-hd-row1"><h2>🐯 T999 · '+inf.ngod+' 🇱🇦 LAO</h2><span class="pg">แผ่นที่ '+(i+1)+'/'+totalPages+'</span></div>'
         
-        +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||inf.label||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
+        +'<div class="slip-hd-row2"><span>ลูกค้า <strong>'+(inf.sender||inf.label||'—')+'</strong></span><span>เอเยนต์ <strong>'+(inf.receiver||'—')+'</strong></span>'+(inf.sid?'<span style="font-family:Bebas Neue,sans-serif;color:#888;font-size:11px;letter-spacing:1px;margin-left:auto;">🆔 '+inf.sid+'</span>':'')+'</div>'
         +'</div>'
         +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:120px"></colgroup><tbody>'+bodyRows+'</tbody></table>'
         +sumTableHTML(buildSumRow(ps,''+(i+1)+'/'+totalPages,pt,false))
@@ -3674,7 +3677,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     var pt=pgEntries.reduce(function(s,e){return s+calcEntryTotal(e);},0);
     return '<div class="slip-hd">'
       +'<div class="slip-hd-row1"><h2>🐯 T999 · '+inf.ngod+' 🇱🇦 LAO</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
-      +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
+      +'<div class="slip-hd-row2"><span>ลูกค้า <strong>'+(inf.sender||'—')+'</strong></span><span>เอเยนต์ <strong>'+(inf.receiver||'—')+'</strong></span>'+(inf.sid?'<span style="font-family:Bebas Neue,sans-serif;color:#888;font-size:11px;letter-spacing:1px;margin-left:auto;">🆔 '+inf.sid+'</span>':'')+'</div>'
       +'</div>'
       +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:120px"></colgroup><tbody>'+bodyRows+'</tbody></table>'
       +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
@@ -3745,7 +3748,7 @@ kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);borde
     allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
     var sumHTML='<div class="slip-hd">'
       +'<div class="slip-hd-row1"><h2>📊 สรุปรวมทุกแผ่น</h2><span class="pg">'+totalPages+' แผ่น · '+sets.length+' ชุด</span></div>'
-      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div>'
+      +'<div class="slip-hd-row2"><span>งวด <strong>'+inf.ngod+'</strong></span><span>ลูกค้า <strong>'+(inf.sender||'—')+'</strong></span><span>เอเยนต์ <strong>'+(inf.receiver||'—')+'</strong></span>'+(inf.sid?'<span style="font-family:Bebas Neue,sans-serif;color:#888;font-size:11px;letter-spacing:1px;margin-left:auto;">🆔 '+inf.sid+'</span>':'')+'</div>'
       +'</div>'
       +sumTableHTML(allSumRows)
       +'<div class="slip-ft"><span class="fl">ยอดรวมทั้งหมด</span><span class="fv">฿'+fmt(grandTotal)+'</span></div>';
