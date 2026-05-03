@@ -2488,6 +2488,7 @@ function renderCustList(){
       +'<div class="cname" style="flex-wrap:nowrap;"><div class="'+dotClass+'" style="flex-shrink:0;"></div>'
       +'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70px;">'+displayName+'</span>'
       +prizeTag+rateTag+'</div>'
+      +(c.agent?'<div style="font-size:10px;color:#a78bfa;font-weight:700;margin-top:1px;">🏷️ '+c.agent+'</div>':'')
       +'<div class="ctotal">฿'+tot.toLocaleString()+'</div>'
       +'<div class="ccount">'+cnt+' รายการ</div>'
       +'<button class="cslip-btn dl-btn" data-cid="'+c.id+'" style="margin-top:5px;display:flex;align-items:center;gap:3px;padding:4px 8px;font-size:11px;font-weight:800;white-space:nowrap;background:rgba(231,76,60,.1);border-color:rgba(231,76,60,.3);color:#e74c3c;">🗑️ ลบ</button>'
@@ -4783,8 +4784,8 @@ function buildSlipHTML(cid){
   if(!all.length) return null;
   var cust=customers.find(function(c){return c.id===cid;})||{name:'—'};
   var inf=ngodInfo||{ngod:'—',sender:'—',receiver:'—',date:'—'};
-  // receiver = ชื่อลูกค้า เสมอ
-  inf=Object.assign({},inf,{receiver:cust.name});
+  // sender = ลูกค้า, receiver = เอเยนต์ (cust.agent หรือ ngodInfo.sender)
+  inf=Object.assign({},inf,{sender:cust.name,receiver:cust.agent||inf.sender||'—'});
   // หา sender จาก set ที่มีข้อมูล (set แรก)
   var firstSet=(custSets[cid]||[])[0];
   if(firstSet&&firstSet.sender) inf=Object.assign({},inf,{sender:firstSet.sender});
@@ -7035,14 +7036,13 @@ async function importFromSubUSB(subKeyId){
     }
     if(typeof load === 'function') load();
     var added = 0, skipped = 0;
-    var subPrefix = '['+sk.name+'] ';
     subCustomers.forEach(function(subCust){
-      var taggedName = subPrefix + (subCust.name || '?');
-      var existing = customers.find(function(c){return c.name === taggedName;});
+      var custName = subCust.name || '?';
+      var existing = customers.find(function(c){return c.name === custName && c.agent === sk.name;});
       if(existing){ skipped++; return; }
       var newId = Date.now() + Math.random();
       var newCust = {
-        id: newId, name: taggedName,
+        id: newId, name: custName, agent: sk.name,
         rates: subCust.rates || null, pays: subCust.pays || null,
         _fromSub: sk.name, _fromSubId: sk.id, _importedAt: Date.now()
       };
