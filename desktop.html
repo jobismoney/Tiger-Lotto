@@ -6960,17 +6960,25 @@ function openMasterConfig(){
 function detectMasterIP(){
   var resultEl = document.getElementById('ip-detect-result');
   resultEl.style.color = '#fbbf24';
-  resultEl.textContent = '⏳ กำลังตรวจ...';
+  resultEl.innerHTML = '⏳ กำลังตรวจ... (อาจใช้เวลา 2-3 วินาที)';
   
   try {
-    var pc = new RTCPeerConnection({iceServers:[]});
+    // ใช้ STUN server เพื่อ bypass mDNS obfuscation
+    var pc = new RTCPeerConnection({
+      iceServers: [
+        {urls: 'stun:stun.l.google.com:19302'},
+        {urls: 'stun:stun1.l.google.com:19302'}
+      ]
+    });
     pc.createDataChannel('');
     var ips = [];
     var done = false;
     
     pc.onicecandidate = function(e){
       if(!e.candidate || done) return;
-      var m = e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+      var cand = e.candidate.candidate;
+      // หา IP ใน candidate string
+      var m = cand.match(/(\d+\.\d+\.\d+\.\d+)/);
       if(m){
         var ip = m[1];
         // กรอง local network only (192.168.x, 10.x, 172.16-31.x)
@@ -6988,8 +6996,15 @@ function detectMasterIP(){
       done = true;
       pc.close();
       if(ips.length === 0){
+        // browser block — แสดง fallback options
         resultEl.style.color = '#ef4444';
-        resultEl.innerHTML = '❌ หา IP ไม่เจอ — ลองเปิด USB เสียบเครื่อง แล้ว run find-my-ip.bat';
+        resultEl.innerHTML = '<div style="margin-bottom:6px;">❌ Browser block local IP (privacy)</div>'
+          + '<div style="font-size:11px;color:#bbb;line-height:1.6;">'
+          +   '<strong>วิธีหา IP:</strong><br>'
+          +   '1. กด <button onclick="downloadFindMyIPBat()" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:#22c55e;font-size:11px;padding:2px 8px;border-radius:4px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;">📥 Download find-my-ip.bat</button> → double-click<br>'
+          +   '2. <strong>หรือ</strong> เปิด <kbd style="background:#000;padding:1px 6px;border-radius:3px;">cmd</kbd> → พิมพ์ <code style="background:#000;padding:1px 4px;border-radius:3px;color:#fbbf24;">ipconfig</code> → หา IPv4<br>'
+          +   '3. แล้ว Copy IP มาใส่ในช่อง'
+          + '</div>';
       } else if(ips.length === 1){
         document.getElementById('cfg-master-ip').value = ips[0];
         resultEl.style.color = '#22c55e';
@@ -7003,11 +7018,45 @@ function detectMasterIP(){
         resultEl.style.color = '#fbbf24';
         resultEl.innerHTML = html;
       }
-    }, 1500);
+    }, 2500);
   } catch(err){
     resultEl.style.color = '#ef4444';
-    resultEl.textContent = '❌ Browser ไม่รองรับ WebRTC';
+    resultEl.innerHTML = '❌ Browser ไม่รองรับ — '
+      + '<button onclick="downloadFindMyIPBat()" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:#22c55e;font-size:11px;padding:2px 8px;border-radius:4px;cursor:pointer;font-family:Sarabun,sans-serif;font-weight:700;">📥 Download find-my-ip.bat</button>';
   }
+}
+
+// Download find-my-ip.bat โดยตรง
+function downloadFindMyIPBat(){
+  var batContent = '@echo off\r\n'
+    + 'chcp 65001 > nul\r\n'
+    + 'title Tiger999 - หา IP ของเครื่องนี้\r\n'
+    + 'color 0E\r\n'
+    + 'echo ==========================================\r\n'
+    + 'echo   Tiger999 - หา IP ของเครื่องนี้\r\n'
+    + 'echo ==========================================\r\n'
+    + 'echo.\r\n'
+    + 'echo IP Address ที่พบ:\r\n'
+    + 'echo.\r\n'
+    + 'ipconfig | findstr /C:"IPv4"\r\n'
+    + 'echo.\r\n'
+    + 'echo ==========================================\r\n'
+    + 'echo เลือก IP ที่ขึ้นต้นด้วย:\r\n'
+    + 'echo   192.168.x.x  (WiFi ทั่วไป)\r\n'
+    + 'echo   10.0.x.x     (บางเราเตอร์)\r\n'
+    + 'echo ==========================================\r\n'
+    + 'echo.\r\n'
+    + 'pause\r\n';
+  var blob = new Blob([batContent], {type:'application/octet-stream'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'find-my-ip.bat';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);}, 1000);
+  toast('📥 Download แล้ว — Double-click ไฟล์เพื่อดู IP');
 }
 
 // คู่มือตั้ง Static IP
