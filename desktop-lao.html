@@ -1211,15 +1211,12 @@ var TigerStore = (function(){
   function _watchUSB(){
     if(!dirHandle) return;
     setInterval(function(){
-      dirHandle.queryPermission({mode:'readwrite'}).then(function(p){
-        if(p !== 'granted'){
-          if(disconnectCb) { disconnectCb(); disconnectCb = null; }
-          return;
-        }
-        return dirHandle.values().next().then(function(){
-        }).catch(function(){
-          if(disconnectCb) { disconnectCb(); disconnectCb = null; }
-        });
+      if(!fileHandle){
+        if(disconnectCb) { disconnectCb(); disconnectCb = null; }
+        return;
+      }
+      fileHandle.getFile().then(function(f){
+        var _ = f.size;
       }).catch(function(){
         if(disconnectCb) { disconnectCb(); disconnectCb = null; }
       });
@@ -7022,56 +7019,54 @@ async function importFromSubUSB(subKeyId){
       alert('❌ ไม่พบ tiger999_sub-1.json');
       return;
     }
-    if(!subData || Object.keys(subData).length === 0){
-      toast('⚠️ USB นี้ยังไม่มีข้อมูล');
+    var subStoreRaw = subData['t999sublao_desktop_v1'];
+    if(!subStoreRaw){
+      toast('⚠️ USB นี้ยังไม่มีข้อมูลคีย์โพย');
       return;
     }
-    var subHist = [];
-    try {
-      var raw = subData['t999sublao_history_v1'];
-      if(raw) subHist = typeof raw === 'string' ? JSON.parse(raw) : raw;
-    } catch(e){ subHist = []; }
-    if(!Array.isArray(subHist) || !subHist.length){
-      toast('⚠️ ไม่มี history ใน USB');
+    var subStore = typeof subStoreRaw === 'string' ? JSON.parse(subStoreRaw) : subStoreRaw;
+    var subCustomers = subStore.customers || [];
+    var subCustEntries = subStore.custEntries || {};
+    var subCustEid = subStore.custEid || {};
+    var subCustSets = subStore.custSets || {};
+    if(!subCustomers.length){
+      toast('⚠️ ไม่มีลูกค้าใน USB ของ '+sk.name);
       return;
     }
-    var masterHist = [];
-    try { masterHist = JSON.parse(TigerStore.get('t999lao_history_v1')||'[]'); } catch(e){}
-    var existingSids = new Set(), existingIds = new Set();
-    masterHist.forEach(function(h){
-      if(h.sid) existingSids.add(h.sid);
-      if(h.id) existingIds.add(h.id);
+    if(typeof load === 'function') load();
+    var added = 0, skipped = 0;
+    var subPrefix = '['+sk.name+'] ';
+    subCustomers.forEach(function(subCust){
+      var taggedName = subPrefix + (subCust.name || '?');
+      var existing = customers.find(function(c){return c.name === taggedName;});
+      if(existing){ skipped++; return; }
+      var newId = Date.now() + Math.random();
+      var newCust = {
+        id: newId, name: taggedName,
+        rates: subCust.rates || null, pays: subCust.pays || null,
+        _fromSub: sk.name, _fromSubId: sk.id, _importedAt: Date.now()
+      };
+      customers.push(newCust);
+      custEntries[newId] = (subCustEntries[subCust.id] || []).map(function(e){return Object.assign({}, e);});
+      custEid[newId] = subCustEid[subCust.id] || 0;
+      custSets[newId] = (subCustSets[subCust.id] || []).map(function(s){return JSON.parse(JSON.stringify(s));});
+      added++;
     });
-    var imported = 0, skipped = 0;
-    subHist.forEach(function(h){
-      if(h.sid && existingSids.has(h.sid)){ skipped++; return; }
-      if(h.id && existingIds.has(h.id)){ skipped++; return; }
-      h._fromSub = sk.name;
-      h._fromSubId = sk.id;
-      h._importedAt = Date.now();
-      masterHist.unshift(h);
-      imported++;
-    });
-    if(imported === 0){
-      toast('ℹ️ ข้อมูลทั้งหมดเคย import แล้ว ('+skipped+' รายการ)');
+    if(added === 0){
+      toast('ℹ️ ลูกค้าทั้งหมดเคย import แล้ว ('+skipped+' ราย)');
       return;
     }
-    TigerStore.set('t999lao_history_v1', JSON.stringify(masterHist));
+    if(typeof save === 'function') save();
     var list = getSubKeys();
     var sk2 = list.find(function(x){return x.id===subKeyId;});
-    if(sk2){
-      sk2.lastImportedAt = Date.now();
-      sk2.lastImportCount = imported;
-      saveSubKeys(list);
-    }
-    alert('✅ Import สำเร็จ!\n\nจาก: '+sk.name+'\nรายการใหม่: '+imported+(skipped>0?'\nข้ามที่ซ้ำ: '+skipped:'')+'\n\nกด OK แล้ว refresh');
+    if(sk2){ sk2.lastImportedAt = Date.now(); sk2.lastImportCount = added; saveSubKeys(list); }
+    alert('✅ Import สำเร็จ!\n\nจาก: '+sk.name+'\nลูกค้าใหม่: '+added+(skipped>0?'\nข้ามที่ซ้ำ: '+skipped:'')+'\n\nกด OK แล้ว refresh');
     location.reload();
   } catch(err){
     if(err.name === 'AbortError') return;
     alert('❌ Import ไม่สำเร็จ: '+err.message);
   }
 }
-
 async function createSubUSB(subKeyId){
   var mcfg = getMasterConfig();
   if(!mcfg.master_ip){

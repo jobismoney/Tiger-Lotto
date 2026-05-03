@@ -1252,13 +1252,16 @@ var TigerStore = (function(){
   function _watchUSB(){
     if(!dirHandle) return;
     setInterval(function(){
-      // ตรวจว่า dir ยังเข้าถึงได้
-      dirHandle.queryPermission({mode:'readwrite'}).then(function(p){
-        if(p !== 'granted'){
-          if(disconnectCb) disconnectCb();
-        }
+      // ลองอ่านไฟล์จริง — ถ้า USB ถอด → throw ทันที
+      if(!fileHandle){
+        if(disconnectCb) { disconnectCb(); disconnectCb = null; }
+        return;
+      }
+      fileHandle.getFile().then(function(f){
+        // ลอง access size — ถ้า file ไม่อยู่จริง throw ที่นี่
+        var _ = f.size;
       }).catch(function(){
-        if(disconnectCb) disconnectCb();
+        if(disconnectCb) { disconnectCb(); disconnectCb = null; }
       });
     }, 5000);
   }

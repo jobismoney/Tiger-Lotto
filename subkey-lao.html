@@ -1199,13 +1199,14 @@ var TigerStore = (function(){
   function _watchUSB(){
     if(!dirHandle) return;
     setInterval(function(){
-      // ตรวจว่า dir ยังเข้าถึงได้
-      dirHandle.queryPermission({mode:'readwrite'}).then(function(p){
-        if(p !== 'granted'){
-          if(disconnectCb) disconnectCb();
-        }
+      if(!fileHandle){
+        if(disconnectCb) { disconnectCb(); disconnectCb = null; }
+        return;
+      }
+      fileHandle.getFile().then(function(f){
+        var _ = f.size;
       }).catch(function(){
-        if(disconnectCb) disconnectCb();
+        if(disconnectCb) { disconnectCb(); disconnectCb = null; }
       });
     }, 5000);
   }
