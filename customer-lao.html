@@ -416,10 +416,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);ma
       <input id="setup-name" type="text" placeholder="เช่น สมชาย" maxlength="20">
     </div>
     <div class="modal-field">
-      <label>ชื่อเอเย่นต์ (ผู้รับโพย)</label>
-      <input id="setup-agent" type="text" placeholder="เช่น บอย" maxlength="20">
-    </div>
-    <div class="modal-field">
       <label>งวดประจำ</label>
       <div class="dp-wrap">
         <button type="button" class="dp-input" id="dp-ngod-btn">เลือกงวด 📅</button>
@@ -577,7 +573,7 @@ function getOrCreateNgodId(curNgodName){
 loadProfile(); load();
 updateHdr(); renderList();
 fkAutoSel(2);
-if(!profile.name||!profile.agent||!profile.ngod) openSetup();
+if(!profile.name||!profile.ngod) openSetup();
 
 function updateHdr(){
   document.getElementById('hd-info').textContent =
@@ -590,18 +586,15 @@ function updateHdr(){
 function openSetup(){
   setTimeout(function(){initDatePicker('dp-ngod-btn','dp-ngod-cal','setup-ngod');},50);
   document.getElementById('setup-name').value  = profile.name;
-  document.getElementById('setup-agent').value = profile.agent;
   document.getElementById('setup-ngod').value  = profile.ngod;
   document.getElementById('setup-modal').classList.add('show');
 }
 function saveSetup(){
   var name  = document.getElementById('setup-name').value.trim();
-  var agent = document.getElementById('setup-agent').value.trim();
   var ngod  = document.getElementById('setup-ngod').value.trim();
   if(!name){toast('กรอกชื่อด้วยครับ');return;}
-  if(!agent){toast('กรอกชื่อเอเย่นต์ด้วยครับ');return;}
   if(!ngod){toast('กรอกงวดด้วยครับ');return;}
-  profile={name:name,agent:agent,ngod:ngod};
+  profile={name:name,ngod:ngod};
   saveProfile();
   document.getElementById('setup-modal').classList.remove('show');
   updateHdr(); toast('✅ บันทึกแล้วครับ');
@@ -1028,7 +1021,7 @@ function makePageHTML(pEntries,pgNum,totalPages,inf){
     return s+t;
   },0);
   return '<div class="slip-hd"><div class="slip-hd-row1"><h2>🐯 TIGER 999 · '+inf.ngod+' 🇱🇦 LAO</h2><span class="pg">แผ่นที่ '+pgNum+'/'+totalPages+'</span></div>'
-    +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div></div>'
+    +'<div class="slip-hd-row2"><span>ลูกค้า <strong>'+(inf.sender||'—')+'</strong></span>'+(inf.receiver?'<span>เอเยนต์ <strong>'+inf.receiver+'</strong></span>':'')+'</div></div>'
     +'<table class="ptbl" style="table-layout:fixed;width:auto"><colgroup><col style="width:52px"><col style="width:10px"><col style="width:120px"></colgroup><tbody>'+bodyRows+'</tbody></table>'
     +sumTableHTML(buildSumRow(ps,''+pgNum+'/'+totalPages,pt,false))
     +'<div class="slip-ft"><span class="fl">ยอดรวมแผ่นนี้</span><span class="fv">฿'+fmtNum(pt)+'</span></div>'
@@ -1038,7 +1031,7 @@ function buildSlip(entsToUse){
   var ents=entsToUse||entries;
   if(!ents.length)return null;
   var sid = Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2,3).toUpperCase();
-  var inf={sender:profile.name||'—',receiver:profile.agent||'—',ngod:profile.ngod||'—',sid:sid};
+  var inf={sender:profile.name||'—',receiver:'',ngod:profile.ngod||'—',sid:sid};
   var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
   var pages=paginateEntries(sorted,inf);
   var totalPages=pages.length,grandTotal=ents.reduce(function(s,e){var t=(e.bon||0)+(e.tod||0)+(e.lang||0)+(e.na||0);['bon','lang','na'].forEach(function(k){(e.kd&&e.kd[k]||[]).forEach(function(x){t+=x.price;});});(e.paks||[]).forEach(function(p){t+=p.price;});return s+t;},0);
@@ -1051,7 +1044,7 @@ function buildSlip(entsToUse){
   });
   allSumRows+=buildSumRow(grandS,'รวม',grandTotal,true);
   var sumHTML='<div class="slip-hd"><div class="slip-hd-row1"><h2>📊 สรุป · '+inf.ngod+'</h2><span class="pg">'+totalPages+' แผ่น</span></div>'
-    +'<div class="slip-hd-row2"><span>ผู้ส่ง <strong>'+(inf.sender||'—')+'</strong></span><span>ผู้รับ <strong>'+(inf.receiver||'—')+'</strong></span></div></div>'
+    +'<div class="slip-hd-row2"><span>ลูกค้า <strong>'+(inf.sender||'—')+'</strong></span>'+(inf.receiver?'<span>เอเยนต์ <strong>'+inf.receiver+'</strong></span>':'')+'</div></div>'
     +sumTableHTML(allSumRows)+'<div class="slip-ft"><span class="fl">ยอดรวมทั้งหมด</span><span class="fv">฿'+fmtNum(grandTotal)+'</span></div>';
   allHTML+='<div class="slip-page-sum"><div class="slip-page">'+sumHTML+'</div></div>';
   return {html:allHTML,pages:pages,inf:inf,grandTotal:grandTotal};
@@ -1086,7 +1079,7 @@ function doBasketAndShow(){
     time:now.toISOString(),
     timeStr:now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}),
     dateStr:now.toLocaleDateString('th-TH'),
-    ngod:ngName,ngodId:nid,sender:profile.name||'—',receiver:profile.agent||'—',
+    ngod:ngName,ngodId:nid,sender:profile.name||'—',receiver:'',
     entries:entsToShow,total:calcTotal()
   });
   hist=trimHistToNgods(hist,7);
@@ -1112,7 +1105,7 @@ function doBasket(){
     time:now.toISOString(),
     timeStr:now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}),
     dateStr:now.toLocaleDateString('th-TH'),
-    ngod:ngName,ngodId:nid,sender:profile.name||'—',receiver:profile.agent||'—',
+    ngod:ngName,ngodId:nid,sender:profile.name||'—',receiver:'',
     entries:JSON.parse(JSON.stringify(entries)),total:calcTotal()
   });
   hist=trimHistToNgods(hist,7);
