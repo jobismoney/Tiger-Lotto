@@ -1063,8 +1063,12 @@ function makePageHTML(pEntries,pgNum,totalPages,inf){
 function buildSlip(entsToUse){
   var ents=entsToUse||entries;
   if(!ents.length)return null;
-  // สร้าง Slip ID เฉพาะตัวสำหรับครั้งนี้ — กันสแกนซ้ำที่ปลายทาง
-  var sid = Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2,3).toUpperCase();
+  // sid: 1 ตัวต่อ profile — เก็บใน profile.sid (ใช้ครั้งแรก, ไม่เปลี่ยน)
+  if(!profile.sid){
+    profile.sid = Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2,3).toUpperCase();
+    saveProfile();
+  }
+  var sid = profile.sid;
   var inf={sender:profile.name||'—',receiver:'',ngod:profile.ngod||'—',sid:sid};
   var sorted=ents.slice().sort(function(a,b){return a.id-b.id;});
   var pages=paginateEntries(sorted,inf);

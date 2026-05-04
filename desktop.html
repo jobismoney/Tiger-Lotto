@@ -2122,6 +2122,10 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
   }
 
   var firstReceiver = uniqueReceivers[0]||'';
+  // ลูกค้าจริง = sender (ของแต่ละ data) — แต่ถ้าเอเย่นต์ส่งหลายลูกค้าใน batch เดียว ต้องดู sender ของแต่ละ
+  var senders = dataList.map(function(d){ return (d.sender||'').trim(); }).filter(Boolean);
+  var uniqueSenders = senders.filter(function(v,i,a){ return a.indexOf(v)===i; });
+  var firstSender = uniqueSenders[0]||'';
 
   // ── บล็อก ถ้าซ้ำ ──
   if(dupMsg && dupMsg.length){
@@ -2132,8 +2136,10 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
   // ── กรณีสแกนจากการ์ดลูกค้าโดยตรง ──
   if(curCustId){
     var curName=(customers.find(function(cu){return cu.id===curCustId;})||{}).name||'';
-    if(firstReceiver && firstReceiver !== curName){
-      showAlert('⚠️ QR นี้เป็นของ "'+firstReceiver+'"<br>ไม่สามารถเข้าให้ "'+curName+'" ได้<br><br>กดตกลงแล้วสแกนใหม่ครับ');
+    // ตรวจชื่อลูกค้า (sender ใน QR)
+    var checkName = firstSender || firstReceiver;
+    if(checkName && checkName !== curName){
+      showAlert('⚠️ QR นี้เป็นของ "'+checkName+'"<br>ไม่สามารถเข้าให้ "'+curName+'" ได้<br><br>กดตกลงแล้วสแกนใหม่ครับ');
       return;
     }
     doImportMulti(dataList,totalEntries,curCustId);
@@ -2141,23 +2147,34 @@ function showImportBannerMulti(dataList, log, dupMsg, totalEntries){
     return;
   }
 
-  // ── สแกนจากปุ่มกลาง → auto-match receiver ──
-  if(firstReceiver){
-    var matched = customers.find(function(cu){ return cu.name===firstReceiver; });
+  // ── สแกนจากปุ่มกลาง → auto-match ──
+  // ถ้ามี sender (จาก app เอเยนต์) → ใช้ sender เป็นลูกค้า + receiver เป็น agent
+  // ถ้าไม่มี sender (เก่า/customer ส่งตรง) → ใช้ receiver เป็นชื่อลูกค้า (legacy)
+  var custName = firstSender || firstReceiver;
+  var agentName = (firstSender && firstReceiver !== firstSender) ? firstReceiver : '';
+
+  if(custName){
+    var matched = customers.find(function(cu){ return cu.name===custName; });
     if(!matched){
       var newId = 'c'+Date.now();
-      customers.push({id:newId, name:firstReceiver});
+      var newCust = {id:newId, name:custName};
+      if(agentName) newCust.agent = agentName;
+      customers.push(newCust);
       custEntries[newId]=[]; custEid[newId]=0; custSets[newId]=[];
       matched = customers[customers.length-1];
       save(); renderCustList();
-      toast('✅ สร้างลูกค้าใหม่ "'+firstReceiver+'" แล้วครับ');
+      toast('✅ สร้างลูกค้าใหม่ "'+custName+'"'+(agentName?' (จาก '+agentName+')':'')+' แล้วครับ');
+    } else if(agentName && !matched.agent){
+      // ลูกค้ามีแล้ว แต่ยังไม่มี agent — เพิ่ม
+      matched.agent = agentName;
+      save();
     }
     doImportMulti(dataList,totalEntries,matched.id);
     showScanSuccess(matched.name,totalEntries,'');
     return;
   }
 
-  // ── ไม่มี receiver → ให้เลือกลูกค้าเอง ──
+  // ── ไม่มีชื่อ → ให้เลือกลูกค้าเอง ──
   var custOpts = '<option value="">— เลือกลูกค้า —</option>';
   customers.forEach(function(cu){
     custOpts += '<option value="'+cu.id+'">'+cu.name+'</option>';
@@ -2320,10 +2337,18 @@ window.addEventListener('DOMContentLoaded', function(){
     }
   }).then(function(mode){
     console.log('Tiger999 storage mode:', mode);
-    // แสดง badge mode
+    // แสดง badge mode (คลิกได้เพื่อเปลี่ยน mode)
     var badge = document.createElement('div');
-    badge.style.cssText = 'position:fixed;bottom:8px;right:8px;background:'+(mode==='usb'?'rgba(34,197,94,.15)':'rgba(96,165,250,.15)')+';color:'+(mode==='usb'?'#22c55e':'#60a5fa')+';font-size:11px;padding:3px 10px;border-radius:12px;z-index:99;font-family:Sarabun,sans-serif;font-weight:800;border:1px solid '+(mode==='usb'?'rgba(34,197,94,.3)':'rgba(96,165,250,.3)')+';';
-    badge.textContent = mode==='usb' ? '🔐 USB Mode' : '💾 Local Mode';
+    badge.style.cssText = 'position:fixed;bottom:8px;right:8px;background:'+(mode==='usb'?'rgba(34,197,94,.15)':'rgba(96,165,250,.15)')+';color:'+(mode==='usb'?'#22c55e':'#60a5fa')+';font-size:11px;padding:3px 10px;border-radius:12px;z-index:99;font-family:Sarabun,sans-serif;font-weight:800;border:1px solid '+(mode==='usb'?'rgba(34,197,94,.3)':'rgba(96,165,250,.3)')+';cursor:pointer;';
+    badge.textContent = (mode==='usb' ? '🔐 USB Mode' : '💾 Local Mode') + ' · 🔄';
+    badge.title = 'คลิกเพื่อเปลี่ยน Storage Mode';
+    badge.onclick = function(){
+      if(confirm('🔄 เปลี่ยน Storage Mode?\n\nหน้าจอจะ reload และให้เลือก mode ใหม่\n(ข้อมูลยังอยู่ในที่เดิม — แค่หยุด session ปัจจุบัน)')){
+        try { localStorage.removeItem('tiger_mode'); } catch(e){}
+        TigerStore.clearMemory();
+        location.reload();
+      }
+    };
     document.body.appendChild(badge);
     // ── โหลด data หลัง init ──
     loadSettings();
@@ -4841,6 +4866,12 @@ function buildSlipHTML(cid){
     sender: cust.name,
     receiver: cust.agent || inf.sender || '—'
   });
+  // sid: ใช้ของ customer (สืบทอดจาก import หรือ scan), ไม่งั้น generate ใหม่ + cache
+  if(!cust._sid){
+    cust._sid = Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2,3).toUpperCase();
+    if(typeof save === 'function') save();
+  }
+  inf=Object.assign({},inf,{sid:cust._sid});
   // หา set sender ถ้ามี — override ลูกค้า
   var firstSet=(custSets[cid]||[])[0];
   if(firstSet&&firstSet.sender) inf=Object.assign({},inf,{sender:firstSet.sender});
@@ -5497,8 +5528,10 @@ function clearCustRate(){
 }
 
 function deleteCust(cid){
-  var cust=customers.find(function(c){return c.id===cid;});
+  // cid อาจเป็น string (จาก dataset) — แปลงเป็น number ถ้า id ของ customer เป็น number
+  var cust=customers.find(function(c){return String(c.id)===String(cid);});
   if(!cust) return;
+  cid = cust.id;  // ใช้ id จริงของ cust (อาจ number/string)
   var cnt=getAllEntries(cid).length;
   var msg='ลบลูกค้า <b>'+cust.name+'</b> ออก?';
   if(cnt>0) msg+='<br><br><span style="color:#f87171;">⚠️ มีข้อมูล '+cnt+' รายการที่จะถูกลบด้วย</span>';
@@ -7210,7 +7243,7 @@ async function importFromSubUSB(subKeyId){
         return;
       }
       // สร้าง id ใหม่
-      var newId = Date.now() + Math.random();
+      var newId = Date.now() + Math.floor(Math.random()*10000);
       var newCust = {
         id: newId,
         name: custName,           // ชื่อลูกค้าจริง (ไม่มี prefix)
