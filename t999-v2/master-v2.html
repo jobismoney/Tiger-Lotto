@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Master Step 4H</title>
+<title>T999 V2 Master Step 4H Fix1</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -263,7 +263,7 @@ const PRIZE_HISTORY_KEY='t999_v2_prize_history_'+market;
 document.getElementById('thaiLink').className='mode-link '+(market==='thai'?'on':'');
 document.getElementById('laoLink').className='mode-link '+(market==='lao'?'on':'');
 document.body.classList.toggle('lao-mode',market==='lao');
-document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 4H';
+document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 4H Fix1';
 document.getElementById('marketBadge').textContent=rules.name;
 document.getElementById('typeRow').classList.toggle('thai',market==='thai');
 
@@ -416,9 +416,39 @@ function exportJson(){
   let payload={fileType:'T999_V2_MASTER_EXPORT',version:'4H',market,marketName:rules.name,workspace,activeAgentId,exportedAt:new Date().toISOString(),agents,rateLimitConfig,prizeResult,latestPrizeCheckReport};
   downloadJSON(payload,'t999-v2-master-'+market+'-'+safeName(workspace.roundLabel||'round')+'-'+Date.now()+'.json')
 }
+function countLimitsForExport(){
+  const baseCount=((rateLimitConfig.baseLimits&&rateLimitConfig.baseLimits[market])||[]).length;
+  let agentCount=0;
+  Object.keys((rateLimitConfig.agentLimits||{})).forEach(agentId=>{
+    agentCount+=(((rateLimitConfig.agentLimits[agentId]||{})[market])||[]).length;
+  });
+  return {baseCount,agentCount,total:baseCount+agentCount};
+}
 function exportSubkeyWorkspace(){
-  let worker=prompt('ชื่อลูกน้อง / คนคีย์','');if(worker===null)return;worker=worker.trim();if(!worker)return alert('ต้องใส่ชื่อลูกน้องก่อน');
-  let round=workspace.roundLabel||'';if(!round){let r=prompt('ยังไม่ได้ตั้งงวด ใส่งวดสำหรับไฟล์งานนี้',rules.name+' '+new Date().toLocaleDateString('th-TH'));if(r===null)return;round=r.trim();workspace.roundLabel=round}
+  let worker=prompt('ชื่อลูกน้อง / คนคีย์','');
+  if(worker===null)return;
+  worker=worker.trim();
+  if(!worker)return alert('ต้องใส่ชื่อลูกน้องก่อน');
+
+  const defaultRound=workspace.roundLabel||rules.name+' '+new Date().toLocaleDateString('th-TH');
+  let round=prompt('งวด / วันที่ ที่จะส่งให้ลูกน้อง',defaultRound);
+  if(round===null)return;
+  round=round.trim();
+  if(!round)return alert('ต้องใส่งวด / วันที่ก่อนสร้างไฟล์งาน');
+  workspace.roundLabel=round;
+
+  const limitCounts=countLimitsForExport();
+  const confirmMsg='ตรวจสอบก่อนสร้างไฟล์งานลูกน้อง\n\n'+
+    'ลูกน้อง/คนคีย์: '+worker+'\n'+
+    'ตลาด: '+rules.name+'\n'+
+    'งวด/วันที่: '+round+'\n\n'+
+    'เลขอั้นที่จะติดไปอัตโนมัติ:\n'+
+    '- เลขอั้นกลาง: '+limitCounts.baseCount+' รายการ\n'+
+    '- เลขอั้นรายเอเยนต์: '+limitCounts.agentCount+' รายการ\n'+
+    '- รวม: '+limitCounts.total+' รายการ\n\n'+
+    'Subkey จะตั้งเลขอั้นเฉพาะเอเยนต์เพิ่มเองได้ และต้องส่งกลับ Master ตอน Export Result';
+  if(!confirm(confirmMsg))return;
+
   let sessionId='SUB-'+market.toUpperCase()+'-'+Date.now();
   const allowedAgents=(agents||[]).map(a=>({
     id:a.id,
@@ -429,7 +459,7 @@ function exportSubkeyWorkspace(){
   if(!allowedAgents.length)allowedAgents.push({id:'sub_inbox_'+Date.now(),name:'โพยลูกน้อง '+worker,items:[],customers:[]});
   let payload={
     fileType:'T999_V2_SUBKEY_WORKSPACE',
-    version:'4H',
+    version:'4H-Fix1',
     createdAt:new Date().toISOString(),
     sessionId,
     market,
@@ -440,20 +470,21 @@ function exportSubkeyWorkspace(){
     settings:{
       allowEditMarket:false,
       allowEditRound:false,
-      source:'master-v2-step4h',
+      source:'master-v2-step4h-fix1',
       rateLimitConfig:JSON.parse(JSON.stringify(rateLimitConfig)),
       prizeResult:JSON.parse(JSON.stringify(prizeResult||{})),
       allowSubkeyLocalLimits:true,
       subkeyMustReturnLimitStatus:true
     },
     rateLimitConfig:JSON.parse(JSON.stringify(rateLimitConfig)),
+    limitExportSummary:limitCounts,
     allowedAgents,
     agents:allowedAgents,
-    notes:'ไฟล์งานลูกน้องจาก T999 V2 Master Step 4H: แนบเลขอั้นกลาง/รายเอเยนต์ให้ Subkey เช็กตอนคีย์ และอนุญาตให้ Subkey ตั้งเลขอั้นเฉพาะเอเยนต์เองได้'
+    notes:'ไฟล์งานลูกน้องจาก T999 V2 Master Step 4H Fix1: แนบเลขอั้นกลาง/รายเอเยนต์ให้ Subkey เช็กตอนคีย์ และอนุญาตให้ Subkey ตั้งเลขอั้นเฉพาะเอเยนต์เองได้'
   };
   downloadJSON(payload,'T999_WORK_'+safeName(worker)+'_'+market.toUpperCase()+'_'+safeName(round)+'.json');
   renderWorkspace();saveData();
-  alert('สร้างไฟล์งานลูกน้อง Step 4H แล้ว\n'+worker+' | '+rules.name+' | '+round+'\n\nไฟล์นี้แนบเลขอั้นกลาง/รายเอเยนต์ไปด้วย');
+  alert('สร้างไฟล์งานลูกน้อง Step 4H Fix1 แล้ว\n'+worker+' | '+rules.name+' | '+round+'\n\nไฟล์นี้แนบเลขอั้นกลาง/รายเอเยนต์ไปด้วย\nรวมเลขอั้น: '+limitCounts.total+' รายการ');
 }
 function downloadJSON(payload,name){let blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
 function importJson(){document.getElementById('importFile').value='';document.getElementById('importFile').click()}
