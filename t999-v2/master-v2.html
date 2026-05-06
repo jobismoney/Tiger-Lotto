@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Master Step 4B</title>
+<title>T999 V2 Master Step 4C</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -140,7 +140,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 <input id="importFile" type="file" accept=".json,application/json" style="display:none" onchange="handleImportFile(event)">
 <div class="app">
   <div class="header">
-    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 4B</div></div>
+    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 4C</div></div>
     <div class="head-right">
       <a id="thaiLink" class="mode-link" href="?market=thai">TH ไทย</a>
       <a id="laoLink" class="mode-link" href="?market=lao">LA ลาว</a>
@@ -197,7 +197,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
         <button id="folderActionBtn" class="btn full gold" onclick="folderAction()">เก็บเข้าแฟ้ม</button>
         <button id="exitSlipEditBtn" class="btn full" style="display:none" onclick="closeSlipEditMode()">ออกจากโหมดแก้โพย</button>
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 4B-Plus: กรอกผลรางวัล + ดึงผลล่าสุด + ประวัติผลรางวัล + ลบถาวร<br>Step ต่อไป: 4C ตรวจถูกรางวัลจริง</div>
+        <div class="help">Step 4C: ตรวจถูกรางวัลจริง + คำนวณยอดจ่ายตามเรท/เลขอั้น</div>
       </div>
     </div>
   </div>
@@ -263,7 +263,7 @@ const PRIZE_HISTORY_KEY='t999_v2_prize_history_'+market;
 document.getElementById('thaiLink').className='mode-link '+(market==='thai'?'on':'');
 document.getElementById('laoLink').className='mode-link '+(market==='lao'?'on':'');
 document.body.classList.toggle('lao-mode',market==='lao');
-document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 4B-Plus';
+document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 4C';
 document.getElementById('marketBadge').textContent=rules.name;
 document.getElementById('typeRow').classList.toggle('thai',market==='thai');
 
@@ -274,13 +274,14 @@ let agentModalAgentId=null,agentModalTab='slips';
 
 let rateLimitConfig=defaultRateLimitConfig();
 let prizeResult=defaultPrizeResult();
+let latestPrizeCheckReport=null;
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function uid(prefix){return prefix+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)}
 function money(n){return '฿'+Number(n||0).toLocaleString()}
 function safeName(s){return String(s||'file').replace(/[^\wก-ฮ0-9-]+/g,'_').slice(0,80)}
 function makeEmptyRates(m){const out={};RATE_TYPES[m].forEach(t=>out[t]={discount:0,pay:0});return out}
-function defaultRateLimitConfig(){return {version:'4B-Plus',baseRates:{thai:makeEmptyRates('thai'),lao:makeEmptyRates('lao')},baseLimits:{thai:[],lao:[]},agentRates:{},agentLimits:{}}}
+function defaultRateLimitConfig(){return {version:'4C',baseRates:{thai:makeEmptyRates('thai'),lao:makeEmptyRates('lao')},baseLimits:{thai:[],lao:[]},agentRates:{},agentLimits:{}}}
 function normalizeLimit(x){return {id:x&&x.id||uid('limit'),type:String(x&&x.type||''),number:String(x&&x.number||'').trim(),level:String(x&&x.level||'closed'),customPercent:Number(x&&x.customPercent||0),customPay:Number(x&&x.customPay||0),note:String(x&&x.note||'')}}
 function normalizeConfig(c){
   const d=defaultRateLimitConfig(); c=c&&typeof c==='object'?c:{};
@@ -298,7 +299,7 @@ function normalizeConfig(c){
 
 function defaultPrizeResult(){
   return {
-    version:'4B-Plus',
+    version:'4C',
     market,
     updatedAt:0,
     thai:{drawDate:'',top6:'',front3_1:'',front3_2:'',back3_1:'',back3_2:'',lower2:'',source:'manual'},
@@ -378,6 +379,7 @@ function loadData(){
       workspace=data.workspace||workspace;
       rateLimitConfig=normalizeConfig(data.rateLimitConfig||data.config||{});
       prizeResult=normalizePrizeResult(data.prizeResult||{});
+      latestPrizeCheckReport=data.latestPrizeCheckReport||data.prizeCheckReport||null;
       if(!agents.find(a=>a.id===activeAgentId)&&agents[0])activeAgentId=agents[0].id;
       updateSaveLine(data.savedAt,'โหลดข้อมูลจากเครื่องแล้ว')
     }
@@ -386,7 +388,7 @@ function loadData(){
 function saveData(){
   try{
     workspace.updatedAt=Date.now();
-    let payload={fileType:'T999_V2_MASTER_LOCAL',version:'4B-Plus',market,activeAgentId,workspace,agents,rateLimitConfig,prizeResult,savedAt:Date.now()};
+    let payload={fileType:'T999_V2_MASTER_LOCAL',version:'4C',market,activeAgentId,workspace,agents,rateLimitConfig,prizeResult,latestPrizeCheckReport,savedAt:Date.now()};
     localStorage.setItem(STORAGE_KEY,JSON.stringify(payload));
     updateSaveLine(payload.savedAt,'บันทึกในเครื่องแล้ว')
   }catch(e){console.error(e);updateSaveLine(null,'บันทึกไม่สำเร็จ')}
@@ -399,7 +401,7 @@ function clearLocalData(){
   localStorage.removeItem(STORAGE_KEY);
   workspace={workspaceId:'WS-'+market.toUpperCase()+'-'+Date.now(),market,marketName:rules.name,roundLabel:'',masterName:'Master',createdAt:Date.now(),updatedAt:Date.now()};
   agents=[{id:'a1',name:'จอย',items:[],customers:[]},{id:'a2',name:'นายพล',items:[],customers:[]},{id:'a3',name:'บัญชา',items:[],customers:[]},{id:'a4',name:'แมน2',items:[],customers:[]},{id:'a5',name:'นา',items:[],customers:[]}];
-  rateLimitConfig=defaultRateLimitConfig();prizeResult=defaultPrizeResult();activeAgentId='a1';clearBuffer();selectAgent(activeAgentId,false);renderWorkspace();saveData()
+  rateLimitConfig=defaultRateLimitConfig();prizeResult=defaultPrizeResult();latestPrizeCheckReport=null;activeAgentId='a1';clearBuffer();selectAgent(activeAgentId,false);renderWorkspace();saveData()
 }
 
 function normalizeAgents(raw){
@@ -411,14 +413,14 @@ function normalizeAgents(raw){
 }
 function exportJson(){
   saveData();
-  let payload={fileType:'T999_V2_MASTER_EXPORT',version:'4B-Plus',market,marketName:rules.name,workspace,activeAgentId,exportedAt:new Date().toISOString(),agents,rateLimitConfig,prizeResult};
+  let payload={fileType:'T999_V2_MASTER_EXPORT',version:'4C',market,marketName:rules.name,workspace,activeAgentId,exportedAt:new Date().toISOString(),agents,rateLimitConfig,prizeResult,latestPrizeCheckReport};
   downloadJSON(payload,'t999-v2-master-'+market+'-'+safeName(workspace.roundLabel||'round')+'-'+Date.now()+'.json')
 }
 function exportSubkeyWorkspace(){
   let worker=prompt('ชื่อลูกน้อง / คนคีย์','');if(worker===null)return;worker=worker.trim();if(!worker)return alert('ต้องใส่ชื่อลูกน้องก่อน');
   let round=workspace.roundLabel||'';if(!round){let r=prompt('ยังไม่ได้ตั้งงวด ใส่งวดสำหรับไฟล์งานนี้',rules.name+' '+new Date().toLocaleDateString('th-TH'));if(r===null)return;round=r.trim();workspace.roundLabel=round}
   let sessionId='SUB-'+market.toUpperCase()+'-'+Date.now();
-  let payload={fileType:'T999_V2_SUBKEY_WORKSPACE',version:'4B-Plus',createdAt:new Date().toISOString(),sessionId,market,marketName:rules.name,roundLabel:round,master:{name:workspace.masterName||'Master',workspaceId:workspace.workspaceId},subKeyer:{id:'SUB_'+safeName(worker).toUpperCase()+'_'+Date.now(),name:worker},settings:{allowEditMarket:false,allowEditRound:false,source:'master-v2',rateLimitConfig,prizeResult},agents:[{id:'sub_inbox_'+Date.now(),name:'โพยลูกน้อง '+worker,items:[],customers:[]}],notes:'ไฟล์งานลูกน้องจาก T999 V2 Master Step 4B'};
+  let payload={fileType:'T999_V2_SUBKEY_WORKSPACE',version:'4C',createdAt:new Date().toISOString(),sessionId,market,marketName:rules.name,roundLabel:round,master:{name:workspace.masterName||'Master',workspaceId:workspace.workspaceId},subKeyer:{id:'SUB_'+safeName(worker).toUpperCase()+'_'+Date.now(),name:worker},settings:{allowEditMarket:false,allowEditRound:false,source:'master-v2',rateLimitConfig,prizeResult},agents:[{id:'sub_inbox_'+Date.now(),name:'โพยลูกน้อง '+worker,items:[],customers:[]}],notes:'ไฟล์งานลูกน้องจาก T999 V2 Master Step 4C'};
   downloadJSON(payload,'T999_WORK_'+safeName(worker)+'_'+market.toUpperCase()+'_'+safeName(round)+'.json');renderWorkspace();saveData();alert('สร้างไฟล์งานลูกน้องแล้ว\n'+worker+' | '+rules.name+' | '+round)
 }
 function downloadJSON(payload,name){let blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
@@ -444,6 +446,7 @@ function importNormalJson(data){
   workspace=data.workspace||workspace;
   if(data.rateLimitConfig)rateLimitConfig=normalizeConfig(data.rateLimitConfig);
   if(data.prizeResult)prizeResult=normalizePrizeResult(data.prizeResult);
+  if(data.latestPrizeCheckReport||data.prizeCheckReport)latestPrizeCheckReport=data.latestPrizeCheckReport||data.prizeCheckReport;
   selectAgent(activeAgentId,false);renderWorkspace();saveData();alert('นำเข้าเรียบร้อย')
 }
 function summarizeImport(importAgents){
@@ -793,7 +796,7 @@ function renderAgentModal(){
   restoreAgentTabLabels();
   const a=agents.find(x=>x.id===agentModalAgentId);if(!a)return;
   document.getElementById('agentModalTitle').textContent='Agent Card: '+a.name;
-  document.getElementById('agentModalSub').textContent='Step 4B | '+rules.name+' | รายละเอียดเอเยนต์';
+  document.getElementById('agentModalSub').textContent='Step 4C | '+rules.name+' | รายละเอียดเอเยนต์';
   document.getElementById('agentSumTotal').textContent=money(totalAgent(a));
   document.getElementById('agentSumCustomers').textContent=(a.customers||[]).length;
   document.getElementById('agentSumSlips').textContent=countSlips(a);
@@ -860,7 +863,7 @@ function openBaseConfig(tab){agentModalAgentId=null;agentModalTab=tab||'rates';d
 function openActiveAgentConfig(){const a=getActiveAgent();if(!a)return alert('ยังไม่มีเอเยนต์');openAgentRateTab(a.id)}
 function renderBaseConfig(){
   document.getElementById('agentModalTitle').textContent='ตั้งค่าเรท/เลขอั้นกลาง';
-  document.getElementById('agentModalSub').textContent='Step 4B | '+rules.name+' | ค่ากลางทั้งระบบ';
+  document.getElementById('agentModalSub').textContent='Step 4C | '+rules.name+' | ค่ากลางทั้งระบบ';
   document.getElementById('agentSumTotal').textContent=money(totalAll());
   document.getElementById('agentSumCustomers').textContent='กลาง';
   document.getElementById('agentSumSlips').textContent=RATE_TYPES[market].length;
@@ -878,7 +881,7 @@ function renderBaseConfig(){
   if(agentModalTab==='rates')renderBaseRatesTab();
   else if(agentModalTab==='limits')renderBaseLimitsTab();
   else if(agentModalTab==='prize')renderPrizeResultTab('base','');
-  else document.getElementById('agentModalContent').innerHTML='<div class="placeholder-box"><b style="color:#f5c518">Step 4B</b><br>ไฟล์นี้ใช้ฐาน Step 4A Fix4 และเพิ่มหน้ากรอกผลรางวัล/ดึงผลล่าสุด/ประวัติผลแล้ว<br>ข้อมูลเรท/เลขอั้น/ผลรางวัล ถูกบันทึกลง localStorage และ Export JSON ไปพร้อมไฟล์ Master</div>';
+  else document.getElementById('agentModalContent').innerHTML='<div class="placeholder-box"><b style="color:#f5c518">Step 4C</b><br>ไฟล์นี้ใช้ฐาน Step 4A Fix4 และเพิ่มหน้ากรอกผลรางวัล/ดึงผลล่าสุด/ประวัติผลแล้ว<br>ข้อมูลเรท/เลขอั้น/ผลรางวัล ถูกบันทึกลง localStorage และ Export JSON ไปพร้อมไฟล์ Master</div>';
 }
 function restoreAgentTabLabels(){
   document.getElementById('agentTabSlips').textContent='สรุปลูกค้า/โพย';
@@ -898,13 +901,15 @@ function renderPrizeResultTab(scope,agentId){
   let html=`<div class="agent-section">
     <div class="config-bar">
       <span class="pill">${rules.name}</span>
-      <span class="pill">Step 4B-Plus</span>
+      <span class="pill">Step 4C-Plus</span>
       <span class="pill">${prizeReady()?'กรอกผลแล้ว':'ยังไม่ครบ'}</span>
     </div>
-    <div class="warn">ขั้นนี้คือ “กรอกผลรางวัล” ก่อน ยังไม่ตรวจถูกรางวัลจริง · มีดึงผลล่าสุด/ประวัติ/ลบถาวรแล้ว</div>
+    <div class="warn">Step 4C: กรอกผลแล้วกด “ตรวจถูกรางวัล” ระบบจะคำนวณผู้ถูก ยอดจ่าย และกำไร/ขาดทุน โดยใช้เรทและเลขอั้นที่ตั้งไว้</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
       <button class="btn purple" onclick="fetchLatestPrizeResult('${scope}','${agentId}')">ดึงผลล่าสุด</button>
       <button class="btn" onclick="renderPrizeHistoryTab('${scope}','${agentId}')">ประวัติผลรางวัล</button>
+      <button class="btn green" onclick="runPrizeCheck('${scope}','${agentId}')">ตรวจถูกรางวัล</button>
+      <button class="btn" onclick="renderLastPrizeReport('${scope}','${agentId}')">รายงานล่าสุด</button>
     </div>
     ${market==='thai'?thaiPrizeFormHtml(r):laoPrizeFormHtml(r)}
     <div id="prizePreview" class="placeholder-box" style="margin-top:10px;text-align:left">${prizePreviewHtml()}</div>
@@ -995,7 +1000,7 @@ function savePrizeResult(scope,agentId){
   if(!r.lower2||r.lower2.length!==2)return alert('กรุณากรอก 2 ตัวล่าง');
   prizeResult[market]=r;
   prizeResult.market=market;
-  prizeResult.version='4B-Plus';
+  prizeResult.version='4C';
   prizeResult.updatedAt=Date.now();
   savePrizeHistory(r,'manual');
   saveData();
@@ -1062,7 +1067,7 @@ function loadPrizeHistory(id,scope,agentId){
 }
 function exportPrizeHistory(id){
   const h=prizeHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบประวัตินี้');
-  downloadJson({fileType:'T999_V2_PRIZE_HISTORY',version:'4B-Plus',exportedAt:new Date().toISOString(),entry:h},`t999-prize-${market}-${safeName(h.drawDate||h.result?.top6||'history')}.json`);
+  downloadJSON({fileType:'T999_V2_PRIZE_HISTORY',version:'4C',exportedAt:new Date().toISOString(),entry:h},`t999-prize-${market}-${safeName(h.drawDate||h.result?.top6||'history')}.json`);
 }
 function deletePrizeHistoryPermanent(id,scope,agentId){
   const h=prizeHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบประวัตินี้');
@@ -1217,6 +1222,231 @@ function getMatchedLimit(agentId,number,type){
   let found=ar.find(match);if(found)return{...found,source:'agent'};
   found=(rateLimitConfig.baseLimits[market]||[]).find(match);if(found)return{...found,source:'base'};
   return null;
+}
+
+/* Step 4C prize checking */
+function derivePrizeTargets(r=currentPrize()){
+  const top6=onlyDigits(r.top6,6);
+  const top3=top6.length===6?top6.slice(-3):'';
+  const top2=top6.length===6?top6.slice(-2):'';
+  const lower2=(onlyDigits(r.lower2,2)||(market==='lao'&&top6.length===6?top6.slice(2,4):''));
+  if(market==='thai'){
+    return {
+      market,drawDate:r.drawDate||'',top6,
+      top3,top2,
+      front3:top6.length===6?top6.slice(0,3):'',
+      front2:top6.length===6?top6.slice(3,5):'',
+      lower3:[r.front3_1,r.front3_2,r.back3_1,r.back3_2].map(x=>onlyDigits(x,3)).filter(x=>x.length===3),
+      lower2,
+      pinTop:{hundred:top3[0]||'',ten:top3[1]||'',unit:top3[2]||''},
+      pinLower:{ten:lower2[0]||'',unit:lower2[1]||''}
+    };
+  }
+  return {
+    market,drawDate:r.drawDate||'',top6,
+    top4:top6.length===6?top6.slice(-4):'',
+    top3,top2,lower2,
+    pinTop:{hundred:top3[0]||'',ten:top3[1]||'',unit:top3[2]||''},
+    pinLower:{ten:lower2[0]||'',unit:lower2[1]||''}
+  };
+}
+function canCheckPrize(){
+  const t=derivePrizeTargets();
+  if(!t.top6||t.top6.length!==6)return false;
+  if(!t.lower2||t.lower2.length!==2)return false;
+  return true;
+}
+function normalizeBetNumber(n){return onlyDigits(n,20)}
+function sortedDigits(s){return String(s||'').split('').sort().join('')}
+function uniquePermutationsOfLength(source,len){
+  source=String(source||'');len=Number(len||source.length);
+  const out=new Set();
+  function rec(prefix,rest){
+    if(prefix.length===len){out.add(prefix);return}
+    for(let i=0;i<rest.length;i++)rec(prefix+rest[i],rest.slice(0,i)+rest.slice(i+1));
+  }
+  rec('',source);
+  return out;
+}
+function todMatchFromTop3(bet,top3){
+  bet=normalizeBetNumber(bet);top3=normalizeBetNumber(top3);
+  if(!bet||!top3)return false;
+  if(bet.length>top3.length)return false;
+  if(bet.length===top3.length)return sortedDigits(bet)===sortedDigits(top3);
+  return uniquePermutationsOfLength(top3,bet.length).has(bet);
+}
+function rateTypeForItem(it){
+  const n=normalizeBetNumber(itemNumber(it));
+  const len=n.length;
+  if(it.pin){
+    if(market==='thai')return it.type==='lang'?'ปักหลักล่าง':'ปักหลักบน';
+    return it.type==='lang'?'ปักล่าง':'ปักบน';
+  }
+  if(it.type==='tod')return 'โต๊ด '+len+'ตัว';
+  if(market==='thai'){
+    if(it.type==='bon')return len===3?'3ตัวบน':len===2?'2ตัวบน':len===1?'วิ่งบน':'บน';
+    if(it.type==='lang')return len===3?'3ตัวล่าง':len===2?'2ตัวล่าง':len===1?'วิ่งล่าง':'ล่าง';
+    if(it.type==='na')return len===3?'3ตัวหน้า':len===2?'2ตัวหน้า':'หน้า';
+  }else{
+    if(it.type==='bon')return len===4?'4ตัวบน':len===3?'3ตัวบน':len===2?'2ตัวบน':len===1?'ลอยบน':'บน';
+    if(it.type==='lang')return len===2?'2ตัวล่าง':len===1?'ลอยล่าง':'ล่าง';
+  }
+  return LABEL[it.type]||it.type||'-';
+}
+function limitTypeForItem(it){
+  if(it.pin){
+    if(market==='thai')return it.type==='lang'?'ปักหลักล่าง':'ปักหลักบน';
+    return it.type==='lang'?'ปักล่าง':'ปักบน';
+  }
+  if(it.type==='tod')return 'โต๊ด';
+  if(it.type==='lang')return 'ล่าง';
+  if(it.type==='na')return 'หน้า';
+  return 'บน';
+}
+function checkItemWin(it,targets){
+  const n=normalizeBetNumber(itemNumber(it));
+  const len=n.length;
+  if(!n)return {win:false,reason:'ไม่มีเลข'};
+  if(it.pin){
+    const pos=it.pinPosition||'';
+    const digit=n.slice(-1);
+    if(it.type==='lang'){
+      const hit=targets.pinLower&&targets.pinLower[pos]===digit;
+      return {win:!!hit,reason:'ปักล่าง '+pos+' = '+(targets.pinLower&&targets.pinLower[pos]||'-')};
+    }
+    const hit=targets.pinTop&&targets.pinTop[pos]===digit;
+    return {win:!!hit,reason:'ปักบน '+pos+' = '+(targets.pinTop&&targets.pinTop[pos]||'-')};
+  }
+  if(it.type==='tod'){
+    const hit=todMatchFromTop3(n,targets.top3);
+    return {win:hit,reason:'โต๊ดอิง 3ตัวบน '+(targets.top3||'-')};
+  }
+  if(market==='thai'){
+    if(it.type==='bon'){
+      if(len===3)return {win:n===targets.top3,reason:'3ตัวบน '+targets.top3};
+      if(len===2)return {win:n===targets.top2,reason:'2ตัวบน '+targets.top2};
+      if(len===1)return {win:targets.top3.includes(n),reason:'วิ่งบนใน '+targets.top3};
+    }
+    if(it.type==='lang'){
+      if(len===3)return {win:(targets.lower3||[]).includes(n),reason:'3ล่าง '+((targets.lower3||[]).join('/')||'-')};
+      if(len===2)return {win:n===targets.lower2,reason:'2ตัวล่าง '+targets.lower2};
+      if(len===1)return {win:targets.lower2.includes(n),reason:'วิ่งล่างใน '+targets.lower2};
+    }
+    if(it.type==='na'){
+      if(len===3)return {win:n===targets.front3,reason:'3หน้า '+targets.front3};
+      if(len===2)return {win:n===targets.front2,reason:'2หน้า '+targets.front2};
+    }
+  }else{
+    if(it.type==='bon'){
+      if(len===4)return {win:n===targets.top4,reason:'4ตัวบน '+targets.top4};
+      if(len===3)return {win:n===targets.top3,reason:'3ตัวบน '+targets.top3};
+      if(len===2)return {win:n===targets.top2,reason:'2ตัวบน '+targets.top2};
+      if(len===1)return {win:targets.top3.includes(n),reason:'ลอยบนใน '+targets.top3};
+    }
+    if(it.type==='lang'){
+      if(len===2)return {win:n===targets.lower2,reason:'2ตัวล่าง '+targets.lower2};
+      if(len===1)return {win:targets.lower2.includes(n),reason:'ลอยล่างใน '+targets.lower2};
+    }
+  }
+  return {win:false,reason:'ประเภทนี้ยังไม่เข้าเงื่อนไขตรวจ'};
+}
+function payoutForWin(it,agentId,rateType,limit){
+  let amount=Number(it.amount||0);
+  const rate=getEffectiveRate(agentId,rateType);
+  let pay=Number(rate.pay||0);
+  if(!pay&&it.pin)pay=8;
+  let paySource=rate.source||'base';
+  let limitNote='';
+  if(limit){
+    if(limit.level==='closed')return {amount,pay,payout:0,rate,limit,limitNote:'ปิดรับ'};
+    if(limit.level==='pay50'){pay=pay*0.5;limitNote='เลขอั้นจ่าย 50%'}
+    else if(limit.level==='pay20'){pay=pay*0.2;limitNote='เลขอั้นจ่าย 20%'}
+    else if(limit.level==='custom'){
+      if(Number(limit.customPay||0)>0){pay=Number(limit.customPay);limitNote='เลขอั้นกำหนดจ่าย'}
+      else if(Number(limit.customPercent||0)>0){pay=pay*(Number(limit.customPercent)/100);limitNote='เลขอั้นกำหนด '+Number(limit.customPercent)+'%'}
+      else limitNote='เลขอั้นกำหนดเอง';
+    }
+  }
+  return {amount,pay,payout:amount*pay,rate,limit,limitNote,paySource};
+}
+function discountForItem(it,agentId,rateType){
+  const rate=getEffectiveRate(agentId,rateType);
+  const amount=Number(it.amount||0);
+  const discount=Number(rate.discount||0);
+  return {gross:amount,discountPercent:discount,net:amount-(amount*discount/100),rate};
+}
+function collectCheckItems(scope,agentId){
+  if(scope==='agent'&&agentId){
+    const a=agents.find(x=>x.id===agentId);
+    return a?[a]:[];
+  }
+  return agents;
+}
+function runPrizeCheck(scope='base',agentId=''){
+  const r=readPrizeInputs();
+  if(r.top6&&r.top6.length===6){prizeResult[market]=r;prizeResult.market=market;prizeResult.version='4C';prizeResult.updatedAt=Date.now();}
+  if(!canCheckPrize())return alert('กรุณากรอกผลรางวัลให้ครบก่อนตรวจ');
+  const targets=derivePrizeTargets(currentPrize());
+  const report={version:'4C',market,marketName:rules.name,scope,agentId,drawDate:targets.drawDate||'',checkedAt:Date.now(),targets,totalGross:0,totalNet:0,totalPayout:0,profit:0,winCount:0,itemCount:0,winners:[],agentSummary:[]};
+  const checkAgents=collectCheckItems(scope,agentId);
+  checkAgents.forEach(a=>{
+    let agentSum={agentId:a.id,agentName:a.name,totalGross:0,totalNet:0,totalPayout:0,winCount:0,itemCount:0};
+    (a.items||[]).forEach(it=>{
+      const rateType=rateTypeForItem(it);
+      const disc=discountForItem(it,a.id,rateType);
+      agentSum.totalGross+=disc.gross;agentSum.totalNet+=disc.net;agentSum.itemCount++;report.itemCount++;
+      const chk=checkItemWin(it,targets);
+      if(chk.win){
+        const limit=getMatchedLimit(a.id,itemNumber(it),limitTypeForItem(it));
+        const p=payoutForWin(it,a.id,rateType,limit);
+        agentSum.totalPayout+=p.payout;agentSum.winCount++;report.winCount++;
+        report.winners.push({agentId:a.id,agentName:a.name,customerName:it.customerName||'',slipNo:it.slipNo||'',slipId:it.slipId||'',number:itemNumber(it),type:LABEL[it.type]||it.type,rateType,amount:Number(it.amount||0),pay:p.pay,payout:p.payout,reason:chk.reason,limit:p.limit||null,limitNote:p.limitNote||''});
+      }
+    });
+    report.totalGross+=agentSum.totalGross;report.totalNet+=agentSum.totalNet;report.totalPayout+=agentSum.totalPayout;
+    report.agentSummary.push(agentSum);
+  });
+  report.profit=report.totalNet-report.totalPayout;
+  latestPrizeCheckReport=report;
+  saveData();
+  renderPrizeReport(report,scope,agentId);
+}
+function renderPrizeReport(report,scope='base',agentId=''){
+  const winRows=report.winners.length?report.winners.map((w,i)=>`<div class="agent-slip">
+    <div>
+      <div class="agent-slip-title">${i+1}. ${esc(w.agentName)} ${w.customerName?' / '+esc(w.customerName):''} ${w.slipNo?' / โพย #'+esc(w.slipNo):''}</div>
+      <div class="agent-slip-meta">เลข ${esc(w.number)} · ${esc(w.rateType)} · แทง ${money(w.amount)} · จ่าย ${Number(w.pay||0).toLocaleString()} · ยอดจ่าย ${money(w.payout)}<br>${esc(w.reason)} ${w.limitNote?' · '+esc(w.limitNote):''}</div>
+    </div>
+  </div>`).join(''):'<div class="placeholder-box">ไม่พบผู้ถูกรางวัล</div>';
+  const agentRows=report.agentSummary.map(a=>`<div class="agent-slip">
+    <div><div class="agent-slip-title">${esc(a.agentName)}</div><div class="agent-slip-meta">รายการ ${a.itemCount} · ถูก ${a.winCount} · ยอดแทงหลังลด ${money(a.totalNet)} · ยอดจ่าย ${money(a.totalPayout)} · กำไร ${money(a.totalNet-a.totalPayout)}</div></div>
+  </div>`).join('');
+  const targetHtml=market==='thai'
+    ? `3บน ${report.targets.top3||'-'} · 2บน ${report.targets.top2||'-'} · 3หน้า ${report.targets.front3||'-'} · 2หน้า ${report.targets.front2||'-'} · 3ล่าง ${(report.targets.lower3||[]).join('/')||'-'} · 2ล่าง ${report.targets.lower2||'-'}`
+    : `4บน ${report.targets.top4||'-'} · 3บน ${report.targets.top3||'-'} · 2บน ${report.targets.top2||'-'} · 2ล่าง ${report.targets.lower2||'-'}`;
+  document.getElementById('agentModalContent').innerHTML=`<div class="agent-section">
+    <div class="config-bar"><span class="pill">รายงานตรวจรางวัล</span><span class="pill">${esc(rules.name)}</span><span class="pill">${report.winCount} รายการถูก</span></div>
+    <div class="placeholder-box" style="text-align:left">
+      <b style="color:#f5c518">ผลที่ใช้ตรวจ</b><br>${targetHtml}<br><br>
+      ยอดแทงรวม: <b>${money(report.totalGross)}</b> · หลังหักลด: <b>${money(report.totalNet)}</b> · ยอดจ่าย: <b>${money(report.totalPayout)}</b> · กำไร/ขาดทุน: <b style="color:${report.profit>=0?'#34d399':'#fb7185'}">${money(report.profit)}</b>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin:10px 0">
+      <button class="btn" onclick="renderPrizeResultTab('${scope}','${agentId}')">กลับหน้าผลรางวัล</button>
+      <button class="btn" onclick="exportPrizeCheckReport()">Export รายงาน</button>
+    </div>
+    <div class="warn">สรุปตามเอเยนต์</div>
+    ${agentRows||'<div class="placeholder-box">ไม่มีข้อมูลเอเยนต์</div>'}
+    <div class="warn" style="margin-top:10px">รายการที่ถูกรางวัล</div>
+    ${winRows}
+  </div>`;
+}
+function renderLastPrizeReport(scope='base',agentId=''){
+  if(!latestPrizeCheckReport)return alert('ยังไม่มีรายงานล่าสุด ให้กดตรวจถูกรางวัลก่อน');
+  renderPrizeReport(latestPrizeCheckReport,scope,agentId);
+}
+function exportPrizeCheckReport(){
+  if(!latestPrizeCheckReport)return alert('ยังไม่มีรายงานล่าสุด');
+  downloadJSON({fileType:'T999_V2_PRIZE_CHECK_REPORT',version:'4C',exportedAt:new Date().toISOString(),report:latestPrizeCheckReport},`t999-prize-report-${market}-${safeName(latestPrizeCheckReport.drawDate||Date.now())}.json`);
 }
 
 /* boot */
