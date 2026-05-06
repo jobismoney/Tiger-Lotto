@@ -259,7 +259,7 @@ const STORAGE_KEY='t999_v2_master_'+market+'_v4a';
 document.getElementById('thaiLink').className='mode-link '+(market==='thai'?'on':'');
 document.getElementById('laoLink').className='mode-link '+(market==='lao'?'on':'');
 document.body.classList.toggle('lao-mode',market==='lao');
-document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 4A';
+document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 4A Fix3';
 document.getElementById('marketBadge').textContent=rules.name;
 document.getElementById('typeRow').classList.toggle('thai',market==='thai');
 
@@ -525,31 +525,21 @@ function totalSlip(sl){return (sl.items||[]).reduce((s,it)=>s+Number(it.amount||
 function totalAll(){return agents.reduce((s,a)=>s+totalAgent(a),0)}
 function itemCountAll(){return agents.reduce((s,a)=>s+(a.items||[]).length,0)}
 function cellAmount(it,type){return it.type===type?Number(it.amount||0):0}
+function itemNumber(it){return String(it.number ?? it.lek ?? it.num ?? it.n ?? '').trim()}
 function renderAgents(){
   const wrap=document.getElementById('agentList');document.getElementById('agentCount').textContent=agents.length;
   wrap.innerHTML=agents.map(a=>{
     if(!a.items)a.items=[];if(!a.customers)a.customers=[];
-    const isActive=a.id===activeAgentId;
-    const customerHtml=isActive?(a.customers||[]).map(c=>{
-      const slips=(c.slips||[]).map(sl=>{
-        const isOpen=activeSlipRef&&activeSlipRef.agentId===a.id&&activeSlipRef.customerId===c.id&&activeSlipRef.slipId===sl.id;
-        return `<div class="customer-row" style="display:flex;align-items:center;justify-content:space-between;gap:6px;border-left:${isOpen?'3px solid #f5c518':'3px solid transparent'};padding-left:6px">
-          <span>🧾 โพย #${esc(sl.slipNo||'-')} · ${(sl.items||[]).length} รายการ · ${money(totalSlip(sl))}</span>
-          <button class="btn small ${isOpen?'purple':''}" onclick="openSlipFromFolder('${a.id}','${c.id}','${sl.id}',event)">${isOpen?'กำลังแก้':'เปิดโพย'}</button>
-        </div>`;
-      }).join('');
-      return `<div style="margin-top:8px;border-top:1px solid #30364a;padding-top:7px">
-        <div class="customer-row" style="color:#f5c518;font-weight:900">👤 ${esc(c.name)} · ${(c.slips||[]).length} โพย · ${money(totalCustomer(c))}</div>
-        ${slips||'<div class="customer-row">ยังไม่มีโพย</div>'}
-      </div>`;
-    }).join(''):(a.customers||[]).slice(0,3).map(c=>`<div class="customer-row">👤 ${esc(c.name)} · ${c.slips.length} โพย · ${money(totalCustomer(c))}</div>`).join('');
-    return `<div class="agent-card ${isActive?'active':''}" onclick="selectAgent('${a.id}')">
+    const customers=(a.customers||[]).slice(0,3).map(c=>`<div class="customer-row">👤 ${esc(c.name)} · ${c.slips.length} โพย · ${money(totalCustomer(c))}</div>`).join('');
+    const isEditing=activeSlipRef&&activeSlipRef.agentId===a.id;
+    return `<div class="agent-card ${a.id===activeAgentId?'active':''}" onclick="selectAgent('${a.id}')">
       <div class="agent-name"><span>${esc(a.name)}</span><span>${(a.items||[]).length}</span></div>
       <div class="agent-meta">ลูกค้า ${(a.customers||[]).length} · โพย ${countSlips(a)} · รายการ ${(a.items||[]).length}</div>
       <div class="agent-total">${money(totalAgent(a))}</div>
-      ${customerHtml}
+      ${customers}
+      ${isEditing?`<div class="customer-row" style="color:#f5c518;font-weight:900">🟡 กำลังแก้โพยจาก Agent Card</div>`:''}
       <div class="agent-actions">
-        ${isActive&&activeSlipRef?`<button class="btn small" onclick="closeSlipEditMode();event.stopPropagation()">ดูรวมเอเยนต์</button>`:''}
+        ${isEditing?`<button class="btn small" onclick="closeSlipEditMode();event.stopPropagation()">ดูรวม</button>`:''}
         <button class="btn small" onclick="openAgentModal('${a.id}',event)">Agent Card</button>
         <button class="btn small purple" onclick="openAgentRateTab('${a.id}',event)">เรท/อั้น</button>
         <button class="btn small" onclick="renameAgent('${a.id}',event)">ชื่อ</button>
@@ -571,7 +561,7 @@ function renderList(){
   }
   const modeHead=found?`<div class="table-row" style="background:#241b05;color:#f5c518;font-weight:900;grid-template-columns:1fr auto"><div>กำลังแก้เฉพาะโพย: ${esc(found.customer.name)} / โพย #${esc(found.slip.slipNo||'-')}</div><button class="btn small" onclick="closeSlipEditMode()">ดูรวมเอเยนต์</button></div>`:'';
   list.innerHTML=modeHead+items.map((it,idx)=>`<div class="table-row">
-    <div class="lek ${it.follow?'follow':''} ${it.pin?'pinlek':''}">${esc(it.number)}</div>
+    <div class="lek ${it.follow?'follow':''} ${it.pin?'pinlek':''}">${esc(itemNumber(it))}</div>
     <div class="cell bon ${cellAmount(it,'bon')?'has':''}">${cellAmount(it,'bon')||''}</div>
     <div class="cell tod ${cellAmount(it,'tod')?'has':''}">${cellAmount(it,'tod')||''}</div>
     <div class="cell lang ${cellAmount(it,'lang')?'has':''}">${cellAmount(it,'lang')||''}</div>
@@ -707,26 +697,35 @@ function renderAgentModal(){
 function renderAgentSlipsTab(a){
   const el=document.getElementById('agentModalContent');
   if(!(a.customers||[]).length){el.innerHTML='<div class="placeholder-box">ยังไม่มีลูกค้า/โพยในเอเยนต์นี้</div>';return}
-  el.innerHTML=`<div class="placeholder-box" style="margin-bottom:12px;text-align:left"><b style="color:#f5c518">โหมดสรุปลูกค้า/โพย</b><br>แท็บนี้ใช้ดูภาพรวมของเอเยนต์เท่านั้น<br>ถ้าต้องการดูรายการจริง ลบ หรือแก้ไข ให้ทำจากแฟ้มฝั่งซ้ายเหมือนเดิม<br>ส่วนปุ่มดูเป็นรูปโพยกระดาษ จะทำเพิ่มในสเต็ปถัดไป</div>`+
+  el.innerHTML=`<div class="placeholder-box" style="margin-bottom:12px;text-align:left"><b style="color:#f5c518">เลือกโพยจาก Agent Card</b><br>ฝั่งซ้ายกลับไปเป็นแฟ้มเอเยนต์แบบสะอาดเหมือนเดิม<br>ถ้าต้องการแก้โพย ให้กด “เปิดโพย” จากรายการด้านล่าง แล้วจอกลางจะแสดงเฉพาะโพยนั้น<br>ปุ่ม “โพยกระดาษ” เก็บไว้สำหรับทำหน้าพิมพ์โพยในสเต็ปถัดไป</div>`+
   (a.customers||[]).map(c=>`<div class="agent-section">
     <div class="customer-head">
       <div><div class="customer-title">👤 ${esc(c.name)}</div><div class="customer-meta">${(c.slips||[]).length} โพย · ${money(totalCustomer(c))}</div></div>
-      <span class="pill">สรุป</span>
+      <span class="pill">${money(totalCustomer(c))}</span>
     </div>
-    ${(c.slips||[]).map(sl=>`<div class="agent-slip">
-      <div>
-        <div class="agent-slip-title">โพย #${esc(sl.slipNo||'-')} · ${esc(sl.label||sl.id)}</div>
-        <div class="agent-slip-meta">${(sl.items||[]).length} รายการ · ${money(totalSlip(sl))}</div>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
-        <button class="btn small" onclick="viewSlipPaperComingSoon('${a.id}','${c.id}','${sl.id}')">โพยกระดาษ</button>
-      </div>
-    </div>`).join('')}
+    ${(c.slips||[]).map(sl=>{
+      const isOpen=activeSlipRef&&activeSlipRef.agentId===a.id&&activeSlipRef.customerId===c.id&&activeSlipRef.slipId===sl.id;
+      return `<div class="agent-slip" style="border-color:${isOpen?'#f5c518':'#30364a'}">
+        <div>
+          <div class="agent-slip-title">โพย #${esc(sl.slipNo||'-')} · ${esc(sl.label||sl.id)}</div>
+          <div class="agent-slip-meta">${(sl.items||[]).length} รายการ · ${money(totalSlip(sl))}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+          <button class="btn small ${isOpen?'purple':''}" onclick="openSlipFromAgentCard('${a.id}','${c.id}','${sl.id}',event)">${isOpen?'กำลังแก้':'เปิดโพย'}</button>
+          <button class="btn small" onclick="viewSlipPaperComingSoon('${a.id}','${c.id}','${sl.id}')">โพยกระดาษ</button>
+        </div>
+      </div>`;
+    }).join('')}
   </div>`).join('');
+}
+function openSlipFromAgentCard(agentId,customerId,slipId,ev){
+  if(ev)ev.stopPropagation();
+  openSlipFromFolder(agentId,customerId,slipId,ev);
+  closeAgentModal();
 }
 function viewSlip(agentId,customerId,slipId){
   const a=agents.find(x=>x.id===agentId);const c=a&&(a.customers||[]).find(x=>x.id===customerId);const sl=c&&(c.slips||[]).find(x=>x.id===slipId);if(!sl)return;
-  const lines=(sl.items||[]).map(it=>`${it.number||'-'} ${LABEL[it.type]||it.type||'-'} ${it.amount||0}`).join('\n');
+  const lines=(sl.items||[]).map(it=>`${itemNumber(it)||'-'} ${LABEL[it.type]||it.type||'-'} ${it.amount||0}`).join('\n');
   alert('โพย '+(sl.slipNo||'')+'\nลูกค้า: '+c.name+'\nยอด: '+money(totalSlip(sl))+'\n\n'+lines)
 }
 function viewSlipPaperComingSoon(agentId,customerId,slipId){
