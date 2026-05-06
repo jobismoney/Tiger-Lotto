@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Master Step 4H Fix1</title>
+<title>T999 V2 Master Step 5B Paper Slip</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -121,6 +121,11 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 .agent-slip{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#151824;border:1px solid #2a3042;border-radius:9px;padding:8px;margin:5px 0 5px 10px}.agent-slip-title{font-weight:900;color:#cbd5e1;font-size:13px}.agent-slip-meta{font-size:11px;color:#94a3b8;margin-top:2px}
 .placeholder-box{background:#111827;border:1px dashed #475569;border-radius:12px;padding:16px;color:#94a3b8;line-height:1.6;font-size:13px}
 
+/* Step 5B Paper Slip */
+.paper-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:16px;z-index:95}
+.paper-modal.show{display:flex}.paper-shell{width:min(1120px,98vw);max-height:94vh;background:#151824;border:2px solid var(--gold);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}.paper-head{min-height:58px;background:#202332;border-bottom:1px solid #34394f;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px}.paper-title{font-size:20px;font-weight:900;color:var(--gold)}.paper-sub{font-size:12px;color:#94a3b8;margin-top:2px}.paper-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}.paper-body{padding:14px;overflow:auto;background:#0f1117}.paper-page-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}.paper-page{width:900px;max-width:100%;min-height:620px;background:#fff;color:#111;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.35);padding:16px 22px;font-family:Arial,"Sarabun",sans-serif}.paper-page.compact{width:900px;min-height:520px}.paper-top{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:8px}.paper-brand{font-size:22px;font-weight:900;letter-spacing:.2px}.paper-brand small{font-size:13px;font-weight:900;color:#333;margin-left:4px}.paper-info{font-size:12px;line-height:1.55;margin-top:3px;color:#333}.paper-id{text-align:right;font-size:12px;line-height:1.55;color:#333;min-width:190px}.paper-id b{font-size:16px;color:#111}.paper-list{min-height:330px;padding:4px 0 8px}.paper-bet-row{display:grid;grid-template-columns:56px 20px 1fr;gap:8px;align-items:start;min-height:28px;border-bottom:1px dashed #cfcfcf;padding:4px 0;font-size:18px;font-weight:900}.paper-bet-row .eq{color:#777;text-align:center}.paper-bet-row .desc{font-size:14px;font-weight:900;color:#222;line-height:1.4;padding-top:2px}.paper-bet-row .limit{display:inline-block;margin-left:6px;font-size:10px;border:1px solid #d97706;background:#fff7ed;color:#9a3412;border-radius:999px;padding:1px 6px;vertical-align:middle}.paper-summary{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;border-top:1.5px solid #111;border-bottom:1.5px solid #111}.paper-summary th,.paper-summary td{border-bottom:1px solid #d6d6d6;padding:6px 8px;text-align:center;font-weight:900}.paper-summary th{font-size:12px;color:#333;border-bottom:1px solid #111}.paper-summary .left{text-align:left;color:#555}.paper-page-total{display:flex;justify-content:space-between;gap:10px;align-items:flex-end;margin-top:12px;font-size:16px;font-weight:900}.paper-page-total b{font-size:26px}.paper-qrbox{width:96px;height:96px;border:2px dashed #111;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;line-height:1.25;margin-left:auto;color:#111;word-break:break-all;padding:5px}.paper-footer{font-size:10px;color:#777;text-align:right;margin-top:8px;border-top:1px solid #eee;padding-top:5px}.paper-scan-payload{display:none}.paper-total-card{border:1px solid #111;border-radius:8px;overflow:hidden;margin-top:8px}.paper-total-card .paper-page-total{padding:10px 14px;margin:0;border-top:1px solid #111;background:#fff}@media(max-width:760px){.paper-head{align-items:flex-start;flex-direction:column}.paper-actions{justify-content:flex-start}.paper-page{width:100%;padding:12px}.paper-bet-row{grid-template-columns:48px 14px 1fr;font-size:16px}.paper-id{text-align:left}.paper-top{flex-direction:column}.paper-summary{font-size:11px}.paper-summary th,.paper-summary td{padding:5px 3px}}
+
+
 /* Step 4A/4B */
 .config-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .rate-grid{display:grid;grid-template-columns:1.25fr .75fr .75fr;gap:7px;align-items:center}
@@ -197,7 +202,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
         <button id="folderActionBtn" class="btn full gold" onclick="folderAction()">เก็บเข้าแฟ้ม</button>
         <button id="exitSlipEditBtn" class="btn full" style="display:none" onclick="closeSlipEditMode()">ออกจากโหมดแก้โพย</button>
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 4H: รายงานย้อนหลัง + กำไรขาดทุนละเอียด</div>
+        <div class="help">Step 5B: โพยกระดาษ HTML + พิมพ์โพย + Slip ID</div>
       </div>
     </div>
   </div>
@@ -227,6 +232,21 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
       </div>
       <div id="agentModalContent"></div>
     </div>
+  </div>
+</div>
+
+<div id="paperModal" class="paper-modal">
+  <div class="paper-shell">
+    <div class="paper-head">
+      <div><div class="paper-title">โพยกระดาษ</div><div class="paper-sub" id="paperSub">HTML Preview / Browser Print</div></div>
+      <div class="paper-actions">
+        <button class="btn small" onclick="closePaperSlip()">ปิด</button>
+        <button class="btn small" onclick="copyPaperSlipText()">คัดลอกข้อความ</button>
+        <button class="btn small purple" onclick="exportPaperSlipJSON()">Export Slip JSON</button>
+        <button class="btn small gold" onclick="printPaperSlip()">พิมพ์โพย</button>
+      </div>
+    </div>
+    <div class="paper-body"><div id="paperPreview" class="paper-page-wrap"></div></div>
   </div>
 </div>
 
@@ -269,7 +289,7 @@ document.getElementById('typeRow').classList.toggle('thai',market==='thai');
 
 let workspace={workspaceId:'WS-'+market.toUpperCase()+'-'+Date.now(),market,marketName:rules.name,roundLabel:'',masterName:'Master',createdAt:Date.now(),updatedAt:Date.now()};
 let agents=[{id:'a1',name:'จอย',items:[],customers:[]},{id:'a2',name:'นายพล',items:[],customers:[]},{id:'a3',name:'บัญชา',items:[],customers:[]},{id:'a4',name:'แมน2',items:[],customers:[]},{id:'a5',name:'นา',items:[],customers:[]}];
-let activeAgentId='a1',activeSlipRef=null,_renderGroups=[],_saveTimer=null,leksText='',phase='lek',slots=[],slotIndex=0,priceBuf='',pin={type:'bon',positions:{hundred:true,ten:true,unit:true}};
+let activeAgentId='a1',activeSlipRef=null,currentPaperContext=null,_renderGroups=[],_saveTimer=null,leksText='',phase='lek',slots=[],slotIndex=0,priceBuf='',pin={type:'bon',positions:{hundred:true,ten:true,unit:true}};
 let agentModalAgentId=null,agentModalTab='slips';
 
 let rateLimitConfig=defaultRateLimitConfig();
@@ -888,7 +908,7 @@ function renderAgentModal(){
   restoreAgentTabLabels();
   const a=agents.find(x=>x.id===agentModalAgentId);if(!a)return;
   document.getElementById('agentModalTitle').textContent='Agent Card: '+a.name;
-  document.getElementById('agentModalSub').textContent='Step 4C | '+rules.name+' | รายละเอียดเอเยนต์';
+  document.getElementById('agentModalSub').textContent='Step 5B | '+rules.name+' | รายละเอียดเอเยนต์';
   document.getElementById('agentSumTotal').textContent=money(totalAgent(a));
   document.getElementById('agentSumCustomers').textContent=(a.customers||[]).length;
   document.getElementById('agentSumSlips').textContent=countSlips(a);
@@ -903,7 +923,7 @@ function renderAgentModal(){
 function renderAgentSlipsTab(a){
   const el=document.getElementById('agentModalContent');
   if(!(a.customers||[]).length){el.innerHTML='<div class="placeholder-box">ยังไม่มีลูกค้า/โพยในเอเยนต์นี้</div>';return}
-  el.innerHTML=`<div class="placeholder-box" style="margin-bottom:12px;text-align:left"><b style="color:#f5c518">เลือกโพยจาก Agent Card</b><br>ฝั่งซ้ายกลับไปเป็นแฟ้มเอเยนต์แบบสะอาดเหมือนเดิม<br>ถ้าต้องการแก้โพย ให้กด “เปิดโพย” จากรายการด้านล่าง แล้วจอกลางจะแสดงเฉพาะโพยนั้น<br>ปุ่ม “โพยกระดาษ” เก็บไว้สำหรับทำหน้าพิมพ์โพยในสเต็ปถัดไป</div>`+
+  el.innerHTML=`<div class="placeholder-box" style="margin-bottom:12px;text-align:left"><b style="color:#f5c518">เลือกโพยจาก Agent Card</b><br>ฝั่งซ้ายกลับไปเป็นแฟ้มเอเยนต์แบบสะอาดเหมือนเดิม<br>ถ้าต้องการแก้โพย ให้กด “เปิดโพย” จากรายการด้านล่าง แล้วจอกลางจะแสดงเฉพาะโพยนั้น<br>ปุ่ม “โพยกระดาษ” ใช้ดูตัวอย่างและพิมพ์โพยแบบ HTML ได้แล้ว</div>`+
   (a.customers||[]).map(c=>`<div class="agent-section">
     <div class="customer-head">
       <div><div class="customer-title">👤 ${esc(c.name)}</div><div class="customer-meta">${(c.slips||[]).length} โพย · ${money(totalCustomer(c))}</div></div>
@@ -918,7 +938,7 @@ function renderAgentSlipsTab(a){
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
           <button class="btn small ${isOpen?'purple':''}" onclick="openSlipFromAgentCard('${a.id}','${c.id}','${sl.id}',event)">${isOpen?'กำลังแก้':'เปิดโพย'}</button>
-          <button class="btn small" onclick="viewSlipPaperComingSoon('${a.id}','${c.id}','${sl.id}')">โพยกระดาษ</button>
+          <button class="btn small" onclick="openPaperSlip('${a.id}','${c.id}','${sl.id}',event)">โพยกระดาษ</button>
         </div>
       </div>`;
     }).join('')}
@@ -934,10 +954,32 @@ function viewSlip(agentId,customerId,slipId){
   const lines=(sl.items||[]).map(it=>`${itemNumber(it)||'-'} ${LABEL[it.type]||it.type||'-'} ${it.amount||0}`).join('\n');
   alert('โพย '+(sl.slipNo||'')+'\nลูกค้า: '+c.name+'\nยอด: '+money(totalSlip(sl))+'\n\n'+lines)
 }
-function viewSlipPaperComingSoon(agentId,customerId,slipId){
-  const a=agents.find(x=>x.id===agentId);const c=a&&(a.customers||[]).find(x=>x.id===customerId);const sl=c&&(c.slips||[]).find(x=>x.id===slipId);if(!sl)return;
-  alert('ฟังก์ชันรูปโพยกระดาษกำลังจะทำในสเต็ปถัดไป\n\nเอเยนต์: '+(a?.name||'-')+'\nลูกค้า: '+(c?.name||'-')+'\nโพย: '+(sl.slipNo||'-')+'\nยอด: '+money(totalSlip(sl)));
+function getSlipContext(agentId,customerId,slipId){
+  const a=agents.find(x=>x.id===agentId);
+  const c=a&&(a.customers||[]).find(x=>x.id===customerId);
+  const sl=c&&(c.slips||[]).find(x=>x.id===slipId);
+  if(!a||!c||!sl)return null;
+  return {agent:a,customer:c,slip:sl};
 }
+function formatThaiDateTime(ts){try{return new Date(ts||Date.now()).toLocaleString('th-TH')}catch(e){return '-'}}
+function paperPositionName(pos){return {hundred:'ร้อย',ten:'สิบ',unit:'หน่วย'}[pos]||pos||''}
+function paperTypeLabel(it){const base=LABEL[it.type]||it.type||'-';return it.pin?'ปัก'+base+' '+paperPositionName(it.pinPosition):base}
+function paperAmountText(it){return '฿'+Number(it.amount||0).toLocaleString('th-TH')}
+function paperCategory(it){const len=String(itemNumber(it)).replace(/\D/g,'').length;if(it.pin||len===1)return 'one';if(it.type==='tod')return 'tod';if(it.type==='lang')return market==='thai'&&len===3?'threeLang':'two';if(it.type==='na')return market==='thai'&&len===2?'twoNa':'threeNa';if(len>=4)return 'four';if(len===3)return 'three';if(len===2)return 'two';return 'other'}
+function paperColumns(){return market==='lao'?[['four','4ตัว'],['three','3ตัว'],['two','2ตัว'],['one','1ตัว'],['tod','โต๊ด'],['total','รวม']]:[['three','3ตัว'],['two','2ตัว'],['one','1ตัว'],['tod','โต๊ด'],['threeLang','3ล่าง'],['total','รวม']]}
+function paperSummaryForItems(items){const sums={four:0,three:0,two:0,one:0,tod:0,threeLang:0,threeNa:0,twoNa:0,other:0,total:0};(items||[]).forEach(it=>{const amt=Number(it.amount||0);const cat=paperCategory(it);sums[cat]=(sums[cat]||0)+amt;sums.total+=amt});return sums}
+function buildPaperScanPayload(ctx,pageItems,pageNo,totalPages){const {agent,customer,slip}=ctx;return {app:'T999',version:'5B',kind:'SLIP_PAGE',market,roundLabel:workspace.roundLabel||'',masterName:workspace.masterName||'Master',agentId:agent.id,agentName:agent.name,customerId:customer.id,customerName:customer.name,slipId:slip.id,slipNo:slip.slipNo||'',pageNo,totalPages,items:(pageItems||[]).map(it=>({id:it.id||'',number:itemNumber(it),type:it.type,amount:Number(it.amount||0),pin:!!it.pin,pinPosition:it.pinPosition||'',limitStatus:it.limitStatus||null}))}}
+function paperQrBox(payload){const txt='T999|'+(payload.market||'')+'|'+(payload.slipId||'')+'|'+payload.pageNo+'/'+payload.totalPages+'|'+(payload.items||[]).length;return `<div class="paper-qrbox" title="Scan payload is embedded for future QR mode">QR READY<br>${esc(txt)}</div><textarea class="paper-scan-payload">${esc(JSON.stringify(payload))}</textarea>`}
+function renderPaperSummaryTable(items,label='แผ่นนี้'){const cols=paperColumns();const sums=paperSummaryForItems(items);return `<table class="paper-summary"><thead><tr><th class="left">${esc(label)}</th>${cols.map(c=>`<th>${esc(c[1])}</th>`).join('')}</tr></thead><tbody><tr><td class="left">รวม</td>${cols.map(c=>`<td>${c[0]==='total'?money(sums.total):money(sums[c[0]]||0)}</td>`).join('')}</tr></tbody></table>`}
+function chunkItems(items,size){const out=[];for(let i=0;i<items.length;i+=size)out.push(items.slice(i,i+size));return out.length?out:[[]]}
+function buildPaperPage(ctx,pageItems,pageNo,totalPages){const {agent,customer,slip}=ctx;const payload=buildPaperScanPayload(ctx,pageItems,pageNo,totalPages);const rows=(pageItems||[]).map(it=>{const lim=it.limitStatus&&it.limitStatus.label?`<span class="limit">${esc(it.limitStatus.label)}</span>`:'';return `<div class="paper-bet-row"><div>${esc(itemNumber(it)||'-')}</div><div class="eq">=</div><div class="desc">${esc(paperTypeLabel(it))} ${esc(paperAmountText(it))}${lim}</div></div>`}).join('');return `<div class="paper-page"><div class="paper-top"><div><div class="paper-brand">🐯 TIGER 999 <small>${market==='lao'?'LA LAO':'THAI'}</small></div><div class="paper-info">งวด <b>${esc(workspace.roundLabel||'ยังไม่ได้ตั้งงวด')}</b> &nbsp; ลูกค้า <b>${esc(customer.name||'-')}</b> &nbsp; เอเยนต์ <b>${esc(agent.name||'-')}</b></div></div><div class="paper-id"><b>แผ่นที่ ${pageNo}/${totalPages}</b><br><span style="color:#7c3aed;font-weight:900">ID</span> ${esc(slip.id||'-')}<br>${esc(formatThaiDateTime(slip.updatedAt||slip.createdAt||Date.now()))}</div></div><div class="paper-list">${rows||'<div style="color:#777;text-align:center;padding:30px">ไม่มีรายการ</div>'}</div>${renderPaperSummaryTable(pageItems,'แผ่น')}<div class="paper-page-total"><span>ยอดรวมแผ่นนี้</span><b>${esc(money(totalSlip({items:pageItems})))}</b></div><div style="display:flex;justify-content:flex-end;margin-top:8px">${paperQrBox(payload)}</div><div class="paper-footer">ระบบ สะ-ล่าง ตะ-โต๊ด หน้า=หน้า บ=บน ล=ล่าง กลับ=กลับ · QR payload format รองรับ Scan Slip Mode ในอนาคต</div></div>`}
+function buildPaperSummaryPage(ctx,totalPages){const {agent,customer,slip}=ctx;const items=slip.items||[];const sums=paperSummaryForItems(items);const cols=paperColumns();return `<div class="paper-page paper-summary-page compact"><div class="paper-top"><div><div class="paper-brand">📊 สรุปรวม — ${esc(customer.name||'-')}</div><div class="paper-info">งวด <b>${esc(workspace.roundLabel||'ยังไม่ได้ตั้งงวด')}</b> &nbsp; ลูกค้า <b>${esc(customer.name||'-')}</b> &nbsp; เอเยนต์ <b>${esc(agent.name||'-')}</b></div></div><div class="paper-id"><b>${totalPages} แผ่น</b><br>ID ${esc(slip.id||'-')}</div></div><div class="paper-total-card"><table class="paper-summary"><thead><tr><th class="left">แผ่น</th>${cols.map(c=>`<th>${esc(c[1])}</th>`).join('')}</tr></thead><tbody><tr><td class="left">รวม</td>${cols.map(c=>`<td>${c[0]==='total'?money(sums.total):money(sums[c[0]]||0)}</td>`).join('')}</tr><tr><td class="left">หลังลด%</td>${cols.map(c=>`<td>-</td>`).join('')}</tr><tr><td class="left">ถูกรางวัล</td>${cols.map(c=>`<td>-</td>`).join('')}</tr></tbody></table><div class="paper-page-total"><span>ยอดรวมทั้งหมด</span><b>${esc(money(sums.total))}</b></div></div><div class="paper-footer">สรุปรวมจากโพย #${esc(slip.slipNo||'-')} · ${esc((items||[]).length)} รายการ · ${esc(formatThaiDateTime(Date.now()))}</div></div>`}
+function openPaperSlip(agentId,customerId,slipId,ev){if(ev)ev.stopPropagation();const ctx=getSlipContext(agentId,customerId,slipId);if(!ctx)return alert('ไม่พบโพยนี้');currentPaperContext=ctx;const items=ctx.slip.items||[];const pages=chunkItems(items,market==='lao'?18:16);document.getElementById('paperSub').textContent='เอเยนต์: '+ctx.agent.name+' | ลูกค้า: '+ctx.customer.name+' | โพย #'+(ctx.slip.slipNo||'-')+' | '+pages.length+' แผ่น';document.getElementById('paperPreview').innerHTML=pages.map((pg,i)=>buildPaperPage(ctx,pg,i+1,pages.length)).join('')+buildPaperSummaryPage(ctx,pages.length);document.getElementById('paperModal').classList.add('show')}
+function closePaperSlip(){document.getElementById('paperModal').classList.remove('show')}
+function paperPlainText(ctx){const {agent,customer,slip}=ctx;const lines=[];lines.push('TIGER 999 '+rules.name);lines.push('งวด '+(workspace.roundLabel||'-')+' ลูกค้า '+(customer.name||'-')+' เอเยนต์ '+(agent.name||'-'));lines.push('Slip ID '+(slip.id||'-'));lines.push('----------------');(slip.items||[]).forEach(it=>lines.push((itemNumber(it)||'-')+' = '+paperTypeLabel(it)+' '+paperAmountText(it)));lines.push('----------------');lines.push('รวม '+money(totalSlip(slip)));return lines.join('\n')}
+function copyPaperSlipText(){if(!currentPaperContext)return alert('ยังไม่ได้เลือกโพย');const s=paperPlainText(currentPaperContext);if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(s).then(()=>alert('คัดลอกข้อความโพยแล้ว')).catch(()=>alert(s))}else alert(s)}
+function exportPaperSlipJSON(){if(!currentPaperContext)return alert('ยังไม่ได้เลือกโพย');const ctx=currentPaperContext;downloadJSON({fileType:'T999_V2_PAPER_SLIP',version:'5B',exportedAt:new Date().toISOString(),payload:buildPaperScanPayload(ctx,ctx.slip.items||[],1,1)},`t999-slip-${market}-${safeName(ctx.customer.name)}-${safeName(ctx.slip.id)}.json`)}
+function printPaperSlip(){const html=document.getElementById('paperPreview').innerHTML;if(!html)return alert('ยังไม่มีโพยให้พิมพ์');const w=window.open('','_blank','width=980,height=900');if(!w)return alert('เบราว์เซอร์บล็อกหน้าต่างพิมพ์');const css=`<style>body{background:#fff;margin:0;padding:0;font-family:Arial,"Sarabun",sans-serif}.paper-page-wrap{display:block}.paper-page{width:100%;min-height:auto;box-shadow:none;border-radius:0;border:0;padding:14px 18px;page-break-after:always;background:#fff;color:#111}.paper-top{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:8px}.paper-brand{font-size:22px;font-weight:900}.paper-brand small{font-size:13px;color:#333}.paper-info{font-size:12px;line-height:1.55;margin-top:3px;color:#333}.paper-id{text-align:right;font-size:12px;line-height:1.55;color:#333;min-width:190px}.paper-id b{font-size:16px;color:#111}.paper-list{min-height:330px;padding:4px 0 8px}.paper-bet-row{display:grid;grid-template-columns:56px 20px 1fr;gap:8px;align-items:start;min-height:28px;border-bottom:1px dashed #cfcfcf;padding:4px 0;font-size:18px;font-weight:900}.paper-bet-row .eq{color:#777;text-align:center}.paper-bet-row .desc{font-size:14px;font-weight:900;color:#222;line-height:1.4;padding-top:2px}.limit{display:inline-block;margin-left:6px;font-size:10px;border:1px solid #d97706;background:#fff7ed;color:#9a3412;border-radius:999px;padding:1px 6px}.paper-summary{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;border-top:1.5px solid #111;border-bottom:1.5px solid #111}.paper-summary th,.paper-summary td{border-bottom:1px solid #d6d6d6;padding:6px 8px;text-align:center;font-weight:900}.paper-summary th{font-size:12px;color:#333;border-bottom:1px solid #111}.paper-summary .left{text-align:left;color:#555}.paper-page-total{display:flex;justify-content:space-between;gap:10px;align-items:flex-end;margin-top:12px;font-size:16px;font-weight:900}.paper-page-total b{font-size:26px}.paper-qrbox{width:96px;height:96px;border:2px dashed #111;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;line-height:1.25;margin-left:auto;color:#111;word-break:break-all;padding:5px}.paper-footer{font-size:10px;color:#777;text-align:right;margin-top:8px;border-top:1px solid #eee;padding-top:5px}.paper-scan-payload{display:none}@page{size:A4;margin:8mm}</style>`;w.document.open();w.document.write('<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">'+css+'<title>T999 Paper Slip</title></head><body><div class="paper-page-wrap">'+html+'</div></body></html>');w.document.close();setTimeout(()=>{try{w.focus();w.print()}catch(e){}},350)}
 function deleteSlip(agentId,customerId,slipId){
   const a=agents.find(x=>x.id===agentId);const c=a&&(a.customers||[]).find(x=>x.id===customerId);if(!c)return;
   const sl=(c.slips||[]).find(x=>x.id===slipId);if(!sl)return;
@@ -1725,7 +1767,7 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='Backspace')backspace();
   else if(e.key==='/')pressSlash();
   else if(e.key==='.')dotKey();
-  else if(e.key==='Escape'){closePin();closeAgentModal()}
+  else if(e.key==='Escape'){closePin();closeAgentModal();closePaperSlip()}
 });
 function init(){loadData();renderWorkspace();selectAgent(activeAgentId,false);saveData()}
 init();
