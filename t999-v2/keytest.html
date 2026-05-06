@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>T999 V2 Key Test</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--card:#1a1d27;--card2:#222533;--line:#30364a;
+  --gold:#f5c518;--white:#f0f2ff;--muted:#9ca3af;
+  --blue:#60a5fa;--pink:#f472b6;--green:#34d399;--orange:#fb923c;--red:#ef4444;
+}
+body{
+  font-family:Arial,"Sarabun",sans-serif;background:var(--bg);color:var(--white);
+  min-height:100vh;display:flex;justify-content:center;
+}
+.app{width:100%;max-width:520px;min-height:100vh;display:flex;flex-direction:column}
+.header{
+  padding:12px 14px;border-bottom:2px solid var(--gold);
+  background:linear-gradient(135deg,#1a1d27,#11131b);
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+}
+.logo{font-size:20px;font-weight:900;color:var(--gold)}
+.sub{font-size:12px;color:var(--muted);margin-top:2px}
+.market{display:flex;gap:6px}
+.market a{
+  text-decoration:none;color:var(--muted);font-weight:800;font-size:13px;
+  padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card2)
+}
+.market a.on{background:var(--gold);color:#111;border-color:var(--gold)}
+.panel{margin:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.panel-head{
+  padding:8px 10px;background:var(--card2);border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);font-weight:800
+}
+.list{max-height:28vh;overflow:auto}
+.row{
+  display:grid;grid-template-columns:56px 1fr 1fr 1fr 30px;gap:4px;
+  padding:7px 10px;border-bottom:1px solid var(--line);align-items:center;font-size:14px
+}
+.row .lek{font-size:20px;color:var(--gold);font-weight:900}
+.row .type{font-weight:800}
+.row .amt{text-align:right;font-weight:900;color:var(--green)}
+.row button{border:0;background:transparent;color:var(--red);font-size:16px}
+.empty{padding:20px;text-align:center;color:var(--muted);font-size:14px}
+.total{
+  padding:10px 12px;background:var(--card2);display:flex;justify-content:space-between;align-items:center
+}
+.total b{color:var(--gold);font-size:22px}
+.display{
+  margin:0 10px 8px;background:#0b0e18;border:2px solid var(--line);border-radius:14px;
+  min-height:68px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px
+}
+#screen{font-size:34px;font-weight:900;letter-spacing:1px;color:var(--gold);word-break:break-all;line-height:1.05}
+#hint{font-size:11px;color:var(--muted);text-align:right;line-height:1.45;min-width:110px}
+.typebox{margin:0 10px 8px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tbtn,.kbtn,.nbtn{
+  border:1px solid var(--line);border-radius:12px;background:var(--card2);color:var(--white);
+  min-height:42px;font-size:16px;font-weight:900;cursor:pointer;
+}
+.tbtn.on-bon{background:rgba(96,165,250,.18);border-color:var(--blue);color:#bfdbfe}
+.tbtn.on-tod{background:rgba(244,114,182,.18);border-color:var(--pink);color:#fbcfe8}
+.tbtn.on-lang{background:rgba(52,211,153,.18);border-color:var(--green);color:#bbf7d0}
+.tbtn.on-na{background:rgba(251,146,60,.18);border-color:var(--orange);color:#fed7aa}
+.klbbox{margin:0 10px 8px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.kbtn{min-height:34px;font-size:14px;color:var(--muted)}
+.kbtn.on{background:var(--gold);color:#111;border-color:var(--gold)}
+.keypad{margin:0 10px 10px;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;flex:1}
+.nbtn{min-height:54px;font-size:24px;background:#191d2a}
+.nbtn.action{background:#252a3b;color:var(--gold)}
+.nbtn.del{color:#fecaca;border-color:#7f1d1d}
+.nbtn.ok{grid-column:3/5;background:linear-gradient(135deg,var(--gold),#c9a010);color:#111;border:0}
+.footer{
+  padding:8px 12px;color:var(--muted);font-size:12px;line-height:1.6;border-top:1px solid var(--line)
+}
+.badge{color:var(--gold);font-weight:900}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div>
+      <div class="logo">T999 V2 Key Test</div>
+      <div class="sub" id="modeText">ระบบทดสอบคีย์ — ยึดแนว Master/Desktop</div>
+    </div>
+    <div class="market">
+      <a id="thaiLink" href="?market=thai">ไทย</a>
+      <a id="laoLink" href="?market=lao">ลาว</a>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <span>รายการที่คีย์แล้ว</span>
+      <span id="countText">0 รายการ</span>
+    </div>
+    <div class="list" id="list"><div class="empty">ยังไม่มีรายการ</div></div>
+    <div class="total">
+      <span>รวมทั้งหมด</span>
+      <b id="totalText">฿0</b>
+    </div>
+  </div>
+
+  <div class="display">
+    <div id="screen">0</div>
+    <div id="hint">กดเลข<br>Enter หรือ = OK<br>/ คั่นเลข · × คั่นราคา</div>
+  </div>
+
+  <div class="typebox">
+    <button class="tbtn" id="t-bon" onclick="toggleType('bon')">บน</button>
+    <button class="tbtn" id="t-tod" onclick="toggleType('tod')">โต๊ด</button>
+    <button class="tbtn" id="t-lang" onclick="toggleType('lang')">ล่าง</button>
+    <button class="tbtn" id="t-na" onclick="toggleType('na')">หน้า</button>
+  </div>
+
+  <div class="klbbox">
+    <button class="kbtn" id="k-bon" onclick="toggleReverse('bon')">กลับ</button>
+    <button class="kbtn" id="k-tod" onclick="toggleReverse('tod')">ชุด</button>
+    <button class="kbtn" id="k-lang" onclick="toggleReverse('lang')">กลับ</button>
+    <button class="kbtn" id="k-na" onclick="toggleReverse('na')">หน้า</button>
+  </div>
+
+  <div class="keypad">
+    <button class="nbtn" onclick="press('7')">7</button>
+    <button class="nbtn" onclick="press('8')">8</button>
+    <button class="nbtn" onclick="press('9')">9</button>
+    <button class="nbtn del" onclick="backspace()">⌫</button>
+
+    <button class="nbtn" onclick="press('4')">4</button>
+    <button class="nbtn" onclick="press('5')">5</button>
+    <button class="nbtn" onclick="press('6')">6</button>
+    <button class="nbtn action" onclick="press('/')">/</button>
+
+    <button class="nbtn" onclick="press('1')">1</button>
+    <button class="nbtn" onclick="press('2')">2</button>
+    <button class="nbtn" onclick="press('3')">3</button>
+    <button class="nbtn action" onclick="press('×')">×</button>
+
+    <button class="nbtn" onclick="press('0')">0</button>
+    <button class="nbtn action" onclick="press('.')">.</button>
+    <button class="nbtn ok" onclick="ok()">= OK</button>
+  </div>
+
+  <div class="footer">
+    <div><span class="badge">วิธีลอง:</span> 45 Enter 100 Enter</div>
+    <div><span class="badge">ชุด:</span> 12/34 Enter 50 Enter</div>
+    <div><span class="badge">หลายราคา:</span> 123 Enter 20×10 Enter</div>
+  </div>
+</div>
+
+<script>
+const MARKET_RULES = {
+  thai: {
+    name: 'ไทย',
+    defaults: {
+      1:['bon','lang'],
+      2:['bon','lang'],
+      3:['bon','tod'],
+      4:['tod'],
+      5:['tod']
+    },
+    allowed: {
+      1:['bon','lang'],
+      2:['bon','tod','lang','na'],
+      3:['bon','tod','lang','na'],
+      4:['tod'],
+      5:['tod']
+    },
+    allowReverse: {
+      1:[],
+      2:['bon','lang','na'],
+      3:['bon','na'],
+      4:[],
+      5:[]
+    }
+  },
+  lao: {
+    name: 'ลาว',
+    defaults: {
+      1:['bon','lang'],
+      2:['bon','lang'],
+      3:['bon','tod'],
+      4:['bon','tod'],
+      5:['tod']
+    },
+    allowed: {
+      1:['bon','lang'],
+      2:['bon','tod','lang'],
+      3:['bon','tod'],
+      4:['bon','tod'],
+      5:['tod']
+    },
+    allowReverse: {
+      1:[],
+      2:['bon','lang'],
+      3:['bon'],
+      4:['bon'],
+      5:[]
+    }
+  }
+};
+
+const LABEL = { bon:'บน', tod:'โต๊ด', lang:'ล่าง', na:'หน้า' };
+const ORDER = ['bon','tod','lang','na'];
+
+let params = new URLSearchParams(location.search);
+let market = params.get('market') === 'lao' ? 'lao' : 'thai';
+let rules = MARKET_RULES[market];
+
+let buf = '';
+let userOverride = false;
+let selected = {bon:false,tod:false,lang:false,na:false};
+let reverse = {bon:false,tod:false,lang:false,na:false};
+let items = [];
+
+document.getElementById('thaiLink').className = market === 'thai' ? 'on' : '';
+document.getElementById('laoLink').className = market === 'lao' ? 'on' : '';
+document.getElementById('modeText').textContent = 'โหมด ' + rules.name + ' — URL เดียว เปลี่ยน market rules';
+
+function currentLekPart(){
+  return (buf.split('=')[0] || '').split('/').pop().replace(/\D/g,'');
+}
+function currentDigit(){
+  return currentLekPart().length || 0;
+}
+function inPriceMode(){
+  return buf.indexOf('=') >= 0;
+}
+function allowedForDigit(d){
+  return rules.allowed[d] || [];
+}
+function defaultForDigit(d){
+  return rules.defaults[d] || [];
+}
+function autoSelect(){
+  let d = currentDigit();
+  if(d > 5) d = 5;
+  if(!userOverride){
+    let def = defaultForDigit(d);
+    ORDER.forEach(t => selected[t] = def.includes(t));
+  }
+  ORDER.forEach(t => {
+    if(!allowedForDigit(d).includes(t)){
+      selected[t] = false;
+      reverse[t] = false;
+    }
+  });
+  renderButtons();
+}
+function toggleType(t){
+  let d = currentDigit();
+  if(!allowedForDigit(d).includes(t)) return toast('ประเภทนี้ใช้ไม่ได้กับจำนวนหลักนี้ในโหมด ' + rules.name);
+  userOverride = true;
+  selected[t] = !selected[t];
+  if(!selected[t]) reverse[t] = false;
+  if(!ORDER.some(x => selected[x])){
+    selected[t] = true;
+  }
+  render();
+}
+function toggleReverse(t){
+  let d = currentDigit();
+  if(!selected[t]) return;
+  if(!(rules.allowReverse[d] || []).includes(t)) return;
+  reverse[t] = !reverse[t];
+  render();
+}
+function press(ch){
+  if(/[0-9]/.test(ch)){
+    if(!inPriceMode()){
+      let part = currentLekPart();
+      if(part.length >= 5) return toast('รับเลขได้สูงสุด 5 หลัก');
+    }
+    buf += ch;
+    if(!inPriceMode()) autoSelect();
+    render();
+    return;
+  }
+  if(ch === '/'){
+    if(inPriceMode()) return;
+    if(currentLekPart().length === 0) return;
+    buf += '/';
+    userOverride = false;
+    autoSelect();
+    render();
+    return;
+  }
+  if(ch === '×' || ch === '*'){
+    if(!inPriceMode()) buf += '=';
+    buf += '×';
+    render();
+    return;
+  }
+  if(ch === '.'){
+    if(!inPriceMode()) buf += '=';
+    buf += '.';
+    render();
+    return;
+  }
+}
+function ok(){
+  if(!inPriceMode()){
+    if(currentLekPart().length === 0) return;
+    buf += '=';
+    render();
+    return;
+  }
+  commit();
+}
+function backspace(){
+  if(buf.length > 0) buf = buf.slice(0,-1);
+  if(!inPriceMode()){
+    userOverride = false;
+    autoSelect();
+  }
+  render();
+}
+function clearAll(){
+  buf = '';
+  userOverride = false;
+  selected = {bon:false,tod:false,lang:false,na:false};
+  reverse = {bon:false,tod:false,lang:false,na:false};
+  autoSelect();
+  render();
+}
+function expandReverse(num){
+  if(num.length !== 2) return [num];
+  let r = num[1] + num[0];
+  return r === num ? [num] : [num,r];
+}
+function commit(){
+  let parts = buf.split('=');
+  let leks = (parts[0] || '').split('/').map(x => x.replace(/\D/g,'')).filter(Boolean);
+  let priceText = parts.slice(1).join('=');
+  let prices = priceText.split('×').map(x => Number(x)).filter(n => !isNaN(n) && n > 0);
+
+  if(!leks.length) return toast('ยังไม่มีเลข');
+  if(!prices.length) return toast('ยังไม่มีราคา');
+
+  let activeTypes = ORDER.filter(t => selected[t]);
+  if(!activeTypes.length) return toast('ยังไม่ได้เลือกประเภท');
+
+  leks.forEach(lek => {
+    let d = lek.length;
+    activeTypes.forEach((type, idx) => {
+      if(!allowedForDigit(d).includes(type)) return;
+      let price = prices[idx] || prices[0];
+      let targets = reverse[type] ? expandReverse(lek) : [lek];
+      targets.forEach(n => items.push({
+        market,
+        lek:n,
+        type,
+        amount:price,
+        source:buf
+      }));
+    });
+  });
+
+  clearAll();
+  renderList();
+}
+function removeItem(i){
+  items.splice(i,1);
+  renderList();
+}
+function renderButtons(){
+  let d = currentDigit();
+  ORDER.forEach(t => {
+    let btn = document.getElementById('t-' + t);
+    let kb = document.getElementById('k-' + t);
+    let allowed = allowedForDigit(d).includes(t);
+    btn.style.display = allowed ? 'block' : 'none';
+    btn.className = 'tbtn' + (selected[t] ? ' on-' + t : '');
+    let canRev = selected[t] && (rules.allowReverse[d] || []).includes(t);
+    kb.style.display = canRev ? 'block' : 'none';
+    kb.className = 'kbtn' + (reverse[t] ? ' on' : '');
+    kb.textContent = d === 2 ? 'กลับ' : 'ชุด';
+  });
+}
+function render(){
+  document.getElementById('screen').textContent = buf || '0';
+  autoSelectSafe();
+}
+function autoSelectSafe(){
+  let d = currentDigit();
+  renderButtons();
+  let phase = inPriceMode() ? 'ใส่ราคา แล้ว Enter เพื่อบันทึก' : 'ใส่เลข แล้ว Enter เพื่อราคา';
+  document.getElementById('hint').innerHTML = phase + '<br>หลัก: ' + (d || '-') + '<br>โหมด: ' + rules.name;
+}
+function renderList(){
+  let list = document.getElementById('list');
+  if(!items.length){
+    list.innerHTML = '<div class="empty">ยังไม่มีรายการ</div>';
+  }else{
+    list.innerHTML = items.map((it,i)=>`
+      <div class="row">
+        <div class="lek">${it.lek}</div>
+        <div class="type">${LABEL[it.type]}</div>
+        <div>${it.market === 'thai' ? 'ไทย' : 'ลาว'}</div>
+        <div class="amt">฿${it.amount.toLocaleString()}</div>
+        <button onclick="removeItem(${i})">×</button>
+      </div>
+    `).join('');
+  }
+  let total = items.reduce((s,x)=>s+x.amount,0);
+  document.getElementById('totalText').textContent = '฿' + total.toLocaleString();
+  document.getElementById('countText').textContent = items.length + ' รายการ';
+}
+function toast(msg){
+  alert(msg);
+}
+document.addEventListener('keydown', e => {
+  if(e.target && ['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+  if(e.key >= '0' && e.key <= '9'){ e.preventDefault(); press(e.key); }
+  else if(e.key === 'Enter' || e.key === '='){ e.preventDefault(); ok(); }
+  else if(e.key === '/'){ e.preventDefault(); press('/'); }
+  else if(e.key === '*' || e.key === 'x' || e.key === 'X'){ e.preventDefault(); press('×'); }
+  else if(e.key === '.'){ e.preventDefault(); press('.'); }
+  else if(e.key === 'Backspace'){ e.preventDefault(); backspace(); }
+  else if(e.key === 'Escape'){ e.preventDefault(); clearAll(); }
+});
+autoSelect();
+render();
+renderList();
+</script>
+</body>
+</html>
