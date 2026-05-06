@@ -55,11 +55,10 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 .table-row{padding:7px 10px;border-bottom:1px solid var(--line);font-size:14px}
 .lek{font-size:19px;font-weight:900;color:var(--gold)}
 .lek.follow{color:var(--purple);font-size:16px;padding-left:9px}
-.lek.pinlek{color:#ff8a3d;font-size:14px;line-height:1.15}
-.lek .pin-main{display:block;font-size:18px;color:var(--gold);font-weight:900}
-.lek .pin-sub{display:block;margin-top:2px;font-size:10px;color:#ffb86b;font-weight:900;white-space:nowrap}
-.lek .pin-badge{display:inline-block;margin-bottom:3px;padding:1px 5px;border-radius:999px;background:#3a210a;border:1px solid #fb923c;color:#ffd7a3;font-size:10px;font-weight:900;white-space:nowrap}
-.cell .pin-cell{display:inline-block;padding:2px 6px;border-radius:999px;background:#3a210a;border:1px solid #fb923c;color:#ffd7a3;font-size:11px;font-weight:900;white-space:nowrap}
+.lek.pinlek{line-height:1.15}
+.lek .pin-main{display:block;font-size:21px;color:var(--gold);font-weight:900}
+.lek .pin-badge{display:inline-block;margin-top:3px;padding:2px 7px;border-radius:999px;background:rgba(251,146,60,.14);border:1px solid #fb923c;color:#ffd7a3;font-size:10px;font-weight:900;white-space:nowrap}
+.cell .pin-cell{display:inline-block;padding:3px 7px;border-radius:999px;background:rgba(251,146,60,.14);border:1px solid #fb923c;color:#ffd7a3;font-size:11px;font-weight:900;white-space:nowrap}
 .cell{text-align:center;font-weight:900;color:#3c425a}
 .cell.has{color:#f0f2ff}
 .cell.bon{color:#bfdbfe}.cell.tod{color:#fbcfe8}.cell.lang{color:#bbf7d0}.cell.na{color:#fed7aa}
@@ -783,7 +782,7 @@ function itemLekHtml(it){
   const n=esc(itemNumber(it)||'-');
   if(it&&it.pin){
     const label=esc(itemPinLabel(it));
-    return `<span class="pin-badge">${label}</span><span class="pin-main">${n}</span><span class="pin-sub">${label}</span>`;
+    return `<span class="pin-main">${n}</span><span class="pin-badge">${label}</span>`;
   }
   return n;
 }
@@ -885,8 +884,16 @@ function selectSlot(type){if(phase!=='price')return;let idx=slots.findIndex(s=>s
 function renderSlots(){['bon','tod','lang','na'].forEach(t=>{let b=document.getElementById('slot-'+t);if(!b)return;let s=slots.find(x=>x.type===t);b.className='tbtn '+t+(s&&slotIndex===slots.indexOf(s)?' active ':'')+(s&&s.done?' done':'');b.textContent=LABEL[t]})}
 function renderKeyStatus(){
   const screen=document.getElementById('screen'),hint=document.getElementById('hint'),status=document.getElementById('statusLine');
-  if(phase==='lek'){screen.textContent=leksText||'—';hint.innerHTML='กดเลข<br>แล้ว ↵';status.textContent='กำลังคีย์เลข'}
-  else{let slot=slots[slotIndex];screen.textContent=priceBuf?priceBuf:'ใส่ราคา';hint.innerHTML=(slot?LABEL[slot.type]:'')+'<br>ราคา';status.textContent='ใส่ราคา: '+(slot?LABEL[slot.type]:'')}
+  if(phase==='lek'){
+    screen.textContent=leksText||'—';
+    hint.innerHTML='กดเลข<br>แล้ว ↵';
+    status.textContent='กำลังคีย์เลข';
+  }else{
+    let slot=slots[slotIndex];
+    screen.textContent=leksText||'—';
+    hint.innerHTML=(slot?LABEL[slot.type]:'')+'<br>'+(priceBuf?('ราคา '+priceBuf):'ใส่ราคา');
+    status.textContent='ใส่ราคา: '+(slot?LABEL[slot.type]:'')+(priceBuf?' = '+priceBuf:'');
+  }
 }
 function commit(){
   if(phase!=='price')return enterKey();
