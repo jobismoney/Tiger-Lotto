@@ -7301,40 +7301,39 @@ async function importFromSubUSB(subKeyId){
 // CREATE SUB USB (เจ้ามือสร้างไฟล์ใน USB ให้ลูกน้อง)
 // ════════════════════════════════════════════════════════════════
 async function createSubUSB(subKeyId){
-  // ตรวจ master config
   var mcfg = getMasterConfig();
-  if(!mcfg.master_ip){
-    if(!confirm('⚠️ ยังไม่ได้ตั้ง Master IP\n\nต้องการตั้งตอนนี้?')) return;
-    openMasterConfig();
-    return;
-  }
-  // หา sub key
   var sk = getSubKeys().find(function(x){return x.id===subKeyId;});
   if(!sk){ toast('ไม่พบ Sub Key'); return; }
 
-  // ตรวจ browser support
   if(typeof window.showDirectoryPicker !== 'function'){
     alert('❌ Browser นี้ไม่รองรับ\nกรุณาใช้ Chrome/Edge บน desktop');
     return;
   }
 
+  // ถามงวดก่อน
+  var defaultNgod = (ngodInfo && ngodInfo.ngod) ? ngodInfo.ngod : '';
+  var ngodInput = prompt('💾 สร้าง USB ให้ "' + sk.name + '"\n\nกรอกงวดที่จะใช้ (เช่น 1/5/2569):', defaultNgod);
+  if(ngodInput === null) return;
+  var ngod = ngodInput.trim();
+  if(!ngod){ alert('⚠️ ต้องใส่งวด'); return; }
+
   try {
-    // เลือก folder USB
     toast('📁 เลือก folder ของ USB ที่จะแจกให้ '+sk.name);
     var dirHandle = await window.showDirectoryPicker({mode:'readwrite'});
 
-    // สร้าง config.json
+    // สร้าง config.json — รวมข้อมูลทุกอย่างที่ลูกน้องต้องใช้
     var config = {
       type: 't999_sub_config_v1',
       sub_id: sk.id,
       sub_name: sk.name,
       sub_lng: 'th',
-      master_id: mcfg.master_id,
-      master_ip: mcfg.master_ip,
-      master_port: mcfg.master_port,
-      master_lng: mcfg.master_lng,
+      ngod: ngod,
+      master_id: mcfg.master_id || '',
+      master_ip: mcfg.master_ip || '',
+      master_port: mcfg.master_port || 3000,
+      master_lng: mcfg.master_lng || 'th',
       createdAt: Date.now(),
-      createdBy: mcfg.master_id
+      createdBy: mcfg.master_id || 'master'
     };
 
     // เขียน config.json
@@ -7388,29 +7387,24 @@ async function createSubUSB(subKeyId){
       var wr = await readmeFile.createWritable();
       var readmeContent = 'Tiger999 - USB ของลูกน้อง\r\n'
         + '====================================\r\n\r\n'
-        + 'สำหรับ: ' + sk.name + '\r\n'
-        + 'Sub Key: ' + sk.id + '\r\n'
-        + 'สร้างเมื่อ: ' + new Date().toLocaleString('th-TH') + '\r\n\r\n'
+        + 'ลูกน้อง:    ' + sk.name + '\r\n'
+        + 'ภาษา:      ไทย\r\n'
+        + 'งวด:       ' + ngod + '\r\n'
+        + 'Sub Key:   ' + sk.id + '\r\n'
+        + 'สร้างเมื่อ:  ' + new Date().toLocaleString('th-TH') + '\r\n\r\n'
         + '------------------------------------\r\n'
         + 'วิธีใช้งาน:\r\n'
         + '------------------------------------\r\n\r\n'
         + '1. เสียบ USB เข้าเครื่อง\r\n'
-        + '2. เปิด browser (Chrome/Edge) → ไปที่ tiger999.online/subkey.html\r\n'
+        + '2. เปิด browser → tiger999.online/subkey.html\r\n'
         + '3. กดปุ่ม "USB Mode" → เลือก folder USB นี้\r\n'
-        + '4. ระบบจะอ่านการตั้งค่าอัตโนมัติ → ใช้งานได้เลย\r\n\r\n'
-        + '------------------------------------\r\n'
-        + 'ไฟล์ในนี้:\r\n'
-        + '------------------------------------\r\n\r\n'
-        + '- tiger999_config.json     => การตั้งค่า (ห้ามลบ!)\r\n'
-        + '- tiger999_sub-1.json      => ข้อมูลโพย\r\n'
-        + '- find-my-ip.bat           => ใช้หา IP ของเครื่อง master\r\n'
-        + '- README.txt               => ไฟล์นี้\r\n\r\n'
+        + '4. ✅ ใช้งานได้ทันที — ระบบตั้งงวด+ชื่อให้แล้ว\r\n\r\n'
         + '------------------------------------\r\n'
         + 'ข้อควรระวัง:\r\n'
         + '------------------------------------\r\n\r\n'
         + '- อย่าลบไฟล์ใน USB\r\n'
-        + '- backup ข้อมูลด้วยการ copy folder นี้บ่อยๆ\r\n'
-        + '- ถ้าเปลี่ยน Master IP → ขอ USB ใหม่จากเจ้ามือ\r\n';
+        + '- ถอด USB → ระบบล้างหน้าจอ ภายใน 5-7 วิ\r\n'
+        + '- backup folder USB เป็นระยะ\r\n';
       await wr.write(readmeContent);
       await wr.close();
     } catch(e){ console.log('skip README'); }

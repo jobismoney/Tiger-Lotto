@@ -7084,17 +7084,19 @@ async function importFromSubUSB(subKeyId){
 }
 async function createSubUSB(subKeyId){
   var mcfg = getMasterConfig();
-  if(!mcfg.master_ip){
-    if(!confirm('⚠️ ยังไม่ได้ตั้ง Master IP\n\nต้องการตั้งตอนนี้?')) return;
-    openMasterConfig();
-    return;
-  }
   var sk = getSubKeys().find(function(x){return x.id===subKeyId;});
   if(!sk){ toast('ไม่พบ Sub Key'); return; }
   if(typeof window.showDirectoryPicker !== 'function'){
     alert('❌ Browser นี้ไม่รองรับ\nกรุณาใช้ Chrome/Edge บน desktop');
     return;
   }
+  // ถามงวดก่อน
+  var defaultNgod = (typeof ngodInfo !== 'undefined' && ngodInfo && ngodInfo.ngod) ? ngodInfo.ngod : '';
+  var ngodInput = prompt('💾 สร้าง USB ให้ "' + sk.name + '"\n\nกรอกงวดที่จะใช้ (เช่น 1/5/2569):', defaultNgod);
+  if(ngodInput === null) return;
+  var ngod = ngodInput.trim();
+  if(!ngod){ alert('⚠️ ต้องใส่งวด'); return; }
+
   try {
     toast('📁 เลือก folder ของ USB ที่จะแจกให้ '+sk.name);
     var dirHandle = await window.showDirectoryPicker({mode:'readwrite'});
@@ -7103,12 +7105,13 @@ async function createSubUSB(subKeyId){
       sub_id: sk.id,
       sub_name: sk.name,
       sub_lng: 'la',
-      master_id: mcfg.master_id,
-      master_ip: mcfg.master_ip,
-      master_port: mcfg.master_port,
+      ngod: ngod,
+      master_id: mcfg.master_id || '',
+      master_ip: mcfg.master_ip || '',
+      master_port: mcfg.master_port || 3000,
       master_lng: 'la',
       createdAt: Date.now(),
-      createdBy: mcfg.master_id
+      createdBy: mcfg.master_id || 'master'
     };
     var cfgFile = await dirHandle.getFileHandle('tiger999_config.json', {create:true});
     var w = await cfgFile.createWritable();

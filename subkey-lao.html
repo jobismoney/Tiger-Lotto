@@ -584,6 +584,7 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
     <button class="hbtn" onclick="window.location.href='/subkey.html'" title="Sub Thai" style="background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.25);color:#888;"><span class="hbtn-icon">🇹🇭</span><span class="hbtn-lbl">ไทย</span></button>
     <button class="hbtn" onclick="window.location.href='/subkey-lao.html'" title="Sub Lao" style="background:rgba(220,38,38,.25);border-color:#ef4444;color:#fca5a5;box-shadow:0 0 12px rgba(220,38,38,.4);"><span class="hbtn-icon">🇱🇦</span><span class="hbtn-lbl">ลาว</span></button>
     <button class="hbtn" onclick="showSlip()"><span class="hbtn-icon">📋</span><span class="hbtn-lbl">ดูโพย</span></button>
+    <button class="hbtn" onclick="importFromUSB_or_File()" title="นำเข้าข้อมูล" style="background:rgba(168,139,250,.12);border-color:rgba(168,139,250,.4);color:#a78bfa;"><span class="hbtn-icon">📥</span><span class="hbtn-lbl">นำเข้า</span></button>
     <button class="hbtn" onclick="exportToFlash()" title="ส่งออกไฟล์ไปให้เจ้ามือ" style="background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.4);color:#22c55e;"><span class="hbtn-icon">📤</span><span class="hbtn-lbl">ส่งออก</span></button>
     <button class="hbtn gold" onclick="openNgodModal()"><span class="hbtn-icon">📅</span><span class="hbtn-lbl">งวดใหม่</span></button>
   </div>
@@ -825,12 +826,14 @@ html,body{height:100%;overflow:hidden;font-family:'Sarabun',sans-serif;backgroun
         <div id="sum-compare-prev" style="display:none;"><span id="sum-compare-content"></span></div>
         <div id="sum-risk-preview" style="display:none;"><span id="sum-risk-content"></span></div>
 
-        <!-- ปุ่มหลัก -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
-          <button onclick="showSlipAll()" style="padding:10px;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;cursor:pointer;">📋 สรุปยอด</button>
+        <!-- ปุ่มหลัก — ลบ "สรุปยอด" ออก เหลือแค่ คิดเลข + นำเข้า/ส่งออก -->
+        <div style="display:grid;grid-template-columns:1fr;gap:6px;margin-bottom:10px;">
           <button onclick="openCalc()" style="padding:10px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;cursor:pointer;">🧮 คิดเลข</button>
         </div>
-        <button onclick="exportToFlash()" style="width:100%;padding:11px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:900;cursor:pointer;margin-bottom:10px;">📤 ส่งออกข้อมูลให้เจ้ามือ</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
+          <button onclick="importFromUSB_or_File()" style="padding:11px;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;cursor:pointer;">📥 นำเข้า</button>
+          <button onclick="exportToFlash()" style="padding:11px;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:10px;color:#fff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:900;cursor:pointer;">📤 ส่งออก</button>
+        </div>
 
         <div style="display:none;" id="az-menu"></div>
 
@@ -1198,17 +1201,27 @@ var TigerStore = (function(){
 
   function _watchUSB(){
     if(!dirHandle) return;
+    var failCount = 0;
     setInterval(function(){
-      if(!fileHandle){
+      if(!dirHandle){
         if(disconnectCb) { disconnectCb(); disconnectCb = null; }
         return;
       }
-      fileHandle.getFile().then(function(f){
-        var _ = f.size;
-      }).catch(function(){
-        if(disconnectCb) { disconnectCb(); disconnectCb = null; }
-      });
-    }, 5000);
+      dirHandle.getFileHandle('tiger999_config.json', {create:false})
+        .then(function(fh){ return fh.getFile(); })
+        .then(function(f){
+          var _ = f.size;
+          if(f.size === 0) throw new Error('zero size');
+          failCount = 0;
+        })
+        .catch(function(){
+          failCount++;
+          if(failCount >= 2 && disconnectCb){
+            disconnectCb();
+            disconnectCb = null;
+          }
+        });
+    }, 3000);
   }
 
   // ── API ──
@@ -1271,6 +1284,36 @@ var TigerStore = (function(){
     }
   }
 
+  function writeExtraFile(filename, content){
+    if(!dirHandle) return Promise.reject(new Error('No USB'));
+    return dirHandle.getFileHandle(filename, {create:true})
+      .then(function(fh){ return fh.createWritable(); })
+      .then(function(w){
+        return w.write(content).then(function(){ return w.close(); });
+      });
+  }
+  function listImportFiles(){
+    if(!dirHandle) return Promise.resolve([]);
+    var files = [];
+    return (async function(){
+      try {
+        for await (var [name, handle] of dirHandle.entries()){
+          if(handle.kind === 'file' && /^t999sub.*\.json$/i.test(name)){
+            files.push(name);
+          }
+        }
+      } catch(e){}
+      return files;
+    })();
+  }
+  function readImportFile(filename){
+    if(!dirHandle) return Promise.reject(new Error('No USB'));
+    return dirHandle.getFileHandle(filename, {create:false})
+      .then(function(fh){ return fh.getFile(); })
+      .then(function(f){ return f.text(); })
+      .then(function(t){ return JSON.parse(t); });
+  }
+
   return {
     init: init,
     get: get,
@@ -1280,7 +1323,10 @@ var TigerStore = (function(){
     isUSB: isUSB,
     clearMemory: clearMemory,
     changeMode: changeMode,
-    readSubConfig: readSubConfig
+    readSubConfig: readSubConfig,
+    writeExtraFile: writeExtraFile,
+    listImportFiles: listImportFiles,
+    readImportFile: readImportFile
   };
 })();
 
@@ -2296,8 +2342,12 @@ window.addEventListener('DOMContentLoaded', function(){
     onDisconnect: function(){
       try { toast('⚠️ USB ถูกถอดออก — กำลังล้างหน้าจอ...'); } catch(e){}
       setTimeout(function(){
+        try {
+          localStorage.removeItem('tiger_mode');
+          localStorage.removeItem('t999sublao_subkey_v1');
+          localStorage.removeItem('t999sublao_keydata_v1');
+        } catch(e){}
         TigerStore.clearMemory();
-        try { localStorage.removeItem('tiger_mode'); } catch(e){}
         location.reload();
       }, 1500);
     }
@@ -2322,7 +2372,7 @@ window.addEventListener('DOMContentLoaded', function(){
 
     configPromise.then(function(cfg){
       if(cfg && cfg.sub_id){
-        // ถ้า config ระบุภาษาไทย → redirect
+        // ตรวจภาษา — ถ้า config ระบุภาษาไทย → redirect ไป subkey.html
         if(cfg.sub_lng === 'th'){
           if(confirm('USB นี้สำหรับ Sub Thai\n\nไปยังหน้า subkey?')) {
             location.href = '/subkey.html';
@@ -2331,23 +2381,35 @@ window.addEventListener('DOMContentLoaded', function(){
         }
         try{
           localStorage.setItem('t999sublao_subkey_v1', cfg.sub_id);
-          var existingData = localStorage.getItem('t999sublao_keydata_v1');
-          if(!existingData){
-            localStorage.setItem('t999sublao_keydata_v1', JSON.stringify({
-              id: cfg.sub_id,
-              status: 'pending',
-              activatedAt: Date.now(),
-              lastVerifiedAt: null,
-              master_id: cfg.master_id,
-              master_ip: cfg.master_ip,
-              master_port: cfg.master_port
-            }));
-          }
+          localStorage.setItem('t999sublao_keydata_v1', JSON.stringify({
+            id: cfg.sub_id, status: 'active', activatedAt: Date.now(),
+            sub_name: cfg.sub_name || '', ngod: cfg.ngod || ''
+          }));
         }catch(e){}
         var ls = document.getElementById('lic-screen');
-        if(ls) ls.classList.add('hide');
-        badge.textContent = '🔐 ' + (cfg.sub_name || 'Sub') + ' · USB';
-        badge.title = 'Master: ' + cfg.master_ip;
+        if(ls) ls.style.display = 'none';
+
+        try {
+          var subStoreRaw = TigerStore.get('t999sublao_desktop_v1');
+          var subStore = subStoreRaw ? JSON.parse(subStoreRaw) : {};
+          if(!subStore.ngodOpen && cfg.ngod){
+            subStore.ngodInfo = {
+              ngod: cfg.ngod,
+              sender: cfg.sub_name || '',
+              receiver: cfg.sub_name || '',
+              date: new Date().toLocaleDateString('th-TH'),
+              ngodId: Date.now()
+            };
+            subStore.ngodOpen = true;
+            TigerStore.set('t999sublao_desktop_v1', JSON.stringify(subStore));
+          }
+        } catch(e){}
+
+        badge.textContent = '👤 ' + (cfg.sub_name || 'Sub') + ' · งวด ' + (cfg.ngod || '?') + ' · 🔄';
+        badge.title = 'คลิกเพื่อเปลี่ยน Storage Mode';
+        window._SUB_CFG = cfg;
+      } else if(mode === 'usb') {
+        toast('⚠️ USB นี้ไม่มี config — ให้เจ้ามือสร้าง USB ใหม่');
       }
 
       loadSettings();
@@ -4224,7 +4286,75 @@ function openAnalyzePane(key){
 // ════════════════════════════════════════════════════════════════
 // EXPORT — Flash Drive sync (subkey-lao → master-lao)
 // ════════════════════════════════════════════════════════════════
-function exportToFlash(){
+// ════════════════════════════════════════════════════════════════
+// IMPORT (จาก USB ปัจจุบัน หรือ ไฟล์ JSON)
+// ════════════════════════════════════════════════════════════════
+async function importFromUSB_or_File(){
+  var choice = confirm('📥 นำเข้าข้อมูล\n\n'
+    + 'OK = หาไฟล์ใน USB ปัจจุบัน\n'
+    + 'Cancel = เลือกไฟล์ JSON');
+  if(choice && TigerStore.isUSB && TigerStore.isUSB() && TigerStore.listImportFiles){
+    try {
+      var files = await TigerStore.listImportFiles();
+      files = files.filter(function(f){ return /^t999sub.*_\d+\.json$/.test(f) || f.indexOf('t999sublao_export_') === 0; });
+      if(!files.length){ alert('ℹ️ ไม่พบไฟล์ export ใน USB'); return; }
+      var menu = files.map(function(f, i){ return (i+1)+'. '+f; }).join('\n');
+      var pick = prompt('เลือกไฟล์ที่จะ import (1-'+files.length+'):\n\n'+menu, '1');
+      if(pick === null) return;
+      var idx = parseInt(pick) - 1;
+      if(idx < 0 || idx >= files.length){ alert('เลือกไม่ถูกต้อง'); return; }
+      var data = await TigerStore.readImportFile(files[idx]);
+      doImport(data);
+    } catch(e){
+      alert('❌ Import ไม่สำเร็จ: ' + e.message);
+    }
+  } else {
+    var inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = '.json,application/json';
+    inp.onchange = function(e){
+      var f = e.target.files[0];
+      if(!f) return;
+      var r = new FileReader();
+      r.onload = function(ev){
+        try { doImport(JSON.parse(ev.target.result)); }
+        catch(err){ alert('❌ ไฟล์ไม่ถูกต้อง: ' + err.message); }
+      };
+      r.readAsText(f);
+    };
+    inp.click();
+  }
+}
+
+function doImport(data){
+  if(!data || !data.type || data.type !== 't999_subkey_export_v1'){
+    alert('❌ ไฟล์ไม่ใช่ export ของ Tiger999');
+    return;
+  }
+  var cnt = (data.customers || []).length;
+  if(!confirm('📥 นำเข้า:\nจาก: ' + (data.sub_name || '?') + '\nงวด: ' + (data.ngod || '?') + '\nลูกค้า: ' + cnt + ' คน\n\nดำเนินต่อ?')) return;
+
+  var added = 0, skipped = 0;
+  (data.customers || []).forEach(function(subC){
+    var existing = customers.find(function(c){return c.name === subC.name;});
+    if(existing){ skipped++; return; }
+    var newId = 'c' + Date.now() + '_' + Math.floor(Math.random()*10000);
+    customers.push({
+      id: newId, name: subC.name,
+      rates: subC.rates || null, pays: subC.pays || null,
+      _imported: true, _from: data.sub_name || ''
+    });
+    custEntries[newId] = (data.custEntries[subC.id] || []).map(function(e){return Object.assign({}, e);});
+    custEid[newId] = (data.custEntries[subC.id] || []).length;
+    custSets[newId] = (data.custSets[subC.id] || []).map(function(s){return JSON.parse(JSON.stringify(s));});
+    added++;
+  });
+  if(added === 0){ toast('ℹ️ ทุกคนเคย import แล้ว'); return; }
+  save(); renderCustList();
+  alert('✅ Import สำเร็จ! ลูกค้าใหม่: ' + added + ' คน' + (skipped>0?'\nข้ามที่ซ้ำ: '+skipped:''));
+}
+
+async function exportToFlash(){
   if(!ngodOpen){ toast('เปิดงวดก่อน'); return; }
   var totalC = customers.length;
   var totalE = 0;
@@ -4242,6 +4372,8 @@ function exportToFlash(){
     sender: ngodInfo.sender||'',
     receiver: ngodInfo.receiver||'',
     date: ngodInfo.date||'',
+    sub_name: (window._SUB_CFG && window._SUB_CFG.sub_name) || ngodInfo.sender || '',
+    sub_id: (window._SUB_CFG && window._SUB_CFG.sub_id) || '',
     customers: customers.map(function(c){return {id:c.id, name:c.name, rates:c.rates||null, pays:c.pays||null};}),
     custEntries: JSON.parse(JSON.stringify(custEntries)),
     custSets: JSON.parse(JSON.stringify(custSets)),
@@ -4249,16 +4381,27 @@ function exportToFlash(){
     flaggedLeks: JSON.parse(JSON.stringify(flaggedLeks||{}))
   };
   var fname = 't999sublao_' + (ngodInfo.ngod||'งวด').replace(/[\/\s]/g,'-') + '_' + Date.now() + '.json';
-  var blob = new Blob([JSON.stringify(snapshot, null, 2)], {type:'application/json'});
+  var jsonStr = JSON.stringify(snapshot, null, 2);
+
+  var choice = confirm('📤 ส่งออก\n\nOK = บันทึกลง USB\nCancel = ดาวน์โหลดไฟล์');
+
+  if(choice && TigerStore.isUSB && TigerStore.isUSB()){
+    try {
+      if(TigerStore.writeExtraFile){
+        await TigerStore.writeExtraFile(fname, jsonStr);
+        toast('✅ บันทึก ' + fname + ' ลง USB แล้ว');
+        return;
+      }
+    } catch(e){ console.error(e); }
+  }
+
+  var blob = new Blob([jsonStr], {type:'application/json'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
-  a.href = url;
-  a.download = fname;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  a.href = url; a.download = fname;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(function(){URL.revokeObjectURL(url);}, 1000);
-  toast('📤 ส่งออกแล้ว '+totalC+' เอเยนต์ · '+totalE+' รายการ ✅');
+  toast('📤 ดาวน์โหลด ' + fname + ' แล้ว ✅');
 }
 
 // ════════════════════════════════════════════════════════════════
