@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Subkey Slip Mode 3G Step 3D</title>
+<title>T999 V2 Subkey Slip Mode 3H Step 3D</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -52,7 +52,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 .agent-meta{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.45}
 .agent-total{font-size:18px;color:var(--gold);font-weight:900;margin-top:6px}
 .customer-row{padding-left:8px;margin-top:5px;color:#cbd5e1;font-size:12px;border-left:2px solid #334155}
-.slip-row{padding-left:10px;color:#94a3b8;font-size:11px;margin-top:3px;cursor:pointer}.slip-row:hover{color:#f5c518}
+.slip-row{padding-left:10px;color:#94a3b8;font-size:11px;margin-top:3px;cursor:pointer;display:flex;justify-content:space-between;gap:6px}.slip-row:hover{color:#f5c518}.mini-del{border:0;background:#321019;color:#ff9aa9;border:1px solid #7f1d1d;border-radius:6px;padding:1px 6px;font-size:10px;font-weight:900;cursor:pointer}.mini-del:hover{background:#7f1d1d;color:#fff}.agent-actions{display:flex;gap:6px;margin-top:6px}.agent-actions button{height:26px;font-size:11px;border-radius:7px}
 
 .table-head,.table-row{display:grid;grid-template-columns:90px 1fr 1fr 1fr var(--na-col) 28px;gap:2px;align-items:center}
 .table-head{background:#252938;border-bottom:1px solid var(--line);padding:7px 10px;color:#aeb8d4;font-size:13px;font-weight:900;text-align:center}
@@ -202,7 +202,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
         </div>
 
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 3G: คีย์เป็นชุด → เก็บโพย → คลิกโพยเดิมเพื่อแก้ไข · แก้โพยเดิมล็อกชื่อเอเยนต์/ลูกค้า</div>
+        <div class="help">Step 3H: คีย์เป็นชุด → เก็บโพย → คลิกโพยเดิมเพื่อแก้ไข · แก้โพยเดิมล็อกชื่อ · ลบโพย/ลูกค้า/เอเยนต์ได้</div>
       </div>
     </div>
   </div>
@@ -396,7 +396,7 @@ function saveData(){
 
   const payload = {
     fileType:'T999_V2_SUBKEY_LOCAL_SLIP',
-    version:'3G',
+    version:'3H',
     sessionId:work.sessionId,
     market,
     activeAgentName,
@@ -581,7 +581,7 @@ function savePendingSlip(){
   let agent, customer, slipNo, slipId, label, createdAt;
 
   if(isEditing){
-    // Step 3G: แก้โพยเดิมต้องล็อกเอเยนต์/ลูกค้าเดิม ห้ามเปลี่ยนชื่อหรือย้ายโพย
+    // Step 3H: แก้โพยเดิมต้องล็อกเอเยนต์/ลูกค้าเดิม ห้ามเปลี่ยนชื่อหรือย้ายโพย
     agent = findAgentById(editSlipRef.agentId);
     customer = findCustomerById(agent, editSlipRef.customerId);
 
@@ -763,7 +763,7 @@ function exportResult(){
 
   const payload = {
     fileType:'T999_V2_SUBKEY_RESULT',
-    version:'3G',
+    version:'3H',
     exportedAt:new Date().toISOString(),
     sessionId:work.sessionId,
     market,
@@ -804,6 +804,136 @@ function renderAll(){
   renderStatus();
 }
 
+
+function totalSlip(slip){
+  return (slip.items || []).reduce((s,x)=>s+Number(x.amount||0),0);
+}
+
+function totalCustomer(customer){
+  return (customer.slips || []).reduce((s,slip)=>s+totalSlip(slip),0);
+}
+
+function totalAgent(agent){
+  return (agent.customers || []).reduce((s,c)=>s+totalCustomer(c),0);
+}
+
+function clearPendingIfEditingDeleted(slipId){
+  const pendingEditId = editingSlipId || (editSlipRef && editSlipRef.slipId) || (pendingItems.find(x=>x.editSlipId)?.editSlipId) || null;
+  if(pendingEditId && pendingEditId === slipId){
+    pendingItems = [];
+    editSlipRef = null;
+    editingSlipId = null;
+    clearBuffer();
+  }
+}
+
+function deleteSlip(agentId, customerId, slipId, ev){
+  if(ev) ev.stopPropagation();
+
+  const agent = findAgentById(agentId);
+  const customer = findCustomerById(agent, customerId);
+  const slip = findSlipById(customer, slipId);
+
+  if(!slip) return alert('ไม่พบโพยนี้');
+
+  const total = totalSlip(slip);
+  const msg =
+    'ยืนยันลบโพยนี้?\\n\\n' +
+    'เอเยนต์: ' + agent.name + '\\n' +
+    'ลูกค้า: ' + customer.name + '\\n' +
+    'โพย: ' + (slip.label || slip.id) + '\\n' +
+    'รายการ: ' + (slip.items || []).length + '\\n' +
+    'ยอดรวม: ฿' + total.toLocaleString();
+
+  if(!confirm(msg)) return;
+
+  customer.slips = (customer.slips || []).filter(s=>s.id !== slipId);
+  clearPendingIfEditingDeleted(slipId);
+  renderAll();
+  saveData();
+}
+
+function deleteCustomer(agentId, customerId, ev){
+  if(ev) ev.stopPropagation();
+
+  const agent = findAgentById(agentId);
+  const customer = findCustomerById(agent, customerId);
+
+  if(!customer) return alert('ไม่พบลูกค้านี้');
+
+  const slipCount = (customer.slips || []).length;
+  const total = totalCustomer(customer);
+  const msg =
+    'ยืนยันลบลูกค้านี้?\\n\\n' +
+    'เอเยนต์: ' + agent.name + '\\n' +
+    'ลูกค้า: ' + customer.name + '\\n' +
+    'โพยทั้งหมด: ' + slipCount + '\\n' +
+    'ยอดรวม: ฿' + total.toLocaleString() + '\\n\\n' +
+    'การลบนี้จะลบโพยทุกชุดใต้ลูกค้าคนนี้';
+
+  if(!confirm(msg)) return;
+
+  const deletedSlipIds = (customer.slips || []).map(s=>s.id);
+  agent.customers = (agent.customers || []).filter(c=>c.id !== customerId);
+
+  const pendingEditId = editingSlipId || (editSlipRef && editSlipRef.slipId) || (pendingItems.find(x=>x.editSlipId)?.editSlipId) || null;
+  if(pendingEditId && deletedSlipIds.includes(pendingEditId)){
+    pendingItems = [];
+    editSlipRef = null;
+    editingSlipId = null;
+    clearBuffer();
+  }
+
+  if(activeAgentName === agent.name && activeCustomerName === customer.name){
+    activeCustomerName = '';
+  }
+
+  renderAll();
+  saveData();
+}
+
+function deleteAgent(agentId){
+  const agent = findAgentById(agentId);
+  if(!agent) return alert('ไม่พบเอเยนต์นี้');
+
+  const slipCount = (agent.customers || []).reduce((s,c)=>s+(c.slips || []).length,0);
+  const customerCount = (agent.customers || []).length;
+  const total = totalAgent(agent);
+
+  const msg =
+    'ยืนยันลบเอเยนต์นี้?\\n\\n' +
+    'เอเยนต์: ' + agent.name + '\\n' +
+    'ลูกค้า: ' + customerCount + '\\n' +
+    'โพยทั้งหมด: ' + slipCount + '\\n' +
+    'ยอดรวม: ฿' + total.toLocaleString() + '\\n\\n' +
+    'การลบนี้จะลบลูกค้าและโพยทั้งหมดใต้เอเยนต์นี้';
+
+  if(!confirm(msg)) return;
+
+  const deletedSlipIds = [];
+  (agent.customers || []).forEach(c=>{
+    (c.slips || []).forEach(s=>deletedSlipIds.push(s.id));
+  });
+
+  agents = agents.filter(a=>a.id !== agentId);
+
+  const pendingEditId = editingSlipId || (editSlipRef && editSlipRef.slipId) || (pendingItems.find(x=>x.editSlipId)?.editSlipId) || null;
+  if(pendingEditId && deletedSlipIds.includes(pendingEditId)){
+    pendingItems = [];
+    editSlipRef = null;
+    editingSlipId = null;
+    clearBuffer();
+  }
+
+  if(activeAgentName === agent.name){
+    activeAgentName = agents[0] ? agents[0].name : '';
+    activeCustomerName = '';
+  }
+
+  renderAll();
+  saveData();
+}
+
 function renderAgents(){
   const wrap = document.getElementById('agentList');
   if(!wrap) return;
@@ -818,10 +948,24 @@ function renderAgents(){
       const cSlip = (customer.slips || []).length;
       total += cusTotal;
       slipCount += cSlip;
-      customerHtml += `<div class="customer-row">${customer.name} · ${cSlip} โพย · ฿${cusTotal.toLocaleString()}</div>`;
-      (customer.slips || []).slice(-3).reverse().forEach(slip=>{
+
+      customerHtml += `
+        <div class="customer-row">
+          <div style="display:flex;justify-content:space-between;gap:6px;align-items:center;">
+            <span>${customer.name} · ${cSlip} โพย · ฿${cusTotal.toLocaleString()}</span>
+            <button class="mini-del" onclick="deleteCustomer('${agent.id}','${customer.id}',event)">ลบลูกค้า</button>
+          </div>
+        </div>
+      `;
+
+      (customer.slips || []).slice(-5).reverse().forEach(slip=>{
         const stotal = (slip.items||[]).reduce((ss,x)=>ss+Number(x.amount||0),0);
-        customerHtml += `<div class="slip-row" onclick="loadSlipToPending('${agent.id}','${customer.id}','${slip.id}')" title="คลิกเพื่อเรียกดู/แก้ไข">↳ ${slip.label || slip.id} · ฿${stotal.toLocaleString()} · ดู/แก้</div>`;
+        customerHtml += `
+          <div class="slip-row" onclick="loadSlipToPending('${agent.id}','${customer.id}','${slip.id}')" title="คลิกเพื่อเรียกดู/แก้ไข">
+            <span>↳ ${slip.label || slip.id} · ฿${stotal.toLocaleString()} · ดู/แก้</span>
+            <button class="mini-del" onclick="deleteSlip('${agent.id}','${customer.id}','${slip.id}',event)">ลบโพย</button>
+          </div>
+        `;
       });
     });
 
@@ -830,6 +974,9 @@ function renderAgents(){
         <div class="agent-name">${agent.name}</div>
         <div class="agent-meta">${(agent.customers || []).length} ลูกค้า · ${slipCount} โพย</div>
         <div class="agent-total">฿${total.toLocaleString()}</div>
+        <div class="agent-actions">
+          <button class="btn red small" onclick="deleteAgent('${agent.id}')">ลบเอเยนต์</button>
+        </div>
         ${customerHtml || '<div class="agent-meta">ยังไม่มีลูกค้า/โพย</div>'}
       </div>
     `;
