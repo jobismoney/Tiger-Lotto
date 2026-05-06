@@ -58,6 +58,8 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 .lek.pinlek{color:#ff8a3d;font-size:14px;line-height:1.15}
 .lek .pin-main{display:block;font-size:18px;color:var(--gold);font-weight:900}
 .lek .pin-sub{display:block;margin-top:2px;font-size:10px;color:#ffb86b;font-weight:900;white-space:nowrap}
+.lek .pin-badge{display:inline-block;margin-bottom:3px;padding:1px 5px;border-radius:999px;background:#3a210a;border:1px solid #fb923c;color:#ffd7a3;font-size:10px;font-weight:900;white-space:nowrap}
+.cell .pin-cell{display:inline-block;padding:2px 6px;border-radius:999px;background:#3a210a;border:1px solid #fb923c;color:#ffd7a3;font-size:11px;font-weight:900;white-space:nowrap}
 .cell{text-align:center;font-weight:900;color:#3c425a}
 .cell.has{color:#f0f2ff}
 .cell.bon{color:#bfdbfe}.cell.tod{color:#fbcfe8}.cell.lang{color:#bbf7d0}.cell.na{color:#fed7aa}
@@ -758,6 +760,17 @@ function totalSlip(sl){return (sl.items||[]).reduce((s,it)=>s+Number(it.amount||
 function totalAll(){return agents.reduce((s,a)=>s+totalAgent(a),0)}
 function itemCountAll(){return agents.reduce((s,a)=>s+(a.items||[]).length,0)}
 function cellAmount(it,type){return it.type===type?Number(it.amount||0):0}
+function cellText(it,type){
+  if(it.type!==type)return '';
+  const amt=Number(it.amount||0);
+  if(!amt)return '';
+  if(it.pin){
+    const side=type==='lang'?'ล่าง':'บน';
+    const pos=pinPositionName(it.pinPosition);
+    return `<span class="pin-cell">ปัก${side}${esc(pos)} ${esc(money(amt))}</span>`;
+  }
+  return esc(String(amt));
+}
 function itemNumber(it){return String(it.number ?? it.lek ?? it.num ?? it.n ?? '').trim()}
 function pinPositionName(pos){return ({hundred:'ร้อย',ten:'สิบ',unit:'หน่วย'}[pos]||pos||'')}
 function itemTypeName(it){return LABEL[it.type]||it.type||'-'}
@@ -769,7 +782,8 @@ function itemPinLabel(it){
 function itemLekHtml(it){
   const n=esc(itemNumber(it)||'-');
   if(it&&it.pin){
-    return `<span class="pin-main">${n}</span><span class="pin-sub">${esc(itemPinLabel(it))}</span>`;
+    const label=esc(itemPinLabel(it));
+    return `<span class="pin-badge">${label}</span><span class="pin-main">${n}</span><span class="pin-sub">${label}</span>`;
   }
   return n;
 }
@@ -809,10 +823,10 @@ function renderList(){
   const modeHead=found?`<div class="table-row" style="background:#241b05;color:#f5c518;font-weight:900;grid-template-columns:1fr auto"><div>กำลังแก้เฉพาะโพย: ${esc(found.customer.name)} / โพย #${esc(found.slip.slipNo||'-')}</div><button class="btn small" onclick="closeSlipEditMode()">ดูรวมเอเยนต์</button></div>`:'';
   list.innerHTML=modeHead+items.map((it,idx)=>`<div class="table-row">
     <div class="lek ${it.follow?'follow':''} ${it.pin?'pinlek':''}">${itemLekHtml(it)}</div>
-    <div class="cell bon ${cellAmount(it,'bon')?'has':''}">${cellAmount(it,'bon')||''}</div>
-    <div class="cell tod ${cellAmount(it,'tod')?'has':''}">${cellAmount(it,'tod')||''}</div>
-    <div class="cell lang ${cellAmount(it,'lang')?'has':''}">${cellAmount(it,'lang')||''}</div>
-    <div class="cell na na-col ${cellAmount(it,'na')?'has':''}">${cellAmount(it,'na')||''}</div>
+    <div class="cell bon ${cellAmount(it,'bon')?'has':''}">${cellText(it,'bon')}</div>
+    <div class="cell tod ${cellAmount(it,'tod')?'has':''}">${cellText(it,'tod')}</div>
+    <div class="cell lang ${cellAmount(it,'lang')?'has':''}">${cellText(it,'lang')}</div>
+    <div class="cell na na-col ${cellAmount(it,'na')?'has':''}">${cellText(it,'na')}</div>
     <button class="delbtn" onclick="deleteItem(${idx})">×</button>
   </div>`).join('');
   document.getElementById('totalText').textContent=found?money(totalSlip(found.slip)):money(items.reduce((s,it)=>s+Number(it.amount||0),0));
@@ -872,7 +886,7 @@ function renderSlots(){['bon','tod','lang','na'].forEach(t=>{let b=document.getE
 function renderKeyStatus(){
   const screen=document.getElementById('screen'),hint=document.getElementById('hint'),status=document.getElementById('statusLine');
   if(phase==='lek'){screen.textContent=leksText||'—';hint.innerHTML='กดเลข<br>แล้ว ↵';status.textContent='กำลังคีย์เลข'}
-  else{screen.textContent=priceBuf||'—';let slot=slots[slotIndex];hint.innerHTML=(slot?LABEL[slot.type]:'')+'<br>ราคา';status.textContent='ใส่ราคา: '+(slot?LABEL[slot.type]:'')}
+  else{let slot=slots[slotIndex];screen.textContent=priceBuf?priceBuf:'ใส่ราคา';hint.innerHTML=(slot?LABEL[slot.type]:'')+'<br>ราคา';status.textContent='ใส่ราคา: '+(slot?LABEL[slot.type]:'')}
 }
 function commit(){
   if(phase!=='price')return enterKey();
