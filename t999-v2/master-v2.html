@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Master Step 4C</title>
+<title>T999 V2 Master Step 4D</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -140,7 +140,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 <input id="importFile" type="file" accept=".json,application/json" style="display:none" onchange="handleImportFile(event)">
 <div class="app">
   <div class="header">
-    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 4C</div></div>
+    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 4D</div></div>
     <div class="head-right">
       <a id="thaiLink" class="mode-link" href="?market=thai">TH ไทย</a>
       <a id="laoLink" class="mode-link" href="?market=lao">LA ลาว</a>
@@ -197,7 +197,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
         <button id="folderActionBtn" class="btn full gold" onclick="folderAction()">เก็บเข้าแฟ้ม</button>
         <button id="exitSlipEditBtn" class="btn full" style="display:none" onclick="closeSlipEditMode()">ออกจากโหมดแก้โพย</button>
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 4C: ตรวจถูกรางวัลจริง + คำนวณยอดจ่ายตามเรท/เลขอั้น</div>
+        <div class="help">Step 4D: รายงานย้อนหลัง + กำไรขาดทุนละเอียด</div>
       </div>
     </div>
   </div>
@@ -263,7 +263,7 @@ const PRIZE_HISTORY_KEY='t999_v2_prize_history_'+market;
 document.getElementById('thaiLink').className='mode-link '+(market==='thai'?'on':'');
 document.getElementById('laoLink').className='mode-link '+(market==='lao'?'on':'');
 document.body.classList.toggle('lao-mode',market==='lao');
-document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 4C';
+document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 4D';
 document.getElementById('marketBadge').textContent=rules.name;
 document.getElementById('typeRow').classList.toggle('thai',market==='thai');
 
@@ -281,7 +281,7 @@ function uid(prefix){return prefix+'_'+Date.now()+'_'+Math.random().toString(36)
 function money(n){return '฿'+Number(n||0).toLocaleString()}
 function safeName(s){return String(s||'file').replace(/[^\wก-ฮ0-9-]+/g,'_').slice(0,80)}
 function makeEmptyRates(m){const out={};RATE_TYPES[m].forEach(t=>out[t]={discount:0,pay:0});return out}
-function defaultRateLimitConfig(){return {version:'4C',baseRates:{thai:makeEmptyRates('thai'),lao:makeEmptyRates('lao')},baseLimits:{thai:[],lao:[]},agentRates:{},agentLimits:{}}}
+function defaultRateLimitConfig(){return {version:'4D',baseRates:{thai:makeEmptyRates('thai'),lao:makeEmptyRates('lao')},baseLimits:{thai:[],lao:[]},agentRates:{},agentLimits:{}}}
 function normalizeLimit(x){return {id:x&&x.id||uid('limit'),type:String(x&&x.type||''),number:String(x&&x.number||'').trim(),level:String(x&&x.level||'closed'),customPercent:Number(x&&x.customPercent||0),customPay:Number(x&&x.customPay||0),note:String(x&&x.note||'')}}
 function normalizeConfig(c){
   const d=defaultRateLimitConfig(); c=c&&typeof c==='object'?c:{};
@@ -299,7 +299,7 @@ function normalizeConfig(c){
 
 function defaultPrizeResult(){
   return {
-    version:'4C',
+    version:'4D',
     market,
     updatedAt:0,
     thai:{drawDate:'',top6:'',front3_1:'',front3_2:'',back3_1:'',back3_2:'',lower2:'',source:'manual'},
@@ -388,7 +388,7 @@ function loadData(){
 function saveData(){
   try{
     workspace.updatedAt=Date.now();
-    let payload={fileType:'T999_V2_MASTER_LOCAL',version:'4C',market,activeAgentId,workspace,agents,rateLimitConfig,prizeResult,latestPrizeCheckReport,savedAt:Date.now()};
+    let payload={fileType:'T999_V2_MASTER_LOCAL',version:'4D',market,activeAgentId,workspace,agents,rateLimitConfig,prizeResult,latestPrizeCheckReport,savedAt:Date.now()};
     localStorage.setItem(STORAGE_KEY,JSON.stringify(payload));
     updateSaveLine(payload.savedAt,'บันทึกในเครื่องแล้ว')
   }catch(e){console.error(e);updateSaveLine(null,'บันทึกไม่สำเร็จ')}
@@ -413,14 +413,14 @@ function normalizeAgents(raw){
 }
 function exportJson(){
   saveData();
-  let payload={fileType:'T999_V2_MASTER_EXPORT',version:'4C',market,marketName:rules.name,workspace,activeAgentId,exportedAt:new Date().toISOString(),agents,rateLimitConfig,prizeResult,latestPrizeCheckReport};
+  let payload={fileType:'T999_V2_MASTER_EXPORT',version:'4D',market,marketName:rules.name,workspace,activeAgentId,exportedAt:new Date().toISOString(),agents,rateLimitConfig,prizeResult,latestPrizeCheckReport};
   downloadJSON(payload,'t999-v2-master-'+market+'-'+safeName(workspace.roundLabel||'round')+'-'+Date.now()+'.json')
 }
 function exportSubkeyWorkspace(){
   let worker=prompt('ชื่อลูกน้อง / คนคีย์','');if(worker===null)return;worker=worker.trim();if(!worker)return alert('ต้องใส่ชื่อลูกน้องก่อน');
   let round=workspace.roundLabel||'';if(!round){let r=prompt('ยังไม่ได้ตั้งงวด ใส่งวดสำหรับไฟล์งานนี้',rules.name+' '+new Date().toLocaleDateString('th-TH'));if(r===null)return;round=r.trim();workspace.roundLabel=round}
   let sessionId='SUB-'+market.toUpperCase()+'-'+Date.now();
-  let payload={fileType:'T999_V2_SUBKEY_WORKSPACE',version:'4C',createdAt:new Date().toISOString(),sessionId,market,marketName:rules.name,roundLabel:round,master:{name:workspace.masterName||'Master',workspaceId:workspace.workspaceId},subKeyer:{id:'SUB_'+safeName(worker).toUpperCase()+'_'+Date.now(),name:worker},settings:{allowEditMarket:false,allowEditRound:false,source:'master-v2',rateLimitConfig,prizeResult},agents:[{id:'sub_inbox_'+Date.now(),name:'โพยลูกน้อง '+worker,items:[],customers:[]}],notes:'ไฟล์งานลูกน้องจาก T999 V2 Master Step 4C'};
+  let payload={fileType:'T999_V2_SUBKEY_WORKSPACE',version:'4D',createdAt:new Date().toISOString(),sessionId,market,marketName:rules.name,roundLabel:round,master:{name:workspace.masterName||'Master',workspaceId:workspace.workspaceId},subKeyer:{id:'SUB_'+safeName(worker).toUpperCase()+'_'+Date.now(),name:worker},settings:{allowEditMarket:false,allowEditRound:false,source:'master-v2',rateLimitConfig,prizeResult},agents:[{id:'sub_inbox_'+Date.now(),name:'โพยลูกน้อง '+worker,items:[],customers:[]}],notes:'ไฟล์งานลูกน้องจาก T999 V2 Master Step 4D'};
   downloadJSON(payload,'T999_WORK_'+safeName(worker)+'_'+market.toUpperCase()+'_'+safeName(round)+'.json');renderWorkspace();saveData();alert('สร้างไฟล์งานลูกน้องแล้ว\n'+worker+' | '+rules.name+' | '+round)
 }
 function downloadJSON(payload,name){let blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
@@ -901,10 +901,10 @@ function renderPrizeResultTab(scope,agentId){
   let html=`<div class="agent-section">
     <div class="config-bar">
       <span class="pill">${rules.name}</span>
-      <span class="pill">Step 4C-Plus</span>
+      <span class="pill">Step 4D</span>
       <span class="pill">${prizeReady()?'กรอกผลแล้ว':'ยังไม่ครบ'}</span>
     </div>
-    <div class="warn">Step 4C: กรอกผลแล้วกด “ตรวจถูกรางวัล” ระบบจะคำนวณผู้ถูก ยอดจ่าย และกำไร/ขาดทุน โดยใช้เรทและเลขอั้นที่ตั้งไว้</div>
+    <div class="warn">Step 4D: กรอกผล/ตรวจรางวัล แล้วระบบจะบันทึกรายงานย้อนหลัง ดูซ้ำ Export และลบถาวรได้</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
       <button class="btn purple" onclick="fetchLatestPrizeResult('${scope}','${agentId}')">ดึงผลล่าสุด</button>
       <button class="btn" onclick="renderPrizeHistoryTab('${scope}','${agentId}')">ประวัติผลรางวัล</button>
@@ -1000,7 +1000,7 @@ function savePrizeResult(scope,agentId){
   if(!r.lower2||r.lower2.length!==2)return alert('กรุณากรอก 2 ตัวล่าง');
   prizeResult[market]=r;
   prizeResult.market=market;
-  prizeResult.version='4C';
+  prizeResult.version='4D';
   prizeResult.updatedAt=Date.now();
   savePrizeHistory(r,'manual');
   saveData();
@@ -1067,7 +1067,7 @@ function loadPrizeHistory(id,scope,agentId){
 }
 function exportPrizeHistory(id){
   const h=prizeHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบประวัตินี้');
-  downloadJSON({fileType:'T999_V2_PRIZE_HISTORY',version:'4C',exportedAt:new Date().toISOString(),entry:h},`t999-prize-${market}-${safeName(h.drawDate||h.result?.top6||'history')}.json`);
+  downloadJSON({fileType:'T999_V2_PRIZE_HISTORY',version:'4D',exportedAt:new Date().toISOString(),entry:h},`t999-prize-${market}-${safeName(h.drawDate||h.result?.top6||'history')}.json`);
 }
 function deletePrizeHistoryPermanent(id,scope,agentId){
   const h=prizeHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบประวัตินี้');
@@ -1384,10 +1384,10 @@ function collectCheckItems(scope,agentId){
 }
 function runPrizeCheck(scope='base',agentId=''){
   const r=readPrizeInputs();
-  if(r.top6&&r.top6.length===6){prizeResult[market]=r;prizeResult.market=market;prizeResult.version='4C';prizeResult.updatedAt=Date.now();}
+  if(r.top6&&r.top6.length===6){prizeResult[market]=r;prizeResult.market=market;prizeResult.version='4D';prizeResult.updatedAt=Date.now();}
   if(!canCheckPrize())return alert('กรุณากรอกผลรางวัลให้ครบก่อนตรวจ');
   const targets=derivePrizeTargets(currentPrize());
-  const report={version:'4C',market,marketName:rules.name,scope,agentId,drawDate:targets.drawDate||'',checkedAt:Date.now(),targets,totalGross:0,totalNet:0,totalPayout:0,profit:0,winCount:0,itemCount:0,winners:[],agentSummary:[]};
+  const report={version:'4D',market,marketName:rules.name,scope,agentId,drawDate:targets.drawDate||'',checkedAt:Date.now(),targets,totalGross:0,totalNet:0,totalPayout:0,profit:0,winCount:0,itemCount:0,winners:[],agentSummary:[]};
   const checkAgents=collectCheckItems(scope,agentId);
   checkAgents.forEach(a=>{
     let agentSum={agentId:a.id,agentName:a.name,totalGross:0,totalNet:0,totalPayout:0,winCount:0,itemCount:0};
@@ -1446,8 +1446,183 @@ function renderLastPrizeReport(scope='base',agentId=''){
 }
 function exportPrizeCheckReport(){
   if(!latestPrizeCheckReport)return alert('ยังไม่มีรายงานล่าสุด');
-  downloadJSON({fileType:'T999_V2_PRIZE_CHECK_REPORT',version:'4C',exportedAt:new Date().toISOString(),report:latestPrizeCheckReport},`t999-prize-report-${market}-${safeName(latestPrizeCheckReport.drawDate||Date.now())}.json`);
+  downloadJSON({fileType:'T999_V2_PRIZE_CHECK_REPORT',version:'4D',exportedAt:new Date().toISOString(),report:latestPrizeCheckReport},`t999-prize-report-${market}-${safeName(latestPrizeCheckReport.drawDate||Date.now())}.json`);
 }
+
+
+/* Step 4D report history and detailed archive */
+var T999_STEP4D_REPORT_HISTORY_KEY='t999_v2_prize_report_history_'+market;
+function reportHistoryList(){
+  try{return JSON.parse(localStorage.getItem(T999_STEP4D_REPORT_HISTORY_KEY)||'[]')}catch(e){return []}
+}
+function writeReportHistory(list){
+  localStorage.setItem(T999_STEP4D_REPORT_HISTORY_KEY,JSON.stringify(list));
+}
+function reportEntryKey(report){
+  return [report.market||market,report.drawDate||'',report.checkedAt||'',report.scope||''].join('|');
+}
+function savePrizeReportHistory(report){
+  if(!report)return;
+  const list=reportHistoryList();
+  const key=reportEntryKey(report);
+  const entry={
+    id:'report_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    key,market,marketName:rules.name,
+    drawDate:report.drawDate||'',
+    checkedAt:report.checkedAt||Date.now(),
+    savedAt:Date.now(),
+    summary:{
+      totalGross:Number(report.totalGross||0),
+      totalNet:Number(report.totalNet||0),
+      totalPayout:Number(report.totalPayout||0),
+      profit:Number(report.profit||0),
+      winCount:Number(report.winCount||0),
+      itemCount:Number(report.itemCount||0)
+    },
+    report:JSON.parse(JSON.stringify(report))
+  };
+  const idx=list.findIndex(x=>x.key===key);
+  if(idx>=0)list[idx]={...list[idx],...entry,id:list[idx].id,savedAt:Date.now()};
+  else list.unshift(entry);
+  writeReportHistory(list.slice(0,200));
+}
+function renderReportHistoryTab(scope='base',agentId=''){
+  const list=reportHistoryList();
+  const rows=list.length?list.map((h,i)=>{
+    const s=h.summary||{};
+    const profit=Number(s.profit||0);
+    const title=(h.drawDate||'ไม่ระบุงวด')+' · '+new Date(h.checkedAt||h.savedAt||Date.now()).toLocaleString('th-TH');
+    const meta='แทง '+money(s.totalGross||0)+' · หลังลด '+money(s.totalNet||0)+' · จ่าย '+money(s.totalPayout||0)+' · กำไร/ขาดทุน '+money(profit)+' · ถูก '+(s.winCount||0)+' รายการ';
+    return `<div class="agent-slip">
+      <div>
+        <div class="agent-slip-title">${i+1}. ${esc(title)}</div>
+        <div class="agent-slip-meta">${esc(meta)}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn small" onclick="viewReportHistory('${h.id}','${scope}','${agentId}')">ดูรายงาน</button>
+        <button class="btn small" onclick="exportReportHistory('${h.id}')">Export Report</button>
+        <button class="btn small red" onclick="deleteReportHistoryPermanent('${h.id}','${scope}','${agentId}')">ลบถาวร</button>
+      </div>
+    </div>`;
+  }).join(''):'<div class="placeholder-box">ยังไม่มีประวัติรายงานตรวจรางวัล</div>';
+  document.getElementById('agentModalContent').innerHTML=`<div class="agent-section">
+    <div class="config-bar"><span class="pill">ประวัติรายงานตรวจรางวัล</span><span class="pill">${rules.name}</span><span class="pill">${list.length} รายการ</span></div>
+    <div class="warn">Step 4D: รายงานย้อนหลังเก็บใน localStorage ของเครื่องนี้ และ Export JSON ได้</div>
+    ${rows}
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
+      <button class="btn" onclick="renderPrizeResultTab('${scope}','${agentId}')">กลับหน้าผลรางวัล</button>
+    </div>
+  </div>`;
+}
+function viewReportHistory(id,scope='base',agentId=''){
+  const h=reportHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบรายงานนี้');
+  latestPrizeCheckReport=h.report;
+  saveData();
+  renderPrizeReport(h.report,scope,agentId);
+}
+function exportReportHistory(id){
+  const h=reportHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบรายงานนี้');
+  downloadJSON({fileType:'T999_V2_PRIZE_REPORT_HISTORY',version:'4D',exportedAt:new Date().toISOString(),entry:h},`t999-report-history-${market}-${safeName(h.drawDate||h.id)}.json`);
+}
+function deleteReportHistoryPermanent(id,scope='base',agentId=''){
+  const h=reportHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบรายงานนี้');
+  if(!confirm('ลบถาวรรายงานตรวจรางวัลนี้?\n'+(h.drawDate||'ไม่ระบุงวด')+'\nการลบนี้ย้อนกลับไม่ได้'))return;
+  const word=prompt('พิมพ์ DELETE เพื่อยืนยันลบถาวร','');
+  if(word!=='DELETE')return alert('ยกเลิกการลบถาวร');
+  writeReportHistory(reportHistoryList().filter(x=>x.id!==id));
+  alert('ลบรายงานถาวรแล้ว');
+  renderReportHistoryTab(scope,agentId);
+}
+function renderDetailedProfitReport(report,scope='base',agentId=''){
+  if(!report)return alert('ยังไม่มีรายงาน');
+  const agentRows=(report.agentSummary||[]).map((a,i)=>{
+    const profit=Number(a.totalNet||0)-Number(a.totalPayout||0);
+    return `<div class="agent-slip">
+      <div>
+        <div class="agent-slip-title">${i+1}. ${esc(a.agentName)}</div>
+        <div class="agent-slip-meta">รายการ ${a.itemCount||0} · ถูก ${a.winCount||0} · แทงรวม ${money(a.totalGross||0)} · หลังลด ${money(a.totalNet||0)} · จ่าย ${money(a.totalPayout||0)} · กำไร/ขาดทุน ${money(profit)}</div>
+      </div>
+    </div>`;
+  }).join('')||'<div class="placeholder-box">ไม่มีข้อมูลเอเยนต์</div>';
+  const typeMap={};
+  (report.winners||[]).forEach(w=>{const k=w.rateType||w.type||'อื่นๆ';if(!typeMap[k])typeMap[k]={count:0,payout:0,amount:0};typeMap[k].count++;typeMap[k].payout+=Number(w.payout||0);typeMap[k].amount+=Number(w.amount||0)});
+  const typeRows=Object.keys(typeMap).length?Object.keys(typeMap).map(k=>`<div class="agent-slip"><div><div class="agent-slip-title">${esc(k)}</div><div class="agent-slip-meta">ถูก ${typeMap[k].count} รายการ · แทง ${money(typeMap[k].amount)} · จ่าย ${money(typeMap[k].payout)}</div></div></div>`).join(''):'<div class="placeholder-box">ยังไม่มีรายการถูกแยกประเภท</div>';
+  document.getElementById('agentModalContent').innerHTML=`<div class="agent-section">
+    <div class="config-bar"><span class="pill">รายงานกำไร/ขาดทุนละเอียด</span><span class="pill">${rules.name}</span><span class="pill">${report.drawDate||'ไม่ระบุงวด'}</span></div>
+    <div class="placeholder-box" style="text-align:left">
+      ยอดแทงรวม: <b>${money(report.totalGross||0)}</b><br>
+      ยอดหลังหักลด: <b>${money(report.totalNet||0)}</b><br>
+      ยอดจ่ายรางวัล: <b>${money(report.totalPayout||0)}</b><br>
+      กำไร/ขาดทุนสุทธิ: <b style="color:${Number(report.profit||0)>=0?'#34d399':'#fb7185'}">${money(report.profit||0)}</b><br>
+      รายการทั้งหมด: <b>${report.itemCount||0}</b> · รายการถูก: <b>${report.winCount||0}</b>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin:10px 0">
+      <button class="btn" onclick="renderPrizeReport(latestPrizeCheckReport,'${scope}','${agentId}')">กลับรายงานผู้ถูก</button>
+      <button class="btn" onclick="renderReportHistoryTab('${scope}','${agentId}')">ประวัติรายงาน</button>
+      <button class="btn" onclick="exportPrizeCheckReport()">Export รายงาน</button>
+    </div>
+    <div class="warn">สรุปแยกเอเยนต์</div>
+    ${agentRows}
+    <div class="warn" style="margin-top:10px">สรุปยอดจ่ายแยกประเภทที่ถูก</div>
+    ${typeRows}
+  </div>`;
+}
+
+/* Step 4D overrides */
+var T999_STEP4D_OLD_RUN_PRIZE_CHECK=runPrizeCheck;
+runPrizeCheck=function(scope='base',agentId=''){
+  T999_STEP4D_OLD_RUN_PRIZE_CHECK(scope,agentId);
+  if(latestPrizeCheckReport){savePrizeReportHistory(latestPrizeCheckReport);saveData();}
+};
+var T999_STEP4D_OLD_RENDER_PRIZE_RESULT_TAB=renderPrizeResultTab;
+renderPrizeResultTab=function(scope,agentId){
+  const r=currentPrize();
+  let html=`<div class="agent-section">
+    <div class="config-bar">
+      <span class="pill">${rules.name}</span>
+      <span class="pill">Step 4D</span>
+      <span class="pill">${prizeReady()?'กรอกผลแล้ว':'ยังไม่ครบ'}</span>
+    </div>
+    <div class="warn">Step 4D: กรอกผล/ตรวจรางวัล แล้วระบบจะบันทึกรายงานย้อนหลัง ดูซ้ำ Export และลบถาวรได้</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn purple" onclick="fetchLatestPrizeResult('${scope}','${agentId}')">ดึงผลล่าสุด</button>
+      <button class="btn" onclick="renderPrizeHistoryTab('${scope}','${agentId}')">ประวัติผลรางวัล</button>
+      <button class="btn" onclick="renderReportHistoryTab('${scope}','${agentId}')">ประวัติรายงาน</button>
+      <button class="btn green" onclick="runPrizeCheck('${scope}','${agentId}')">ตรวจถูกรางวัล</button>
+      <button class="btn" onclick="renderLastPrizeReport('${scope}','${agentId}')">รายงานล่าสุด</button>
+    </div>
+    ${market==='thai'?thaiPrizeFormHtml(r):laoPrizeFormHtml(r)}
+    <div id="prizePreview" class="placeholder-box" style="margin-top:10px;text-align:left">${prizePreviewHtml()}</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px">
+      <button class="btn red" onclick="clearPrizeResult()">ล้างผลรางวัล</button>
+      <button class="btn gold" onclick="savePrizeResult('${scope}','${agentId}')">บันทึกผลรางวัล</button>
+    </div>
+  </div>`;
+  document.getElementById('agentModalContent').innerHTML=html;
+  document.querySelectorAll('.prize-input').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      if(inp.dataset.digits==='yes')inp.value=onlyDigits(inp.value,Number(inp.dataset.len||10));
+      const prev=document.getElementById('prizePreview');if(prev)prev.innerHTML=prizePreviewHtmlFromInputs();
+    });
+  });
+};
+var T999_STEP4D_OLD_RENDER_PRIZE_REPORT=renderPrizeReport;
+renderPrizeReport=function(report,scope='base',agentId=''){
+  T999_STEP4D_OLD_RENDER_PRIZE_REPORT(report,scope,agentId);
+  const box=document.getElementById('agentModalContent');
+  if(box){
+    const bar=box.querySelector('div[style*="justify-content:flex-end"]');
+    if(bar && !box.querySelector('#step4dDetailBtn')){
+      bar.insertAdjacentHTML('beforeend',`<button id="step4dDetailBtn" class="btn purple" onclick="renderDetailedProfitReport(latestPrizeCheckReport,'${scope}','${agentId}')">รายงานละเอียด</button><button class="btn" onclick="renderReportHistoryTab('${scope}','${agentId}')">ประวัติรายงาน</button>`);
+    }
+  }
+};
+var T999_STEP4D_OLD_EXPORT_PRIZE_CHECK_REPORT=exportPrizeCheckReport;
+exportPrizeCheckReport=function(){
+  if(!latestPrizeCheckReport)return alert('ยังไม่มีรายงานล่าสุด');
+  savePrizeReportHistory(latestPrizeCheckReport);
+  downloadJSON({fileType:'T999_V2_PRIZE_CHECK_REPORT',version:'4D',exportedAt:new Date().toISOString(),report:latestPrizeCheckReport},`t999-prize-report-${market}-${safeName(latestPrizeCheckReport.drawDate||Date.now())}.json`);
+};
 
 /* boot */
 document.addEventListener('keydown',e=>{
