@@ -44,7 +44,6 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 }
 .panel-body{flex:1;min-height:0;overflow:auto;padding:8px}
 
-/* LEFT */
 .agent-card{background:#222638;border:1px solid var(--line);border-radius:10px;padding:9px;margin-bottom:8px;cursor:pointer}
 .agent-card.active{border-color:var(--gold);background:rgba(245,197,24,.08)}
 .agent-name{font-weight:900;font-size:16px;color:#fff}
@@ -57,10 +56,10 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 .btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:0}
 .btn.green{background:#20a85a;color:#fff;border:0}
 .btn.red{background:#321019;color:#ff9aa9;border:1px solid #7f1d1d}
+.btn.purple{background:#2e1a45;color:#e9d5ff;border:1px solid #7e22ce}
 .btn.full{width:100%;margin-bottom:8px}
 .btn.small{height:32px;font-size:12px;padding:0 10px}
 
-/* CENTER TABLE */
 .table-head,.table-row{
   display:grid;grid-template-columns:90px 1fr 1fr 1fr var(--na-col) 28px;
   gap:2px;align-items:center;
@@ -87,7 +86,6 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 .table-total span{color:var(--muted);font-weight:900}
 .table-total b{color:var(--gold);font-size:24px}
 
-/* RIGHT */
 .key-wrap{display:flex;flex-direction:column;gap:8px;height:100%}
 .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .sum-card{background:#151824;border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}
@@ -145,7 +143,6 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 }
 .help{color:var(--muted);font-size:11px;line-height:1.5}
 
-/* PIN MODAL */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
 .modal.show{display:flex}
 .box{width:100%;max-width:340px;background:#202332;border:2px solid var(--gold);border-radius:15px;overflow:hidden}
@@ -176,7 +173,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
   <div class="header">
     <div>
       <div class="logo">🐯 T999 V2 MASTER</div>
-      <div class="sub" id="modeText">Master V2 — Import/Export JSON แล้ว</div>
+      <div class="sub" id="modeText">Master V2 — Step 2D</div>
     </div>
     <div class="head-right">
       <a id="thaiLink" class="mode-link" href="?market=thai">TH ไทย</a>
@@ -195,6 +192,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
       </div>
       <div class="panel-body">
         <button class="btn full gold" onclick="addAgent()">+ เพิ่มเอเยนต์</button>
+        <button class="btn full purple" onclick="exportSubkeyWorkspace()">สร้างไฟล์งานลูกน้อง</button>
         <button class="btn full" onclick="exportJson()">Export JSON</button>
         <button class="btn full green" onclick="importJson()">Import JSON</button>
         <div id="agentList"></div>
@@ -282,7 +280,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
         <div class="help">
-          Step 2C: Import/Export JSON + Workspace Metadata<br>
+          Step 2D: รายการล่าสุดอยู่บน + สร้างไฟล์งานลูกน้อง<br>
           / คั่นเลข · . กลับ/ชุด · * เปิดปัก · Enter ขยับประเภท · + ขึ้นรายการ
         </div>
       </div>
@@ -332,7 +330,7 @@ const MARKET_RULES = {
 const params = new URLSearchParams(location.search);
 let market = params.get('market') === 'lao' ? 'lao' : 'thai';
 let rules = MARKET_RULES[market];
-const STORAGE_KEY = 't999_v2_master_' + market + '_v2c';
+const STORAGE_KEY = 't999_v2_master_' + market + '_v2d';
 
 document.getElementById('thaiLink').className = 'mode-link ' + (market === 'thai' ? 'on' : '');
 document.getElementById('laoLink').className = 'mode-link ' + (market === 'lao' ? 'on' : '');
@@ -428,7 +426,7 @@ function saveData(){
 
     const payload = {
       fileType:'T999_V2_MASTER_LOCAL',
-      version:'2C',
+      version:'2D',
       market,
       activeAgentId,
       workspace,
@@ -499,10 +497,14 @@ function clearLocalData(){
 
 /* ===== IMPORT / EXPORT ===== */
 
+function safeName(s){
+  return String(s || 'file').replace(/[^\wก-ฮ0-9-]+/g,'_').slice(0,80);
+}
+
 function exportJson(){
   const payload = {
     fileType:'T999_V2_MASTER_EXPORT',
-    version:'2C',
+    version:'2D',
     market,
     marketName:rules.name,
     workspace,
@@ -515,7 +517,7 @@ function exportJson(){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
 
-  const roundSafe = (workspace.roundLabel || 'round').replace(/[^\wก-ฮ0-9-]+/g,'_');
+  const roundSafe = safeName(workspace.roundLabel || 'round');
   a.href = url;
   a.download = 't999-v2-master-' + market + '-' + roundSafe + '-' + Date.now() + '.json';
 
@@ -523,6 +525,70 @@ function exportJson(){
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+}
+
+function exportSubkeyWorkspace(){
+  const workerName = prompt('ชื่อลูกน้อง / คนคีย์', '');
+  if(workerName === null) return;
+  const cleanWorker = workerName.trim();
+  if(!cleanWorker) return alert('ต้องใส่ชื่อลูกน้องก่อน');
+
+  let round = workspace.roundLabel || '';
+  if(!round){
+    const r = prompt('ยังไม่ได้ตั้งงวด ใส่งวดสำหรับไฟล์งานนี้', rules.name + ' ' + new Date().toLocaleDateString('th-TH'));
+    if(r === null) return;
+    round = r.trim();
+    workspace.roundLabel = round;
+  }
+
+  const sessionId = 'SUB-' + market.toUpperCase() + '-' + Date.now();
+
+  const payload = {
+    fileType:'T999_V2_SUBKEY_WORKSPACE',
+    version:'2D',
+    createdAt:new Date().toISOString(),
+    sessionId,
+    market,
+    marketName:rules.name,
+    roundLabel:round,
+    master:{
+      name:workspace.masterName || 'Master',
+      workspaceId:workspace.workspaceId
+    },
+    subKeyer:{
+      id:'SUB_' + safeName(cleanWorker).toUpperCase() + '_' + Date.now(),
+      name:cleanWorker
+    },
+    settings:{
+      allowEditMarket:false,
+      allowEditRound:false,
+      source:'master-v2'
+    },
+    agents:[
+      {
+        id:'sub_inbox_' + Date.now(),
+        name:'โพยลูกน้อง ' + cleanWorker,
+        items:[]
+      }
+    ],
+    notes:'ไฟล์งานลูกน้องจาก T999 V2 Master'
+  };
+
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+
+  a.href = url;
+  a.download = 'T999_WORK_' + safeName(cleanWorker) + '_' + market.toUpperCase() + '_' + safeName(round) + '.json';
+
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  renderWorkspace();
+  saveData();
+  alert('สร้างไฟล์งานลูกน้องแล้ว\\n' + cleanWorker + ' | ' + rules.name + ' | ' + round);
 }
 
 function importJson(){
@@ -551,12 +617,15 @@ function handleImportFile(ev){
       }
 
       const summary = summarizeImport(data.agents);
+      const sourceLabel = data.fileType || 'JSON';
+      const who = data.subKeyer && data.subKeyer.name ? ('\\nคนคีย์: ' + data.subKeyer.name) : '';
+
       const msg =
-        'พบไฟล์นำเข้า\\n' +
+        'พบไฟล์นำเข้า (' + sourceLabel + ')\\n' +
         'ตลาด: ' + (data.marketName || data.market || '-') + '\\n' +
         'แฟ้ม: ' + data.agents.length + '\\n' +
         'รายการ: ' + summary.itemCount + '\\n' +
-        'ยอดรวม: ฿' + summary.total.toLocaleString() + '\\n\\n' +
+        'ยอดรวม: ฿' + summary.total.toLocaleString() + who + '\\n\\n' +
         'กด OK = รวมเฉพาะรายการที่ไม่ซ้ำ\\n' +
         'กด Cancel = มีตัวเลือกแทนที่ทั้งหมด';
 
@@ -647,6 +716,10 @@ function mergeImportData(data){
     workspace.masterName = data.workspace.masterName || workspace.masterName;
   }
 
+  if(data.roundLabel && !workspace.roundLabel){
+    workspace.roundLabel = data.roundLabel;
+  }
+
   activeAgentId = agents[0] ? agents[0].id : activeAgentId;
   selectAgent(activeAgentId, false);
   renderWorkspace();
@@ -671,6 +744,8 @@ function replaceImportData(data){
   workspace = data.workspace || workspace;
   workspace.market = market;
   workspace.marketName = rules.name;
+
+  if(data.roundLabel) workspace.roundLabel = data.roundLabel;
 
   activeAgentId = agents[0] ? agents[0].id : 'a1';
 
@@ -1077,14 +1152,18 @@ function renderList(){
           role:it.role,
           note:it.note,
           amounts:{bon:null,tod:null,lang:null,na:null},
-          indexes:[]
+          indexes:[],
+          lastIndex:originalIndex
         };
         grouped.push(found);
       }
 
       found.amounts[it.type] = (found.amounts[it.type] || 0) + Number(it.amount || 0);
       found.indexes.push(originalIndex);
+      found.lastIndex = Math.max(found.lastIndex, originalIndex);
     });
+
+    grouped.sort((a,b)=>b.lastIndex-a.lastIndex);
 
     list.innerHTML = grouped.map((g,gi)=>{
       const isPin = g.note === 'ปัก';
@@ -1129,7 +1208,7 @@ function removeGroup(groupIndex){
   scheduleSave();
 }
 
-/* PIN */
+/* ===== PIN ===== */
 
 function openPin(){
   const digit = phase === 'lek' ? (leksText.replace(/\D/g,'').slice(-1) || '') : '';
@@ -1229,7 +1308,7 @@ function addPin(){
   scheduleSave();
 }
 
-/* KEYBOARD */
+/* ===== KEYBOARD ===== */
 
 document.addEventListener('keydown', e=>{
   if(e.target && ['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
@@ -1261,7 +1340,7 @@ document.addEventListener('keydown', e=>{
   }
 });
 
-/* INIT */
+/* ===== INIT ===== */
 
 loadData();
 
