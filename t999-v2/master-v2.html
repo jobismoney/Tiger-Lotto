@@ -208,7 +208,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
         <button id="folderActionBtn" class="btn full gold" onclick="folderAction()">เก็บเข้าแฟ้ม</button>
         <button id="exitSlipEditBtn" class="btn full" style="display:none" onclick="closeSlipEditMode()">ออกจากโหมดแก้โพย</button>
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 5B: โพยกระดาษ HTML + พิมพ์โพย + Slip ID</div>
+        <div class="help">Step 5C Fix5: ใช้ชุดคีย์จาก Subkey + โพยกระดาษ + สรุปยอด</div>
       </div>
     </div>
   </div>
@@ -289,7 +289,7 @@ const PRIZE_HISTORY_KEY='t999_v2_prize_history_'+market;
 document.getElementById('thaiLink').className='mode-link '+(market==='thai'?'on':'');
 document.getElementById('laoLink').className='mode-link '+(market==='lao'?'on':'');
 document.body.classList.toggle('lao-mode',market==='lao');
-document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 4H Fix1';
+document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 5C Fix5';
 document.getElementById('marketBadge').textContent=rules.name;
 document.getElementById('typeRow').classList.toggle('thai',market==='thai');
 
@@ -834,7 +834,7 @@ function renderList(){
   document.getElementById('totalText').textContent=found?money(totalSlip(found.slip)):money(items.reduce((s,it)=>s+Number(it.amount||0),0));
 }
 function renderSummary(){document.getElementById('sumAgents').textContent=agents.length;document.getElementById('sumItems').textContent=itemCountAll();document.getElementById('sumGrand').textContent=money(totalAll())}
-function renderAll(){renderWorkspace();renderAgents();renderList();renderSummary();renderKeyStatus();renderSlots();renderFolderAction()}
+function renderAll(){renderWorkspace();renderAgents();renderList();renderSummary();render();renderFolderAction()}
 function deleteItem(idx){
   let a=getActiveAgent();if(!a)return;
   const found=findSlipRef();
@@ -855,132 +855,278 @@ function deleteItem(idx){
   renderAll();scheduleSave()
 }
 
-function clearBuffer(){leksText='';phase='lek';slots=[];slotIndex=0;priceBuf='';renderKeyStatus();renderSlots()}
-function pressDigit(d){if(phase==='lek'){leksText+=d}else{priceBuf+=d}renderKeyStatus()}
-function pressSlash(){if(phase==='lek'){if(leksText&&!leksText.endsWith('/'))leksText+='/'}renderKeyStatus()}
-function pressMinus(){if(phase==='lek'&&!leksText.startsWith('-'))leksText='-'+leksText;renderKeyStatus()}
-function pressMinus(){if(phase==='lek'){leksText=leksText.startsWith('-')?leksText.slice(1):'-'+leksText}else if(priceBuf){priceBuf=''}renderKeyStatus()}
-function dotKey(){if(phase==='lek'){leksText=expandDot(leksText)}renderKeyStatus()}
-function expandDot(text){
-  const parts=text.split('/').filter(Boolean);
-  if(!parts.length)return text;
-  const out=[];parts.forEach(p=>{if(p.length===2){out.push(p,p[1]+p[0])}else if(p.length===3){perms(p).forEach(x=>out.push(x))}else out.push(p)});
-  return Array.from(new Set(out)).join('/');
+function getBaseLen(){
+  const first=(leksText.split('/')[0]||'').replace(/\D/g,'');
+  return first.length;
 }
-function perms(s){if(s.length!==3)return[s];return [s[0]+s[1]+s[2],s[0]+s[2]+s[1],s[1]+s[0]+s[2],s[1]+s[2]+s[0],s[2]+s[0]+s[1],s[2]+s[1]+s[0]]}
-function backspace(){if(phase==='lek')leksText=leksText.slice(0,-1);else priceBuf=priceBuf.slice(0,-1);renderKeyStatus()}
+function normalizeLeksText(){
+  if(!leksText.includes('/'))return leksText;
+  const parts=leksText.split('/');
+  const first=(parts[0]||'').replace(/\D/g,'');
+  const rest=parts.slice(1).join('').replace(/\D/g,'');
+  const len=first.length;
+  if(!len)return leksText;
+  const chunks=[first];
+  for(let i=0;i<rest.length;i+=len){
+    const c=rest.slice(i,i+len);
+    if(c.length)chunks.push(c);
+  }
+  return chunks.join('/');
+}
+function getLeks(){
+  const txt=normalizeLeksText();
+  return txt.split('/').map(x=>x.replace(/\D/g,'')).filter(Boolean);
+}
+function currentDigits(){
+  const leks=getLeks();
+  if(!leks.length)return 0;
+  return leks[0].length;
+}
+function buildSlots(){
+  const d=currentDigits();
+  const order=(rules.slotOrder[d]||[]).slice();
+  slots=order.map(t=>({type:t,price:'',rev:false}));
+  slotIndex=0;
+}
+function currentSlot(){return slots[slotIndex]||null}
+function saveCurrentPrice(){
+  if(phase!=='price')return;
+  const s=currentSlot();
+  if(!s)return;
+  if(priceBuf!==''){
+    s.price=priceBuf;
+    priceBuf='';
+  }
+}
+function clearBuffer(){
+  leksText='';phase='lek';slots=[];slotIndex=0;priceBuf='';render();
+}
+function pressDigit(n){
+  if(phase==='lek'){
+    const raw=leksText.replace(/\//g,'');
+    if(!leksText.includes('/')&&raw.length>=5)return;
+    leksText+=n;
+  }else{
+    priceBuf+=n;
+  }
+  render();
+}
+function pressSlash(){
+  if(phase!=='lek')return;
+  if(!leksText)return;
+  if(leksText.includes('/'))return;
+  leksText+='/';
+  render();
+}
+function pressMinus(){
+  // ใช้เป็นปุ่มเคลียร์ราคาในโหมดใส่ราคา และกัน logic เก่าทับกับ Subkey
+  if(phase==='price'){
+    priceBuf='';
+    const s=currentSlot();
+    if(s)s.price='';
+  }else{
+    leksText=leksText.startsWith('-')?leksText.slice(1):('-'+leksText);
+  }
+  render();
+}
+function backspace(){
+  if(phase==='lek'){
+    leksText=leksText.slice(0,-1);
+  }else{
+    if(priceBuf.length){
+      priceBuf=priceBuf.slice(0,-1);
+    }else if(slotIndex>0){
+      slotIndex--;
+      priceBuf=slots[slotIndex].price||'';
+      slots[slotIndex].price='';
+      slots[slotIndex].rev=false;
+    }else{
+      phase='lek';slots=[];priceBuf='';
+    }
+  }
+  render();
+}
 function enterKey(){
   if(phase==='lek'){
-    const nums=leksText.split('/').map(x=>x.trim()).filter(Boolean);
-    if(!nums.length)return alert('ยังไม่มีเลข');
-    slots=detectSlots(nums[0].replace('-','').length);slotIndex=0;priceBuf='';phase='price';renderSlots();renderKeyStatus();return;
+    if(!getLeks().length)return alert('ยังไม่มีเลข');
+    leksText=normalizeLeksText();
+    buildSlots();
+    phase='price';
+    priceBuf='';
+    render();
+    return;
   }
-  if(phase==='price'){
-    const amt=Number(priceBuf||0);if(!amt)return alert('ยังไม่ได้ใส่ราคา');
-    if(!slots[slotIndex])return;
-    slots[slotIndex].amount=amt;slots[slotIndex].done=true;slotIndex++;
-    if(slotIndex>=slots.length){commit()}else{priceBuf='';renderSlots();renderKeyStatus()}
+  saveCurrentPrice();
+  if(slotIndex<slots.length-1)slotIndex++;
+  else commit();
+  render();
+}
+function dotKey(){
+  if(phase==='lek'){
+    enterKey();
+    return;
+  }
+  const s=currentSlot();
+  if(!s)return;
+  if(priceBuf!==''){
+    s.price=priceBuf;
+    priceBuf='';
+  }
+  s.rev=true;
+  if(slotIndex<slots.length-1)slotIndex++;
+  render();
+}
+function selectSlot(type){
+  if(phase!=='price')return;
+  const idx=slots.findIndex(s=>s.type===type);
+  if(idx>=0){
+    if(priceBuf!==''&&slots[slotIndex]){slots[slotIndex].price=priceBuf;priceBuf=''}
+    slotIndex=idx;
+    priceBuf=slots[idx].price||'';
+    slots[idx].price='';
+    render();
   }
 }
-function detectSlots(len){let arr=rules.slotOrder[len]||['bon'];return arr.map(t=>({type:t,amount:0,done:false}))}
-function selectSlot(type){if(phase!=='price')return;let idx=slots.findIndex(s=>s.type===type);if(idx>=0){slotIndex=idx;priceBuf=String(slots[idx].amount||'');renderSlots();renderKeyStatus()}}
-function renderSlots(){['bon','tod','lang','na'].forEach(t=>{let b=document.getElementById('slot-'+t);if(!b)return;let s=slots.find(x=>x.type===t);b.className='tbtn '+t+(s&&slotIndex===slots.indexOf(s)?' active ':'')+(s&&s.done?' done':'');b.textContent=LABEL[t]})}
-function renderKeyStatus(){
-  const screen=document.getElementById('screen'),hint=document.getElementById('hint'),status=document.getElementById('statusLine');
-  if(phase==='lek'){
-    screen.textContent=leksText||'—';
-    const first=(leksText.split('/')[0]||'').replace(/\D/g,'');
-    hint.innerHTML='กดเลข<br>แล้ว ↵<br>หลัก: '+(first.length||'-');
-    status.textContent='กำลังคีย์เลข';
-  }else{
-    let slot=slots[slotIndex];
-    const priceParts=slots.map((s,i)=>{
-      if(i===slotIndex)return priceBuf||String(s.amount||'');
-      return String(s.amount||'');
-    });
-    screen.textContent=(leksText||'')+'='+priceParts.join('×');
-    hint.innerHTML=slot?('ราคา: '+LABEL[slot.type]+'<br>ใส่ราคา'):'ไม่มีช่องราคา';
-    status.textContent='กำลังใส่ราคา: '+(slot?LABEL[slot.type]:'')+(priceBuf?' = '+priceBuf:'');
+function expandReverseWithRole(num){
+  num=String(num||'');
+  if(num.length===2){
+    const r=num[1]+num[0];
+    if(r===num)return [{lek:num,role:'main'}];
+    return [{lek:num,role:'main'},{lek:r,role:'follow'}];
   }
+  const ps=uniquePermutations(num);
+  const out=[{lek:num,role:'main'}];
+  ps.forEach(p=>{if(p!==num)out.push({lek:p,role:'follow'})});
+  return out;
+}
+function uniquePermutations(str){
+  const arr=String(str||'').split('');
+  const out=new Set();
+  function perm(path,rest){
+    if(!rest.length){out.add(path.join(''));return}
+    for(let i=0;i<rest.length;i++){
+      const next=rest.slice();
+      const ch=next.splice(i,1)[0];
+      perm(path.concat(ch),next);
+    }
+  }
+  perm([],arr);
+  return Array.from(out);
 }
 function commit(){
-  if(phase!=='price')return enterKey();
-  const nums=leksText.replace(/^-/, '').split('/').map(x=>x.trim()).filter(Boolean);
-  if(!nums.length)return alert('ยังไม่มีเลข');
+  if(phase==='price')saveCurrentPrice();
+  const leks=getLeks();
+  if(!leks.length)return alert('ยังไม่มีเลข');
   const a=getActiveAgent();if(!a)return alert('ยังไม่มีเอเยนต์');
-  const activeSlots=slots.filter(s=>Number(s.amount||0)>0);
-  if(!activeSlots.length)return alert('ยังไม่มีราคา');
-  nums.forEach((n,i)=>activeSlots.forEach(s=>addItem(a,{number:n,type:s.type,amount:Number(s.amount),follow:i>0})));
-  clearBuffer();renderAll();scheduleSave()
+  if(!slots.length)buildSlots();
+  const active=slots.filter(s=>Number(s.price)>0);
+  if(!active.length)return alert('ยังไม่มีราคา');
+  const add=[];
+  leks.forEach(lek=>active.forEach(s=>{
+    const amount=Number(s.price);
+    if(s.rev){
+      expandReverseWithRole(lek).forEach(o=>add.push({number:o.lek,lek:o.lek,type:s.type,amount,role:o.role,follow:o.role==='follow',note:lek.length===2?'กลับ':'ชุด'}));
+    }else{
+      add.push({number:lek,lek,type:s.type,amount,role:'main',follow:false,note:''});
+    }
+  }));
+  add.forEach(it=>addItem(a,it));
+  clearBuffer();
+  renderAll();
+  scheduleSave();
 }
 function addItem(agent,it){
   if(!agent.items)agent.items=[];
   const found=findSlipRef();
   const item={...it,id:uid('it'),market,createdAt:Date.now(),agentId:agent.id,agentName:agent.name};
+  if(!item.number&&item.lek)item.number=item.lek;
+  if(!item.lek&&item.number)item.lek=item.number;
   if(found&&found.agent.id===agent.id){
-    item.customerId=found.customer.id;item.customerName=found.customer.name;item.slipId=found.slip.id;
+    item.customerId=found.customer.id;item.customerName=found.customer.name;item.slipId=found.slip.id;item.slipNo=found.slip.slipNo;
     if(!found.slip.items)found.slip.items=[];
     found.slip.items.push(item);
   }
   agent.items.push(item);
 }
-
-/* Pin — keytest logic */
-function openPin(){
-  const digit=phase==='lek'?(leksText.replace(/\D/g,'').slice(-1)||''):'';
-  if(!digit||digit.length!==1){
-    alert('ปักหลักต้องกดเลข 1 ตัวก่อน เช่น 8 แล้วกดปัก');
-    return;
+function render(){
+  const screen=document.getElementById('screen'),hint=document.getElementById('hint');
+  if(!screen)return;
+  if(phase==='lek'){
+    const shown=leksText.includes('/')?normalizeLeksText():leksText;
+    screen.textContent=shown||'—';
+    hint.innerHTML='กดเลข<br>แล้ว ↵<br>หลัก: '+(getBaseLen()||'-');
+  }else{
+    const s=currentSlot();
+    const left=(getLeks().join('/')||leksText)+'=';
+    const priceParts=slots.map((x,i)=>i===slotIndex?(priceBuf||x.price||''):(x.price||''));
+    screen.textContent=left+priceParts.join('×');
+    hint.innerHTML=s?'ราคา: '+LABEL[s.type]+'<br>'+(s.rev?'กลับ/ชุด ON':'กด . = กลับ/ชุด'):'ไม่มี slot';
   }
+  renderSlots();
+  renderStatus();
+}
+function renderKeyStatus(){render()}
+function renderSlots(){
+  const row=document.getElementById('typeRow');
+  if(!row)return;
+  row.className='type-row '+(market==='thai'?'thai':'');
+  ['bon','tod','lang','na'].forEach(t=>{
+    const btn=document.getElementById('slot-'+t);if(!btn)return;
+    const idx=slots.findIndex(s=>s.type===t);
+    const visible=phase==='price'?idx>=0:((rules.slotOrder[getBaseLen()]||['bon','tod','lang','na']).includes(t));
+    btn.style.display=visible?'block':'none';
+    const active=phase==='price'&&idx===slotIndex;
+    const done=phase==='price'&&idx>=0&&Number(slots[idx].price)>0;
+    const rev=phase==='price'&&idx>=0&&slots[idx].rev;
+    btn.className='tbtn '+t+(active?' active '+t:'')+(done?' done':'')+(rev?(getBaseLen()===2?' rev':' rev3'):'');
+    btn.textContent=LABEL[t];
+  });
+}
+function renderStatus(){
+  const el=document.getElementById('statusLine');
+  if(!el)return;
+  if(phase==='lek')el.textContent='กำลังคีย์เลข — โหมด '+rules.name;
+  else el.textContent='กำลังใส่ราคา: '+(currentSlot()?LABEL[currentSlot().type]:'-')+' | '+(currentDigits()||'-')+' หลัก | '+rules.name;
+}
+
+/* Pin — ใช้ logic จาก Subkey */
+function openPin(){
+  const digit=phase==='lek'?(onlyDigits(leksText,5).slice(-1)||''):'';
+  if(!digit||digit.length!==1)return alert('ปักหลักต้องกดเลข 1 ตัวก่อน เช่น 4 แล้วกดปัก');
   document.getElementById('pinNum').textContent=digit;
   document.getElementById('pinPrice').value='';
-  pin.type='bon';
-  pin.positions={hundred:true,ten:true,unit:true};
+  pin.type='bon';pin.positions={hundred:true,ten:true,unit:true};
   renderPinPositions();
   document.getElementById('pinModal').classList.add('show');
-  setTimeout(()=>{try{document.getElementById('pinPrice').focus()}catch(e){}},100);
+  setTimeout(()=>{try{document.getElementById('pinPrice').focus()}catch(e){}},80);
 }
 function closePin(){document.getElementById('pinModal').classList.remove('show')}
 function setPinType(t){
   pin.type=t;
-  if(t==='bon')pin.positions={hundred:true,ten:true,unit:true};
-  else pin.positions={ten:true,unit:true};
+  pin.positions=t==='bon'?{hundred:true,ten:true,unit:true}:{ten:true,unit:true};
+  renderPinPositions();
+}
+function togglePinPos(p){
+  pin.positions[p]=!pin.positions[p];
+  if(!Object.values(pin.positions).some(Boolean))pin.positions[p]=true;
   renderPinPositions();
 }
 function renderPinPositions(){
-  document.getElementById('pinTypeBon').classList.toggle('on',pin.type==='bon');
-  document.getElementById('pinTypeLang').classList.toggle('on',pin.type==='lang');
-  const digit=document.getElementById('pinNum').textContent;
+  document.getElementById('pinTypeBon').className=pin.type==='bon'?'on':'';
+  document.getElementById('pinTypeLang').className=pin.type==='lang'?'on':'';
+  const names={hundred:'ร้อย',ten:'สิบ',unit:'หน่วย'};
   const wrap=document.getElementById('pinPosWrap');
-  if(pin.type==='bon'){
-    wrap.className='seg pos3';
-    wrap.innerHTML=`
-      <button class="${pin.positions.hundred?'on':''}" onclick="togglePinPos('hundred')">ร้อย<small>${digit}XX</small></button>
-      <button class="${pin.positions.ten?'on':''}" onclick="togglePinPos('ten')">สิบ<small>X${digit}X</small></button>
-      <button class="${pin.positions.unit?'on':''}" onclick="togglePinPos('unit')">หน่วย<small>XX${digit}</small></button>
-    `;
-  }else{
-    wrap.className='seg pos2';
-    wrap.innerHTML=`
-      <button class="${pin.positions.ten?'on':''}" onclick="togglePinPos('ten')">สิบ<small>${digit}X</small></button>
-      <button class="${pin.positions.unit?'on':''}" onclick="togglePinPos('unit')">หน่วย<small>X${digit}</small></button>
-    `;
-  }
-}
-function togglePinPos(k){
-  pin.positions[k]=!pin.positions[k];
-  const hasAny=Object.keys(pin.positions).some(x=>pin.positions[x]);
-  if(!hasAny)pin.positions[k]=true;
-  renderPinPositions();
+  wrap.className='seg '+(pin.type==='bon'?'pos3':'pos2');
+  wrap.innerHTML=Object.keys(pin.positions).map(p=>`<button class="${pin.positions[p]?'on':''}" onclick="togglePinPos('${p}')">${names[p]}</button>`).join('');
 }
 function addPin(){
   const digit=document.getElementById('pinNum').textContent;
-  const amt=Number(document.getElementById('pinPrice').value||0);
-  if(!amt)return alert('ใส่ราคาปักก่อน');
+  const amount=Number(document.getElementById('pinPrice').value||0);
+  if(!amount)return alert('ใส่ราคาปักก่อน');
   const a=getActiveAgent();if(!a)return;
   const positions=Object.keys(pin.positions).filter(k=>pin.positions[k]);
   if(!positions.length)return alert('เลือกตำแหน่งปักก่อน');
-  positions.forEach(pos=>addItem(a,{number:digit,type:pin.type,amount:amt,pin:true,pinPosition:pos,note:'ปัก'}));
+  positions.forEach(pos=>addItem(a,{number:digit,lek:digit,type:pin.type,amount,role:'main',follow:false,note:'ปัก',pin:true,pinPosition:pos}));
   closePin();clearBuffer();renderAll();scheduleSave();
 }
 
