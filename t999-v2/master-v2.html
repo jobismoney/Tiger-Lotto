@@ -265,7 +265,7 @@ document.getElementById('typeRow').classList.toggle('thai',market==='thai');
 
 let workspace={workspaceId:'WS-'+market.toUpperCase()+'-'+Date.now(),market,marketName:rules.name,roundLabel:'',masterName:'Master',createdAt:Date.now(),updatedAt:Date.now()};
 let agents=[{id:'a1',name:'จอย',items:[],customers:[]},{id:'a2',name:'นายพล',items:[],customers:[]},{id:'a3',name:'บัญชา',items:[],customers:[]},{id:'a4',name:'แมน2',items:[],customers:[]},{id:'a5',name:'นา',items:[],customers:[]}];
-let activeAgentId='a1',_renderGroups=[],_saveTimer=null,leksText='',phase='lek',slots=[],slotIndex=0,priceBuf='',pin={type:'bon',positions:{hundred:true,ten:true,unit:true}};
+let activeAgentId='a1',activeSlipRef=null,_renderGroups=[],_saveTimer=null,leksText='',phase='lek',slots=[],slotIndex=0,priceBuf='',pin={type:'bon',positions:{hundred:true,ten:true,unit:true}};
 let agentModalAgentId=null,agentModalTab='slips';
 
 let rateLimitConfig=defaultRateLimitConfig();
@@ -485,7 +485,35 @@ function deleteAgent(agentId,ev){
   if(!agents.length)agents=[{id:'a1',name:'จอย',items:[],customers:[]}];
   activeAgentId=agents[0].id;selectAgent(activeAgentId,false);saveData()
 }
-function selectAgent(id,save=true){activeAgentId=id;renderAll();if(save)scheduleSave()}
+function selectAgent(id,save=true){activeAgentId=id;activeSlipRef=null;renderAll();if(save)scheduleSave()}
+function openSlipFromFolder(agentId,customerId,slipId,ev){
+  if(ev)ev.stopPropagation();
+  activeAgentId=agentId;
+  activeSlipRef={agentId,customerId,slipId};
+  renderAll();
+  scheduleSave();
+}
+function closeSlipEditMode(){activeSlipRef=null;renderAll();scheduleSave()}
+function findSlipRef(ref=activeSlipRef){
+  if(!ref)return null;
+  const a=agents.find(x=>x.id===ref.agentId);
+  const c=a&&(a.customers||[]).find(x=>x.id===ref.customerId);
+  const sl=c&&(c.slips||[]).find(x=>x.id===ref.slipId);
+  if(!a||!c||!sl)return null;
+  return {agent:a,customer:c,slip:sl};
+}
+function getEditItems(){
+  const found=findSlipRef();
+  if(found)return found.slip.items||[];
+  const a=getActiveAgent();
+  return a&&a.items||[];
+}
+function editModeLabel(){
+  const found=findSlipRef();
+  if(found)return found.agent.name+' / '+found.customer.name+' / โพย #'+(found.slip.slipNo||'-');
+  const a=getActiveAgent();
+  return a?a.name:'-';
+}
 function clearCurrentAgent(){
   let a=getActiveAgent();if(!a)return;
   if(!confirm('ล้างแฟ้มนี้?\n'+a.name+'\nรายการ '+(a.items||[]).length+'\nยอด '+money(totalAgent(a))))return;
@@ -501,13 +529,27 @@ function renderAgents(){
   const wrap=document.getElementById('agentList');document.getElementById('agentCount').textContent=agents.length;
   wrap.innerHTML=agents.map(a=>{
     if(!a.items)a.items=[];if(!a.customers)a.customers=[];
-    const customers=(a.customers||[]).slice(0,3).map(c=>`<div class="customer-row">👤 ${esc(c.name)} · ${c.slips.length} โพย · ${money(totalCustomer(c))}</div>`).join('');
-    return `<div class="agent-card ${a.id===activeAgentId?'active':''}" onclick="selectAgent('${a.id}')">
+    const isActive=a.id===activeAgentId;
+    const customerHtml=isActive?(a.customers||[]).map(c=>{
+      const slips=(c.slips||[]).map(sl=>{
+        const isOpen=activeSlipRef&&activeSlipRef.agentId===a.id&&activeSlipRef.customerId===c.id&&activeSlipRef.slipId===sl.id;
+        return `<div class="customer-row" style="display:flex;align-items:center;justify-content:space-between;gap:6px;border-left:${isOpen?'3px solid #f5c518':'3px solid transparent'};padding-left:6px">
+          <span>🧾 โพย #${esc(sl.slipNo||'-')} · ${(sl.items||[]).length} รายการ · ${money(totalSlip(sl))}</span>
+          <button class="btn small ${isOpen?'purple':''}" onclick="openSlipFromFolder('${a.id}','${c.id}','${sl.id}',event)">${isOpen?'กำลังแก้':'เปิดโพย'}</button>
+        </div>`;
+      }).join('');
+      return `<div style="margin-top:8px;border-top:1px solid #30364a;padding-top:7px">
+        <div class="customer-row" style="color:#f5c518;font-weight:900">👤 ${esc(c.name)} · ${(c.slips||[]).length} โพย · ${money(totalCustomer(c))}</div>
+        ${slips||'<div class="customer-row">ยังไม่มีโพย</div>'}
+      </div>`;
+    }).join(''):(a.customers||[]).slice(0,3).map(c=>`<div class="customer-row">👤 ${esc(c.name)} · ${c.slips.length} โพย · ${money(totalCustomer(c))}</div>`).join('');
+    return `<div class="agent-card ${isActive?'active':''}" onclick="selectAgent('${a.id}')">
       <div class="agent-name"><span>${esc(a.name)}</span><span>${(a.items||[]).length}</span></div>
       <div class="agent-meta">ลูกค้า ${(a.customers||[]).length} · โพย ${countSlips(a)} · รายการ ${(a.items||[]).length}</div>
       <div class="agent-total">${money(totalAgent(a))}</div>
-      ${customers}
+      ${customerHtml}
       <div class="agent-actions">
+        ${isActive&&activeSlipRef?`<button class="btn small" onclick="closeSlipEditMode();event.stopPropagation()">ดูรวมเอเยนต์</button>`:''}
         <button class="btn small" onclick="openAgentModal('${a.id}',event)">Agent Card</button>
         <button class="btn small purple" onclick="openAgentRateTab('${a.id}',event)">เรท/อั้น</button>
         <button class="btn small" onclick="renameAgent('${a.id}',event)">ชื่อ</button>
@@ -518,9 +560,17 @@ function renderAgents(){
 }
 function countSlips(a){return (a.customers||[]).reduce((s,c)=>s+(c.slips||[]).length,0)}
 function renderList(){
-  const a=getActiveAgent(),list=document.getElementById('list');document.getElementById('activeAgentName').textContent=a?a.name:'-';
-  if(!a||!(a.items||[]).length){list.innerHTML='<div class="empty">ยังไม่มีรายการ</div>';document.getElementById('totalText').textContent='฿0';return}
-  list.innerHTML=(a.items||[]).map((it,idx)=>`<div class="table-row">
+  const a=getActiveAgent(),list=document.getElementById('list');
+  const found=findSlipRef();
+  document.getElementById('activeAgentName').textContent=editModeLabel();
+  const items=getEditItems();
+  if(!a||!items.length){
+    list.innerHTML=found?'<div class="empty">โพยนี้ยังไม่มีรายการ<br>คีย์เลขจากแป้นด้านขวาเพื่อเพิ่มเข้าโพยนี้ได้เลย</div>':'<div class="empty">ยังไม่มีรายการ</div>';
+    document.getElementById('totalText').textContent='฿0';
+    return;
+  }
+  const modeHead=found?`<div class="table-row" style="background:#241b05;color:#f5c518;font-weight:900;grid-template-columns:1fr auto"><div>กำลังแก้เฉพาะโพย: ${esc(found.customer.name)} / โพย #${esc(found.slip.slipNo||'-')}</div><button class="btn small" onclick="closeSlipEditMode()">ดูรวมเอเยนต์</button></div>`:'';
+  list.innerHTML=modeHead+items.map((it,idx)=>`<div class="table-row">
     <div class="lek ${it.follow?'follow':''} ${it.pin?'pinlek':''}">${esc(it.number)}</div>
     <div class="cell bon ${cellAmount(it,'bon')?'has':''}">${cellAmount(it,'bon')||''}</div>
     <div class="cell tod ${cellAmount(it,'tod')?'has':''}">${cellAmount(it,'tod')||''}</div>
@@ -528,11 +578,27 @@ function renderList(){
     <div class="cell na na-col ${cellAmount(it,'na')?'has':''}">${cellAmount(it,'na')||''}</div>
     <button class="delbtn" onclick="deleteItem(${idx})">×</button>
   </div>`).join('');
-  document.getElementById('totalText').textContent=money(totalAgent(a));
+  document.getElementById('totalText').textContent=found?money(totalSlip(found.slip)):money(totalAgent(a));
 }
 function renderSummary(){document.getElementById('sumAgents').textContent=agents.length;document.getElementById('sumItems').textContent=itemCountAll();document.getElementById('sumGrand').textContent=money(totalAll())}
 function renderAll(){renderWorkspace();renderAgents();renderList();renderSummary();renderKeyStatus();renderSlots()}
-function deleteItem(idx){let a=getActiveAgent();if(!a)return;a.items.splice(idx,1);renderAll();scheduleSave()}
+function deleteItem(idx){
+  let a=getActiveAgent();if(!a)return;
+  const found=findSlipRef();
+  if(found){
+    const removed=(found.slip.items||[]).splice(idx,1)[0];
+    if(removed){
+      if(removed.id){a.items=(a.items||[]).filter(x=>x.id!==removed.id)}
+      else{const pos=(a.items||[]).indexOf(removed);if(pos>=0)a.items.splice(pos,1)}
+    }
+  }else{
+    const removed=(a.items||[]).splice(idx,1)[0];
+    if(removed&&removed.slipId){
+      (a.customers||[]).forEach(c=>(c.slips||[]).forEach(sl=>{sl.items=(sl.items||[]).filter(x=>x.id!==removed.id)}));
+    }
+  }
+  renderAll();scheduleSave()
+}
 
 function clearBuffer(){leksText='';phase='lek';slots=[];slotIndex=0;priceBuf='';renderKeyStatus();renderSlots()}
 function pressDigit(d){if(phase==='lek'){leksText+=d}else{priceBuf+=d}renderKeyStatus()}
@@ -579,7 +645,17 @@ function commit(){
   nums.forEach((n,i)=>activeSlots.forEach(s=>addItem(a,{number:n,type:s.type,amount:Number(s.amount),follow:i>0})));
   clearBuffer();renderAll();scheduleSave()
 }
-function addItem(agent,it){if(!agent.items)agent.items=[];agent.items.push({...it,id:uid('it'),market,createdAt:Date.now(),agentId:agent.id,agentName:agent.name})}
+function addItem(agent,it){
+  if(!agent.items)agent.items=[];
+  const found=findSlipRef();
+  const item={...it,id:uid('it'),market,createdAt:Date.now(),agentId:agent.id,agentName:agent.name};
+  if(found&&found.agent.id===agent.id){
+    item.customerId=found.customer.id;item.customerName=found.customer.name;item.slipId=found.slip.id;
+    if(!found.slip.items)found.slip.items=[];
+    found.slip.items.push(item);
+  }
+  agent.items.push(item);
+}
 
 /* Pin */
 function openPin(){
@@ -661,7 +737,7 @@ function deleteSlip(agentId,customerId,slipId){
   const a=agents.find(x=>x.id===agentId);const c=a&&(a.customers||[]).find(x=>x.id===customerId);if(!c)return;
   const sl=(c.slips||[]).find(x=>x.id===slipId);if(!sl)return;
   if(!confirm('ลบโพยนี้?\nยอด '+money(totalSlip(sl))))return;
-  c.slips=(c.slips||[]).filter(x=>x.id!==slipId);a.items=(a.items||[]).filter(it=>it.slipId!==slipId);renderAgentModal();renderAll();saveData()
+  if(activeSlipRef&&activeSlipRef.slipId===slipId)activeSlipRef=null;c.slips=(c.slips||[]).filter(x=>x.id!==slipId);a.items=(a.items||[]).filter(it=>it.slipId!==slipId);renderAgentModal();renderAll();saveData()
 }
 function deleteCustomer(agentId,customerId){
   const a=agents.find(x=>x.id===agentId);if(!a)return;const c=(a.customers||[]).find(x=>x.id===customerId);if(!c)return;
