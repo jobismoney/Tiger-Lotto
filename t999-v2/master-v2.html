@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Master Step 3B</title>
+<title>T999 V2 Master Step 3I</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0f1117;--card:#1a1d27;--card2:#222533;--line:#30364a;--gold:#f5c518;--gold2:#c9a010;--muted:#9ca3af;--blue:#60a5fa;--pink:#f472b6;--green:#34d399;--orange:#fb923c;--red:#ef4444;--purple:#a78bfa;--na-col:1fr}
@@ -12,7 +12,7 @@ html,body{height:100%;overflow:hidden}body{font-family:Arial,"Sarabun",sans-seri
 .app{height:100vh;display:flex;flex-direction:column}.header{height:60px;flex-shrink:0;background:linear-gradient(135deg,#1a1d27,#10131d);border-bottom:2px solid var(--gold);display:flex;align-items:center;justify-content:space-between;padding:8px 14px}.logo{font-size:22px;font-weight:900;color:var(--gold)}.sub{font-size:12px;color:var(--muted);margin-top:2px}.head-right{display:flex;gap:8px;align-items:center}.mode-link{color:var(--muted);text-decoration:none;font-weight:900;border:1px solid var(--line);background:var(--card2);padding:8px 12px;border-radius:10px;font-size:13px}.mode-link.on{background:var(--gold);color:#111;border-color:var(--gold)}
 .main{flex:1;min-height:0;display:grid;grid-template-columns:270px 1fr 390px;gap:8px;padding:8px}.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-height:0;display:flex;flex-direction:column}.panel-head{height:42px;background:var(--card2);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:14px;font-weight:900;color:#c7d2fe}.panel-body{flex:1;min-height:0;overflow:auto;padding:8px}
 .btn{border:1px solid var(--line);background:#1b2030;color:#dbeafe;border-radius:9px;height:38px;font-weight:900;font-size:14px;cursor:pointer}.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:0}.btn.green{background:#20a85a;color:#fff;border:0}.btn.red{background:#321019;color:#ff9aa9;border:1px solid #7f1d1d}.btn.purple{background:#2e1a45;color:#e9d5ff;border:1px solid #7e22ce}.btn.full{width:100%;margin-bottom:8px}.btn.small{height:32px;font-size:12px;padding:0 10px}
-.agent-card{background:#222638;border:1px solid var(--line);border-radius:10px;padding:9px;margin-bottom:8px;cursor:pointer}.agent-card.active{border-color:var(--gold);background:rgba(245,197,24,.08)}.agent-name{font-weight:900;font-size:16px}.agent-meta{font-size:12px;color:var(--muted);margin-top:3px}.agent-total{font-size:18px;color:var(--gold);font-weight:900;margin-top:6px}
+.agent-card{background:#222638;border:1px solid var(--line);border-radius:10px;padding:9px;margin-bottom:8px;cursor:pointer}.agent-card.active{border-color:var(--gold);background:rgba(245,197,24,.08)}.agent-name{font-weight:900;font-size:16px}.agent-meta{font-size:12px;color:var(--muted);margin-top:3px}.agent-total{font-size:18px;color:var(--gold);font-weight:900;margin-top:6px}.customer-row{padding-left:8px;margin-top:5px;color:#cbd5e1;font-size:12px;border-left:2px solid #334155;line-height:1.45}.slip-row{padding-left:10px;color:#94a3b8;font-size:11px;margin-top:3px;cursor:pointer}.slip-row:hover{color:#f5c518}
 .table-head,.table-row{display:grid;grid-template-columns:90px 1fr 1fr 1fr var(--na-col) 28px;gap:2px;align-items:center}.table-head{background:#252938;border-bottom:1px solid var(--line);padding:7px 10px;color:#aeb8d4;font-size:13px;font-weight:900;text-align:center}.table-head span:first-child{text-align:left}.table-list{flex:1;min-height:0;overflow:auto}.table-row{padding:7px 10px;border-bottom:1px solid var(--line);font-size:14px}.lek{font-size:19px;font-weight:900;color:var(--gold)}.lek.follow{color:var(--purple);font-size:16px;padding-left:9px}.lek.pinlek{color:#ff8a3d;font-size:14px}.cell{text-align:center;font-weight:900;color:#3c425a}.cell.has{color:#f0f2ff}.cell.bon{color:#bfdbfe}.cell.tod{color:#fbcfe8}.cell.lang{color:#bbf7d0}.cell.na{color:#fed7aa}.delbtn{border:0;background:transparent;color:var(--red);font-size:18px;cursor:pointer}.empty{padding:28px;text-align:center;color:var(--muted);font-weight:800}.table-total{height:48px;background:var(--card2);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 12px}.table-total span{color:var(--muted);font-weight:900}.table-total b{color:var(--gold);font-size:24px}
 .key-wrap{display:flex;flex-direction:column;gap:8px;height:100%}.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.sum-card{background:#151824;border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}.sum-card small{display:block;color:var(--muted);font-size:11px;font-weight:900}.sum-card b{display:block;color:var(--gold);font-size:18px;margin-top:3px}.save-line{background:#0f1d16;border:1px solid #184d2b;border-radius:8px;padding:6px 8px;color:#86efac;font-size:12px;font-weight:900;text-align:right}.status-line{background:#151824;border:1px solid #202538;border-radius:8px;padding:6px 8px;color:var(--gold);font-size:12px;font-weight:900;text-align:right}.workspace-line{background:#111827;border:1px solid #334155;border-radius:8px;padding:7px 8px;color:#cbd5e1;font-size:12px;font-weight:900;display:flex;justify-content:space-between;gap:8px;align-items:center}.workspace-line span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .display{min-height:58px;background:#0b0e18;border:2px solid var(--line);border-radius:12px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}#screen{font-size:31px;font-weight:900;color:var(--gold);word-break:break-all;line-height:1.05}#hint{min-width:82px;text-align:right;font-size:10px;color:var(--muted);line-height:1.5}.type-row{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.type-row.thai{grid-template-columns:repeat(4,1fr)}.tbtn{height:34px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--muted);font-size:15px;font-weight:900;position:relative}.tbtn.active.bon{background:rgba(96,165,250,.18);border-color:var(--blue);color:#bfdbfe}.tbtn.active.tod{background:rgba(244,114,182,.18);border-color:var(--pink);color:#fbcfe8}.tbtn.active.lang{background:rgba(52,211,153,.18);border-color:var(--green);color:#bbf7d0}.tbtn.active.na{background:rgba(251,146,60,.18);border-color:var(--orange);color:#fed7aa}.tbtn.done:after{content:"✓";position:absolute;right:6px;top:4px;font-size:10px;color:var(--gold)}.tbtn.rev:before{content:"กลับ";position:absolute;left:4px;bottom:2px;font-size:9px;color:var(--gold)}.tbtn.rev3:before{content:"ชุด";position:absolute;left:4px;bottom:2px;font-size:9px;color:var(--gold)}
@@ -25,7 +25,7 @@ html,body{height:100%;overflow:hidden}body{font-family:Arial,"Sarabun",sans-seri
 <input id="importFile" type="file" accept=".json,application/json" style="display:none" onchange="handleImportFile(event)">
 <div class="app">
   <div class="header">
-    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 3B</div></div>
+    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 3I</div></div>
     <div class="head-right">
       <a id="thaiLink" class="mode-link" href="?market=thai">TH ไทย</a>
       <a id="laoLink" class="mode-link" href="?market=lao">LA ลาว</a>
@@ -68,7 +68,7 @@ html,body{height:100%;overflow:hidden}body{font-family:Arial,"Sarabun",sans-seri
           <button class="key zero" onclick="pressDigit('0')">0</button><button class="key dot" onclick="dotKey()">.</button>
         </div>
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 3B: Import Result ลูกน้องครบทุกเลข ไม่ตัดเลขซ้ำ<br>กันซ้ำระดับ sessionId เท่านั้น · / คั่นเลข · . กลับ/ชุด</div>
+        <div class="help">Step 3I: Master แสดง เอเยนต์ → ลูกค้า → โพย ID<br>กันซ้ำระดับ sessionId เท่านั้น · / คั่นเลข · . กลับ/ชุด</div>
       </div>
     </div>
   </div>
@@ -87,7 +87,7 @@ html,body{height:100%;overflow:hidden}body{font-family:Arial,"Sarabun",sans-seri
 <script>
 const LABEL={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
 const MARKET_RULES={thai:{name:'ไทย',slotOrder:{1:['bon','lang'],2:['bon','lang','tod','na'],3:['bon','tod','lang','na'],4:['tod'],5:['tod']}},lao:{name:'ลาว',slotOrder:{1:['bon','lang'],2:['bon','lang','tod'],3:['bon','tod','lang'],4:['bon','tod'],5:['tod']}}};
-const params=new URLSearchParams(location.search);let market=params.get('market')==='lao'?'lao':'thai';let rules=MARKET_RULES[market];const STORAGE_KEY='t999_v2_master_'+market+'_v3b';
+const params=new URLSearchParams(location.search);let market=params.get('market')==='lao'?'lao':'thai';let rules=MARKET_RULES[market];const STORAGE_KEY='t999_v2_master_'+market+'_v3i';
 document.getElementById('thaiLink').className='mode-link '+(market==='thai'?'on':'');document.getElementById('laoLink').className='mode-link '+(market==='lao'?'on':'');document.body.classList.toggle('lao-mode',market==='lao');document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2';document.getElementById('marketBadge').textContent=rules.name;
 let workspace={workspaceId:'WS-'+market.toUpperCase()+'-'+Date.now(),market,marketName:rules.name,roundLabel:'',masterName:'Master',createdAt:Date.now(),updatedAt:Date.now()};
 let agents=[{id:'a1',name:'จอย',items:[]},{id:'a2',name:'นายพล',items:[]},{id:'a3',name:'บัญชา',items:[]},{id:'a4',name:'แมน2',items:[]},{id:'a5',name:'นา',items:[]}];
@@ -95,27 +95,201 @@ let activeAgentId='a1',_renderGroups=[],_saveTimer=null,leksText='',phase='lek',
 function setWorkspace(){let r=prompt('ชื่องวด / วันที่ / รอบ',workspace.roundLabel||rules.name+' '+new Date().toLocaleDateString('th-TH'));if(r===null)return;let m=prompt('ชื่อเจ้ามือ / ห้องคีย์ / Master',workspace.masterName||'Master');if(m===null)return;workspace.roundLabel=r.trim();workspace.masterName=m.trim()||'Master';workspace.updatedAt=Date.now();renderWorkspace();scheduleSave()}
 function renderWorkspace(){document.getElementById('workspaceText').textContent=rules.name+' | '+(workspace.roundLabel||'ยังไม่ได้ตั้งงวด')+' | '+(workspace.masterName||'Master')}
 function loadData(){try{let raw=localStorage.getItem(STORAGE_KEY);if(!raw)return;let data=JSON.parse(raw);if(data&&data.market===market&&Array.isArray(data.agents)){agents=data.agents;activeAgentId=data.activeAgentId||(agents[0]&&agents[0].id)||'a1';workspace=data.workspace||workspace;if(!agents.find(a=>a.id===activeAgentId)&&agents[0])activeAgentId=agents[0].id;updateSaveLine(data.savedAt,'โหลดข้อมูลจากเครื่องแล้ว')}}catch(e){console.error(e);updateSaveLine(null,'โหลดข้อมูลเดิมไม่สำเร็จ')}}
-function saveData(){try{workspace.updatedAt=Date.now();let payload={fileType:'T999_V2_MASTER_LOCAL',version:'3B',market,activeAgentId,workspace,agents,savedAt:Date.now()};localStorage.setItem(STORAGE_KEY,JSON.stringify(payload));updateSaveLine(payload.savedAt,'บันทึกในเครื่องแล้ว')}catch(e){console.error(e);updateSaveLine(null,'บันทึกไม่สำเร็จ')}}
+function saveData(){try{workspace.updatedAt=Date.now();let payload={fileType:'T999_V2_MASTER_LOCAL',version:'3I',market,activeAgentId,workspace,agents,savedAt:Date.now()};localStorage.setItem(STORAGE_KEY,JSON.stringify(payload));updateSaveLine(payload.savedAt,'บันทึกในเครื่องแล้ว')}catch(e){console.error(e);updateSaveLine(null,'บันทึกไม่สำเร็จ')}}
 function scheduleSave(){clearTimeout(_saveTimer);_saveTimer=setTimeout(saveData,250)}
 function manualSave(){saveData();alert('บันทึกข้อมูลในเครื่องแล้ว')}
 function updateSaveLine(ts,msg){let el=document.getElementById('saveLine');if(!el)return;if(!ts){el.textContent=msg||'ยังไม่บันทึก';return}let t=new Date(ts).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});el.textContent='✅ '+(msg||'บันทึกแล้ว')+' | '+t}
 function clearLocalData(){if(!confirm('ล้างข้อมูลที่บันทึกในเครื่องของโหมด '+rules.name+' ?'))return;localStorage.removeItem(STORAGE_KEY);workspace={workspaceId:'WS-'+market.toUpperCase()+'-'+Date.now(),market,marketName:rules.name,roundLabel:'',masterName:'Master',createdAt:Date.now(),updatedAt:Date.now()};agents=[{id:'a1',name:'จอย',items:[]},{id:'a2',name:'นายพล',items:[]},{id:'a3',name:'บัญชา',items:[]},{id:'a4',name:'แมน2',items:[]},{id:'a5',name:'นา',items:[]}];activeAgentId='a1';clearBuffer();selectAgent(activeAgentId,false);renderWorkspace();saveData()}
 function safeName(s){return String(s||'file').replace(/[^\wก-ฮ0-9-]+/g,'_').slice(0,80)}
-function exportJson(){let payload={fileType:'T999_V2_MASTER_EXPORT',version:'3B',market,marketName:rules.name,workspace,activeAgentId,exportedAt:new Date().toISOString(),agents};downloadJSON(payload,'t999-v2-master-'+market+'-'+safeName(workspace.roundLabel||'round')+'-'+Date.now()+'.json')}
-function exportSubkeyWorkspace(){let worker=prompt('ชื่อลูกน้อง / คนคีย์','');if(worker===null)return;worker=worker.trim();if(!worker)return alert('ต้องใส่ชื่อลูกน้องก่อน');let round=workspace.roundLabel||'';if(!round){let r=prompt('ยังไม่ได้ตั้งงวด ใส่งวดสำหรับไฟล์งานนี้',rules.name+' '+new Date().toLocaleDateString('th-TH'));if(r===null)return;round=r.trim();workspace.roundLabel=round}let sessionId='SUB-'+market.toUpperCase()+'-'+Date.now();let payload={fileType:'T999_V2_SUBKEY_WORKSPACE',version:'3B',createdAt:new Date().toISOString(),sessionId,market,marketName:rules.name,roundLabel:round,master:{name:workspace.masterName||'Master',workspaceId:workspace.workspaceId},subKeyer:{id:'SUB_'+safeName(worker).toUpperCase()+'_'+Date.now(),name:worker},settings:{allowEditMarket:false,allowEditRound:false,source:'master-v2'},agents:[{id:'sub_inbox_'+Date.now(),name:'โพยลูกน้อง '+worker,items:[]}],notes:'ไฟล์งานลูกน้องจาก T999 V2 Master'};downloadJSON(payload,'T999_WORK_'+safeName(worker)+'_'+market.toUpperCase()+'_'+safeName(round)+'.json');renderWorkspace();saveData();alert('สร้างไฟล์งานลูกน้องแล้ว\n'+worker+' | '+rules.name+' | '+round)}
+function exportJson(){let payload={fileType:'T999_V2_MASTER_EXPORT',version:'3I',market,marketName:rules.name,workspace,activeAgentId,exportedAt:new Date().toISOString(),agents};downloadJSON(payload,'t999-v2-master-'+market+'-'+safeName(workspace.roundLabel||'round')+'-'+Date.now()+'.json')}
+function exportSubkeyWorkspace(){let worker=prompt('ชื่อลูกน้อง / คนคีย์','');if(worker===null)return;worker=worker.trim();if(!worker)return alert('ต้องใส่ชื่อลูกน้องก่อน');let round=workspace.roundLabel||'';if(!round){let r=prompt('ยังไม่ได้ตั้งงวด ใส่งวดสำหรับไฟล์งานนี้',rules.name+' '+new Date().toLocaleDateString('th-TH'));if(r===null)return;round=r.trim();workspace.roundLabel=round}let sessionId='SUB-'+market.toUpperCase()+'-'+Date.now();let payload={fileType:'T999_V2_SUBKEY_WORKSPACE',version:'3I',createdAt:new Date().toISOString(),sessionId,market,marketName:rules.name,roundLabel:round,master:{name:workspace.masterName||'Master',workspaceId:workspace.workspaceId},subKeyer:{id:'SUB_'+safeName(worker).toUpperCase()+'_'+Date.now(),name:worker},settings:{allowEditMarket:false,allowEditRound:false,source:'master-v2'},agents:[{id:'sub_inbox_'+Date.now(),name:'โพยลูกน้อง '+worker,items:[]}],notes:'ไฟล์งานลูกน้องจาก T999 V2 Master'};downloadJSON(payload,'T999_WORK_'+safeName(worker)+'_'+market.toUpperCase()+'_'+safeName(round)+'.json');renderWorkspace();saveData();alert('สร้างไฟล์งานลูกน้องแล้ว\n'+worker+' | '+rules.name+' | '+round)}
 function downloadJSON(payload,name){let blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
 function importJson(){document.getElementById('importFile').value='';document.getElementById('importFile').click()}
 function handleImportFile(ev){let file=ev.target.files&&ev.target.files[0];if(!file)return;let reader=new FileReader();reader.onload=function(){try{let data=JSON.parse(reader.result);if(!data||!Array.isArray(data.agents)){alert('ไฟล์ไม่ถูกต้อง: ไม่พบข้อมูล agents');return}if(data.market&&data.market!==market){alert('นำเข้าไม่ได้: ไฟล์นี้เป็นตลาด '+data.market+' แต่หน้านี้เป็น '+market);return}if(data.fileType==='T999_V2_SUBKEY_RESULT'){importSubkeyResult(data);return}importNormalJson(data)}catch(e){console.error(e);alert('อ่านไฟล์ไม่สำเร็จ หรือ JSON เสีย')}};reader.readAsText(file)}
 function summarizeImport(importAgents){let itemCount=0,total=0;importAgents.forEach(a=>(a.items||[]).forEach(it=>{itemCount++;total+=Number(it.amount||0)}));return{itemCount,total}}
-function importedSessionExists(sessionId){return !!sessionId&&agents.some(a=>(a.items||[]).some(it=>it.importSessionId===sessionId))}
-function removeImportedSession(sessionId){if(!sessionId)return;agents.forEach(a=>{a.items=(a.items||[]).filter(it=>it.importSessionId!==sessionId)})}
-function importSubkeyResult(data){let sessionId=data.sessionId||'',summary=summarizeImport(data.agents||[]),worker=data.subKeyer&&data.subKeyer.name?data.subKeyer.name:'ลูกน้อง',round=data.roundLabel||'-';if(sessionId&&importedSessionExists(sessionId)){let msg='เคย Import งาน Session นี้แล้ว\nSession: '+sessionId+'\nคนคีย์: '+worker+'\n\nกด OK = ลบของเดิมจาก Session นี้ แล้ว Import ใหม่\nกด Cancel = ยกเลิก';if(!confirm(msg))return;removeImportedSession(sessionId)}let msg='นำเข้างานลูกน้อง\nคนคีย์: '+worker+'\nงวด: '+round+'\nแฟ้ม: '+(data.agents||[]).length+'\nรายการ: '+summary.itemCount+'\nยอดรวม: ฿'+summary.total.toLocaleString()+'\n\nยืนยันนำเข้าทุกรายการหรือไม่?';if(!confirm(msg))return;let added=0;(data.agents||[]).forEach(inAgent=>{let name=inAgent.name||('โพยลูกน้อง '+worker);let target=agents.find(a=>a.name===name);if(!target){target={id:'import_'+(sessionId||Date.now())+'_'+Math.floor(Math.random()*9999),name,items:[]};agents.push(target)}(inAgent.items||[]).forEach(it=>{target.items.push({lek:String(it.lek||''),type:it.type,amount:Number(it.amount||0),role:it.role||'main',note:it.note||'',importSessionId:sessionId,importWorker:worker,importedAt:Date.now()});added++})});activeAgentId=agents[0]?agents[0].id:activeAgentId;selectAgent(activeAgentId,false);renderWorkspace();saveData();alert('Import งานลูกน้องสำเร็จ\nเพิ่มเข้าครบ: '+added+' รายการ\nยอดควรตรงกับไฟล์ลูกน้อง 100%')}
+function importedSessionExists(sessionId){
+  if(!sessionId) return false;
+  return agents.some(a => {
+    if((a.items || []).some(it => it.importSessionId === sessionId)) return true;
+    return (a.customers || []).some(c => (c.slips || []).some(s => (s.items || []).some(it => it.importSessionId === sessionId)));
+  });
+}
+
+function removeImportedSession(sessionId){
+  if(!sessionId) return;
+  agents.forEach(a=>{
+    a.items = (a.items || []).filter(it => it.importSessionId !== sessionId);
+    (a.customers || []).forEach(c=>{
+      (c.slips || []).forEach(s=>{
+        s.items = (s.items || []).filter(it => it.importSessionId !== sessionId);
+      });
+      c.slips = (c.slips || []).filter(s => (s.items || []).length > 0);
+    });
+    a.customers = (a.customers || []).filter(c => (c.slips || []).length > 0);
+  });
+}
+
+function importSubkeyResult(data){
+  const sessionId = data.sessionId || '';
+  const summary = summarizeImport(data.agents || []);
+  const worker = data.subKeyer && data.subKeyer.name ? data.subKeyer.name : 'ลูกน้อง';
+  const round = data.roundLabel || '-';
+
+  if(sessionId && importedSessionExists(sessionId)){
+    const msg =
+      'เคย Import งาน Session นี้แล้ว\n' +
+      'Session: ' + sessionId + '\n' +
+      'คนคีย์: ' + worker + '\n\n' +
+      'กด OK = ลบของเดิมจาก Session นี้ แล้ว Import ใหม่\n' +
+      'กด Cancel = ยกเลิก';
+
+    if(!confirm(msg)) return;
+    removeImportedSession(sessionId);
+  }
+
+  const msg =
+    'นำเข้างานลูกน้อง\n' +
+    'คนคีย์: ' + worker + '\n' +
+    'งวด: ' + round + '\n' +
+    'แฟ้ม/เอเยนต์: ' + (data.agents || []).length + '\n' +
+    'รายการ: ' + summary.itemCount + '\n' +
+    'ยอดรวม: ฿' + summary.total.toLocaleString() + '\n\n' +
+    'ยืนยันนำเข้าทุกรายการหรือไม่?';
+
+  if(!confirm(msg)) return;
+
+  let added = 0;
+
+  (data.agents || []).forEach(inAgent=>{
+    const name = inAgent.name || ('โพยลูกน้อง ' + worker);
+    let target = agents.find(a => a.name === name);
+
+    if(!target){
+      target = {id: inAgent.id || ('import_' + (sessionId || Date.now()) + '_' + Math.floor(Math.random()*9999)), name, items:[], customers:[]};
+      agents.push(target);
+    }
+
+    if(!target.items) target.items = [];
+    if(!target.customers) target.customers = [];
+
+    if(Array.isArray(inAgent.customers) && inAgent.customers.length){
+      inAgent.customers.forEach(inCustomer=>{
+        const customer = getOrCreateMasterCustomer(target, inCustomer.name || 'ลูกค้าไม่ระบุ', inCustomer.id);
+
+        (inCustomer.slips || []).forEach(inSlip=>{
+          const slipInfo = {
+            id: inSlip.id || ('SLIP-IMPORT-' + Date.now() + '-' + Math.floor(Math.random()*9999)),
+            slipNo: inSlip.slipNo || ((customer.slips || []).length + 1),
+            label: inSlip.label || ('โพยชุดที่ ' + (inSlip.slipNo || ((customer.slips || []).length + 1))),
+            keyedBy: inSlip.keyedBy || worker,
+            createdAt: inSlip.createdAt || Date.now(),
+            updatedAt: inSlip.updatedAt || Date.now()
+          };
+
+          const slip = getOrCreateMasterSlip(customer, slipInfo);
+
+          (inSlip.items || []).forEach(it=>{
+            const clean = {
+              lek:String(it.lek || ''),
+              type:it.type,
+              amount:Number(it.amount || 0),
+              role:it.role || 'main',
+              note:it.note || '',
+              importSessionId:sessionId,
+              importWorker:worker,
+              importedAt:Date.now(),
+              agentId:target.id,
+              agentName:target.name,
+              customerId:customer.id,
+              customerName:customer.name,
+              slipId:slip.id,
+              slipNo:slip.slipNo,
+              slipLabel:slip.label,
+              keyedBy:it.keyedBy || slip.keyedBy || worker
+            };
+
+            slip.items.push(clean);
+            target.items.push(clean);
+            added++;
+          });
+        });
+      });
+    }else{
+      (inAgent.items || []).forEach(it=>{
+        target.items.push({
+          lek:String(it.lek || ''),
+          type:it.type,
+          amount:Number(it.amount || 0),
+          role:it.role || 'main',
+          note:it.note || '',
+          importSessionId:sessionId,
+          importWorker:worker,
+          importedAt:Date.now()
+        });
+        added++;
+      });
+    }
+  });
+
+  activeAgentId = agents[0] ? agents[0].id : activeAgentId;
+  selectAgent(activeAgentId, false);
+  renderWorkspace();
+  saveData();
+
+  alert('Import งานลูกน้องสำเร็จ\nเพิ่มเข้าครบ: ' + added + ' รายการ\nMaster เก็บโครงลูกค้า/โพย ID แล้ว');
+}
+
 function itemKey(agentName,it){return[agentName||'',it.lek||'',it.type||'',Number(it.amount||0),it.role||'',it.note||''].join('|')}
 function importNormalJson(data){let summary=summarizeImport(data.agents);let msg='พบไฟล์นำเข้า ('+(data.fileType||'JSON')+')\nตลาด: '+(data.marketName||data.market||'-')+'\nแฟ้ม: '+data.agents.length+'\nรายการ: '+summary.itemCount+'\nยอดรวม: ฿'+summary.total.toLocaleString()+'\n\nกด OK = รวมเฉพาะรายการที่ไม่ซ้ำ\nกด Cancel = มีตัวเลือกแทนที่ทั้งหมด';if(confirm(msg))mergeImportData(data);else if(confirm('ต้องการแทนที่ข้อมูลทั้งหมดในหน้านี้ด้วยไฟล์นี้หรือไม่?'))replaceImportData(data)}
 function mergeImportData(data){let existing=new Set(),added=0,skipped=0;agents.forEach(a=>(a.items||[]).forEach(it=>existing.add(itemKey(a.name,it))));data.agents.forEach(inAgent=>{let name=inAgent.name||'ไม่ระบุชื่อ';let target=agents.find(a=>a.name===name);if(!target){target={id:'a'+Date.now()+Math.floor(Math.random()*9999),name,items:[]};agents.push(target)}(inAgent.items||[]).forEach(it=>{let k=itemKey(name,it);if(existing.has(k)){skipped++;return}target.items.push({lek:String(it.lek||''),type:it.type,amount:Number(it.amount||0),role:it.role||'main',note:it.note||''});existing.add(k);added++})});if(data.workspace&&!workspace.roundLabel){workspace.roundLabel=data.workspace.roundLabel||workspace.roundLabel;workspace.masterName=data.workspace.masterName||workspace.masterName}if(data.roundLabel&&!workspace.roundLabel)workspace.roundLabel=data.roundLabel;activeAgentId=agents[0]?agents[0].id:activeAgentId;selectAgent(activeAgentId,false);renderWorkspace();saveData();alert('นำเข้าสำเร็จ\nเพิ่มใหม่: '+added+' รายการ\nข้ามซ้ำ: '+skipped+' รายการ')}
 function replaceImportData(data){agents=data.agents.map((a,i)=>({id:a.id||('a'+Date.now()+i),name:a.name||('แฟ้ม '+(i+1)),items:Array.isArray(a.items)?a.items.map(it=>({lek:String(it.lek||''),type:it.type,amount:Number(it.amount||0),role:it.role||'main',note:it.note||''})):[]}));workspace=data.workspace||workspace;workspace.market=market;workspace.marketName=rules.name;if(data.roundLabel)workspace.roundLabel=data.roundLabel;activeAgentId=agents[0]?agents[0].id:'a1';selectAgent(activeAgentId,false);renderWorkspace();saveData();alert('แทนที่ข้อมูลทั้งหมดเรียบร้อย')}
 function activeAgent(){return agents.find(a=>a.id===activeAgentId)||agents[0]}function items(){return activeAgent().items}
-function renderAgents(){let wrap=document.getElementById('agentList');wrap.innerHTML=agents.map(a=>{let total=a.items.reduce((s,x)=>s+Number(x.amount||0),0);return`<div class="agent-card ${a.id===activeAgentId?'active':''}" onclick="selectAgent('${a.id}')"><div class="agent-name">${a.name}</div><div class="agent-meta">${a.items.length} รายการ</div><div class="agent-total">฿${total.toLocaleString()}</div></div>`}).join('');document.getElementById('agentCount').textContent=agents.length;document.getElementById('sumAgents').textContent=agents.length}
+function renderAgents(){
+  const wrap = document.getElementById('agentList');
+
+  wrap.innerHTML = agents.map(a=>{
+    const flatItems = (a.items || []);
+    const total = flatItems.reduce((s,x)=>s+Number(x.amount||0),0);
+
+    let customerHtml = '';
+    let customerCount = 0;
+    let slipCount = 0;
+
+    (a.customers || []).forEach(c=>{
+      customerCount++;
+      const cusItems = [];
+      (c.slips || []).forEach(slip=>{
+        (slip.items || []).forEach(it=>cusItems.push(it));
+      });
+
+      const cusTotal = cusItems.reduce((s,x)=>s+Number(x.amount||0),0);
+      const cSlipCount = (c.slips || []).length;
+      slipCount += cSlipCount;
+
+      customerHtml += `<div class="customer-row">${c.name} · ${cSlipCount} โพย · ฿${cusTotal.toLocaleString()}</div>`;
+
+      (c.slips || []).slice(-4).reverse().forEach(slip=>{
+        const stotal = (slip.items || []).reduce((s,x)=>s+Number(x.amount||0),0);
+        customerHtml += `<div class="slip-row" onclick="event.stopPropagation();showSlipDetail('${a.id}','${c.id}','${slip.id}')">↳ ${slip.label || slip.id} · ${slip.items.length} รายการ · ฿${stotal.toLocaleString()}</div>`;
+      });
+    });
+
+    const meta = customerCount ? `${customerCount} ลูกค้า · ${slipCount} โพย · ${flatItems.length} รายการ` : `${flatItems.length} รายการ`;
+
+    return `
+      <div class="agent-card ${a.id===activeAgentId?'active':''}" onclick="selectAgent('${a.id}')">
+        <div class="agent-name">${a.name}</div>
+        <div class="agent-meta">${meta}</div>
+        <div class="agent-total">฿${total.toLocaleString()}</div>
+        ${customerHtml}
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('agentCount').textContent = agents.length;
+  document.getElementById('sumAgents').textContent = agents.length;
+}
+
 function selectAgent(id,shouldSave=true){activeAgentId=id;if(!activeAgent())activeAgentId=agents[0]?agents[0].id:null;document.getElementById('activeAgentName').textContent=activeAgent()?activeAgent().name:'-';clearBuffer();renderAgents();renderList();if(shouldSave)scheduleSave()}
 function addAgent(){let name=prompt('ชื่อเอเยนต์/แฟ้มใหม่');if(!name)return;let id='a'+Date.now();agents.push({id,name,items:[]});activeAgentId=id;selectAgent(id);scheduleSave()}
 function clearCurrentAgent(){if(!activeAgent())return;if(!confirm('ล้างรายการแฟ้มนี้?'))return;activeAgent().items=[];renderAgents();renderList();scheduleSave()}
@@ -139,6 +313,71 @@ function commit(){if(phase==='price')saveCurrentPrice();let leks=getLeks();if(!l
 function render(){let screen=document.getElementById('screen'),hint=document.getElementById('hint');if(phase==='lek'){screen.textContent=leksText.includes('/')?normalizeLeksText():(leksText||'—');hint.innerHTML='กดเลข<br>แล้ว ↵<br>หลัก: '+(getBaseLen()||'-')}else{let slot=currentSlot(),left=normalizeLeksText()+'=',priceParts=slots.map((s,i)=>i===slotIndex?(priceBuf||s.price||''):(s.price||''));screen.textContent=left+priceParts.join('×');hint.innerHTML=slot?'ราคา: '+LABEL[slot.type]+'<br>'+(slot.rev?'กลับ/ชุด ON':'กด . = กลับ/ชุด'):'ไม่มี slot'}renderSlots();renderStatus()}
 function renderSlots(){let row=document.getElementById('typeRow');row.className='type-row '+(market==='thai'?'thai':'');['bon','tod','lang','na'].forEach(t=>{let btn=document.getElementById('slot-'+t),idx=slots.findIndex(s=>s.type===t),visible=phase==='price'?idx>=0:((rules.slotOrder[getBaseLen()]||['bon','tod','lang','na']).includes(t));btn.style.display=visible?'block':'none';let active=phase==='price'&&idx===slotIndex,done=phase==='price'&&idx>=0&&Number(slots[idx].price)>0,rev=phase==='price'&&idx>=0&&slots[idx].rev,d=currentDigits();btn.className='tbtn'+(active?' active '+t:'')+(done?' done':'')+(rev?(d===2?' rev':' rev3'):'')})}
 function renderStatus(){let el=document.getElementById('statusLine');if(!activeAgent()){el.textContent='ยังไม่มีแฟ้ม';return}if(phase==='lek')el.textContent='กำลังคีย์เลข — โหมด '+rules.name+' — แฟ้ม '+activeAgent().name;else{let slot=currentSlot();el.textContent=slot?'กำลังใส่ราคา: '+LABEL[slot.type]+' | '+currentDigits()+' หลัก | แฟ้ม '+activeAgent().name:'กำลังใส่ราคา'}}
+
+function showSlipDetail(agentId, customerId, slipId){
+  const agent = agents.find(a=>a.id === agentId);
+  const customer = agent && (agent.customers || []).find(c=>c.id === customerId);
+  const slip = customer && (customer.slips || []).find(s=>s.id === slipId);
+
+  if(!slip) return alert('ไม่พบโพยนี้');
+
+  activeAgentId = agent.id;
+  document.getElementById('activeAgentName').textContent =
+    agent.name + ' / ' + customer.name + ' / ' + (slip.label || slip.id);
+
+  renderSlipList(slip.items || []);
+  renderAgents();
+}
+
+function renderSlipList(arr){
+  const list = document.getElementById('list');
+
+  if(!arr.length){
+    list.innerHTML = '<div class="empty">โพยนี้ไม่มีรายการ</div>';
+    _renderGroups = [];
+  }else{
+    const grouped = [];
+
+    arr.forEach((it, originalIndex)=>{
+      let found = grouped.find(g => g.lek === it.lek && g.role === it.role && g.note === it.note);
+
+      if(!found){
+        found = {lek:it.lek,role:it.role,note:it.note,amounts:{bon:null,tod:null,lang:null,na:null},indexes:[],lastIndex:originalIndex};
+        grouped.push(found);
+      }
+
+      found.amounts[it.type] = (found.amounts[it.type] || 0) + Number(it.amount || 0);
+      found.indexes.push(originalIndex);
+      found.lastIndex = Math.max(found.lastIndex, originalIndex);
+    });
+
+    grouped.sort((a,b)=>b.lastIndex-a.lastIndex);
+
+    list.innerHTML = grouped.map((g,gi)=>{
+      const isPin = g.note === 'ปัก';
+      const lekClass = isPin ? 'pinlek' : (g.role === 'follow' ? 'follow' : '');
+      const money = t => g.amounts[t] ? '฿' + g.amounts[t].toLocaleString() : '-';
+      const has = t => g.amounts[t] ? 'has' : '';
+
+      return `
+        <div class="table-row">
+          <div class="lek ${lekClass}">${g.lek}</div>
+          <div class="cell bon ${has('bon')}">${money('bon')}</div>
+          <div class="cell tod ${has('tod')}">${money('tod')}</div>
+          <div class="cell lang ${has('lang')}">${money('lang')}</div>
+          <div class="cell na na-col ${has('na')}">${money('na')}</div>
+          <span></span>
+        </div>
+      `;
+    }).join('');
+
+    _renderGroups = grouped;
+  }
+
+  const total = arr.reduce((s,x)=>s+Number(x.amount||0),0);
+  document.getElementById('totalText').textContent = '฿' + total.toLocaleString();
+}
+
 function renderList(){let list=document.getElementById('list'),arr=activeAgent()?items():[];if(!arr.length){list.innerHTML='<div class="empty">ยังไม่มีรายการ</div>';_renderGroups=[]}else{let grouped=[];arr.forEach((it,originalIndex)=>{let found=grouped.find(g=>g.lek===it.lek&&g.role===it.role&&g.note===it.note);if(!found){found={lek:it.lek,role:it.role,note:it.note,amounts:{bon:null,tod:null,lang:null,na:null},indexes:[],lastIndex:originalIndex};grouped.push(found)}found.amounts[it.type]=(found.amounts[it.type]||0)+Number(it.amount||0);found.indexes.push(originalIndex);found.lastIndex=Math.max(found.lastIndex,originalIndex)});grouped.sort((a,b)=>b.lastIndex-a.lastIndex);list.innerHTML=grouped.map((g,gi)=>{let isPin=g.note==='ปัก',lekClass=isPin?'pinlek':(g.role==='follow'?'follow':''),money=t=>g.amounts[t]?'฿'+g.amounts[t].toLocaleString():'-',has=t=>g.amounts[t]?'has':'';return`<div class="table-row"><div class="lek ${lekClass}">${g.lek}</div><div class="cell bon ${has('bon')}">${money('bon')}</div><div class="cell tod ${has('tod')}">${money('tod')}</div><div class="cell lang ${has('lang')}">${money('lang')}</div><div class="cell na na-col ${has('na')}">${money('na')}</div><button class="delbtn" onclick="removeGroup(${gi})">×</button></div>`}).join('');_renderGroups=grouped}let total=arr.reduce((s,x)=>s+Number(x.amount||0),0);document.getElementById('totalText').textContent='฿'+total.toLocaleString();let allItems=agents.flatMap(a=>a.items),grand=allItems.reduce((s,x)=>s+Number(x.amount||0),0);document.getElementById('sumItems').textContent=allItems.length;document.getElementById('sumGrand').textContent='฿'+grand.toLocaleString();renderAgents()}
 function removeGroup(groupIndex){let g=_renderGroups[groupIndex];if(!g||!activeAgent())return;activeAgent().items=items().filter((_,idx)=>!g.indexes.includes(idx));renderList();scheduleSave()}
 function openPin(){let digit=phase==='lek'?(leksText.replace(/\D/g,'').slice(-1)||''):'';if(!digit||digit.length!==1)return alert('ปักหลักต้องกดเลข 1 ตัวก่อน เช่น 4 แล้วกดปัก');document.getElementById('pinNum').textContent=digit;document.getElementById('pinPrice').value='';pin.type='bon';pin.positions={hundred:true,ten:true,unit:true};renderPin();document.getElementById('pinModal').classList.add('show');setTimeout(()=>document.getElementById('pinPrice').focus(),100)}
