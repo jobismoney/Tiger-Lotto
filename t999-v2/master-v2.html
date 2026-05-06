@@ -631,21 +631,31 @@ function renderAgentModal(){
 function renderAgentSlipsTab(a){
   const el=document.getElementById('agentModalContent');
   if(!(a.customers||[]).length){el.innerHTML='<div class="placeholder-box">ยังไม่มีลูกค้า/โพยในเอเยนต์นี้</div>';return}
-  el.innerHTML=(a.customers||[]).map(c=>`<div class="agent-section">
+  el.innerHTML=`<div class="placeholder-box" style="margin-bottom:12px;text-align:left"><b style="color:#f5c518">โหมดสรุปลูกค้า/โพย</b><br>แท็บนี้ใช้ดูภาพรวมของเอเยนต์เท่านั้น<br>ถ้าต้องการดูรายการจริง ลบ หรือแก้ไข ให้ทำจากแฟ้มฝั่งซ้ายเหมือนเดิม<br>ส่วนปุ่มดูเป็นรูปโพยกระดาษ จะทำเพิ่มในสเต็ปถัดไป</div>`+
+  (a.customers||[]).map(c=>`<div class="agent-section">
     <div class="customer-head">
       <div><div class="customer-title">👤 ${esc(c.name)}</div><div class="customer-meta">${(c.slips||[]).length} โพย · ${money(totalCustomer(c))}</div></div>
-      <button class="btn small red" onclick="deleteCustomer('${a.id}','${c.id}')">ลบลูกค้า</button>
+      <span class="pill">สรุป</span>
     </div>
     ${(c.slips||[]).map(sl=>`<div class="agent-slip">
-      <div><div class="agent-slip-title">โพย #${esc(sl.slipNo||'-')} · ${esc(sl.label||sl.id)}</div><div class="agent-slip-meta">${(sl.items||[]).length} รายการ · ${money(totalSlip(sl))}</div></div>
-      <div style="display:flex;gap:6px"><button class="btn small" onclick="viewSlip('${a.id}','${c.id}','${sl.id}')">ดูโพย</button><button class="btn small red" onclick="deleteSlip('${a.id}','${c.id}','${sl.id}')">ลบ</button></div>
+      <div>
+        <div class="agent-slip-title">โพย #${esc(sl.slipNo||'-')} · ${esc(sl.label||sl.id)}</div>
+        <div class="agent-slip-meta">${(sl.items||[]).length} รายการ · ${money(totalSlip(sl))}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn small" onclick="viewSlipPaperComingSoon('${a.id}','${c.id}','${sl.id}')">โพยกระดาษ</button>
+      </div>
     </div>`).join('')}
   </div>`).join('');
 }
 function viewSlip(agentId,customerId,slipId){
   const a=agents.find(x=>x.id===agentId);const c=a&&(a.customers||[]).find(x=>x.id===customerId);const sl=c&&(c.slips||[]).find(x=>x.id===slipId);if(!sl)return;
-  const lines=(sl.items||[]).map(it=>`${it.number} ${LABEL[it.type]||it.type} ${it.amount}`).join('\n');
+  const lines=(sl.items||[]).map(it=>`${it.number||'-'} ${LABEL[it.type]||it.type||'-'} ${it.amount||0}`).join('\n');
   alert('โพย '+(sl.slipNo||'')+'\nลูกค้า: '+c.name+'\nยอด: '+money(totalSlip(sl))+'\n\n'+lines)
+}
+function viewSlipPaperComingSoon(agentId,customerId,slipId){
+  const a=agents.find(x=>x.id===agentId);const c=a&&(a.customers||[]).find(x=>x.id===customerId);const sl=c&&(c.slips||[]).find(x=>x.id===slipId);if(!sl)return;
+  alert('ฟังก์ชันรูปโพยกระดาษกำลังจะทำในสเต็ปถัดไป\n\nเอเยนต์: '+(a?.name||'-')+'\nลูกค้า: '+(c?.name||'-')+'\nโพย: '+(sl.slipNo||'-')+'\nยอด: '+money(totalSlip(sl)));
 }
 function deleteSlip(agentId,customerId,slipId){
   const a=agents.find(x=>x.id===agentId);const c=a&&(a.customers||[]).find(x=>x.id===customerId);if(!c)return;
@@ -685,7 +695,7 @@ function renderBaseConfig(){
   else document.getElementById('agentModalContent').innerHTML='<div class="placeholder-box"><b style="color:#f5c518">Step 4A</b><br>ไฟล์นี้เพิ่มฐานเรทและเลขอั้นกลาง/รายเอเยนต์แล้ว<br>ข้อมูลถูกบันทึกลง localStorage และ Export JSON ไปพร้อมไฟล์ Master</div>';
 }
 function restoreAgentTabLabels(){
-  document.getElementById('agentTabSlips').textContent='ลูกค้า/โพย';
+  document.getElementById('agentTabSlips').textContent='สรุปลูกค้า/โพย';
   document.getElementById('agentTabRates').textContent='เรทเอเยนต์';
   document.getElementById('agentTabLimits').textContent='เลขอั้นเอเยนต์';
   document.getElementById('agentTabPrize').textContent='ตรวจรางวัล';
