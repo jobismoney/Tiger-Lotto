@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Subkey Slip Mode 3F Step 3D</title>
+<title>T999 V2 Subkey Slip Mode 3G Step 3D</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -202,7 +202,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
         </div>
 
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 3F: คีย์เป็นชุด → เก็บโพย → คลิกโพยเดิมเพื่อเรียกดู/แก้ไขได้</div>
+        <div class="help">Step 3G: คีย์เป็นชุด → เก็บโพย → คลิกโพยเดิมเพื่อแก้ไข · แก้โพยเดิมล็อกชื่อเอเยนต์/ลูกค้า</div>
       </div>
     </div>
   </div>
@@ -396,7 +396,7 @@ function saveData(){
 
   const payload = {
     fileType:'T999_V2_SUBKEY_LOCAL_SLIP',
-    version:'3F',
+    version:'3G',
     sessionId:work.sessionId,
     market,
     activeAgentName,
@@ -560,7 +560,6 @@ function savePendingSlip(){
   if(!work) return alert('ยังไม่ได้เลือกไฟล์งาน');
   if(!pendingItems.length) return alert('ยังไม่มีรายการในชุดนี้');
 
-  // HARD FIX: ตรวจจาก editingSlipId/editSlipId ในรายการโดยตรง ไม่พึ่ง state อย่างเดียว
   const pendingEditId = editingSlipId || (editSlipRef && editSlipRef.slipId) || (pendingItems.find(x=>x.editSlipId)?.editSlipId) || null;
   const original = findSlipEverywhere(pendingEditId);
 
@@ -579,33 +578,43 @@ function savePendingSlip(){
 
   const isEditing = !!(editSlipRef && editSlipRef.slipId);
 
-  const knownAgents = agents.map(a=>a.name).join(', ') || 'ไม่มี';
-  let defaultAgent = isEditing ? editSlipRef.agentName : (activeAgentName || (agents[0] && agents[0].name) || '');
-  let agentName = prompt('เก็บเข้าเอเยนต์ไหน?\nรายชื่อเดิม: ' + knownAgents, defaultAgent);
-  if(agentName === null) return;
-  agentName = agentName.trim();
-  if(!agentName) return alert('ต้องใส่ชื่อเอเยนต์');
-
-  let agent = getOrCreateAgent(agentName);
-  activeAgentName = agent.name;
-
-  const knownCustomers = agent.customers.map(c=>c.name).join(', ') || 'ยังไม่มีลูกค้า';
-  let defaultCustomer = isEditing ? editSlipRef.customerName : (activeCustomerName || (agent.customers[0] && agent.customers[0].name) || 'ลูกค้าไม่ระบุ');
-  let customerName = prompt('เก็บเข้าลูกค้าคนไหน?\nลูกค้าของ ' + agent.name + ': ' + knownCustomers, defaultCustomer);
-  if(customerName === null) return;
-  customerName = customerName.trim() || 'ลูกค้าไม่ระบุ';
-
-  let customer = getOrCreateCustomer(agent, customerName);
-  activeCustomerName = customer.name;
-
-  let slipNo, slipId, label, createdAt;
+  let agent, customer, slipNo, slipId, label, createdAt;
 
   if(isEditing){
-    slipNo = editSlipRef.slipNo || getNextSlipNo(customer);
+    // Step 3G: แก้โพยเดิมต้องล็อกเอเยนต์/ลูกค้าเดิม ห้ามเปลี่ยนชื่อหรือย้ายโพย
+    agent = findAgentById(editSlipRef.agentId);
+    customer = findCustomerById(agent, editSlipRef.customerId);
+
+    if(!agent || !customer){
+      alert('ไม่พบเอเยนต์/ลูกค้าเดิมของโพยนี้ กรุณาเลือกโพยใหม่อีกครั้ง');
+      return;
+    }
+
+    activeAgentName = agent.name;
+    activeCustomerName = customer.name;
+    slipNo = editSlipRef.slipNo || original?.slip?.slipNo || 1;
     slipId = editSlipRef.slipId;
     label = editSlipRef.label || ('โพยชุดที่ ' + slipNo);
-    createdAt = Date.now();
+    createdAt = original?.slip?.createdAt || Date.now();
   }else{
+    const knownAgents = agents.map(a=>a.name).join(', ') || 'ไม่มี';
+    let agentName = prompt('เก็บเข้าเอเยนต์ไหน?\nรายชื่อเดิม: ' + knownAgents, activeAgentName || (agents[0] && agents[0].name) || '');
+    if(agentName === null) return;
+    agentName = agentName.trim();
+    if(!agentName) return alert('ต้องใส่ชื่อเอเยนต์');
+
+    agent = getOrCreateAgent(agentName);
+    activeAgentName = agent.name;
+
+    const knownCustomers = agent.customers.map(c=>c.name).join(', ') || 'ยังไม่มีลูกค้า';
+    let defaultCustomer = activeCustomerName || (agent.customers[0] && agent.customers[0].name) || 'ลูกค้าไม่ระบุ';
+    let customerName = prompt('เก็บเข้าลูกค้าคนไหน?\nลูกค้าของ ' + agent.name + ': ' + knownCustomers, defaultCustomer);
+    if(customerName === null) return;
+    customerName = customerName.trim() || 'ลูกค้าไม่ระบุ';
+
+    customer = getOrCreateCustomer(agent, customerName);
+    activeCustomerName = customer.name;
+
     slipNo = getNextSlipNo(customer);
     slipId = 'SLIP-' + market.toUpperCase() + '-' + work.sessionId + '-' + slipNo + '-' + Date.now();
     label = 'โพยชุดที่ ' + slipNo;
@@ -614,7 +623,7 @@ function savePendingSlip(){
 
   const total = pendingItems.reduce((s,x)=>s+Number(x.amount||0),0);
   const confirmMsg =
-    (isEditing ? 'ยืนยันบันทึกทับโพยเดิม?' : 'ยืนยันเก็บโพยนี้?') + '\n\n' +
+    (isEditing ? 'ยืนยันบันทึกทับโพยเดิม?\n\nหมายเหตุ: โหมดแก้ไขจะล็อกเอเยนต์/ลูกค้าเดิม ห้ามเปลี่ยนชื่อ' : 'ยืนยันเก็บโพยนี้?') + '\n\n' +
     'เอเยนต์: ' + agent.name + '\n' +
     'ลูกค้า: ' + customer.name + '\n' +
     'โพย: ' + label + '\n' +
@@ -754,7 +763,7 @@ function exportResult(){
 
   const payload = {
     fileType:'T999_V2_SUBKEY_RESULT',
-    version:'3F',
+    version:'3G',
     exportedAt:new Date().toISOString(),
     sessionId:work.sessionId,
     market,
