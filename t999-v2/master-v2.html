@@ -55,7 +55,9 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 .table-row{padding:7px 10px;border-bottom:1px solid var(--line);font-size:14px}
 .lek{font-size:19px;font-weight:900;color:var(--gold)}
 .lek.follow{color:var(--purple);font-size:16px;padding-left:9px}
-.lek.pinlek{color:#ff8a3d;font-size:14px}
+.lek.pinlek{color:#ff8a3d;font-size:14px;line-height:1.15}
+.lek .pin-main{display:block;font-size:18px;color:var(--gold);font-weight:900}
+.lek .pin-sub{display:block;margin-top:2px;font-size:10px;color:#ffb86b;font-weight:900;white-space:nowrap}
 .cell{text-align:center;font-weight:900;color:#3c425a}
 .cell.has{color:#f0f2ff}
 .cell.bon{color:#bfdbfe}.cell.tod{color:#fbcfe8}.cell.lang{color:#bbf7d0}.cell.na{color:#fed7aa}
@@ -757,6 +759,20 @@ function totalAll(){return agents.reduce((s,a)=>s+totalAgent(a),0)}
 function itemCountAll(){return agents.reduce((s,a)=>s+(a.items||[]).length,0)}
 function cellAmount(it,type){return it.type===type?Number(it.amount||0):0}
 function itemNumber(it){return String(it.number ?? it.lek ?? it.num ?? it.n ?? '').trim()}
+function pinPositionName(pos){return ({hundred:'ร้อย',ten:'สิบ',unit:'หน่วย'}[pos]||pos||'')}
+function itemTypeName(it){return LABEL[it.type]||it.type||'-'}
+function itemPinLabel(it){
+  if(!it||!it.pin)return '';
+  const side=it.type==='lang'?'ล่าง':'บน';
+  return 'ปัก'+side+pinPositionName(it.pinPosition);
+}
+function itemLekHtml(it){
+  const n=esc(itemNumber(it)||'-');
+  if(it&&it.pin){
+    return `<span class="pin-main">${n}</span><span class="pin-sub">${esc(itemPinLabel(it))}</span>`;
+  }
+  return n;
+}
 function renderAgents(){
   const wrap=document.getElementById('agentList');document.getElementById('agentCount').textContent=agents.length;
   wrap.innerHTML=agents.map(a=>{
@@ -792,7 +808,7 @@ function renderList(){
   }
   const modeHead=found?`<div class="table-row" style="background:#241b05;color:#f5c518;font-weight:900;grid-template-columns:1fr auto"><div>กำลังแก้เฉพาะโพย: ${esc(found.customer.name)} / โพย #${esc(found.slip.slipNo||'-')}</div><button class="btn small" onclick="closeSlipEditMode()">ดูรวมเอเยนต์</button></div>`:'';
   list.innerHTML=modeHead+items.map((it,idx)=>`<div class="table-row">
-    <div class="lek ${it.follow?'follow':''} ${it.pin?'pinlek':''}">${esc(itemNumber(it))}</div>
+    <div class="lek ${it.follow?'follow':''} ${it.pin?'pinlek':''}">${itemLekHtml(it)}</div>
     <div class="cell bon ${cellAmount(it,'bon')?'has':''}">${cellAmount(it,'bon')||''}</div>
     <div class="cell tod ${cellAmount(it,'tod')?'has':''}">${cellAmount(it,'tod')||''}</div>
     <div class="cell lang ${cellAmount(it,'lang')?'has':''}">${cellAmount(it,'lang')||''}</div>
@@ -856,7 +872,7 @@ function renderSlots(){['bon','tod','lang','na'].forEach(t=>{let b=document.getE
 function renderKeyStatus(){
   const screen=document.getElementById('screen'),hint=document.getElementById('hint'),status=document.getElementById('statusLine');
   if(phase==='lek'){screen.textContent=leksText||'—';hint.innerHTML='กดเลข<br>แล้ว ↵';status.textContent='กำลังคีย์เลข'}
-  else{screen.textContent=priceBuf||'0';let slot=slots[slotIndex];hint.innerHTML=(slot?LABEL[slot.type]:'')+'<br>ราคา';status.textContent='ใส่ราคา: '+(slot?LABEL[slot.type]:'')}
+  else{screen.textContent=priceBuf||'—';let slot=slots[slotIndex];hint.innerHTML=(slot?LABEL[slot.type]:'')+'<br>ราคา';status.textContent='ใส่ราคา: '+(slot?LABEL[slot.type]:'')}
 }
 function commit(){
   if(phase!=='price')return enterKey();
@@ -893,8 +909,9 @@ function setPinType(t){pin.type=t;document.getElementById('pinTypeBon').classLis
 function renderPinPositions(){
   const n=(leksText.split('/').filter(Boolean)[0]||'').replace('-','');
   const wrap=document.getElementById('pinPosWrap');wrap.className='seg '+(n.length>=3?'pos3':'pos2');
+  const side=pin.type==='lang'?'ล่าง':'บน';
   const labels=n.length>=3?[['hundred','ร้อย'],['ten','สิบ'],['unit','หน่วย']]:[['ten','สิบ'],['unit','หน่วย']];
-  wrap.innerHTML=labels.map(([k,l])=>`<button class="${pin.positions[k]?'on':''}" onclick="togglePinPos('${k}')">${l}<small>${esc(k)}</small></button>`).join('')
+  wrap.innerHTML=labels.map(([k,l])=>`<button class="${pin.positions[k]?'on':''}" onclick="togglePinPos('${k}')">${l}<small>ปัก${side}${l}</small></button>`).join('')
 }
 function togglePinPos(k){pin.positions[k]=!pin.positions[k];renderPinPositions()}
 function addPin(){
@@ -971,7 +988,7 @@ function getSlipContext(agentId,customerId,slipId){
 }
 function formatThaiDateTime(ts){try{return new Date(ts||Date.now()).toLocaleString('th-TH')}catch(e){return '-'}}
 function paperPositionName(pos){return {hundred:'ร้อย',ten:'สิบ',unit:'หน่วย'}[pos]||pos||''}
-function paperTypeLabel(it){const base=LABEL[it.type]||it.type||'-';return it.pin?'ปัก'+base+' '+paperPositionName(it.pinPosition):base}
+function paperTypeLabel(it){return it.pin?itemPinLabel(it):(LABEL[it.type]||it.type||'-')}
 function paperAmountText(it){return '฿'+Number(it.amount||0).toLocaleString('th-TH')}
 function paperCategory(it){const len=String(itemNumber(it)).replace(/\D/g,'').length;if(it.pin||len===1)return 'one';if(it.type==='tod')return 'tod';if(it.type==='lang')return market==='thai'&&len===3?'threeLang':'two';if(it.type==='na')return market==='thai'&&len===2?'twoNa':'threeNa';if(len>=4)return 'four';if(len===3)return 'three';if(len===2)return 'two';return 'other'}
 function paperColumns(){return market==='lao'?[['four','4ตัว'],['three','3ตัว'],['two','2ตัว'],['one','1ตัว'],['tod','โต๊ด'],['total','รวม']]:[['three','3ตัว'],['two','2ตัว'],['one','1ตัว'],['tod','โต๊ด'],['threeLang','3ล่าง'],['total','รวม']]}
