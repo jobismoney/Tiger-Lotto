@@ -12,12 +12,19 @@
   --gold:#f5c518;--gold2:#c9a010;--white:#f0f2ff;--muted:#9ca3af;
   --blue:#60a5fa;--pink:#f472b6;--green:#34d399;--orange:#fb923c;
   --red:#ef4444;--purple:#a78bfa;
+  --na-col:1fr;
 }
 html,body{height:100%;overflow:hidden}
 body{
   font-family:Arial,"Sarabun",sans-serif;
   background:var(--bg);color:var(--white);
   display:flex;justify-content:center;
+}
+body.lao-mode{
+  --na-col:0px;
+}
+body.lao-mode .na-col{
+  display:none!important;
 }
 .app{
   width:100%;max-width:430px;height:100vh;
@@ -50,7 +57,7 @@ body{
 }
 .tbl-head{
   display:grid;
-  grid-template-columns:74px 1fr 1fr 1fr 1fr 24px;
+  grid-template-columns:74px 1fr 1fr 1fr var(--na-col) 24px;
   gap:2px;
   padding:5px 8px;
   background:#252938;
@@ -65,7 +72,7 @@ body{
 .empty{padding:16px;text-align:center;color:var(--muted);font-size:13px}
 .row{
   display:grid;
-  grid-template-columns:74px 1fr 1fr 1fr 1fr 24px;
+  grid-template-columns:74px 1fr 1fr 1fr var(--na-col) 24px;
   gap:2px;
   align-items:center;
   padding:6px 8px;
@@ -245,7 +252,7 @@ body{
       <span>บน</span>
       <span>โต๊ด</span>
       <span>ล่าง</span>
-      <span>หน้า</span>
+      <span class="na-col">หน้า</span>
       <span></span>
     </div>
 
@@ -269,7 +276,7 @@ body{
       <button id="slot-bon" class="tbtn">บน</button>
       <button id="slot-tod" class="tbtn">โต๊ด</button>
       <button id="slot-lang" class="tbtn">ล่าง</button>
-      <button id="slot-na" class="tbtn">หน้า</button>
+      <button id="slot-na" class="tbtn na-col">หน้า</button>
     </div>
 
     <div class="keypad">
@@ -352,7 +359,7 @@ const MARKET_RULES = {
     name:'ลาว',
     slotOrder:{
       1:['bon','lang'],
-      2:['bon','lang'],
+      2:['bon','lang','tod'],
       3:['bon','tod','lang'],
       4:['bon','tod'],
       5:['tod']
@@ -367,6 +374,7 @@ let rules = MARKET_RULES[market];
 document.getElementById('thaiLink').className = market === 'thai' ? 'on' : '';
 document.getElementById('laoLink').className = market === 'lao' ? 'on' : '';
 document.getElementById('modeText').textContent = 'โหมด ' + rules.name + ' — ใช้ logic แบบ Master';
+document.body.classList.toggle('lao-mode', market === 'lao');
 
 let leksText = '';
 let phase = 'lek'; // lek | price
@@ -374,6 +382,7 @@ let slots = [];
 let slotIndex = 0;
 let priceBuf = '';
 let items = [];
+window._renderGroups = [];
 
 let pin = {
   type:'bon',
@@ -553,14 +562,20 @@ function expandReverseWithRole(num){
 function uniquePermutations(str){
   const arr = str.split('');
   const out = new Set();
+
   function perm(path, rest){
-    if(!rest.length){ out.add(path.join('')); return; }
+    if(!rest.length){
+      out.add(path.join(''));
+      return;
+    }
+
     for(let i=0;i<rest.length;i++){
       const next = rest.slice();
       const ch = next.splice(i,1)[0];
       perm(path.concat(ch), next);
     }
   }
+
   perm([], arr);
   return Array.from(out);
 }
@@ -682,28 +697,69 @@ function renderStatus(){
 
 function renderList(){
   const list = document.getElementById('list');
+
   if(!items.length){
     list.innerHTML = '<div class="empty">ยังไม่มีรายการ</div>';
+    window._renderGroups = [];
   }else{
-    list.innerHTML = items.map((it,i)=>{
-      const isPin = it.note === 'ปัก';
-      const lekClass = isPin ? 'pinlek' : (it.role === 'follow' ? 'follow' : '');
+    const grouped = [];
+
+    items.forEach((it, originalIndex) => {
+      let found = grouped.find(g => g.lek === it.lek && g.role === it.role && g.note === it.note);
+
+      if(!found){
+        found = {
+          lek: it.lek,
+          role: it.role,
+          note: it.note,
+          amounts: {bon:null,tod:null,lang:null,na:null},
+          indexes: []
+        };
+        grouped.push(found);
+      }
+
+      found.amounts[it.type] = (found.amounts[it.type] || 0) + Number(it.amount || 0);
+      found.indexes.push(originalIndex);
+    });
+
+    list.innerHTML = grouped.map((g,gi)=>{
+      const isPin = g.note === 'ปัก';
+      const lekClass = isPin ? 'pinlek' : (g.role === 'follow' ? 'follow' : '');
+
+      function money(t){
+        return g.amounts[t] ? '฿' + g.amounts[t].toLocaleString() : '-';
+      }
+
+      function has(t){
+        return g.amounts[t] ? 'has' : '';
+      }
+
       return `
         <div class="row">
-          <div class="lek ${lekClass}">${it.lek}</div>
-          <div class="cell bon ${it.type==='bon'?'has':''}">${it.type==='bon' ? '฿'+it.amount.toLocaleString() : '-'}</div>
-          <div class="cell tod ${it.type==='tod'?'has':''}">${it.type==='tod' ? '฿'+it.amount.toLocaleString() : '-'}</div>
-          <div class="cell lang ${it.type==='lang'?'has':''}">${it.type==='lang' ? '฿'+it.amount.toLocaleString() : '-'}</div>
-          <div class="cell na ${it.type==='na'?'has':''}">${it.type==='na' ? '฿'+it.amount.toLocaleString() : '-'}</div>
-          <button onclick="removeItem(${i})">×</button>
+          <div class="lek ${lekClass}">${g.lek}</div>
+          <div class="cell bon ${has('bon')}">${money('bon')}</div>
+          <div class="cell tod ${has('tod')}">${money('tod')}</div>
+          <div class="cell lang ${has('lang')}">${money('lang')}</div>
+          <div class="cell na na-col ${has('na')}">${money('na')}</div>
+          <button onclick="removeGroup(${gi})">×</button>
         </div>
       `;
     }).join('');
+
+    window._renderGroups = grouped;
   }
 
-  const total = items.reduce((s,x)=>s+x.amount,0);
+  const total = items.reduce((s,x)=>s+Number(x.amount || 0),0);
   document.getElementById('totalText').textContent = '฿' + total.toLocaleString();
   document.getElementById('countText').textContent = items.length + ' รายการ';
+}
+
+function removeGroup(groupIndex){
+  const g = window._renderGroups && window._renderGroups[groupIndex];
+  if(!g) return;
+
+  items = items.filter((_,idx) => !g.indexes.includes(idx));
+  renderList();
 }
 
 function removeItem(i){
