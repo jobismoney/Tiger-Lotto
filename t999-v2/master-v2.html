@@ -193,8 +193,10 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
           <button class="key" onclick="pressDigit('1')">1</button><button class="key" onclick="pressDigit('2')">2</button><button class="key" onclick="pressDigit('3')">3</button><button class="key enter" onclick="enterKey()">↵</button>
           <button class="key zero" onclick="pressDigit('0')">0</button><button class="key dot" onclick="dotKey()">.</button>
         </div>
+        <button id="folderActionBtn" class="btn full gold" onclick="folderAction()">เก็บเข้าแฟ้ม</button>
+        <button id="exitSlipEditBtn" class="btn full" style="display:none" onclick="closeSlipEditMode()">ออกจากโหมดแก้โพย</button>
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 4A: ไฟล์เต็ม Master + เรทกลาง + เรทเอเยนต์ + เลขอั้นกลาง + เลขอั้นเอเยนต์<br>Step ต่อไป: 4B กรอกผลรางวัล</div>
+        <div class="help">Step 4A Fix4: คืนปุ่มเก็บเข้าแฟ้ม + โหมดบันทึกโพยนี้เมื่อเปิดจาก Agent Card<br>Step ต่อไป: 4B กรอกผลรางวัล</div>
       </div>
     </div>
   </div>
@@ -259,7 +261,7 @@ const STORAGE_KEY='t999_v2_master_'+market+'_v4a';
 document.getElementById('thaiLink').className='mode-link '+(market==='thai'?'on':'');
 document.getElementById('laoLink').className='mode-link '+(market==='lao'?'on':'');
 document.body.classList.toggle('lao-mode',market==='lao');
-document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 4A Fix3';
+document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 4A Fix4';
 document.getElementById('marketBadge').textContent=rules.name;
 document.getElementById('typeRow').classList.toggle('thai',market==='thai');
 
@@ -514,6 +516,65 @@ function editModeLabel(){
   const a=getActiveAgent();
   return a?a.name:'-';
 }
+
+function renderFolderAction(){
+  const btn=document.getElementById('folderActionBtn');
+  const exit=document.getElementById('exitSlipEditBtn');
+  if(!btn)return;
+  const found=findSlipRef();
+  if(found){
+    btn.textContent='บันทึกโพยนี้';
+    btn.className='btn full gold';
+    if(exit)exit.style.display='block';
+  }else{
+    btn.textContent='เก็บเข้าแฟ้ม';
+    btn.className='btn full gold';
+    if(exit)exit.style.display='none';
+  }
+}
+function folderAction(){
+  const found=findSlipRef();
+  if(found){
+    saveData();
+    alert('บันทึกโพยนี้แล้ว\n'+found.agent.name+' / '+found.customer.name+' / โพย #'+(found.slip.slipNo||'-')+'\nยอด '+money(totalSlip(found.slip)));
+    renderAll();
+    return;
+  }
+  saveCurrentItemsToFolder();
+}
+function saveCurrentItemsToFolder(){
+  const a=getActiveAgent();
+  if(!a)return alert('ยังไม่มีเอเยนต์');
+  const pending=(a.items||[]).filter(it=>!it.slipId);
+  if(!pending.length){
+    return alert('ยังไม่มีรายการใหม่ที่ยังไม่ได้เก็บเข้าแฟ้ม\nถ้าต้องการแก้โพยเดิม ให้เปิดจาก Agent Card');
+  }
+  let customerName=prompt('ชื่อลูกค้า / เจ้าของโพย','');
+  if(customerName===null)return;
+  customerName=customerName.trim()||'ลูกค้าไม่ระบุ';
+  if(!a.customers)a.customers=[];
+  let c=a.customers.find(x=>x.name===customerName);
+  if(!c){c={id:uid('cus'),name:customerName,slips:[]};a.customers.push(c)}
+  if(!c.slips)c.slips=[];
+  const slipId=uid('slip');
+  const slipNo=(c.slips||[]).length+1;
+  const slip={id:slipId,slipNo,label:'โพยชุดที่ '+slipNo,createdAt:Date.now(),updatedAt:Date.now(),items:[]};
+  pending.forEach(it=>{
+    it.customerId=c.id;
+    it.customerName=c.name;
+    it.slipId=slipId;
+    it.slipNo=slipNo;
+    it.agentId=a.id;
+    it.agentName=a.name;
+    if(!it.id)it.id=uid('it');
+    slip.items.push(it);
+  });
+  c.slips.push(slip);
+  activeSlipRef={agentId:a.id,customerId:c.id,slipId:slip.id};
+  saveData();
+  renderAll();
+  alert('เก็บเข้าแฟ้มแล้ว\nเอเยนต์: '+a.name+'\nลูกค้า: '+c.name+'\nโพย #'+slipNo+'\nยอด '+money(totalSlip(slip)));
+}
 function clearCurrentAgent(){
   let a=getActiveAgent();if(!a)return;
   if(!confirm('ล้างแฟ้มนี้?\n'+a.name+'\nรายการ '+(a.items||[]).length+'\nยอด '+money(totalAgent(a))))return;
@@ -571,7 +632,7 @@ function renderList(){
   document.getElementById('totalText').textContent=found?money(totalSlip(found.slip)):money(totalAgent(a));
 }
 function renderSummary(){document.getElementById('sumAgents').textContent=agents.length;document.getElementById('sumItems').textContent=itemCountAll();document.getElementById('sumGrand').textContent=money(totalAll())}
-function renderAll(){renderWorkspace();renderAgents();renderList();renderSummary();renderKeyStatus();renderSlots()}
+function renderAll(){renderWorkspace();renderAgents();renderList();renderSummary();renderKeyStatus();renderSlots();renderFolderAction()}
 function deleteItem(idx){
   let a=getActiveAgent();if(!a)return;
   const found=findSlipRef();
