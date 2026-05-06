@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Master Step 5B Paper Slip</title>
+<title>T999 V2 Master Step 5B Paper Slip Fix1</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -669,17 +669,20 @@ function findSlipRef(ref=activeSlipRef){
   if(!a||!c||!sl)return null;
   return {agent:a,customer:c,slip:sl};
 }
+function getPendingItems(agent){
+  const a=agent||getActiveAgent();
+  return a&&Array.isArray(a.items)?a.items.filter(it=>!it.slipId):[];
+}
 function getEditItems(){
   const found=findSlipRef();
   if(found)return found.slip.items||[];
-  const a=getActiveAgent();
-  return a&&a.items||[];
+  return getPendingItems();
 }
 function editModeLabel(){
   const found=findSlipRef();
   if(found)return found.agent.name+' / '+found.customer.name+' / โพย #'+(found.slip.slipNo||'-');
   const a=getActiveAgent();
-  return a?a.name:'-';
+  return a?a.name+' / รายการใหม่':'-';
 }
 
 function renderFolderAction(){
@@ -735,10 +738,11 @@ function saveCurrentItemsToFolder(){
     slip.items.push(it);
   });
   c.slips.push(slip);
-  activeSlipRef={agentId:a.id,customerId:c.id,slipId:slip.id};
+  activeSlipRef=null;
+  clearBuffer();
   saveData();
   renderAll();
-  alert('เก็บเข้าแฟ้มแล้ว\nเอเยนต์: '+a.name+'\nลูกค้า: '+c.name+'\nโพย #'+slipNo+'\nยอด '+money(totalSlip(slip)));
+  alert('เก็บเข้าแฟ้มแล้ว\nเอเยนต์: '+a.name+'\nลูกค้า: '+c.name+'\nโพย #'+slipNo+'\nยอด '+money(totalSlip(slip))+'\n\nหน้าจอพร้อมคีย์โพยใหม่แล้ว');
 }
 function clearCurrentAgent(){
   let a=getActiveAgent();if(!a)return;
@@ -781,7 +785,7 @@ function renderList(){
   document.getElementById('activeAgentName').textContent=editModeLabel();
   const items=getEditItems();
   if(!a||!items.length){
-    list.innerHTML=found?'<div class="empty">โพยนี้ยังไม่มีรายการ<br>คีย์เลขจากแป้นด้านขวาเพื่อเพิ่มเข้าโพยนี้ได้เลย</div>':'<div class="empty">ยังไม่มีรายการ</div>';
+    list.innerHTML=found?'<div class="empty">โพยนี้ยังไม่มีรายการ<br>คีย์เลขจากแป้นด้านขวาเพื่อเพิ่มเข้าโพยนี้ได้เลย</div>':'<div class="empty">พร้อมคีย์โพยใหม่<br>กดเลขด้านขวา แล้วกดเก็บเข้าแฟ้ม</div>';
     document.getElementById('totalText').textContent='฿0';
     return;
   }
@@ -794,7 +798,7 @@ function renderList(){
     <div class="cell na na-col ${cellAmount(it,'na')?'has':''}">${cellAmount(it,'na')||''}</div>
     <button class="delbtn" onclick="deleteItem(${idx})">×</button>
   </div>`).join('');
-  document.getElementById('totalText').textContent=found?money(totalSlip(found.slip)):money(totalAgent(a));
+  document.getElementById('totalText').textContent=found?money(totalSlip(found.slip)):money(items.reduce((s,it)=>s+Number(it.amount||0),0));
 }
 function renderSummary(){document.getElementById('sumAgents').textContent=agents.length;document.getElementById('sumItems').textContent=itemCountAll();document.getElementById('sumGrand').textContent=money(totalAll())}
 function renderAll(){renderWorkspace();renderAgents();renderList();renderSummary();renderKeyStatus();renderSlots();renderFolderAction()}
@@ -808,9 +812,11 @@ function deleteItem(idx){
       else{const pos=(a.items||[]).indexOf(removed);if(pos>=0)a.items.splice(pos,1)}
     }
   }else{
-    const removed=(a.items||[]).splice(idx,1)[0];
-    if(removed&&removed.slipId){
-      (a.customers||[]).forEach(c=>(c.slips||[]).forEach(sl=>{sl.items=(sl.items||[]).filter(x=>x.id!==removed.id)}));
+    const pending=getPendingItems(a);
+    const removed=pending[idx];
+    if(removed){
+      if(removed.id)a.items=(a.items||[]).filter(x=>x.id!==removed.id);
+      else{const pos=(a.items||[]).indexOf(removed);if(pos>=0)a.items.splice(pos,1)}
     }
   }
   renderAll();scheduleSave()
