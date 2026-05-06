@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Subkey Slip Mode 3D Step 3D</title>
+<title>T999 V2 Subkey Slip Mode 3D-Fix Step 3D</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -202,7 +202,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
         </div>
 
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 3D: คีย์เป็นชุด → เก็บโพย → คลิกโพยเดิมเพื่อเรียกดู/แก้ไขได้</div>
+        <div class="help">Step 3D-Fix: คีย์เป็นชุด → เก็บโพย → คลิกโพยเดิมเพื่อเรียกดู/แก้ไขได้</div>
       </div>
     </div>
   </div>
@@ -475,7 +475,8 @@ function loadSlipToPending(agentId, customerId, slipId){
     amount:Number(it.amount || 0),
     role:it.role || 'main',
     note:it.note || '',
-    pendingSetId:'EDIT-' + slip.id
+    pendingSetId:'EDIT-' + slip.id,
+    editSlipId: slip.id
   }));
 
   editSlipRef = {
@@ -505,9 +506,39 @@ function removeSlipByRef(ref){
   customer.slips = (customer.slips || []).filter(s=>s.id !== ref.slipId);
 }
 
+
+function restoreEditRefFromPending(){
+  if(editSlipRef) return editSlipRef;
+
+  const editSlipId = pendingItems.find(x=>x.editSlipId)?.editSlipId;
+  if(!editSlipId) return null;
+
+  for(const agent of agents){
+    for(const customer of (agent.customers || [])){
+      const slip = (customer.slips || []).find(s=>s.id === editSlipId);
+      if(slip){
+        editSlipRef = {
+          agentId:agent.id,
+          agentName:agent.name,
+          customerId:customer.id,
+          customerName:customer.name,
+          slipId:slip.id,
+          slipNo:slip.slipNo,
+          label:slip.label
+        };
+        return editSlipRef;
+      }
+    }
+  }
+
+  return null;
+}
+
 function savePendingSlip(){
   if(!work) return alert('ยังไม่ได้เลือกไฟล์งาน');
   if(!pendingItems.length) return alert('ยังไม่มีรายการในชุดนี้');
+
+  restoreEditRefFromPending();
 
   const knownAgents = agents.map(a=>a.name).join(', ') || 'ไม่มี';
   let agentName = prompt('เก็บเข้าเอเยนต์ไหน?\\nรายชื่อเดิม: ' + knownAgents, activeAgentName || (agents[0] && agents[0].name) || '');
@@ -551,8 +582,11 @@ function savePendingSlip(){
     createdAt: Date.now(),
     market,
     roundLabel: work.roundLabel || '',
-    items: pendingItems.map(it => ({
-      ...it,
+    items: pendingItems.map(it => {
+      const clean = {...it};
+      delete clean.editSlipId;
+      return {
+      ...clean,
       agentId: agent.id,
       agentName: agent.name,
       customerId: customer.id,
@@ -561,7 +595,8 @@ function savePendingSlip(){
       slipNo,
       slipLabel: label,
       keyedBy: getWorkerName()
-    }))
+      };
+    })
   };
 
   customer.slips.push(slip);
@@ -759,8 +794,9 @@ function getAllSavedItems(){
 }
 
 function renderPendingText(){
+  restoreEditRefFromPending();
   const total = pendingItems.reduce((s,x)=>s+Number(x.amount||0),0);
-  let prefix = editSlipRef ? 'กำลังแก้ไขโพยเดิม: ' + (editSlipRef.label || editSlipRef.slipId) : 'ชุดค้าง: ';
+  let prefix = editSlipRef ? 'กำลังแก้ไขโพยเดิม: ' + (editSlipRef.label || editSlipRef.slipId) + ' · ' : 'ชุดค้าง: ';
   document.getElementById('pendingText').textContent =
     prefix + pendingItems.length + ' รายการ · ฿' + total.toLocaleString() +
     (activeAgentName ? ' · ล่าสุด: ' + activeAgentName + (activeCustomerName ? ' / ' + activeCustomerName : '') : '');
