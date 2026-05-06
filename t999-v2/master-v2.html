@@ -197,7 +197,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
         <button id="folderActionBtn" class="btn full gold" onclick="folderAction()">เก็บเข้าแฟ้ม</button>
         <button id="exitSlipEditBtn" class="btn full" style="display:none" onclick="closeSlipEditMode()">ออกจากโหมดแก้โพย</button>
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 4B: เพิ่มหน้ากรอกผลรางวัล บนฐาน Step 4A Fix4<br>Step ต่อไป: 4C ตรวจถูกรางวัลจริง</div>
+        <div class="help">Step 4B-Plus: กรอกผลรางวัล + ดึงผลล่าสุด + ประวัติผลรางวัล + ลบถาวร<br>Step ต่อไป: 4C ตรวจถูกรางวัลจริง</div>
       </div>
     </div>
   </div>
@@ -258,11 +258,12 @@ const params=new URLSearchParams(location.search);
 let market=params.get('market')==='lao'?'lao':'thai';
 let rules=MARKET_RULES[market];
 const STORAGE_KEY='t999_v2_master_'+market+'_v4a';
+const PRIZE_HISTORY_KEY='t999_v2_prize_history_'+market;
 
 document.getElementById('thaiLink').className='mode-link '+(market==='thai'?'on':'');
 document.getElementById('laoLink').className='mode-link '+(market==='lao'?'on':'');
 document.body.classList.toggle('lao-mode',market==='lao');
-document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 4B';
+document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 4B-Plus';
 document.getElementById('marketBadge').textContent=rules.name;
 document.getElementById('typeRow').classList.toggle('thai',market==='thai');
 
@@ -279,7 +280,7 @@ function uid(prefix){return prefix+'_'+Date.now()+'_'+Math.random().toString(36)
 function money(n){return '฿'+Number(n||0).toLocaleString()}
 function safeName(s){return String(s||'file').replace(/[^\wก-ฮ0-9-]+/g,'_').slice(0,80)}
 function makeEmptyRates(m){const out={};RATE_TYPES[m].forEach(t=>out[t]={discount:0,pay:0});return out}
-function defaultRateLimitConfig(){return {version:'4B',baseRates:{thai:makeEmptyRates('thai'),lao:makeEmptyRates('lao')},baseLimits:{thai:[],lao:[]},agentRates:{},agentLimits:{}}}
+function defaultRateLimitConfig(){return {version:'4B-Plus',baseRates:{thai:makeEmptyRates('thai'),lao:makeEmptyRates('lao')},baseLimits:{thai:[],lao:[]},agentRates:{},agentLimits:{}}}
 function normalizeLimit(x){return {id:x&&x.id||uid('limit'),type:String(x&&x.type||''),number:String(x&&x.number||'').trim(),level:String(x&&x.level||'closed'),customPercent:Number(x&&x.customPercent||0),customPay:Number(x&&x.customPay||0),note:String(x&&x.note||'')}}
 function normalizeConfig(c){
   const d=defaultRateLimitConfig(); c=c&&typeof c==='object'?c:{};
@@ -297,11 +298,11 @@ function normalizeConfig(c){
 
 function defaultPrizeResult(){
   return {
-    version:'4B',
+    version:'4B-Plus',
     market,
     updatedAt:0,
-    thai:{top6:'',front3_1:'',front3_2:'',back3_1:'',back3_2:'',lower2:''},
-    lao:{top6:'',lower2:''}
+    thai:{drawDate:'',top6:'',front3_1:'',front3_2:'',back3_1:'',back3_2:'',lower2:'',source:'manual'},
+    lao:{drawDate:'',top6:'',lower2:'',source:'manual'}
   };
 }
 function onlyDigits(s,maxLen){
@@ -315,17 +316,21 @@ function normalizePrizeResult(x){
   d.updatedAt=Number(x.updatedAt||0);
   const th=x.thai||{};
   d.thai={
+    drawDate:String(th.drawDate||''),
     top6:onlyDigits(th.top6,6),
     front3_1:onlyDigits(th.front3_1,3),
     front3_2:onlyDigits(th.front3_2,3),
     back3_1:onlyDigits(th.back3_1,3),
     back3_2:onlyDigits(th.back3_2,3),
-    lower2:onlyDigits(th.lower2,2)
+    lower2:onlyDigits(th.lower2,2),
+    source:String(th.source||'manual')
   };
   const la=x.lao||{};
   d.lao={
+    drawDate:String(la.drawDate||''),
     top6:onlyDigits(la.top6,6),
-    lower2:onlyDigits(la.lower2,2)
+    lower2:onlyDigits(la.lower2,2),
+    source:String(la.source||'manual')
   };
   return d;
 }
@@ -381,7 +386,7 @@ function loadData(){
 function saveData(){
   try{
     workspace.updatedAt=Date.now();
-    let payload={fileType:'T999_V2_MASTER_LOCAL',version:'4B',market,activeAgentId,workspace,agents,rateLimitConfig,prizeResult,savedAt:Date.now()};
+    let payload={fileType:'T999_V2_MASTER_LOCAL',version:'4B-Plus',market,activeAgentId,workspace,agents,rateLimitConfig,prizeResult,savedAt:Date.now()};
     localStorage.setItem(STORAGE_KEY,JSON.stringify(payload));
     updateSaveLine(payload.savedAt,'บันทึกในเครื่องแล้ว')
   }catch(e){console.error(e);updateSaveLine(null,'บันทึกไม่สำเร็จ')}
@@ -406,14 +411,14 @@ function normalizeAgents(raw){
 }
 function exportJson(){
   saveData();
-  let payload={fileType:'T999_V2_MASTER_EXPORT',version:'4B',market,marketName:rules.name,workspace,activeAgentId,exportedAt:new Date().toISOString(),agents,rateLimitConfig,prizeResult};
+  let payload={fileType:'T999_V2_MASTER_EXPORT',version:'4B-Plus',market,marketName:rules.name,workspace,activeAgentId,exportedAt:new Date().toISOString(),agents,rateLimitConfig,prizeResult};
   downloadJSON(payload,'t999-v2-master-'+market+'-'+safeName(workspace.roundLabel||'round')+'-'+Date.now()+'.json')
 }
 function exportSubkeyWorkspace(){
   let worker=prompt('ชื่อลูกน้อง / คนคีย์','');if(worker===null)return;worker=worker.trim();if(!worker)return alert('ต้องใส่ชื่อลูกน้องก่อน');
   let round=workspace.roundLabel||'';if(!round){let r=prompt('ยังไม่ได้ตั้งงวด ใส่งวดสำหรับไฟล์งานนี้',rules.name+' '+new Date().toLocaleDateString('th-TH'));if(r===null)return;round=r.trim();workspace.roundLabel=round}
   let sessionId='SUB-'+market.toUpperCase()+'-'+Date.now();
-  let payload={fileType:'T999_V2_SUBKEY_WORKSPACE',version:'4B',createdAt:new Date().toISOString(),sessionId,market,marketName:rules.name,roundLabel:round,master:{name:workspace.masterName||'Master',workspaceId:workspace.workspaceId},subKeyer:{id:'SUB_'+safeName(worker).toUpperCase()+'_'+Date.now(),name:worker},settings:{allowEditMarket:false,allowEditRound:false,source:'master-v2',rateLimitConfig,prizeResult},agents:[{id:'sub_inbox_'+Date.now(),name:'โพยลูกน้อง '+worker,items:[],customers:[]}],notes:'ไฟล์งานลูกน้องจาก T999 V2 Master Step 4B'};
+  let payload={fileType:'T999_V2_SUBKEY_WORKSPACE',version:'4B-Plus',createdAt:new Date().toISOString(),sessionId,market,marketName:rules.name,roundLabel:round,master:{name:workspace.masterName||'Master',workspaceId:workspace.workspaceId},subKeyer:{id:'SUB_'+safeName(worker).toUpperCase()+'_'+Date.now(),name:worker},settings:{allowEditMarket:false,allowEditRound:false,source:'master-v2',rateLimitConfig,prizeResult},agents:[{id:'sub_inbox_'+Date.now(),name:'โพยลูกน้อง '+worker,items:[],customers:[]}],notes:'ไฟล์งานลูกน้องจาก T999 V2 Master Step 4B'};
   downloadJSON(payload,'T999_WORK_'+safeName(worker)+'_'+market.toUpperCase()+'_'+safeName(round)+'.json');renderWorkspace();saveData();alert('สร้างไฟล์งานลูกน้องแล้ว\n'+worker+' | '+rules.name+' | '+round)
 }
 function downloadJSON(payload,name){let blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
@@ -873,7 +878,7 @@ function renderBaseConfig(){
   if(agentModalTab==='rates')renderBaseRatesTab();
   else if(agentModalTab==='limits')renderBaseLimitsTab();
   else if(agentModalTab==='prize')renderPrizeResultTab('base','');
-  else document.getElementById('agentModalContent').innerHTML='<div class="placeholder-box"><b style="color:#f5c518">Step 4B</b><br>ไฟล์นี้ใช้ฐาน Step 4A Fix4 และเพิ่มหน้ากรอกผลรางวัลแล้ว<br>ข้อมูลเรท/เลขอั้น/ผลรางวัล ถูกบันทึกลง localStorage และ Export JSON ไปพร้อมไฟล์ Master</div>';
+  else document.getElementById('agentModalContent').innerHTML='<div class="placeholder-box"><b style="color:#f5c518">Step 4B</b><br>ไฟล์นี้ใช้ฐาน Step 4A Fix4 และเพิ่มหน้ากรอกผลรางวัล/ดึงผลล่าสุด/ประวัติผลแล้ว<br>ข้อมูลเรท/เลขอั้น/ผลรางวัล ถูกบันทึกลง localStorage และ Export JSON ไปพร้อมไฟล์ Master</div>';
 }
 function restoreAgentTabLabels(){
   document.getElementById('agentTabSlips').textContent='สรุปลูกค้า/โพย';
@@ -890,14 +895,17 @@ function renderAgentLimitsTab(agent){restoreAgentTabLabels();ensureAgentConfig(a
 function renderAgentPrizeTab(agent){restoreAgentTabLabels();renderPrizeResultTab('agent',agent.id)}
 function renderPrizeResultTab(scope,agentId){
   const r=currentPrize();
-  const isAgent=scope==='agent';
   let html=`<div class="agent-section">
     <div class="config-bar">
       <span class="pill">${rules.name}</span>
-      <span class="pill">Step 4B</span>
+      <span class="pill">Step 4B-Plus</span>
       <span class="pill">${prizeReady()?'กรอกผลแล้ว':'ยังไม่ครบ'}</span>
     </div>
-    <div class="warn">ขั้นนี้คือ “กรอกผลรางวัล” ก่อน ยังไม่ตรวจถูกรางวัลจริง · Step 4C จะใช้ผลนี้ไปตรวจโพย + คำนวณยอดจ่าย</div>
+    <div class="warn">ขั้นนี้คือ “กรอกผลรางวัล” ก่อน ยังไม่ตรวจถูกรางวัลจริง · มีดึงผลล่าสุด/ประวัติ/ลบถาวรแล้ว</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn purple" onclick="fetchLatestPrizeResult('${scope}','${agentId}')">ดึงผลล่าสุด</button>
+      <button class="btn" onclick="renderPrizeHistoryTab('${scope}','${agentId}')">ประวัติผลรางวัล</button>
+    </div>
     ${market==='thai'?thaiPrizeFormHtml(r):laoPrizeFormHtml(r)}
     <div id="prizePreview" class="placeholder-box" style="margin-top:10px;text-align:left">${prizePreviewHtml()}</div>
     <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px">
@@ -907,40 +915,49 @@ function renderPrizeResultTab(scope,agentId){
   </div>`;
   document.getElementById('agentModalContent').innerHTML=html;
   document.querySelectorAll('.prize-input').forEach(inp=>{
-    inp.addEventListener('input',function(){this.value=onlyDigits(this.value,Number(this.dataset.len||9));document.getElementById('prizePreview').innerHTML=prizePreviewHtmlFromInputs();});
+    inp.addEventListener('input',function(){
+      if(this.dataset.digits==='yes')this.value=onlyDigits(this.value,Number(this.dataset.len||9));
+      document.getElementById('prizePreview').innerHTML=prizePreviewHtmlFromInputs();
+    });
   });
 }
 function thaiPrizeFormHtml(r){
   return `<div class="rate-grid" style="grid-template-columns:1fr 1fr;gap:8px">
-    <div class="type-cell">เลขรางวัล 6 หลัก</div><input id="prize_top6" class="input prize-input" data-len="6" inputmode="numeric" value="${esc(r.top6||'')}" placeholder="เช่น 123456">
-    <div class="type-cell">หน้า 3 ตัว ชุดที่ 1</div><input id="prize_front3_1" class="input prize-input" data-len="3" inputmode="numeric" value="${esc(r.front3_1||'')}" placeholder="เช่น 123">
-    <div class="type-cell">หน้า 3 ตัว ชุดที่ 2</div><input id="prize_front3_2" class="input prize-input" data-len="3" inputmode="numeric" value="${esc(r.front3_2||'')}" placeholder="เช่น 456">
-    <div class="type-cell">ท้าย 3 ตัว ชุดที่ 1</div><input id="prize_back3_1" class="input prize-input" data-len="3" inputmode="numeric" value="${esc(r.back3_1||'')}" placeholder="เช่น 789">
-    <div class="type-cell">ท้าย 3 ตัว ชุดที่ 2</div><input id="prize_back3_2" class="input prize-input" data-len="3" inputmode="numeric" value="${esc(r.back3_2||'')}" placeholder="เช่น 012">
-    <div class="type-cell">2 ตัวล่าง</div><input id="prize_lower2" class="input prize-input" data-len="2" inputmode="numeric" value="${esc(r.lower2||'')}" placeholder="เช่น 89">
+    <div class="type-cell">งวด/วันที่</div><input id="prize_drawDate" class="input prize-input" value="${esc(r.drawDate||'')}" placeholder="เช่น 16/05/2569 หรือ 2026-05-16">
+    <div class="type-cell">เลขรางวัล 6 หลัก</div><input id="prize_top6" class="input prize-input" data-digits="yes" data-len="6" inputmode="numeric" value="${esc(r.top6||'')}" placeholder="เช่น 536077">
+    <div class="type-cell">3ล่าง ชุดที่ 1</div><input id="prize_front3_1" class="input prize-input" data-digits="yes" data-len="3" inputmode="numeric" value="${esc(r.front3_1||'')}" placeholder="เช่น 267">
+    <div class="type-cell">3ล่าง ชุดที่ 2</div><input id="prize_front3_2" class="input prize-input" data-digits="yes" data-len="3" inputmode="numeric" value="${esc(r.front3_2||'')}" placeholder="เช่น 318">
+    <div class="type-cell">3ล่าง ชุดที่ 3</div><input id="prize_back3_1" class="input prize-input" data-digits="yes" data-len="3" inputmode="numeric" value="${esc(r.back3_1||'')}" placeholder="เช่น 065">
+    <div class="type-cell">3ล่าง ชุดที่ 4</div><input id="prize_back3_2" class="input prize-input" data-digits="yes" data-len="3" inputmode="numeric" value="${esc(r.back3_2||'')}" placeholder="เช่น 153">
+    <div class="type-cell">2 ตัวล่าง</div><input id="prize_lower2" class="input prize-input" data-digits="yes" data-len="2" inputmode="numeric" value="${esc(r.lower2||'')}" placeholder="เช่น 43">
   </div>`;
 }
 function laoPrizeFormHtml(r){
   return `<div class="rate-grid" style="grid-template-columns:1fr 1fr;gap:8px">
-    <div class="type-cell">เลขออก 6 หลัก</div><input id="prize_top6" class="input prize-input" data-len="6" inputmode="numeric" value="${esc(r.top6||'')}" placeholder="เช่น 123456">
-    <div class="type-cell">2 ตัวล่าง</div><input id="prize_lower2" class="input prize-input" data-len="2" inputmode="numeric" value="${esc(r.lower2||'')}" placeholder="ถ้าเว้นว่าง ใช้ 2 ตัวท้ายของเลขออก">
-  </div>`;
+    <div class="type-cell">งวด/วันที่</div><input id="prize_drawDate" class="input prize-input" value="${esc(r.drawDate||'')}" placeholder="เช่น 2026-05-07">
+    <div class="type-cell">เลขออก 6 หลัก</div><input id="prize_top6" class="input prize-input" data-digits="yes" data-len="6" inputmode="numeric" value="${esc(r.top6||'')}" placeholder="เช่น 123456">
+    <div class="type-cell">2 ตัวล่าง</div><input id="prize_lower2" class="input prize-input" data-digits="yes" data-len="2" inputmode="numeric" value="${esc(r.lower2||'')}" placeholder="เช่น 34">
+  </div>
+  <div class="warn" style="margin-top:8px">ลาวตอนนี้คีย์มือเป็นหลัก หากมี API Key หวยลาวพัฒนาในอนาคต จะเสียบให้ดึงอัตโนมัติได้</div>`;
 }
 function readPrizeInputs(){
+  const drawDate=String(document.getElementById('prize_drawDate')?.value||'').trim();
   if(market==='thai'){
     return {
+      drawDate,
       top6:onlyDigits(document.getElementById('prize_top6')?.value,6),
       front3_1:onlyDigits(document.getElementById('prize_front3_1')?.value,3),
       front3_2:onlyDigits(document.getElementById('prize_front3_2')?.value,3),
       back3_1:onlyDigits(document.getElementById('prize_back3_1')?.value,3),
       back3_2:onlyDigits(document.getElementById('prize_back3_2')?.value,3),
-      lower2:onlyDigits(document.getElementById('prize_lower2')?.value,2)
+      lower2:onlyDigits(document.getElementById('prize_lower2')?.value,2),
+      source:'manual'
     };
   }
   const top6=onlyDigits(document.getElementById('prize_top6')?.value,6);
   let lower2=onlyDigits(document.getElementById('prize_lower2')?.value,2);
-  if(!lower2&&top6.length>=2)lower2=top6.slice(-2);
-  return {top6,lower2};
+  if(!lower2&&top6.length===6)lower2=top6.slice(2,4);
+  return {drawDate,top6,lower2,source:'manual'};
 }
 function prizePreviewHtml(){
   return prizePreviewFrom(currentPrize());
@@ -950,44 +967,187 @@ function prizePreviewHtmlFromInputs(){
 }
 function prizePreviewFrom(r){
   const top6=onlyDigits(r.top6,6);
-  const last3=top6.length===6?top6.slice(-3):'';
   const top3=top6.length===6?top6.slice(-3):'';
   const top2=top6.length===6?top6.slice(-2):'';
-  const lower2=onlyDigits(r.lower2,2)||(market==='lao'&&top6.length===6?top6.slice(-2):'');
+  const lao4=top6.length===6?top6.slice(-4):'';
+  const thai3Front=top6.length===6?top6.slice(0,3):'';
+  const thai2Front=top6.length===6?top6.slice(3,5):'';
+  const lower2=onlyDigits(r.lower2,2)||(market==='lao'&&top6.length===6?top6.slice(2,4):'');
+  const drawDate=r.drawDate?`งวด: ${esc(r.drawDate)}<br>`:'';
   if(market==='thai'){
-    const fronts=[r.front3_1,r.front3_2].filter(Boolean).join(' / ')||'-';
-    const backs=[r.back3_1,r.back3_2].filter(Boolean).join(' / ')||'-';
-    return `<b style="color:#f5c518">Preview สำหรับ Step 4C</b><br>
-      3ตัวบน: ${top3||'-'} · 2ตัวบน: ${top2||'-'} · 2ตัวล่าง: ${lower2||'-'}<br>
-      3ตัวหน้า: ${esc(fronts)} · 3ตัวล่าง: ${esc(backs)}<br>
-      วิ่งบนจะใช้เลขในรางวัล 6 หลัก · วิ่งล่างจะใช้เลข 2 ตัวล่าง<br>
+    const lower3=[r.front3_1,r.front3_2,r.back3_1,r.back3_2].filter(Boolean).join(' / ')||'-';
+    return `<b style="color:#f5c518">Preview กติกาไทย T999</b><br>${drawDate}
+      3ตัวบน: ${top3||'-'} · 2ตัวบน: ${top2||'-'} · 3หน้า: ${thai3Front||'-'} · 2หน้า: ${thai2Front||'-'}<br>
+      3ล่าง: ${esc(lower3)} · 2ตัวล่าง: ${lower2||'-'}<br>
+      โต๊ด 2/3/4/5 อิงชุด 3ตัวบนเท่านั้น · วิ่งบนอิง 3ตัวบน · วิ่งล่างอิง 2ตัวล่าง<br>
+      ปักบนอิง 3ตัวบน: ร้อย/สิบ/หน่วย · ปักล่างอิง 2ตัวล่าง: สิบ/หน่วย<br>
       สถานะ: ${top6.length===6&&lower2.length===2?'พร้อมตรวจใน Step 4C':'ยังกรอกไม่ครบ'}`;
   }
-  return `<b style="color:#f5c518">Preview สำหรับ Step 4C</b><br>
-    4ตัวบน: ${top6.length===6?top6.slice(-4):'-'} · 3ตัวบน: ${last3||'-'} · 2ตัวบน: ${top2||'-'} · 2ตัวล่าง: ${lower2||'-'}<br>
-    ลอยบนจะใช้เลขในผล 6 หลัก · ลอยล่างจะใช้เลข 2 ตัวล่าง<br>
-    สถานะ: ${top6.length===6?'พร้อมตรวจใน Step 4C':'ยังกรอกเลขออกไม่ครบ 6 หลัก'}`;
+  return `<b style="color:#f5c518">Preview กติกาลาว T999</b><br>${drawDate}
+    4ตัวบน: ${lao4||'-'} · 3ตัวบน: ${top3||'-'} · 2ตัวบน: ${top2||'-'} · 2ตัวล่าง: ${lower2||'-'}<br>
+    โต๊ด 2/3/4/5 อิงชุด 3ตัวบนเท่านั้น · วิ่ง/ปัก อิงบน/ล่างตามประเภท<br>
+    ปักบนอิง 3ตัวบน: ร้อย/สิบ/หน่วย · ปักล่างอิง 2ตัวล่าง: สิบ/หน่วย<br>
+    สถานะ: ${top6.length===6&&lower2.length===2?'พร้อมตรวจใน Step 4C':'ยังกรอกเลขออกไม่ครบ'}`;
 }
 function savePrizeResult(scope,agentId){
   const r=readPrizeInputs();
   if(!r.top6||r.top6.length!==6)return alert(market==='thai'?'กรุณากรอกเลขรางวัล 6 หลัก':'กรุณากรอกเลขออก 6 หลัก');
-  if(market==='thai'&&(!r.lower2||r.lower2.length!==2))return alert('กรุณากรอก 2 ตัวล่าง');
+  if(!r.lower2||r.lower2.length!==2)return alert('กรุณากรอก 2 ตัวล่าง');
   prizeResult[market]=r;
   prizeResult.market=market;
-  prizeResult.version='4B';
+  prizeResult.version='4B-Plus';
   prizeResult.updatedAt=Date.now();
+  savePrizeHistory(r,'manual');
   saveData();
-  alert('บันทึกผลรางวัลแล้ว');
+  alert('บันทึกผลรางวัล และเก็บเข้าประวัติแล้ว');
   scope==='agent'?renderAgentModal():renderBaseConfig();
 }
 function clearPrizeResult(){
   if(!confirm('ล้างผลรางวัลของโหมด '+rules.name+' ?'))return;
-  prizeResult[market]=market==='thai'?{top6:'',front3_1:'',front3_2:'',back3_1:'',back3_2:'',lower2:''}:{top6:'',lower2:''};
+  prizeResult[market]=market==='thai'?{drawDate:'',top6:'',front3_1:'',front3_2:'',back3_1:'',back3_2:'',lower2:'',source:'manual'}:{drawDate:'',top6:'',lower2:'',source:'manual'};
   prizeResult.updatedAt=Date.now();
   saveData();
   if(agentModalAgentId)renderAgentModal();else renderBaseConfig();
 }
-
+function prizeHistoryList(){
+  try{return JSON.parse(localStorage.getItem(PRIZE_HISTORY_KEY)||'[]')}catch(e){return []}
+}
+function writePrizeHistory(list){
+  localStorage.setItem(PRIZE_HISTORY_KEY,JSON.stringify(list));
+}
+function prizeEntryKey(r){
+  return [market,r.drawDate||'',r.top6||'',r.lower2||''].join('|');
+}
+function savePrizeHistory(r,source){
+  const list=prizeHistoryList();
+  const key=prizeEntryKey(r);
+  const entry={id:'prize_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),key,market,marketName:rules.name,drawDate:r.drawDate||'',savedAt:Date.now(),source:source||r.source||'manual',result:{...r,source:source||r.source||'manual'}};
+  const idx=list.findIndex(x=>x.key===key);
+  if(idx>=0)list[idx]={...list[idx],...entry,id:list[idx].id,savedAt:Date.now()};
+  else list.unshift(entry);
+  writePrizeHistory(list.slice(0,200));
+}
+function renderPrizeHistoryTab(scope,agentId){
+  const list=prizeHistoryList();
+  const rows=list.length?list.map((h,i)=>{
+    const r=h.result||{};
+    const title=(h.drawDate||'ไม่ระบุงวด')+' · '+(r.top6||'-')+' · ล่าง '+(r.lower2||'-');
+    const meta=new Date(h.savedAt||Date.now()).toLocaleString('th-TH')+' · '+(h.source||'manual');
+    return `<div class="agent-slip">
+      <div><div class="agent-slip-title">${i+1}. ${esc(title)}</div><div class="agent-slip-meta">${esc(meta)}</div></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn small" onclick="loadPrizeHistory('${h.id}','${scope}','${agentId}')">โหลดผลนี้</button>
+        <button class="btn small" onclick="exportPrizeHistory('${h.id}')">Export JSON</button>
+        <button class="btn small red" onclick="deletePrizeHistoryPermanent('${h.id}','${scope}','${agentId}')">ลบถาวร</button>
+      </div>
+    </div>`;
+  }).join(''):'<div class="placeholder-box">ยังไม่มีประวัติผลรางวัล</div>';
+  document.getElementById('agentModalContent').innerHTML=`<div class="agent-section">
+    <div class="config-bar"><span class="pill">ประวัติผลรางวัล</span><span class="pill">${rules.name}</span><span class="pill">${list.length} รายการ</span></div>
+    <div class="warn">ประวัตินี้เก็บใน localStorage ของเครื่องนี้ ระยะต่อไปสามารถแนบไปกับ USB/Export ได้</div>
+    ${rows}
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
+      <button class="btn" onclick="renderPrizeResultTab('${scope}','${agentId}')">กลับหน้ากรอกผล</button>
+    </div>
+  </div>`;
+}
+function loadPrizeHistory(id,scope,agentId){
+  const h=prizeHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบประวัตินี้');
+  prizeResult[market]={...(h.result||{})};
+  prizeResult.market=market;
+  prizeResult.updatedAt=Date.now();
+  saveData();
+  alert('โหลดผลรางวัลเก่าแล้ว');
+  renderPrizeResultTab(scope,agentId);
+}
+function exportPrizeHistory(id){
+  const h=prizeHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบประวัตินี้');
+  downloadJson({fileType:'T999_V2_PRIZE_HISTORY',version:'4B-Plus',exportedAt:new Date().toISOString(),entry:h},`t999-prize-${market}-${safeName(h.drawDate||h.result?.top6||'history')}.json`);
+}
+function deletePrizeHistoryPermanent(id,scope,agentId){
+  const h=prizeHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบประวัตินี้');
+  if(!confirm('ลบถาวรประวัติผลรางวัลนี้?\n'+(h.drawDate||'ไม่ระบุงวด')+' · '+(h.result?.top6||'')))return;
+  const word=prompt('พิมพ์ DELETE เพื่อยืนยันลบถาวร','');
+  if(word!=='DELETE')return alert('ยกเลิกการลบถาวร');
+  writePrizeHistory(prizeHistoryList().filter(x=>x.id!==id));
+  alert('ลบถาวรแล้ว');
+  renderPrizeHistoryTab(scope,agentId);
+}
+async function fetchLatestPrizeResult(scope,agentId){
+  if(market==='lao'){
+    alert('หวยลาวตอนนี้ยังไม่มี API ที่ตั้งค่าไว้ในระบบ\nให้คีย์มือก่อน ถ้าคุณมี API Key หวยลาวพัฒนา เดี๋ยวผมจะเสียบให้ในสเต็ปถัดไป');
+    return;
+  }
+  const ok=confirm('ดึงผลหวยไทยล่าสุดจาก API สำนักงานสลากฯ?\nถ้าดึงไม่ได้ให้กรอกมือได้ตามปกติ');
+  if(!ok)return;
+  try{
+    const res=await fetch('https://www.glo.or.th/api/lottery/getLatestLottery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    const parsed=parseThaiLatestResult(data);
+    if(!parsed.top6)throw new Error('ไม่พบเลขรางวัลที่ 1 ในข้อมูล API');
+    prizeResult.thai={...parsed,source:'glo'};
+    prizeResult.market=market;
+    prizeResult.updatedAt=Date.now();
+    savePrizeHistory(prizeResult.thai,'glo');
+    saveData();
+    alert('ดึงผลล่าสุดและบันทึกเข้าประวัติแล้ว');
+    renderPrizeResultTab(scope,agentId);
+  }catch(e){
+    console.warn(e);
+    alert('ดึงผลล่าสุดไม่สำเร็จ อาจติด CORS/อินเทอร์เน็ต/API เปลี่ยน\nกรุณากรอกมือก่อน\n\nรายละเอียด: '+e.message);
+  }
+}
+function parseThaiLatestResult(data){
+  const firstNode=findNodeByKey(data,['first','firstPrize','first_prize','รางวัลที่ 1']);
+  const last2Node=findNodeByKey(data,['last2','last2digit','last_two','เลขท้าย 2 ตัว']);
+  const front3Node=findNodeByKey(data,['last3f','front3','front3digit','เลขหน้า 3 ตัว']);
+  const back3Node=findNodeByKey(data,['last3b','back3','last3','เลขท้าย 3 ตัว']);
+  const dateNode=findNodeByKey(data,['displayDate','date','drawDate','งวดวันที่']);
+  const top6=pickNumber(firstNode,6)||pickNumber(data,6);
+  const lower2=pickNumber(last2Node,2);
+  const front3=pickNumbers(front3Node,3).slice(0,2);
+  const back3=pickNumbers(back3Node,3).slice(0,2);
+  return {
+    drawDate:String(typeof dateNode==='string'?dateNode:''),
+    top6:top6||'',
+    front3_1:front3[0]||'',
+    front3_2:front3[1]||'',
+    back3_1:back3[0]||'',
+    back3_2:back3[1]||'',
+    lower2:lower2||'',
+    source:'glo'
+  };
+}
+function findNodeByKey(obj,keys){
+  if(!obj||typeof obj!=='object')return null;
+  const low=keys.map(k=>String(k).toLowerCase());
+  for(const k of Object.keys(obj)){
+    if(low.includes(String(k).toLowerCase()))return obj[k];
+  }
+  for(const k of Object.keys(obj)){
+    const v=obj[k];
+    if(v&&typeof v==='object'){
+      const found=findNodeByKey(v,keys);
+      if(found!==null&&found!==undefined)return found;
+    }
+  }
+  return null;
+}
+function pickNumber(obj,len){return pickNumbers(obj,len)[0]||''}
+function pickNumbers(obj,len){
+  const out=[];
+  function walk(x){
+    if(x===null||x===undefined)return;
+    if(typeof x==='string'||typeof x==='number'){
+      const m=String(x).match(new RegExp('\\d{'+len+'}','g'));
+      if(m)m.forEach(n=>out.push(n));
+    }else if(Array.isArray(x))x.forEach(walk);
+    else if(typeof x==='object')Object.values(x).forEach(walk);
+  }
+  walk(obj);
+  return Array.from(new Set(out));
+}
 function renderBaseRatesTab(){document.getElementById('agentModalContent').innerHTML=rateFormHtml('base','')}
 function renderBaseLimitsTab(){document.getElementById('agentModalContent').innerHTML=limitFormHtml('base','')}
 function rateFormHtml(scope,agentId){
