@@ -142,6 +142,8 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 .warn{background:#261d0a;border:1px solid #7c5e12;color:#fbbf24;border-radius:10px;padding:9px;font-size:12px;line-height:1.5;margin-bottom:8px}
 @media(max-width:900px){.main{grid-template-columns:1fr;padding:6px;overflow:auto}.panel.left{display:none}.panel.center{min-height:330px}.panel.right{min-height:560px}.head-right{gap:4px}.logo{font-size:18px}}
 @media(max-width:700px){.agent-summary{grid-template-columns:repeat(2,1fr)}.agent-box{width:98vw}.agent-box-body{padding:8px}.rate-grid{grid-template-columns:1fr .75fr .75fr}.limit-grid{grid-template-columns:1fr 1fr}.limit-grid .grid-head{display:none}}
+
+.keytest-pin{display:inline-block;color:#ff8a3d;font-size:17px;font-weight:900;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -763,11 +765,6 @@ function cellText(it,type){
   if(it.type!==type)return '';
   const amt=Number(it.amount||0);
   if(!amt)return '';
-  if(it.pin){
-    const side=type==='lang'?'ล่าง':'บน';
-    const pos=pinPositionName(it.pinPosition);
-    return `<span class="pin-cell">ปัก${side}${esc(pos)} ${esc(money(amt))}</span>`;
-  }
   return esc(String(amt));
 }
 function itemNumber(it){return String(it.number ?? it.lek ?? it.num ?? it.n ?? '').trim()}
@@ -778,11 +775,17 @@ function itemPinLabel(it){
   const side=it.type==='lang'?'ล่าง':'บน';
   return 'ปัก'+side+pinPositionName(it.pinPosition);
 }
-function itemLekHtml(it){
-  const n=esc(itemNumber(it)||'-');
+function itemLekDisplay(it){
+  const n=itemNumber(it)||'-';
   if(it&&it.pin){
-    const label=esc(itemPinLabel(it));
-    return `<span class="pin-main">${n}</span><span class="pin-badge">${label}</span>`;
+    return n+pinPositionName(it.pinPosition);
+  }
+  return n;
+}
+function itemLekHtml(it){
+  const n=esc(itemLekDisplay(it));
+  if(it&&it.pin){
+    return `<span class="pin-main keytest-pin">${n}</span>`;
   }
   return n;
 }
@@ -886,13 +889,18 @@ function renderKeyStatus(){
   const screen=document.getElementById('screen'),hint=document.getElementById('hint'),status=document.getElementById('statusLine');
   if(phase==='lek'){
     screen.textContent=leksText||'—';
-    hint.innerHTML='กดเลข<br>แล้ว ↵';
+    const first=(leksText.split('/')[0]||'').replace(/\D/g,'');
+    hint.innerHTML='กดเลข<br>แล้ว ↵<br>หลัก: '+(first.length||'-');
     status.textContent='กำลังคีย์เลข';
   }else{
     let slot=slots[slotIndex];
-    screen.textContent=leksText||'—';
-    hint.innerHTML=(slot?LABEL[slot.type]:'')+'<br>'+(priceBuf?('ราคา '+priceBuf):'ใส่ราคา');
-    status.textContent='ใส่ราคา: '+(slot?LABEL[slot.type]:'')+(priceBuf?' = '+priceBuf:'');
+    const priceParts=slots.map((s,i)=>{
+      if(i===slotIndex)return priceBuf||String(s.amount||'');
+      return String(s.amount||'');
+    });
+    screen.textContent=(leksText||'')+'='+priceParts.join('×');
+    hint.innerHTML=slot?('ราคา: '+LABEL[slot.type]+'<br>ใส่ราคา'):'ไม่มีช่องราคา';
+    status.textContent='กำลังใส่ราคา: '+(slot?LABEL[slot.type]:'')+(priceBuf?' = '+priceBuf:'');
   }
 }
 function commit(){
@@ -917,31 +925,63 @@ function addItem(agent,it){
   agent.items.push(item);
 }
 
-/* Pin */
+/* Pin — keytest logic */
 function openPin(){
-  const n=leksText.split('/').filter(Boolean)[0]||'';
-  if(!n)return alert('ใส่เลขก่อน');
-  document.getElementById('pinNum').textContent=n;
-  setPinType(pin.type||'bon');document.getElementById('pinPrice').value='';
-  document.getElementById('pinModal').classList.add('show')
+  const digit=phase==='lek'?(leksText.replace(/\D/g,'').slice(-1)||''):'';
+  if(!digit||digit.length!==1){
+    alert('ปักหลักต้องกดเลข 1 ตัวก่อน เช่น 8 แล้วกดปัก');
+    return;
+  }
+  document.getElementById('pinNum').textContent=digit;
+  document.getElementById('pinPrice').value='';
+  pin.type='bon';
+  pin.positions={hundred:true,ten:true,unit:true};
+  renderPinPositions();
+  document.getElementById('pinModal').classList.add('show');
+  setTimeout(()=>{try{document.getElementById('pinPrice').focus()}catch(e){}},100);
 }
 function closePin(){document.getElementById('pinModal').classList.remove('show')}
-function setPinType(t){pin.type=t;document.getElementById('pinTypeBon').classList.toggle('on',t==='bon');document.getElementById('pinTypeLang').classList.toggle('on',t==='lang');renderPinPositions()}
-function renderPinPositions(){
-  const n=(leksText.split('/').filter(Boolean)[0]||'').replace('-','');
-  const wrap=document.getElementById('pinPosWrap');wrap.className='seg '+(n.length>=3?'pos3':'pos2');
-  const side=pin.type==='lang'?'ล่าง':'บน';
-  const labels=n.length>=3?[['hundred','ร้อย'],['ten','สิบ'],['unit','หน่วย']]:[['ten','สิบ'],['unit','หน่วย']];
-  wrap.innerHTML=labels.map(([k,l])=>`<button class="${pin.positions[k]?'on':''}" onclick="togglePinPos('${k}')">${l}<small>ปัก${side}${l}</small></button>`).join('')
+function setPinType(t){
+  pin.type=t;
+  if(t==='bon')pin.positions={hundred:true,ten:true,unit:true};
+  else pin.positions={ten:true,unit:true};
+  renderPinPositions();
 }
-function togglePinPos(k){pin.positions[k]=!pin.positions[k];renderPinPositions()}
+function renderPinPositions(){
+  document.getElementById('pinTypeBon').classList.toggle('on',pin.type==='bon');
+  document.getElementById('pinTypeLang').classList.toggle('on',pin.type==='lang');
+  const digit=document.getElementById('pinNum').textContent;
+  const wrap=document.getElementById('pinPosWrap');
+  if(pin.type==='bon'){
+    wrap.className='seg pos3';
+    wrap.innerHTML=`
+      <button class="${pin.positions.hundred?'on':''}" onclick="togglePinPos('hundred')">ร้อย<small>${digit}XX</small></button>
+      <button class="${pin.positions.ten?'on':''}" onclick="togglePinPos('ten')">สิบ<small>X${digit}X</small></button>
+      <button class="${pin.positions.unit?'on':''}" onclick="togglePinPos('unit')">หน่วย<small>XX${digit}</small></button>
+    `;
+  }else{
+    wrap.className='seg pos2';
+    wrap.innerHTML=`
+      <button class="${pin.positions.ten?'on':''}" onclick="togglePinPos('ten')">สิบ<small>${digit}X</small></button>
+      <button class="${pin.positions.unit?'on':''}" onclick="togglePinPos('unit')">หน่วย<small>X${digit}</small></button>
+    `;
+  }
+}
+function togglePinPos(k){
+  pin.positions[k]=!pin.positions[k];
+  const hasAny=Object.keys(pin.positions).some(x=>pin.positions[x]);
+  if(!hasAny)pin.positions[k]=true;
+  renderPinPositions();
+}
 function addPin(){
-  const n=(leksText.split('/').filter(Boolean)[0]||'').replace('-','');const amt=Number(document.getElementById('pinPrice').value||0);
-  if(!n||!amt)return alert('ต้องมีเลขและราคา');
+  const digit=document.getElementById('pinNum').textContent;
+  const amt=Number(document.getElementById('pinPrice').value||0);
+  if(!amt)return alert('ใส่ราคาปักก่อน');
   const a=getActiveAgent();if(!a)return;
   const positions=Object.keys(pin.positions).filter(k=>pin.positions[k]);
-  positions.forEach(pos=>addItem(a,{number:n,type:pin.type,amount:amt,pin:true,pinPosition:pos}));
-  closePin();clearBuffer();renderAll();scheduleSave()
+  if(!positions.length)return alert('เลือกตำแหน่งปักก่อน');
+  positions.forEach(pos=>addItem(a,{number:digit,type:pin.type,amount:amt,pin:true,pinPosition:pos,note:'ปัก'}));
+  closePin();clearBuffer();renderAll();scheduleSave();
 }
 
 /* Agent Card */
