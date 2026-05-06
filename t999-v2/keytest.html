@@ -48,16 +48,57 @@ body{
   padding:6px 9px;background:var(--card2);border-bottom:1px solid var(--line);
   display:flex;justify-content:space-between;color:var(--muted);font-size:12px;font-weight:900;
 }
-.list{max-height:180px;overflow:auto}
+.tbl-head{
+  display:grid;
+  grid-template-columns:74px 1fr 1fr 1fr 1fr 24px;
+  gap:2px;
+  padding:5px 8px;
+  background:#252938;
+  border-bottom:1px solid var(--line);
+  color:#aeb8d4;
+  font-size:12px;
+  font-weight:900;
+  text-align:center;
+}
+.tbl-head span:first-child{text-align:left}
+.list{max-height:190px;overflow:auto}
 .empty{padding:16px;text-align:center;color:var(--muted);font-size:13px}
 .row{
-  display:grid;grid-template-columns:70px 1fr 72px 24px;
-  gap:4px;align-items:center;padding:6px 8px;border-bottom:1px solid var(--line);
+  display:grid;
+  grid-template-columns:74px 1fr 1fr 1fr 1fr 24px;
+  gap:2px;
+  align-items:center;
+  padding:6px 8px;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+}
+.lek{
+  font-size:18px;
+  font-weight:900;
+  color:var(--gold);
+}
+.lek.follow{
+  color:var(--purple);
+  font-size:15px;
+  padding-left:8px;
+}
+.lek.pinlek{
+  color:#ff8a3d;
   font-size:14px;
 }
-.row .lek{font-size:18px;font-weight:900;color:var(--gold)}
-.row .type{font-weight:900}
-.row .amt{text-align:right;color:var(--green);font-weight:900}
+.cell{
+  text-align:center;
+  min-height:18px;
+  font-weight:900;
+  color:#3c425a;
+}
+.cell.has{
+  color:#f0f2ff;
+}
+.cell.bon{color:#bfdbfe}
+.cell.tod{color:#fbcfe8}
+.cell.lang{color:#bbf7d0}
+.cell.na{color:#fed7aa}
 .row button{background:transparent;border:0;color:var(--red);font-size:16px}
 .total{
   padding:8px 10px;background:var(--card2);
@@ -198,7 +239,18 @@ body{
       <span>รายการ</span>
       <span id="countText">0 รายการ</span>
     </div>
+
+    <div class="tbl-head">
+      <span>เลข</span>
+      <span>บน</span>
+      <span>โต๊ด</span>
+      <span>ล่าง</span>
+      <span>หน้า</span>
+      <span></span>
+    </div>
+
     <div id="list" class="list"><div class="empty">ยังไม่มีรายการ</div></div>
+
     <div class="total">
       <span>ยอดรวมทั้งหมด</span>
       <b id="totalText">฿0</b>
@@ -247,9 +299,9 @@ body{
     <button class="clear" onclick="clearBuffer()">× ล้าง</button>
 
     <div class="help">
-      21↵100.100+ = 21/12 บน 100 + 21 ล่าง 100<br>
-      21↵100.100.+ = 21/12 บน 100 + 21/12 ล่าง 100<br>
-      21/54659874↵100+ = 21/54/65/98/74 บน 100
+      / = คั่นเลขเท่านั้น เช่น 21/54659874 → 21/54/65/98/74<br>
+      . = กลับ/ชุด และมีเลขหลัก-เลขตามเฉพาะตอนแตกจากจุด<br>
+      21↵100.100+ = 21/12 บน 100 + 21 ล่าง 100
     </div>
   </div>
 </div>
@@ -422,10 +474,9 @@ function dotKey(){
 
   if(slotIndex < slots.length - 1){
     slotIndex++;
-    render();
-  }else{
-    render();
   }
+
+  render();
 }
 
 function pressDigit(n){
@@ -441,7 +492,8 @@ function pressDigit(n){
 
 function pressSlash(){
   if(phase !== 'lek') return;
-  if(!leksText || leksText.includes('/')) return;
+  if(!leksText) return;
+  if(leksText.includes('/')) return;
   leksText += '/';
   render();
 }
@@ -479,12 +531,23 @@ function clearBuffer(){
   render();
 }
 
-function expandReverse(num){
+function expandReverseWithRole(num){
   if(num.length === 2){
     const r = num[1] + num[0];
-    return r === num ? [num] : [num,r];
+    if(r === num) return [{lek:num, role:'main'}];
+    return [
+      {lek:num, role:'main'},
+      {lek:r, role:'follow'}
+    ];
   }
-  return uniquePermutations(num);
+
+  const perms = uniquePermutations(num);
+  const out = [];
+  out.push({lek:num, role:'main'});
+  perms.forEach(p => {
+    if(p !== num) out.push({lek:p, role:'follow'});
+  });
+  return out;
 }
 
 function uniquePermutations(str){
@@ -520,15 +583,27 @@ function commit(){
   leks.forEach(lek => {
     active.forEach(s => {
       const amount = Number(s.price);
-      const targets = s.rev ? expandReverse(lek) : [lek];
-      targets.forEach(n => {
+
+      if(s.rev){
+        const targets = expandReverseWithRole(lek);
+        targets.forEach(obj => {
+          items.push({
+            lek:obj.lek,
+            type:s.type,
+            amount,
+            role:obj.role,
+            note:lek.length === 2 ? 'กลับ' : 'ชุด'
+          });
+        });
+      }else{
         items.push({
-          lek:n,
+          lek,
           type:s.type,
           amount,
-          note:s.rev ? (lek.length === 2 ? 'กลับ' : 'ชุด') : ''
+          role:'main',
+          note:''
         });
-      });
+      }
     });
   });
 
@@ -541,7 +616,8 @@ function render(){
   const hint = document.getElementById('hint');
 
   if(phase === 'lek'){
-    screen.textContent = leksText || '—';
+    const shown = leksText.includes('/') ? normalizeLeksText() : leksText;
+    screen.textContent = shown || '—';
     const d = getBaseLen() || '-';
     hint.innerHTML = 'กดเลข<br>แล้ว ↵<br>หลัก: ' + d;
   }else{
@@ -609,14 +685,20 @@ function renderList(){
   if(!items.length){
     list.innerHTML = '<div class="empty">ยังไม่มีรายการ</div>';
   }else{
-    list.innerHTML = items.map((it,i)=>`
-      <div class="row">
-        <div class="lek">${it.lek}</div>
-        <div class="type">${LABEL[it.type]} ${it.note ? '('+it.note+')' : ''}</div>
-        <div class="amt">฿${it.amount.toLocaleString()}</div>
-        <button onclick="removeItem(${i})">×</button>
-      </div>
-    `).join('');
+    list.innerHTML = items.map((it,i)=>{
+      const isPin = it.note === 'ปัก';
+      const lekClass = isPin ? 'pinlek' : (it.role === 'follow' ? 'follow' : '');
+      return `
+        <div class="row">
+          <div class="lek ${lekClass}">${it.lek}</div>
+          <div class="cell bon ${it.type==='bon'?'has':''}">${it.type==='bon' ? '฿'+it.amount.toLocaleString() : '-'}</div>
+          <div class="cell tod ${it.type==='tod'?'has':''}">${it.type==='tod' ? '฿'+it.amount.toLocaleString() : '-'}</div>
+          <div class="cell lang ${it.type==='lang'?'has':''}">${it.type==='lang' ? '฿'+it.amount.toLocaleString() : '-'}</div>
+          <div class="cell na ${it.type==='na'?'has':''}">${it.type==='na' ? '฿'+it.amount.toLocaleString() : '-'}</div>
+          <button onclick="removeItem(${i})">×</button>
+        </div>
+      `;
+    }).join('');
   }
 
   const total = items.reduce((s,x)=>s+x.amount,0);
@@ -710,23 +792,22 @@ function addPin(){
 
   selectedPositions.forEach(pos => {
     let lek = '';
-    let label = '';
 
     if(pin.type === 'bon'){
-      if(pos === 'hundred'){ lek = digit + 'XX'; label = digit + 'ร้อย'; }
-      if(pos === 'ten'){ lek = 'X' + digit + 'X'; label = digit + 'สิบ'; }
-      if(pos === 'unit'){ lek = 'XX' + digit; label = digit + 'หน่วย'; }
+      if(pos === 'hundred') lek = digit + 'ร้อย';
+      if(pos === 'ten') lek = digit + 'สิบ';
+      if(pos === 'unit') lek = digit + 'หน่วย';
     }else{
-      if(pos === 'ten'){ lek = digit + 'X'; label = digit + 'สิบ'; }
-      if(pos === 'unit'){ lek = 'X' + digit; label = digit + 'หน่วย'; }
+      if(pos === 'ten') lek = digit + 'สิบ';
+      if(pos === 'unit') lek = digit + 'หน่วย';
     }
 
     items.push({
-      lek: label,
-      rawLek: lek,
+      lek,
       type: pin.type,
       amount: price,
-      note: 'ปัก'
+      role:'main',
+      note:'ปัก'
     });
   });
 
