@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Subkey Slip Mode 3D-Fix Step 3D</title>
+<title>T999 V2 Subkey Slip Mode 3E Step 3D</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -78,7 +78,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 .save-line{background:#0f1d16;border:1px solid #184d2b;border-radius:8px;padding:6px 8px;color:#86efac;font-size:12px;font-weight:900;text-align:right}
 .status-line{background:#151824;border:1px solid #202538;border-radius:8px;padding:6px 8px;color:var(--gold);font-size:12px;font-weight:900;text-align:right}
 .pending-line{background:#111827;border:1px solid #334155;border-radius:8px;padding:7px 8px;color:#cbd5e1;font-size:12px;font-weight:900;display:flex;justify-content:space-between;gap:8px;align-items:center}
-.pending-line span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pending-line span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.edit-badge{color:#f5c518;font-weight:900}
 .display{min-height:58px;background:#0b0e18;border:2px solid var(--line);border-radius:12px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
 #screen{font-size:31px;font-weight:900;color:var(--gold);word-break:break-all;line-height:1.05}
 #hint{min-width:82px;text-align:right;font-size:10px;color:var(--muted);line-height:1.5}
@@ -162,7 +162,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 
     <div class="panel center">
       <div class="panel-head">
-        <span>🧾 ชุดที่กำลังคีย์ / Pending Slip</span>
+        <span id="pendingHeader">🧾 ชุดใหม่ / ยังไม่เลือกโพย</span>
         <button class="btn" onclick="clearPendingSlip()">ล้างชุดนี้</button>
       </div>
       <div class="table-head">
@@ -202,7 +202,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
         </div>
 
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 3D-Fix: คีย์เป็นชุด → เก็บโพย → คลิกโพยเดิมเพื่อเรียกดู/แก้ไขได้</div>
+        <div class="help">Step 3E: คีย์เป็นชุด → เก็บโพย → คลิกโพยเดิมเพื่อเรียกดู/แก้ไขได้</div>
       </div>
     </div>
   </div>
@@ -393,7 +393,7 @@ function saveData(){
 
   const payload = {
     fileType:'T999_V2_SUBKEY_LOCAL_SLIP',
-    version:'3C',
+    version:'3E',
     sessionId:work.sessionId,
     market,
     activeAgentName,
@@ -496,7 +496,7 @@ function loadSlipToPending(agentId, customerId, slipId){
   renderAll();
   scheduleSave();
 
-  alert('เรียกโพยขึ้นมาแล้ว\\n' + agent.name + ' > ' + customer.name + ' > ' + (slip.label || slip.id) + '\\nแก้ไขรายการแล้วกด “เก็บโพยนี้” เพื่อบันทึกทับ');
+  alert('เรียกโพยขึ้นมาแก้ไขแล้ว\\n' + agent.name + ' > ' + customer.name + ' > ' + (slip.label || slip.id) + '\\nหัวรายการด้านบนจะขึ้นว่า “กำลังแก้ไข”\\nกด “เก็บโพยนี้” = บันทึกทับโพยเดิม');
 }
 
 function removeSlipByRef(ref){
@@ -696,7 +696,7 @@ function exportResult(){
 
   const payload = {
     fileType:'T999_V2_SUBKEY_RESULT',
-    version:'3C',
+    version:'3E',
     exportedAt:new Date().toISOString(),
     sessionId:work.sessionId,
     market,
@@ -793,7 +793,23 @@ function getAllSavedItems(){
   return out;
 }
 
+
+function renderPendingHeader(){
+  const el = document.getElementById('pendingHeader');
+  if(!el) return;
+
+  restoreEditRefFromPending();
+
+  if(editSlipRef){
+    el.innerHTML = '🧾 <span class="edit-badge">กำลังแก้ไข</span> — ' +
+      editSlipRef.agentName + ' / ' + editSlipRef.customerName + ' / ' + (editSlipRef.label || editSlipRef.slipId);
+  }else{
+    el.textContent = '🧾 ชุดใหม่ / ยังไม่เลือกโพย';
+  }
+}
+
 function renderPendingText(){
+  renderPendingHeader();
   restoreEditRefFromPending();
   const total = pendingItems.reduce((s,x)=>s+Number(x.amount||0),0);
   let prefix = editSlipRef ? 'กำลังแก้ไขโพยเดิม: ' + (editSlipRef.label || editSlipRef.slipId) + ' · ' : 'ชุดค้าง: ';
