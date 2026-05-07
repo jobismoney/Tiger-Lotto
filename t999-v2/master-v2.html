@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Master Step 5E Tablet Smooth</title>
+<title>T999 V2 Master Step 5E Import Fix1</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -690,10 +690,26 @@ function removeImportedSession(sessionId){
     a.customers=(a.customers||[]).filter(c=>(c.slips||[]).length>0);
   });
 }
+function getOrCreateMasterAgent(agentName, agentId){
+  const cleanName=(agentName||'เอเยนต์ไม่ระบุ').trim()||'เอเยนต์ไม่ระบุ';
+  let a=null;
+  if(agentId)a=agents.find(x=>String(x.id)===String(agentId));
+  if(!a)a=agents.find(x=>String(x.name||'').trim()===cleanName);
+  if(!a){
+    a={id:agentId||uid('agent_import'),name:cleanName,items:[],customers:[]};
+    agents.push(a);
+  }
+  if(!a.items)a.items=[];
+  if(!a.customers)a.customers=[];
+  return a;
+}
 function getOrCreateMasterCustomer(agent, customerName, customerId){
   if(!agent.customers)agent.customers=[];
-  let c=agent.customers.find(x=>x.id===customerId||x.name===customerName);
-  if(!c){c={id:customerId||uid('cus_master'),name:customerName||'ลูกค้าไม่ระบุ',slips:[]};agent.customers.push(c)}
+  const cleanName=(customerName||'ลูกค้าไม่ระบุ').trim()||'ลูกค้าไม่ระบุ';
+  let c=customerId?agent.customers.find(x=>String(x.id)===String(customerId)):null;
+  if(!c)c=agent.customers.find(x=>String(x.name||'').trim()===cleanName);
+  if(!c){c={id:customerId||uid('cus_master'),name:cleanName,slips:[]};agent.customers.push(c)}
+  if(!c.slips)c.slips=[];
   return c;
 }
 
@@ -707,18 +723,19 @@ function countSubkeyLocalLimits(data){
   });
   return n;
 }
-function mergeSubkeyLocalLimitsFromResult(data){
+function mergeSubkeyLocalLimitsFromResult(data, agentIdMap={}){
   if(!data||!data.subkeyLocalLimits)return 0;
   let added=0;
   const pack=data.subkeyLocalLimits;
   const m=data.market==='lao'?'lao':'thai';
-  Object.keys(pack||{}).forEach(agentId=>{
-    ensureAgentConfig(agentId);
-    const rows=Array.isArray(pack[agentId])?pack[agentId]:(Array.isArray(pack[agentId]&&pack[agentId][m])?pack[agentId][m]:[]);
+  Object.keys(pack||{}).forEach(oldAgentId=>{
+    const targetAgentId=agentIdMap[oldAgentId]||oldAgentId;
+    ensureAgentConfig(targetAgentId);
+    const rows=Array.isArray(pack[oldAgentId])?pack[oldAgentId]:(Array.isArray(pack[oldAgentId]&&pack[oldAgentId][m])?pack[oldAgentId][m]:[]);
     rows.forEach(r=>{
       const row=normalizeLimit({...r,note:(r.note||'')+' | จาก Subkey '+(data.subKeyer&&data.subKeyer.name||'')});
-      const exists=(rateLimitConfig.agentLimits[agentId][m]||[]).some(x=>String(x.number)===String(row.number)&&String(x.type)===String(row.type)&&String(x.level)===String(row.level));
-      if(!exists){rateLimitConfig.agentLimits[agentId][m].push(row);added++;}
+      const exists=(rateLimitConfig.agentLimits[targetAgentId][m]||[]).some(x=>String(x.number)===String(row.number)&&String(x.type)===String(row.type)&&String(x.level)===String(row.level));
+      if(!exists){rateLimitConfig.agentLimits[targetAgentId][m].push(row);added++;}
     });
   });
   return added;
@@ -730,31 +747,75 @@ function importSubkeyResult(data){
   }
   let s=summarizeImport(data.agents);
   const subLimitCount=countSubkeyLocalLimits(data);
-  if(!confirm('นำเข้าไฟล์ลูกน้อง?\nคนคีย์: '+(data.subKeyer&&data.subKeyer.name||'-')+'\nรายการ: '+s.itemCount+'\nยอดรวม: '+money(s.total)+'\nเลขอั้นที่ Subkey ตั้งเอง: '+subLimitCount+' รายการ'))return;
-  const mergedLimitCount=mergeSubkeyLocalLimitsFromResult(data);
-  const targetName='งานลูกน้อง: '+(data.subKeyer&&data.subKeyer.name||'ไม่ระบุ');
-  let target=agents.find(a=>a.name===targetName);
-  if(!target){target={id:'imp_'+(data.sessionId||Date.now()),name:targetName,items:[],customers:[]};agents.unshift(target)}
+  if(!confirm('นำเข้าไฟล์ลูกน้อง?\nคนคีย์: '+(data.subKeyer&&data.subKeyer.name||'-')+'\nรายการ: '+s.itemCount+'\nยอดรวม: '+money(s.total)+'\nเลขอั้นที่ Subkey ตั้งเอง: '+subLimitCount+' รายการ\n\nหมายเหตุ: คนคีย์จะถูกเก็บเป็น worker ไม่ใช่เอเยนต์'))return;
+
+  const workerName=data.subKeyer&&data.subKeyer.name||'';
+  const agentIdMap={};
+  let firstImportedAgentId='';
+
   (data.agents||[]).forEach(src=>{
+    // src คือเอเยนต์จริงจาก Subkey ห้ามแปลงเป็นลูกค้าของคนคีย์
+    const masterAgent=getOrCreateMasterAgent(src.name||src.agentName||'เอเยนต์ไม่ระบุ',src.id);
+    agentIdMap[src.id]=masterAgent.id;
+    if(!firstImportedAgentId)firstImportedAgentId=masterAgent.id;
+
     if(Array.isArray(src.customers)&&src.customers.length){
       src.customers.forEach(c=>{
-        let mc=getOrCreateMasterCustomer(target,c.name,c.id);
+        const mc=getOrCreateMasterCustomer(masterAgent,c.name,c.id);
         (c.slips||[]).forEach(sl=>{
-          let exists=(mc.slips||[]).some(x=>x.id===sl.id);
+          const exists=(mc.slips||[]).some(x=>String(x.id)===String(sl.id)||((x.importSessionId===data.sessionId)&&String(x.sourceSlipId||'')===String(sl.id||'')));
           if(exists)return;
-          let newSlip={...sl,items:(sl.items||[]).map(it=>({...it,importSessionId:data.sessionId,importWorker:data.subKeyer&&data.subKeyer.name||'',agentId:target.id,agentName:target.name,customerId:mc.id,customerName:mc.name,slipId:sl.id}))};
+          const newSlip={...sl,
+            id:sl.id||uid('slip_import'),
+            sourceSlipId:sl.id||'',
+            importSessionId:data.sessionId,
+            importWorker:workerName,
+            workerName:workerName,
+            updatedAt:Date.now(),
+            items:(sl.items||[]).map(it=>({...it,
+              id:it.id||uid('it_import'),
+              importSessionId:data.sessionId,
+              importWorker:workerName,
+              workerName:workerName,
+              agentId:masterAgent.id,
+              agentName:masterAgent.name,
+              customerId:mc.id,
+              customerName:mc.name,
+              slipId:sl.id||'',
+              slipNo:sl.slipNo||''
+            }))
+          };
+          if(!newSlip.slipNo)newSlip.slipNo=(mc.slips||[]).length+1;
+          newSlip.items.forEach(it=>{it.slipId=newSlip.id;it.slipNo=newSlip.slipNo});
           mc.slips.push(newSlip);
-          newSlip.items.forEach(it=>target.items.push(it));
+          newSlip.items.forEach(it=>masterAgent.items.push(it));
         });
       });
     }else{
-      let mc=getOrCreateMasterCustomer(target,src.name||'ลูกค้าไม่ระบุ','cus_'+(src.id||Date.now()));
-      let slip={id:'slip_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),slipNo:(mc.slips||[]).length+1,label:'Import '+(data.subKeyer&&data.subKeyer.name||''),items:[]};
-      (src.items||[]).forEach(it=>slip.items.push({...it,importSessionId:data.sessionId,importWorker:data.subKeyer&&data.subKeyer.name||'',agentId:target.id,agentName:target.name,customerId:mc.id,customerName:mc.name,slipId:slip.id}));
-      if(slip.items.length){mc.slips.push(slip);slip.items.forEach(it=>target.items.push(it))}
+      // fallback สำหรับไฟล์เก่า: src ยังถือเป็นเอเยนต์จริง แต่ไม่มี customers
+      const mc=getOrCreateMasterCustomer(masterAgent,'ลูกค้าไม่ระบุ','cus_'+(src.id||Date.now()));
+      const slip={id:'slip_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),slipNo:(mc.slips||[]).length+1,label:'Import '+workerName,sourceSlipId:'',importSessionId:data.sessionId,importWorker:workerName,workerName:workerName,items:[]};
+      (src.items||[]).forEach(it=>slip.items.push({...it,
+        id:it.id||uid('it_import'),
+        importSessionId:data.sessionId,
+        importWorker:workerName,
+        workerName:workerName,
+        agentId:masterAgent.id,
+        agentName:masterAgent.name,
+        customerId:mc.id,
+        customerName:mc.name,
+        slipId:slip.id,
+        slipNo:slip.slipNo
+      }));
+      if(slip.items.length){mc.slips.push(slip);slip.items.forEach(it=>masterAgent.items.push(it))}
     }
   });
-  activeAgentId=target.id;selectAgent(target.id,false);saveData();alert('นำเข้า Result จาก Subkey แล้ว' + (typeof mergedLimitCount!=='undefined'&&mergedLimitCount?'\nเพิ่มเลขอั้นจาก Subkey: '+mergedLimitCount+' รายการ':''))
+
+  const mergedLimitCount=mergeSubkeyLocalLimitsFromResult(data,agentIdMap);
+  activeAgentId=firstImportedAgentId||(agents[0]&&agents[0].id)||activeAgentId;
+  selectAgent(activeAgentId,false);
+  saveData();
+  alert('นำเข้า Result จาก Subkey แล้ว\nคนคีย์: '+(workerName||'-')+'\nเอเยนต์จริงถูกเก็บตามไฟล์ Subkey แล้ว' + (typeof mergedLimitCount!=='undefined'&&mergedLimitCount?'\nเพิ่มเลขอั้นจาก Subkey: '+mergedLimitCount+' รายการ':''))
 }
 function collectImportedSessions(){
   const map=new Map();
