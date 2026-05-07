@@ -360,7 +360,7 @@ body.resizing-zones{cursor:col-resize;user-select:none}
         <button id="folderActionBtn" class="btn full gold" onclick="folderAction()">เก็บเข้าแฟ้ม</button>
         <button id="exitSlipEditBtn" class="btn full" style="display:none" onclick="closeSlipEditMode()">ออกจากโหมดแก้โพย</button>
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 5H: KeyLock + Resizable Zones + Compact Rows</div>
+        <div class="help">Step 5I: Limit UX + Match Fix</div>
       </div>
     </div>
     <div class="zone-resizer" data-left="key" data-right="zone4" title="ลากเพื่อปรับโซนคีย์เลข / สรุปสด"></div>
@@ -2580,6 +2580,218 @@ function renderLimitEditor(scope,agentId){
   const html=limitFormHtml(scope,agentId);
   const box=document.getElementById('agentModalContent'); if(box)box.innerHTML=html;
 }
+
+
+/* =========================================================
+   STEP 5I LIMIT UX + MATCH FIX — wrapper only
+   - Popup input auto-focus + Enter to add
+   - Multi-select limit type chips (บน/โต๊ด/ล่าง/หน้า can be selected together)
+   - Bulk numbers must have same digit length
+   - Limit matching supports กลับ/ชุด permutations and โต๊ด permutations correctly
+   - Applies limitStatus while keying via addItem wrapper without editing Core Key Engine
+========================================================= */
+(function(){
+  const _oldAddItem = typeof addItem === 'function' ? addItem : null;
+  let t999LimitWarnQueue=[];
+  let t999LimitWarnTimer=null;
+
+  function t999Digits(v){ return String(v||'').replace(/\D/g,''); }
+  function t999Sorted(v){ return t999Digits(v).split('').sort().join(''); }
+  function t999LimitLabel(level,row){
+    if(level==='closed')return 'ปิดรับ';
+    if(level==='pay50')return 'จ่าย 50%';
+    if(level==='pay20')return 'จ่าย 20%';
+    if(level==='custom'){
+      const pct=Number(row&&row.customPercent||0), pay=Number(row&&row.customPay||0);
+      if(pct&&pay)return 'กำหนดเอง '+pct+'% / จ่าย '+pay;
+      if(pct)return 'กำหนดเอง '+pct+'%';
+      if(pay)return 'กำหนดเอง จ่าย '+pay;
+      return 'กำหนดเอง';
+    }
+    return String(level||'');
+  }
+  function t999Row(row){
+    row=normalizeLimit ? normalizeLimit(row||{}) : (row||{});
+    row.number=String(row.number||'').trim();
+    row.type=String(row.type||'').trim();
+    row.level=String(row.level||'closed');
+    row.customPercent=Number(row.customPercent||0);
+    row.customPay=Number(row.customPay||0);
+    row.note=String(row.note||'');
+    return row;
+  }
+  function t999ItemLimitType(it){
+    if(it&&it.pin){return it.type==='lang' ? (market==='thai'?'ปักหลักล่าง':'ปักล่าง') : (market==='thai'?'ปักหลักบน':'ปักบน');}
+    if(it&&it.note==='กลับ')return 'กลับ';
+    if(it&&it.note==='ชุด')return 'ชุด';
+    if(it&&it.type==='tod')return 'โต๊ด';
+    if(it&&it.type==='lang')return 'ล่าง';
+    if(it&&it.type==='na')return 'หน้า';
+    return 'บน';
+  }
+  function t999Aliases(t){
+    t=String(t||'').trim();
+    if(t==='bon'||t==='บน')return ['บน','bon'];
+    if(t==='tod'||t==='โต๊ด')return ['โต๊ด','tod'];
+    if(t==='lang'||t==='ล่าง')return ['ล่าง','lang'];
+    if(t==='na'||t==='หน้า')return ['หน้า','na'];
+    if(t==='กลับ')return ['กลับ'];
+    if(t==='ชุด')return ['ชุด'];
+    if(t==='ปักบน'||t==='ปักหลักบน')return ['ปักบน','ปักหลักบน'];
+    if(t==='ปักล่าง'||t==='ปักหลักล่าง')return ['ปักล่าง','ปักหลักล่าง'];
+    return [t];
+  }
+  function t999LimitMatch(row,it){
+    row=t999Row(row);
+    const bet=t999Digits(itemNumber ? itemNumber(it) : (it&&it.number||it&&it.lek));
+    const lim=t999Digits(row.number);
+    if(!bet||!lim)return false;
+    const rowA=t999Aliases(row.type);
+    const itemA=t999Aliases(t999ItemLimitType(it));
+    const typeOk=!row.type || rowA.some(x=>itemA.includes(x));
+    if(!typeOk)return false;
+    if(bet===lim)return true;
+    // Permutation matching only for โต๊ด/กลับ/ชุด, never for plain บน/ล่าง/หน้า
+    if((rowA.includes('โต๊ด')||rowA.includes('กลับ')||rowA.includes('ชุด')) && bet.length===lim.length && t999Sorted(bet)===t999Sorted(lim))return true;
+    return false;
+  }
+  function t999RowsForAgent(agentId){
+    const packs=[];
+    try{
+      const ar=agentId&&rateLimitConfig.agentLimits&&rateLimitConfig.agentLimits[agentId]&&rateLimitConfig.agentLimits[agentId][market];
+      (ar||[]).forEach(r=>packs.push({source:'agent',row:r}));
+    }catch(e){}
+    try{((rateLimitConfig.baseLimits&&rateLimitConfig.baseLimits[market])||[]).forEach(r=>packs.push({source:'base',row:r}))}catch(e){}
+    return packs;
+  }
+  window.t999GetLimitStatus=function(agentId,it){
+    for(const pack of t999RowsForAgent(agentId)){
+      const row=t999Row(pack.row);
+      if(t999LimitMatch(row,it)){
+        return {matched:true,source:pack.source,level:row.level,label:t999LimitLabel(row.level,row),customPercent:row.customPercent||0,customPay:row.customPay||0,note:row.note||'',type:row.type,number:row.number};
+      }
+    }
+    return {matched:false};
+  };
+  window.getMatchedLimit=function(agentId,number,type){
+    const typeMap={'ล่าง':'lang','โต๊ด':'tod','หน้า':'na','บน':'bon','กลับ':'bon','ชุด':'bon'};
+    const probe={number:String(number||''),lek:String(number||''),type:typeMap[type]||type||'bon',role:'main',note:(type==='กลับ'||type==='ชุด')?type:''};
+    const st=window.t999GetLimitStatus(agentId,probe);
+    return st&&st.matched?st:null;
+  };
+  function t999QueueLimitNotice(item){
+    const st=item&&item.limitStatus;
+    if(!st||!st.matched)return;
+    t999LimitWarnQueue.push(`${itemNumber(item)} ${LABEL[item.type]||item.type} = ${st.label}`);
+    clearTimeout(t999LimitWarnTimer);
+    t999LimitWarnTimer=setTimeout(()=>{
+      const list=[...new Set(t999LimitWarnQueue)].slice(0,12);
+      t999LimitWarnQueue=[];
+      if(list.length)alert('พบเลขอั้น / เลขจ่ายพิเศษ:\n'+list.join('\n'));
+    },80);
+  }
+  if(_oldAddItem){
+    window.addItem=function(agent,it){
+      const st=window.t999GetLimitStatus(agent&&agent.id,it);
+      it.limitStatus=st;
+      if(st&&st.matched){
+        t999QueueLimitNotice(it);
+        if(st.level==='closed'){
+          const el=document.getElementById('statusLine'); if(el)el.textContent='เลขปิดรับ: '+itemNumber(it)+' '+(LABEL[it.type]||it.type);
+          return;
+        }
+      }
+      return _oldAddItem(agent,it);
+    };
+  }
+
+  function t999CaptureLimitDraftFromDom2(){
+    const n=document.getElementById('limitDraftNumber');
+    const pct=document.getElementById('limitDraftPercent');
+    const pay=document.getElementById('limitDraftPay');
+    const note=document.getElementById('limitDraftNote');
+    if(n)limitDraft.number=n.value;
+    if(pct)limitDraft.customPercent=pct.value;
+    if(pay)limitDraft.customPay=pay.value;
+    if(note)limitDraft.note=note.value;
+    if(!Array.isArray(limitDraft.types))limitDraft.types=limitDraft.type?[limitDraft.type]:[LIMIT_TYPES[market][0]];
+  }
+  window.t999SplitLimitNumbers=function(raw){
+    const parts=String(raw||'').replace(/[\s,，]+/g,'/').split('/').map(x=>x.replace(/\D/g,'')).filter(Boolean);
+    const unique=[];parts.forEach(x=>{if(!unique.includes(x))unique.push(x)});
+    if(!unique.length)return [];
+    const len=unique[0].length;
+    if(unique.some(x=>x.length!==len)){
+      alert('เลขอั้นชุดเดียวกันต้องมีจำนวนหลักเท่ากัน เช่น 52/54/78 หรือ 325/458/785 หรือ 1/2/4/6');
+      return null;
+    }
+    return unique;
+  };
+  window.toggleLimitDraftType=function(type){
+    t999CaptureLimitDraftFromDom2();
+    let arr=Array.isArray(limitDraft.types)?limitDraft.types.slice():[];
+    if(arr.includes(type))arr=arr.filter(x=>x!==type); else arr.push(type);
+    if(!arr.length)arr=[type];
+    limitDraft.types=arr;limitDraft.type=arr[0];
+    renderLimitEditor(limitEditorContext.scope,limitEditorContext.agentId);
+  };
+  window.setLimitDraft=function(k,v){
+    t999CaptureLimitDraftFromDom2();
+    limitDraft[k]=v;
+    if(k==='type'){limitDraft.types=[v];}
+    if(k==='level')renderLimitEditor(limitEditorContext.scope,limitEditorContext.agentId);
+  };
+  window.limitFormHtml=function(scope,agentId){
+    const isAgent=scope==='agent'; if(isAgent)ensureAgentConfig(agentId);
+    const rows=limitRows(scope,agentId); if(!limitDraft.type||!LIMIT_TYPES[market].includes(limitDraft.type))limitDraft.type=LIMIT_TYPES[market][0];
+    if(!Array.isArray(limitDraft.types)||!limitDraft.types.length)limitDraft.types=[limitDraft.type||LIMIT_TYPES[market][0]];
+    const q=String(limitDraft.q||'').trim();
+    const shown=rows.map((r,i)=>({...r,_idx:i})).filter(r=>!q||String(r.number||'').includes(q)||String(r.type||'').includes(q)||String(r.note||'').includes(q));
+    const typeChips=LIMIT_TYPES[market].map(t=>`<button type="button" class="limit-chip ${limitDraft.types.includes(t)?'on':''}" onclick="toggleLimitDraftType('${esc(t)}')">${esc(t)}</button>`).join('');
+    const levelChips=LIMIT_LEVELS.map(([v,l])=>`<button type="button" class="limit-chip level-${v} ${limitDraft.level===v?'on':''}" onclick="setLimitDraft('level','${v}')">${l}</button>`).join('');
+    return `<div class="agent-section">
+      <div class="limit-new-box">
+        <div class="limit-new-title"><span>ตั้งเลขอั้นแบบคีย์เร็ว</span><span class="pill">${rules.name} · ${isAgent?'เฉพาะเอเยนต์':'กลาง'}</span></div>
+        <div class="limit-chip-row">${typeChips}</div>
+        <div class="limit-quick-grid three">
+          <input id="limitDraftNumber" class="input" inputmode="numeric" placeholder="หลายเลขได้ เช่น 52/54/78 หรือ 1/2/4/6" value="${esc(limitDraft.number||'')}" oninput="setLimitDraft('number',this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();addLimitFromDraft('${scope}','${agentId}')}">
+          <input id="limitDraftPercent" class="input" type="number" placeholder="กำหนด %" value="${esc(limitDraft.customPercent||'')}" oninput="setLimitDraft('customPercent',this.value)">
+          <input id="limitDraftPay" class="input" type="number" placeholder="กำหนดจ่าย" value="${esc(limitDraft.customPay||'')}" oninput="setLimitDraft('customPay',this.value)">
+        </div>
+        <div class="limit-chip-row">${levelChips}</div>
+        <input id="limitDraftNote" class="input left" placeholder="หมายเหตุ" value="${esc(limitDraft.note||'')}" oninput="setLimitDraft('note',this.value)">
+        <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:10px">
+          <button type="button" class="btn" onclick="clearLimitDraft('${scope}','${agentId}')">ล้างช่อง</button>
+          <button type="button" class="btn green" onclick="addLimitFromDraft('${scope}','${agentId}')">+ เพิ่มเลขอั้น</button>
+        </div>
+        <div class="limit-small-note">เลือกประเภทได้หลายปุ่มพร้อมกัน · ใส่หลายเลขด้วย / · ทุกเลขต้องจำนวนหลักเท่ากัน</div>
+      </div>
+      <div class="limit-search"><input class="input left" placeholder="ค้นหาเลขอั้น" value="${esc(limitDraft.q||'')}" oninput="setLimitDraft('q',this.value);renderLimitEditor('${scope}','${agentId}')"></div>
+      <div class="limit-card-list">${shown.length?shown.map(r=>limitCardHtml(scope,agentId,r)).join(''):'<div class="empty">ยังไม่มีเลขอั้น</div>'}</div>
+    </div>`;
+  };
+  window.addLimitFromDraft=function(scope,agentId){
+    t999CaptureLimitDraftFromDom2();
+    const nums=window.t999SplitLimitNumbers(limitDraft.number); if(nums===null)return; if(!nums.length)return alert('ใส่เลขอั้นก่อน');
+    if(scope==='agent')ensureAgentConfig(agentId);
+    const rows=limitRows(scope,agentId);
+    const types=(Array.isArray(limitDraft.types)&&limitDraft.types.length)?limitDraft.types:[limitDraft.type||LIMIT_TYPES[market][0]];
+    nums.forEach(number=>types.forEach(type=>{
+      const row=normalizeLimit({type,number,level:limitDraft.level||'closed',customPercent:limitDraft.customPercent,customPay:limitDraft.customPay,note:limitDraft.note||''});
+      const idx=rows.findIndex(r=>String(r.number)===String(number)&&String(r.type)===String(type));
+      if(idx>=0)rows[idx]=row; else rows.push(row);
+    }));
+    limitDraft.number='';limitDraft.note='';saveData();renderLimitEditor(scope,agentId);
+    setTimeout(()=>document.getElementById('limitDraftNumber')?.focus(),60);
+  };
+  const _oldRenderLimitEditor=typeof renderLimitEditor==='function'?renderLimitEditor:null;
+  window.renderLimitEditor=function(scope,agentId){
+    limitEditorContext={scope,agentId};
+    const html=limitFormHtml(scope,agentId);
+    const box=document.getElementById('agentModalContent'); if(box)box.innerHTML=html;
+    setTimeout(()=>document.getElementById('limitDraftNumber')?.focus(),30);
+  };
+})();
 
 /* boot */
 document.addEventListener('keydown',e=>{
