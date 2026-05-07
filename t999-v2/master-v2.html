@@ -2185,6 +2185,164 @@ function buildLimitListHtml(scope,agentId){
 
 
 /* boot */
+
+
+/* =========================================================
+   STEP 6B LIMIT CHECK FIX1 — ทำให้เลขอั้นทำงานจริงตอนคีย์
+   - ปิดรับ: ไม่ให้เพิ่มรายการ
+   - 50/20/custom: เพิ่มรายการได้ + ติด limitStatus
+   - match type/เลขแบบยืดหยุ่นกว่าเดิม
+========================================================= */
+function t999LimitDigits(v){return String(v||'').replace(/\D/g,'');}
+function t999LimitSortDigits(v){return t999LimitDigits(v).split('').sort().join('');}
+function t999LimitTypeAliases(type){
+  const t=String(type||'').trim();
+  const map={
+    bon:['บน','bon'],
+    tod:['โต๊ด','tod'],
+    lang:['ล่าง','lang'],
+    na:['หน้า','na'],
+    pinbon:['ปักบน','ปักหลักบน'],
+    pinlang:['ปักล่าง','ปักหลักล่าง'],
+    rev:['กลับ'],
+    set:['ชุด']
+  };
+  if(t==='bon'||t==='บน')return map.bon;
+  if(t==='tod'||t==='โต๊ด')return map.tod;
+  if(t==='lang'||t==='ล่าง')return map.lang;
+  if(t==='na'||t==='หน้า')return map.na;
+  if(t==='ปักบน'||t==='ปักหลักบน')return map.pinbon;
+  if(t==='ปักล่าง'||t==='ปักหลักล่าง')return map.pinlang;
+  if(t==='กลับ')return map.rev;
+  if(t==='ชุด')return map.set;
+  return [t];
+}
+function t999LimitItemType(it){
+  if(it&&it.pin){return it.type==='lang' ? (market==='thai'?'ปักหลักล่าง':'ปักล่าง') : (market==='thai'?'ปักหลักบน':'ปักบน');}
+  if(it&&it.role==='follow'&&it.note==='กลับ')return 'กลับ';
+  if(it&&it.role==='follow'&&it.note==='ชุด')return 'ชุด';
+  if(it&&it.type==='tod')return 'โต๊ด';
+  if(it&&it.type==='lang')return 'ล่าง';
+  if(it&&it.type==='na')return 'หน้า';
+  return 'บน';
+}
+function t999LimitLevelLabel(level,row){
+  if(level==='closed')return 'ปิดรับ';
+  if(level==='pay50')return 'จ่าย 50%';
+  if(level==='pay20')return 'จ่าย 20%';
+  if(level==='custom'){
+    const pct=Number(row&&row.customPercent||0), pay=Number(row&&row.customPay||0);
+    if(pct&&pay)return 'กำหนดเอง '+pct+'% / จ่าย '+pay;
+    if(pct)return 'กำหนดเอง '+pct+'%';
+    if(pay)return 'กำหนดเอง จ่าย '+pay;
+    return 'กำหนดเอง';
+  }
+  try{return levelLabel(level)}catch(e){return level||''}
+}
+function t999NormalizeLimitRow(row){
+  const r=normalizeLimit ? normalizeLimit(row||{}) : (row||{});
+  r.number=String(r.number||'').trim();
+  r.type=String(r.type||'').trim();
+  r.level=String(r.level||'closed');
+  r.customPercent=Number(r.customPercent||0);
+  r.customPay=Number(r.customPay||0);
+  r.note=String(r.note||'');
+  return r;
+}
+function t999LimitMatchRow(row,it){
+  row=t999NormalizeLimitRow(row);
+  const betNum=t999LimitDigits(itemNumber(it));
+  const rowNum=t999LimitDigits(row.number);
+  if(!betNum||!rowNum)return false;
+  const itemType=t999LimitItemType(it);
+  const rowAliases=t999LimitTypeAliases(row.type);
+  const itemAliases=t999LimitTypeAliases(itemType);
+  const typeMatch=!row.type || rowAliases.some(x=>itemAliases.includes(x));
+  if(!typeMatch)return false;
+  if(rowNum===betNum)return true;
+  // โต๊ด/ชุด: เลขชุดเดียวกันให้ถือว่าเข้าเลขอั้น เช่น 123 กับ 321
+  if((rowAliases.includes('โต๊ด')||rowAliases.includes('ชุด')) && rowNum.length===betNum.length && t999LimitSortDigits(rowNum)===t999LimitSortDigits(betNum))return true;
+  return false;
+}
+function t999GetLimitRowsForAgent(agentId){
+  const cfg=(typeof getRateLimitConfig==='function'?getRateLimitConfig():null) || (typeof rateLimitConfig!=='undefined'?rateLimitConfig:null) || {};
+  const rows=[];
+  // Subkey local override first
+  try{
+    if(typeof subkeyLocalLimits!=='undefined' && subkeyLocalLimits){
+      const local=(subkeyLocalLimits[agentId]&&subkeyLocalLimits[agentId][market]) || (Array.isArray(subkeyLocalLimits[agentId])?subkeyLocalLimits[agentId]:[]);
+      (local||[]).forEach(r=>rows.push({source:'subkey',row:r}));
+    }
+  }catch(e){}
+  // Master agent limits
+  try{
+    const ar=cfg.agentLimits&&cfg.agentLimits[agentId]&&cfg.agentLimits[agentId][market];
+    (ar||[]).forEach(r=>rows.push({source:'agent',row:r}));
+  }catch(e){}
+  // Master/base limits
+  try{
+    const br=cfg.baseLimits&&cfg.baseLimits[market];
+    (br||[]).forEach(r=>rows.push({source:'base',row:r}));
+  }catch(e){}
+  return rows;
+}
+function t999GetLimitStatus(agentId,it){
+  const packs=t999GetLimitRowsForAgent(agentId);
+  for(const pack of packs){
+    const row=t999NormalizeLimitRow(pack.row);
+    if(t999LimitMatchRow(row,it)){
+      return {matched:true,source:pack.source,level:row.level,label:t999LimitLevelLabel(row.level,row),customPercent:row.customPercent||0,customPay:row.customPay||0,note:row.note||'',type:row.type,number:row.number};
+    }
+  }
+  return {matched:false};
+}
+function getLimitStatus(agentId,it){return t999GetLimitStatus(agentId,it)}
+function getMatchedLimit(agentId,number,type){
+  const probe={number:String(number||''),lek:String(number||''),type:type==='ล่าง'?'lang':type==='โต๊ด'?'tod':type==='หน้า'?'na':'bon',role:'main',note:''};
+  const st=t999GetLimitStatus(agentId,probe);
+  return st&&st.matched?st:null;
+}
+function t999ApplyLimitToItem(agentId,it){
+  const st=t999GetLimitStatus(agentId,it);
+  it.limitStatus=st;
+  return st;
+}
+function t999LimitBlockMessage(items){
+  return 'มีเลขปิดรับ ไม่สามารถเพิ่มรายการได้:\n'+items.map(x=>`${itemNumber(x)} ${LABEL[x.type]||x.type} ${x.limitStatus&&x.limitStatus.label?x.limitStatus.label:''}`).join('\n');
+}
+
+function commit(){
+  if(phase==='price')saveCurrentPrice();
+  const leks=getLeks();
+  if(!leks.length)return alert('ยังไม่มีเลข');
+  const a=getActiveAgent();if(!a)return alert('ยังไม่มีเอเยนต์');
+  if(!slots.length)buildSlots();
+  const active=slots.filter(s=>Number(s.price)>0);
+  if(!active.length)return alert('ยังไม่มีราคา');
+  const add=[];
+  leks.forEach(lek=>active.forEach(s=>{
+    const amount=Number(s.price);
+    if(s.rev){
+      expandReverseWithRole(lek).forEach(o=>add.push({number:o.lek,lek:o.lek,type:s.type,amount,role:o.role,follow:o.role==='follow',note:lek.length===2?'กลับ':'ชุด'}));
+    }else{
+      add.push({number:lek,lek,type:s.type,amount,role:'main',follow:false,note:''});
+    }
+  }));
+  const blocked=[];
+  add.forEach(it=>{const st=t999ApplyLimitToItem(a.id,it);if(st.matched&&st.level==='closed')blocked.push(it)});
+  if(blocked.length){alert(t999LimitBlockMessage(blocked));renderAll();return;}
+  add.forEach(it=>addItem(a,it));
+  const warned=add.filter(it=>it.limitStatus&&it.limitStatus.matched).map(it=>`${itemNumber(it)} ${LABEL[it.type]||it.type} = ${it.limitStatus.label}`);
+  clearBuffer();renderAll();scheduleSave();
+  if(warned.length)alert('พบเลขอั้น/เลขจ่ายพิเศษ:\n'+warned.join('\n'));
+}
+function cellText(it,type){
+  if(it.type!==type)return '';
+  const amt=Number(it.amount||0);if(!amt)return '';
+  const lim=it.limitStatus&&it.limitStatus.matched?`<div style="font-size:10px;color:#f5c518;margin-top:2px">${esc(it.limitStatus.label||'เลขอั้น')}</div>`:'';
+  return esc(String(amt))+lim;
+}
+
 document.addEventListener('keydown',e=>{
   if(e.target&&['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
   if(e.key>='0'&&e.key<='9')pressDigit(e.key);
