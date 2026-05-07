@@ -53,7 +53,7 @@ html,body{height:100%;overflow:hidden}body{font-family:Arial,"Sarabun",sans-seri
 <div class="main">
 <div class="panel left"><div class="panel-head"><span>👤 งานลูกน้อง</span><span id="agentCount">0</span></div><div class="panel-body"><div class="info-card"><small>คนคีย์</small><b id="workerName">-</b></div><div class="info-card"><small>งวด</small><b id="roundLabel">-</b></div><div class="info-card"><small>Session ID</small><b id="sessionShort">-</b></div><button class="btn full purple" onclick="openLimitModal()">ตั้งเลขอั้นเอเยนต์นี้</button><button class="btn full purple" onclick="savePendingSlip()">เก็บโพยนี้เข้าแฟ้ม</button><button class="btn full gold" onclick="createAgentPrompt()">+ สร้างเอเยนต์</button><button class="btn full" onclick="selectWorkFile()">เลือกไฟล์งานใหม่</button><div id="agentList"></div></div></div>
 <div class="panel center"><div class="panel-head"><span id="pendingHeader">🧾 ชุดใหม่ / ยังไม่เลือกโพย</span><button class="btn" onclick="clearPendingSlip()">ล้างชุดนี้</button></div><div class="table-head"><span>เลข</span><span>บน</span><span>โต๊ด</span><span>ล่าง</span><span class="na-col">หน้า</span><span></span></div><div class="table-list" id="list"><div class="empty">ยังไม่มีรายการในชุดนี้</div></div><div class="table-total"><span>ยอดรวมชุดนี้</span><b id="totalText">฿0</b></div></div>
-<div class="panel right"><div class="panel-head"><span>⌨️ คีย์เลข</span><span id="workStatus">พร้อม</span></div><div class="panel-body key-wrap"><div class="summary-grid"><div class="sum-card"><small>โพยเก็บแล้ว</small><b id="sumSlips">0</b></div><div class="sum-card"><small>รายการรวม</small><b id="sumItems">0</b></div><div class="sum-card"><small>ยอดรวม</small><b id="sumGrand">฿0</b></div></div><div class="pending-line"><span id="pendingText">ชุดใหม่ยังไม่เก็บ</span><button class="btn small" onclick="savePendingSlip()">เก็บ</button></div><div class="save-line" id="saveLine">ยังไม่บันทึก</div><div class="status-line" id="statusLine">กำลังคีย์</div><div class="display"><div id="screen">—</div><div id="hint">กดเลข<br>แล้ว ↵</div></div><div id="typeRow" class="type-row"><button id="slot-bon" class="tbtn">บน</button><button id="slot-tod" class="tbtn">โต๊ด</button><button id="slot-lang" class="tbtn">ล่าง</button><button id="slot-na" class="tbtn na-col">หน้า</button></div><div class="keypad"><button class="key top" onclick="pressSlash()">/</button><button class="key pin" onclick="openPin()">📌</button><button class="key minus" onclick="pressMinus()">−</button><button class="key del" onclick="backspace()">⌫</button><button class="key" onclick="pressDigit('7')">7</button><button class="key" onclick="pressDigit('8')">8</button><button class="key" onclick="pressDigit('9')">9</button><button class="key plus" onclick="commit()">+</button><button class="key" onclick="pressDigit('4')">4</button><button class="key" onclick="pressDigit('5')">5</button><button class="key" onclick="pressDigit('6')">6</button><button class="key" onclick="pressDigit('1')">1</button><button class="key" onclick="pressDigit('2')">2</button><button class="key" onclick="pressDigit('3')">3</button><button class="key enter" onclick="enterKey()">↵</button><button class="key zero" onclick="pressDigit('0')">0</button><button class="key dot" onclick="dotKey()">.</button></div><button class="clear" onclick="clearBuffer()">× ล้าง</button><div class="help">Subkey 6C: คีย์โพย + เช็กเลขอั้นเท่านั้น · ไม่ตรวจรางวัล ไม่โชว์ยอดจ่ายเจ้ามือ</div></div></div>
+<div class="panel right"><div class="panel-head"><span>⌨️ คีย์เลข</span><span id="workStatus">พร้อม</span></div><div class="panel-body key-wrap"><div class="summary-grid"><div class="sum-card"><small>โพยเก็บแล้ว</small><b id="sumSlips">0</b></div><div class="sum-card"><small>รายการรวม</small><b id="sumItems">0</b></div><div class="sum-card"><small>ยอดรวม</small><b id="sumGrand">฿0</b></div></div><div class="pending-line"><span id="pendingText">ชุดใหม่ยังไม่เก็บ</span><button class="btn small" onclick="savePendingSlip()">เก็บ</button></div><div class="save-line" id="saveLine">ยังไม่บันทึก</div><div class="status-line" id="statusLine">กำลังคีย์</div><div class="display"><div id="screen">—</div><div id="hint">กดเลข<br>แล้ว ↵</div></div><div id="typeRow" class="type-row"><button id="slot-bon" class="tbtn">บน</button><button id="slot-tod" class="tbtn">โต๊ด</button><button id="slot-lang" class="tbtn">ล่าง</button><button id="slot-na" class="tbtn na-col">หน้า</button></div><div class="keypad"><button class="key top" onclick="pressSlash()">/</button><button class="key pin" onclick="openPin()">📌</button><button class="key minus" onclick="pressMinus()">−</button><button class="key del" onclick="backspace()">⌫</button><button class="key" onclick="pressDigit('7')">7</button><button class="key" onclick="pressDigit('8')">8</button><button class="key" onclick="pressDigit('9')">9</button><button class="key plus" onclick="commit()">+</button><button class="key" onclick="pressDigit('4')">4</button><button class="key" onclick="pressDigit('5')">5</button><button class="key" onclick="pressDigit('6')">6</button><button class="key" onclick="pressDigit('1')">1</button><button class="key" onclick="pressDigit('2')">2</button><button class="key" onclick="pressDigit('3')">3</button><button class="key enter" onclick="enterKey()">↵</button><button class="key zero" onclick="pressDigit('0')">0</button><button class="key dot" onclick="dotKey()">.</button></div><button class="clear" onclick="clearBuffer()">× ล้าง</button><div class="help">Subkey 6D: คีย์โพย + เช็กเลขอั้นเท่านั้น · ไม่ตรวจรางวัล ไม่โชว์ยอดจ่ายเจ้ามือ</div></div></div>
 </div></div>
 <div id="pinModal" class="modal"><div class="box small"><div class="box-head"><div class="box-title">📌 ปักหลัก</div><div id="pinNum" class="box-num">-</div><button class="close" onclick="closePin()">×</button></div><div class="box-body"><div class="lbl">ประเภท</div><div class="seg type"><button id="pinTypeBon" onclick="setPinType('bon')">บน</button><button id="pinTypeLang" onclick="setPinType('lang')">ล่าง</button></div><div class="lbl">ตำแหน่ง</div><div id="pinPosWrap" class="seg pos3"></div><div class="lbl">ราคา</div><input id="pinPrice" class="pin-price" inputmode="numeric" value=""><div class="actions"><button class="cancel" onclick="closePin()">ยกเลิก</button><button class="add" onclick="addPin()">+ เพิ่มรายการ</button></div></div></div></div>
 <div id="limitModal" class="modal"><div class="box"><div class="box-head"><div class="box-title" id="limitTitle">เลขอั้นเอเยนต์</div><button class="close" onclick="closeLimitModal()">×</button></div><div class="box-body"><div class="note">เลขอั้นที่ตั้งใน Subkey จะมีผลก่อน Master และจะถูก Export กลับไปให้ Master เห็นด้วย</div><button class="btn green small" onclick="addLocalLimitRow()">+ เพิ่มเลขอั้น</button><div style="height:8px"></div><div id="limitRows"></div><div style="height:10px"></div><button class="btn gold full" onclick="saveLocalLimitRows()">บันทึกเลขอั้นเอเยนต์นี้</button></div></div></div>
@@ -295,7 +295,7 @@ function limitBadge(it){
 
 
 /* =========================================================
-   SUBKEY STEP 6C LIMIT POPUP FIX — wrapper only, does not touch Core Key Engine
+   SUBKEY STEP 6D LIMIT POPUP FIX — wrapper only, does not touch Core Key Engine
    Fixes:
    1) ปุ่มระดับ/ประเภทกดแล้วไม่ลบเลข
    2) เพิ่มเลขอั้นหลายตัวด้วย / ได้ เช่น 52/54/78 หรือ 1/2/4/6
@@ -335,7 +335,7 @@ function renderLimitRows(){
   document.getElementById('limitRows').innerHTML=`<div class="limit-new-box">
     <div class="limit-new-title"><span>+ เพิ่มเลขอั้นแบบเร็ว</span><span class="pill">${rows.length} รายการ</span></div>
     <div class="warning">Subkey ตั้งเองมีสิทธิ์ก่อน Master · ใส่หลายเลขได้ด้วย / เช่น 52/54/78 หรือ 1/2/4/6</div>
-    <div class="limit-quick-grid"><input id="subLimQuickNum" class="input" placeholder="เลข เช่น 52/54/78" inputmode="numeric" value="${esc(st.number||'')}" oninput="setSubLimitDraft('number',this.value)"><input id="subLimQuickNote" class="input" placeholder="หมายเหตุ" value="${esc(st.note||'Subkey ตั้งเอง')}" oninput="setSubLimitDraft('note',this.value)"></div>
+    <div class="limit-quick-grid"><input id="subLimQuickNum" class="input" placeholder="เลข เช่น 52/54/78" inputmode="numeric" value="${esc(st.number||'')}" oninput="setSubLimitDraft('number',this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();addSubLimitQuick()}"><input id="subLimQuickNote" class="input" placeholder="หมายเหตุ" value="${esc(st.note||'Subkey ตั้งเอง')}" oninput="setSubLimitDraft('note',this.value)"></div>
     <div class="limit-chip-row">${levelBtns}</div><div class="limit-chip-row">${typeBtns}</div>
     <div style="display:flex;justify-content:flex-end;margin-top:8px"><button type="button" class="btn green" onclick="addSubLimitQuick()">+ เพิ่มเลขอั้น</button></div>
   </div>
@@ -353,6 +353,28 @@ function addSubLimitQuick(){
 function editSubLimitQuick(idx){const rows=currentLimitRows();const r=rows[idx];if(!r)return;subLimitUiState.level=r.level||'closed';subLimitUiState.types=[r.type||LIMIT_TYPES[market][0]];subLimitUiState.number=r.number||'';subLimitUiState.note=r.note||'Subkey ตั้งเอง';renderLimitRows();setTimeout(()=>document.getElementById('subLimQuickNum')?.focus(),30)}
 function deleteLocalLimitRow(i){currentLimitRows().splice(i,1);saveData();renderLimitRows()}
 function saveLocalLimitRows(){saveData();closeLimitModal();alert('บันทึกเลขอั้นเอเยนต์แล้ว')}
+
+
+/* SUBKEY STEP 6D: limit popup keyboard focus helper */
+(function(){
+  const _oldOpenLimitModal = typeof openLimitModal === 'function' ? openLimitModal : null;
+  if(_oldOpenLimitModal){
+    window.openLimitModal=function(agentId){
+      const r=_oldOpenLimitModal(agentId);
+      setTimeout(()=>document.getElementById('subLimQuickNum')?.focus(),60);
+      return r;
+    };
+  }
+  const _oldRenderLimitRows = typeof renderLimitRows === 'function' ? renderLimitRows : null;
+  if(_oldRenderLimitRows){
+    window.renderLimitRows=function(){
+      const before=document.activeElement&&document.activeElement.id;
+      const r=_oldRenderLimitRows();
+      if(before==='subLimQuickNum' || !before)setTimeout(()=>document.getElementById('subLimQuickNum')?.focus(),20);
+      return r;
+    };
+  }
+})();
 
 document.addEventListener('keydown',e=>{if(e.target&&['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;if(e.key>='0'&&e.key<='9'){e.preventDefault();pressDigit(e.key)}else if(e.key==='Enter'){e.preventDefault();enterKey()}else if(e.key==='+'){e.preventDefault();commit()}else if(e.key==='.'){e.preventDefault();dotKey()}else if(e.key==='/'){e.preventDefault();pressSlash()}else if(e.key==='*'){e.preventDefault();openPin()}else if(e.key==='Backspace'){e.preventDefault();backspace()}else if(e.key==='Escape'){e.preventDefault();clearBuffer()}});
 render();
