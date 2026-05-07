@@ -62,7 +62,7 @@ html,body{height:100%;overflow:hidden}body{font-family:Arial,"Sarabun",sans-seri
 <script>
 const LABEL={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
 const MARKET_RULES={thai:{name:'ไทย',slotOrder:{1:['bon','lang'],2:['bon','lang','tod','na'],3:['bon','tod','lang','na'],4:['tod'],5:['tod']}},lao:{name:'ลาว',slotOrder:{1:['bon','lang'],2:['bon','lang','tod'],3:['bon','tod','lang'],4:['bon','tod'],5:['tod']}}};
-const LIMIT_TYPES={thai:['บน','โต๊ด','ล่าง','หน้า','กลับ','ชุด','ปักหลักบน','ปักหลักล่าง'],lao:['บน','โต๊ด','ล่าง','กลับ','ชุด','ปักบน','ปักล่าง']};
+const LIMIT_TYPES={thai:['บน','โต๊ด','ล่าง','หน้า','กลับ','ชุด'],lao:['บน','โต๊ด','ล่าง','กลับ','ชุด']};
 const LIMIT_LEVELS=[['closed','ปิดรับ'],['pay50','จ่าย 50%'],['pay20','จ่าย 20%'],['custom','กำหนดเอง']];
 let work=null,market='thai',rules=MARKET_RULES.thai,STORAGE_KEY='',agents=[],activeAgentId='',activeCustomerName='',pendingItems=[],editSlipRef=null,editingSlipId=null,_saveTimer=null;
 let leksText='',phase='lek',slots=[],slotIndex=0,priceBuf='',pin={type:'bon',positions:{hundred:true,ten:true,unit:true}},savePicker={agentId:'',customerId:'',agentQ:'',customerQ:''};
@@ -372,6 +372,98 @@ function saveLocalLimitRows(){saveData();closeLimitModal();alert('บันท�
       const r=_oldRenderLimitRows();
       if(before==='subLimQuickNum' || !before)setTimeout(()=>document.getElementById('subLimQuickNum')?.focus(),20);
       return r;
+    };
+  }
+})();
+
+/* =========================================================
+   SUBKEY STEP 6E LIMIT MODE FIX — wrapper only
+   - Remove ปักหลัก from limit popup/types
+   - Fix กลับ/ชุด limit warning by permutation matching for 2-3 digits
+   - Keep โต๊ด behavior unchanged
+========================================================= */
+(function(){
+  function noPinType(t){return !/^ปัก/.test(String(t||'').trim());}
+  try{
+    if(typeof LIMIT_TYPES!=='undefined'){
+      ['thai','lao'].forEach(m=>{
+        if(Array.isArray(LIMIT_TYPES[m]))LIMIT_TYPES[m]=LIMIT_TYPES[m].filter(noPinType);
+      });
+    }
+  }catch(e){}
+  function cleanLocalPinLimits(){
+    try{
+      if(typeof subkeyLocalLimits!=='undefined' && subkeyLocalLimits){
+        Object.keys(subkeyLocalLimits).forEach(agentId=>{
+          ['thai','lao'].forEach(m=>{
+            const arr=subkeyLocalLimits[agentId]&&subkeyLocalLimits[agentId][m];
+            if(Array.isArray(arr))subkeyLocalLimits[agentId][m]=arr.filter(r=>noPinType(r&&r.type));
+          });
+          if(Array.isArray(subkeyLocalLimits[agentId])){
+            subkeyLocalLimits[agentId]=subkeyLocalLimits[agentId].filter(r=>noPinType(r&&r.type));
+          }
+        });
+      }
+    }catch(e){}
+  }
+  cleanLocalPinLimits();
+
+  function digits(v){return String(v||'').replace(/\D/g,'');}
+  function sorted(v){return digits(v).split('').sort().join('');}
+  function aliases(type){
+    const t=String(type||'').trim();
+    if(t==='bon'||t==='บน')return ['บน','bon'];
+    if(t==='tod'||t==='โต๊ด')return ['โต๊ด','tod'];
+    if(t==='lang'||t==='ล่าง')return ['ล่าง','lang'];
+    if(t==='na'||t==='หน้า')return ['หน้า','na'];
+    if(t==='กลับ')return ['กลับ'];
+    if(t==='ชุด')return ['ชุด'];
+    return [t];
+  }
+  // override binding used by t999LimitMatchRow: กลับ/ชุด ดูจาก note ทั้ง main/follow
+  try{
+    t999LimitItemType=function(it){
+      if(it&&it.note==='กลับ')return 'กลับ';
+      if(it&&it.note==='ชุด')return 'ชุด';
+      if(it&&it.type==='tod')return 'โต๊ด';
+      if(it&&it.type==='lang')return 'ล่าง';
+      if(it&&it.type==='na')return 'หน้า';
+      return 'บน';
+    };
+  }catch(e){}
+
+  try{
+    t999LimitMatchRow=function(row,it){
+      row=t999NormalizeLimitRow(row);
+      if(!noPinType(row.type))return false;
+      const betNum=digits(itemNumber(it));
+      const rowNum=digits(row.number);
+      if(!betNum||!rowNum)return false;
+      const rowAliases=aliases(row.type);
+      const itemAliases=aliases(t999LimitItemType(it));
+      const typeMatch=!row.type || rowAliases.some(x=>itemAliases.includes(x));
+      if(!typeMatch)return false;
+      if(rowNum===betNum)return true;
+
+      const sameLen=rowNum.length===betNum.length;
+      const sameSet=sorted(rowNum)===sorted(betNum);
+      const lenOK=rowNum.length===2 || rowNum.length===3;
+
+      // โต๊ด: เฉพาะแทงโต๊ดเท่านั้นจึงแจ้งสลับหลัก
+      if(rowAliases.includes('โต๊ด') && sameLen && sameSet)return true;
+
+      // กลับ/ชุด: แจ้งโหมดกลับ/ชุดแบบสลับหลัก ทั้ง 2 และ 3 ตัว
+      if((rowAliases.includes('กลับ')||rowAliases.includes('ชุด')) && lenOK && sameLen && sameSet)return true;
+
+      return false;
+    };
+  }catch(e){}
+
+  const _oldOpenLimitModal=typeof openLimitModal==='function'?openLimitModal:null;
+  if(_oldOpenLimitModal){
+    window.openLimitModal=function(agentId){
+      cleanLocalPinLimits();
+      return _oldOpenLimitModal(agentId);
     };
   }
 })();
