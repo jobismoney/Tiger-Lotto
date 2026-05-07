@@ -1,0 +1,2480 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>T999 V2 Master Step 5B Paper Slip Fix1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f1117;--card:#1a1d27;--card2:#222533;--line:#30364a;
+  --gold:#f5c518;--gold2:#c9a010;--muted:#9ca3af;--white:#f0f2ff;
+  --blue:#60a5fa;--pink:#f472b6;--green:#34d399;--orange:#fb923c;
+  --red:#ef4444;--purple:#a78bfa;--na-col:1fr
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:Arial,"Sarabun",sans-serif;background:var(--bg);color:var(--white)}
+body.lao-mode{--na-col:0px}
+body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
+.hidden{display:none!important}
+.app{height:100vh;display:flex;flex-direction:column}
+.header{height:60px;flex-shrink:0;background:linear-gradient(135deg,#1a1d27,#10131d);border-bottom:2px solid var(--gold);display:flex;align-items:center;justify-content:space-between;padding:8px 14px}
+.logo{font-size:22px;font-weight:900;color:var(--gold)}
+.sub{font-size:12px;color:var(--muted);margin-top:2px}
+.head-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.mode-link{color:var(--muted);text-decoration:none;font-weight:900;border:1px solid var(--line);background:var(--card2);padding:8px 12px;border-radius:10px;font-size:13px}
+.mode-link.on{background:var(--gold);color:#111;border-color:var(--gold)}
+.main{flex:1;min-height:0;display:grid;grid-template-columns:270px 1fr 390px;gap:8px;padding:8px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-height:0;display:flex;flex-direction:column}
+.panel-head{height:42px;background:var(--card2);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:14px;font-weight:900;color:#c7d2fe;gap:8px}
+.panel-body{flex:1;min-height:0;overflow:auto;padding:8px}
+.btn{border:1px solid var(--line);background:#1b2030;color:#dbeafe;border-radius:9px;height:38px;font-weight:900;font-size:14px;cursor:pointer;padding:0 12px}
+.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:0}
+.btn.green{background:#20a85a;color:#fff;border:0}
+.btn.red{background:#321019;color:#ff9aa9;border:1px solid #7f1d1d}
+.btn.purple{background:#2e1a45;color:#e9d5ff;border:1px solid #7e22ce}
+.btn.full{width:100%;margin-bottom:8px}
+.btn.small{height:32px;font-size:12px;padding:0 10px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.agent-card{background:#222638;border:1px solid var(--line);border-radius:10px;padding:9px;margin-bottom:8px;cursor:pointer}
+.agent-card.active{border-color:var(--gold);background:rgba(245,197,24,.08)}
+.agent-name{font-weight:900;font-size:16px;display:flex;justify-content:space-between;gap:6px}
+.agent-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.agent-total{font-size:18px;color:var(--gold);font-weight:900;margin-top:6px}
+.customer-row{padding-left:8px;margin-top:5px;color:#cbd5e1;font-size:12px;border-left:2px solid #334155;line-height:1.45}
+.slip-row{padding-left:10px;color:#94a3b8;font-size:11px;margin-top:3px;cursor:pointer;display:flex;justify-content:space-between;gap:6px}
+.slip-row:hover{color:#f5c518}
+.mini-del{background:#321019;color:#ff9aa9;border:1px solid #7f1d1d;border-radius:6px;padding:1px 6px;font-size:10px;font-weight:900;cursor:pointer}
+.agent-actions{display:flex;gap:6px;margin-top:7px}
+.agent-actions button{height:26px;font-size:11px;border-radius:7px;padding:0 8px}
+.table-head,.table-row{display:grid;grid-template-columns:90px 1fr 1fr 1fr var(--na-col) 34px;gap:2px;align-items:center}
+.table-head{background:#252938;border-bottom:1px solid var(--line);padding:7px 10px;color:#aeb8d4;font-size:13px;font-weight:900;text-align:center}
+.table-head span:first-child{text-align:left}
+.table-list{flex:1;min-height:0;overflow:auto}
+.table-row{padding:7px 10px;border-bottom:1px solid var(--line);font-size:14px}
+.lek{font-size:19px;font-weight:900;color:var(--gold)}
+.lek.follow{color:var(--purple);font-size:16px;padding-left:9px}
+.lek.pinlek{line-height:1.15}
+.lek .pin-main{display:block;font-size:21px;color:var(--gold);font-weight:900}
+.lek .pin-badge{display:inline-block;margin-top:3px;padding:2px 7px;border-radius:999px;background:rgba(251,146,60,.14);border:1px solid #fb923c;color:#ffd7a3;font-size:10px;font-weight:900;white-space:nowrap}
+.cell .pin-cell{display:inline-block;padding:3px 7px;border-radius:999px;background:rgba(251,146,60,.14);border:1px solid #fb923c;color:#ffd7a3;font-size:11px;font-weight:900;white-space:nowrap}
+.cell{text-align:center;font-weight:900;color:#3c425a}
+.cell.has{color:#f0f2ff}
+.cell.bon{color:#bfdbfe}.cell.tod{color:#fbcfe8}.cell.lang{color:#bbf7d0}.cell.na{color:#fed7aa}
+.delbtn{border:0;background:transparent;color:var(--red);font-size:18px;cursor:pointer}
+.empty{padding:28px;text-align:center;color:var(--muted);font-weight:800}
+.table-total{height:48px;background:var(--card2);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 12px}
+.table-total span{color:var(--muted);font-weight:900}.table-total b{color:var(--gold);font-size:24px}
+.key-wrap{display:flex;flex-direction:column;gap:8px;height:100%}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.sum-card{background:#151824;border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}
+.sum-card small{display:block;color:var(--muted);font-size:11px;font-weight:900}.sum-card b{display:block;color:var(--gold);font-size:18px;margin-top:3px}
+.save-line{background:#0f1d16;border:1px solid #184d2b;border-radius:8px;padding:6px 8px;color:#86efac;font-size:12px;font-weight:900;text-align:right}
+.status-line{background:#151824;border:1px solid #202538;border-radius:8px;padding:6px 8px;color:var(--gold);font-size:12px;font-weight:900;text-align:right}
+.workspace-line{background:#111827;border:1px solid #334155;border-radius:8px;padding:7px 8px;color:#cbd5e1;font-size:12px;font-weight:900;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.workspace-line span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.display{min-height:58px;background:#0b0e18;border:2px solid var(--line);border-radius:12px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+#screen{font-size:31px;font-weight:900;color:var(--gold);word-break:break-all;line-height:1.05}
+#hint{min-width:92px;text-align:right;font-size:10px;color:var(--muted);line-height:1.5}
+.type-row{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.type-row.thai{grid-template-columns:repeat(4,1fr)}
+.tbtn{height:34px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--muted);font-size:15px;font-weight:900;position:relative;cursor:pointer}
+.tbtn.active.bon{background:rgba(96,165,250,.18);border-color:var(--blue);color:#bfdbfe}
+.tbtn.active.tod{background:rgba(244,114,182,.18);border-color:var(--pink);color:#fbcfe8}
+.tbtn.active.lang{background:rgba(52,211,153,.18);border-color:var(--green);color:#bbf7d0}
+.tbtn.active.na{background:rgba(251,146,60,.18);border-color:var(--orange);color:#fed7aa}
+.tbtn.done:after{content:"✓";position:absolute;right:6px;top:4px;font-size:10px;color:var(--gold)}
+.tbtn.rev:before{content:"กลับ";position:absolute;left:4px;bottom:2px;font-size:9px;color:var(--gold)}
+.tbtn.rev3:before{content:"ชุด";position:absolute;left:4px;bottom:2px;font-size:9px;color:var(--gold)}
+.keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;flex:1;min-height:0}
+.key{border:1px solid var(--line);border-radius:8px;background:#191d2a;color:#f0f2ff;font-size:22px;font-weight:900;min-height:48px;cursor:pointer}
+.key.top{font-size:20px;color:var(--purple)}.key.pin{color:#ff5fa2;background:#2a1724;border-color:#5b213f}
+.key.minus{color:var(--gold);background:#24220e;border-color:#64530c}.key.del{color:#ff6b6b}
+.key.plus{background:#20a85a;color:white;border-color:#20a85a;grid-row:span 2}.key.enter{background:#12305a;color:#8ec5ff;border-color:#275d9c;grid-row:span 2}
+.key.dot{color:var(--gold);background:#221b0a;border-color:#634b08}.key.zero{grid-column:span 2}
+.clear{height:36px;border-radius:8px;border:1px solid #7f1d1d;background:#2b0f19;color:#ff6b6b;font-weight:900;font-size:15px;cursor:pointer}
+.help{color:var(--muted);font-size:11px;line-height:1.5}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}.modal.show{display:flex}
+.box{width:100%;max-width:340px;background:#202332;border:2px solid var(--gold);border-radius:15px;overflow:hidden}
+.box-head{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #34394f}
+.box-title{color:var(--gold);font-weight:900}.box-num{font-size:26px;font-weight:900}
+.close{background:#242938;border:1px solid #4b5563;color:#cbd5e1;font-size:22px;border-radius:8px;width:34px;height:34px;cursor:pointer}
+.box-body{padding:14px}.lbl{font-size:11px;color:#7b8192;font-weight:900;margin:0 0 6px}
+.seg{display:grid;gap:7px;margin-bottom:12px}.seg.type{grid-template-columns:repeat(2,1fr)}.seg.pos3{grid-template-columns:repeat(3,1fr)}.seg.pos2{grid-template-columns:repeat(2,1fr)}
+.seg button{height:45px;border-radius:8px;border:1px solid #374151;background:#141827;color:#9ca3af;font-weight:900;cursor:pointer}
+.seg button.on{color:var(--gold);border-color:var(--gold);background:rgba(245,197,24,.13)}
+.seg small{display:block;font-size:10px;color:#788094;margin-top:2px}
+.pin-price{width:100%;height:45px;border-radius:8px;border:1px solid var(--gold);background:#e7eefc;color:#000;font-size:22px;font-weight:900;text-align:center;outline:none;margin-bottom:12px}
+.actions{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}.actions button{height:40px;border:0;border-radius:8px;font-size:14px;font-weight:900;cursor:pointer}.cancel{background:#111827;color:#667085}.add{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111}
+
+/* Agent Modal */
+.agent-modal{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:center;justify-content:center;padding:16px;z-index:80}
+.agent-modal.show{display:flex}
+.agent-box{width:min(1050px,96vw);max-height:92vh;background:#151824;border:2px solid var(--gold);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.agent-box-head{min-height:58px;background:#202332;border-bottom:1px solid #34394f;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px}
+.agent-box-title{font-size:20px;font-weight:900;color:var(--gold)}.agent-box-sub{font-size:12px;color:#94a3b8;margin-top:2px}
+.agent-box-close{width:38px;height:38px;border-radius:9px;background:#242938;border:1px solid #4b5563;color:#cbd5e1;font-size:24px;font-weight:900;cursor:pointer}
+.agent-box-body{padding:12px;overflow:auto}
+.agent-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.agent-sum-card{background:#0f1117;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}.agent-sum-card small{display:block;color:var(--muted);font-size:11px;font-weight:900}.agent-sum-card b{display:block;color:var(--gold);font-size:20px;margin-top:4px}
+.agent-tabs{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap}.agent-tab{height:34px;border-radius:9px;border:1px solid var(--line);background:#1b2030;color:#cbd5e1;font-weight:900;padding:0 12px;cursor:pointer}.agent-tab.on{background:var(--gold);color:#111;border-color:var(--gold)}
+.agent-section{background:#0f1117;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
+.customer-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px;background:#1b2030;border-radius:10px;margin-bottom:7px}.customer-title{font-weight:900;color:#fff}.customer-meta{font-size:12px;color:#94a3b8;margin-top:2px}
+.agent-slip{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#151824;border:1px solid #2a3042;border-radius:9px;padding:8px;margin:5px 0 5px 10px}.agent-slip-title{font-weight:900;color:#cbd5e1;font-size:13px}.agent-slip-meta{font-size:11px;color:#94a3b8;margin-top:2px}
+.placeholder-box{background:#111827;border:1px dashed #475569;border-radius:12px;padding:16px;color:#94a3b8;line-height:1.6;font-size:13px}
+
+/* Step 5B Paper Slip */
+.paper-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:16px;z-index:95}
+.paper-modal.show{display:flex}.paper-shell{width:min(1120px,98vw);max-height:94vh;background:#151824;border:2px solid var(--gold);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}.paper-head{min-height:58px;background:#202332;border-bottom:1px solid #34394f;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px}.paper-title{font-size:20px;font-weight:900;color:var(--gold)}.paper-sub{font-size:12px;color:#94a3b8;margin-top:2px}.paper-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}.paper-body{padding:14px;overflow:auto;background:#0f1117}.paper-page-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}.paper-page{width:900px;max-width:100%;min-height:620px;background:#fff;color:#111;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.35);padding:16px 22px;font-family:Arial,"Sarabun",sans-serif}.paper-page.compact{width:900px;min-height:520px}.paper-top{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:8px}.paper-brand{font-size:22px;font-weight:900;letter-spacing:.2px}.paper-brand small{font-size:13px;font-weight:900;color:#333;margin-left:4px}.paper-info{font-size:12px;line-height:1.55;margin-top:3px;color:#333}.paper-id{text-align:right;font-size:12px;line-height:1.55;color:#333;min-width:190px}.paper-id b{font-size:16px;color:#111}.paper-list{min-height:330px;padding:4px 0 8px}.paper-bet-row{display:grid;grid-template-columns:56px 20px 1fr;gap:8px;align-items:start;min-height:28px;border-bottom:1px dashed #cfcfcf;padding:4px 0;font-size:18px;font-weight:900}.paper-bet-row .eq{color:#777;text-align:center}.paper-bet-row .desc{font-size:14px;font-weight:900;color:#222;line-height:1.4;padding-top:2px}.paper-bet-row .limit{display:inline-block;margin-left:6px;font-size:10px;border:1px solid #d97706;background:#fff7ed;color:#9a3412;border-radius:999px;padding:1px 6px;vertical-align:middle}.paper-summary{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;border-top:1.5px solid #111;border-bottom:1.5px solid #111}.paper-summary th,.paper-summary td{border-bottom:1px solid #d6d6d6;padding:6px 8px;text-align:center;font-weight:900}.paper-summary th{font-size:12px;color:#333;border-bottom:1px solid #111}.paper-summary .left{text-align:left;color:#555}.paper-page-total{display:flex;justify-content:space-between;gap:10px;align-items:flex-end;margin-top:12px;font-size:16px;font-weight:900}.paper-page-total b{font-size:26px}.paper-qrbox{width:96px;height:96px;border:2px dashed #111;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;line-height:1.25;margin-left:auto;color:#111;word-break:break-all;padding:5px}.paper-footer{font-size:10px;color:#777;text-align:right;margin-top:8px;border-top:1px solid #eee;padding-top:5px}.paper-scan-payload{display:none}.paper-total-card{border:1px solid #111;border-radius:8px;overflow:hidden;margin-top:8px}.paper-total-card .paper-page-total{padding:10px 14px;margin:0;border-top:1px solid #111;background:#fff}@media(max-width:760px){.paper-head{align-items:flex-start;flex-direction:column}.paper-actions{justify-content:flex-start}.paper-page{width:100%;padding:12px}.paper-bet-row{grid-template-columns:48px 14px 1fr;font-size:16px}.paper-id{text-align:left}.paper-top{flex-direction:column}.paper-summary{font-size:11px}.paper-summary th,.paper-summary td{padding:5px 3px}}
+
+
+/* Step 4A/4B */
+.config-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.rate-grid{display:grid;grid-template-columns:1.25fr .75fr .75fr;gap:7px;align-items:center}
+.grid-head{background:#1b2030;color:var(--gold);font-size:12px;font-weight:900;text-align:center;border-radius:8px;padding:8px}
+.type-cell{color:#dbeafe;font-weight:900;background:#151824;border:1px solid #2a3042;border-radius:8px;padding:9px;min-height:38px}
+.input,.select{width:100%;height:38px;border-radius:8px;border:1px solid #475569;background:#e7eefc;color:#000;font-weight:900;text-align:center;outline:none}
+.input.left{text-align:left;padding-left:8px}
+.limit-grid{display:grid;grid-template-columns:1fr 1fr 1fr .8fr .8fr 1.2fr 42px;gap:7px;align-items:center}
+.note{color:#94a3b8;font-size:12px;line-height:1.55}
+.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#111827;border:1px solid #334155;color:#cbd5e1;font-size:11px;font-weight:900}
+.warn{background:#261d0a;border:1px solid #7c5e12;color:#fbbf24;border-radius:10px;padding:9px;font-size:12px;line-height:1.5;margin-bottom:8px}
+@media(max-width:900px){.main{grid-template-columns:1fr;padding:6px;overflow:auto}.panel.left{display:none}.panel.center{min-height:330px}.panel.right{min-height:560px}.head-right{gap:4px}.logo{font-size:18px}}
+@media(max-width:700px){.agent-summary{grid-template-columns:repeat(2,1fr)}.agent-box{width:98vw}.agent-box-body{padding:8px}.rate-grid{grid-template-columns:1fr .75fr .75fr}.limit-grid{grid-template-columns:1fr 1fr}.limit-grid .grid-head{display:none}}
+
+.keytest-pin{display:inline-block;color:#ff8a3d;font-size:17px;font-weight:900;white-space:nowrap}
+
+/* Step 6B Limit UI */
+.limit-new-box{background:#0f1117;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.limit-new-title{font-weight:900;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.limit-quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.limit-quick-grid.three{grid-template-columns:1fr 1fr 1fr}
+.limit-chip-row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.limit-chip{height:34px;border-radius:999px;border:1px solid #334155;background:#151824;color:#cbd5e1;font-weight:900;padding:0 12px;cursor:pointer}
+.limit-chip.on{background:rgba(245,197,24,.16);border-color:var(--gold);color:var(--gold)}
+.limit-chip.level-closed.on{background:rgba(239,68,68,.18);border-color:#ef4444;color:#fecaca}
+.limit-chip.level-pay50.on,.limit-chip.level-pay20.on{background:rgba(245,197,24,.16);border-color:var(--gold);color:var(--gold)}
+.limit-chip.level-custom.on{background:rgba(167,139,250,.18);border-color:#a78bfa;color:#e9d5ff}
+.limit-card-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.limit-card{background:#151824;border:1px solid #30364a;border-radius:12px;padding:10px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.limit-card-main{min-width:0}.limit-card-num{font-size:20px;font-weight:900;color:var(--gold)}
+.limit-card-meta{font-size:12px;color:#cbd5e1;margin-top:3px;line-height:1.45}.limit-card-note{font-size:11px;color:#94a3b8;margin-top:3px}
+.limit-card-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+.limit-search{margin:8px 0}.limit-small-note{font-size:12px;color:#94a3b8;line-height:1.55;margin-top:6px}
+@media(max-width:800px){.limit-quick-grid,.limit-quick-grid.three{grid-template-columns:1fr}.limit-card{align-items:flex-start;flex-direction:column}.limit-card-actions{width:100%;justify-content:flex-start}}
+
+</style>
+</head>
+<body>
+<input id="importFile" type="file" accept=".json,application/json" style="display:none" onchange="handleImportFile(event)">
+<div class="app">
+  <div class="header">
+    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 4H</div></div>
+    <div class="head-right">
+      <a id="thaiLink" class="mode-link" href="?market=thai">TH ไทย</a>
+      <a id="laoLink" class="mode-link" href="?market=lao">LA ลาว</a>
+      <button class="btn purple small" onclick="openBaseConfig('rates')">เรท/อั้นกลาง</button>
+      <button class="btn small" onclick="openRoundSummary(event)">สรุปทั้งงวด</button>
+      <button class="btn small" onclick="openBaseConfig('prize')">ผลรางวัล</button>
+      <button class="btn gold small" onclick="setWorkspace()">ตั้งงวด</button>
+      <button class="btn small" onclick="manualSave()">บันทึก</button>
+      <button class="btn red small" onclick="clearLocalData()">ล้างเครื่อง</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="panel left">
+      <div class="panel-head"><span>📁 แฟ้ม / เอเยนต์</span><span id="agentCount">0</span></div>
+      <div class="panel-body">
+        <button class="btn full gold" onclick="addAgent()">+ เพิ่มเอเยนต์</button>
+        <button class="btn full purple" onclick="exportSubkeyWorkspace()">สร้างไฟล์งานลูกน้อง</button>
+        <button class="btn full" onclick="exportJson()">Export JSON</button>
+        <button class="btn full green" onclick="importJson()">Import JSON</button>
+        <button class="btn full red" onclick="deleteSubkeySession()">ลบงานลูกน้อง</button>
+        <div id="agentList"></div>
+      </div>
+    </div>
+
+    <div class="panel center">
+      <div class="panel-head">
+        <span>🧾 รายการ — <b id="activeAgentName">-</b></span>
+        <div style="display:flex;gap:6px">
+          <button class="btn small purple" onclick="openActiveAgentConfig()">เรท/อั้นเอเยนต์</button>
+          <button class="btn small" onclick="clearCurrentAgent()">ล้างแฟ้มนี้</button>
+        </div>
+      </div>
+      <div class="table-head"><span>เลข</span><span>บน</span><span>โต๊ด</span><span>ล่าง</span><span class="na-col">หน้า</span><span></span></div>
+      <div class="table-list" id="list"><div class="empty">ยังไม่มีรายการ</div></div>
+      <div class="table-total"><span>ยอดรวมแฟ้มนี้</span><b id="totalText">฿0</b></div>
+    </div>
+
+    <div class="panel right">
+      <div class="panel-head"><span>⌨️ คีย์เลข</span><span id="marketBadge">ไทย</span></div>
+      <div class="panel-body key-wrap">
+        <div class="summary-grid"><div class="sum-card"><small>เอเยนต์</small><b id="sumAgents">0</b></div><div class="sum-card"><small>รายการ</small><b id="sumItems">0</b></div><div class="sum-card"><small>รวมทั้งหมด</small><b id="sumGrand">฿0</b></div></div>
+        <div class="workspace-line"><span id="workspaceText">ยังไม่ได้ตั้งงวด</span><button class="btn small" onclick="setWorkspace()">แก้</button></div>
+        <div class="save-line" id="saveLine">ยังไม่บันทึก</div>
+        <div class="status-line" id="statusLine">กำลังคีย์</div>
+        <div class="display"><div id="screen">—</div><div id="hint">กดเลข<br>แล้ว ↵</div></div>
+        <div id="typeRow" class="type-row"><button id="slot-bon" class="tbtn" onclick="selectSlot('bon')">บน</button><button id="slot-tod" class="tbtn" onclick="selectSlot('tod')">โต๊ด</button><button id="slot-lang" class="tbtn" onclick="selectSlot('lang')">ล่าง</button><button id="slot-na" class="tbtn na-col" onclick="selectSlot('na')">หน้า</button></div>
+        <div class="keypad">
+          <button class="key top" onclick="pressSlash()">/</button><button class="key pin" onclick="openPin()">📌</button><button class="key minus" onclick="pressMinus()">−</button><button class="key del" onclick="backspace()">⌫</button>
+          <button class="key" onclick="pressDigit('7')">7</button><button class="key" onclick="pressDigit('8')">8</button><button class="key" onclick="pressDigit('9')">9</button><button class="key plus" onclick="commit()">+</button>
+          <button class="key" onclick="pressDigit('4')">4</button><button class="key" onclick="pressDigit('5')">5</button><button class="key" onclick="pressDigit('6')">6</button>
+          <button class="key" onclick="pressDigit('1')">1</button><button class="key" onclick="pressDigit('2')">2</button><button class="key" onclick="pressDigit('3')">3</button><button class="key enter" onclick="enterKey()">↵</button>
+          <button class="key zero" onclick="pressDigit('0')">0</button><button class="key dot" onclick="dotKey()">.</button>
+        </div>
+        <button id="folderActionBtn" class="btn full gold" onclick="folderAction()">เก็บเข้าแฟ้ม</button>
+        <button id="exitSlipEditBtn" class="btn full" style="display:none" onclick="closeSlipEditMode()">ออกจากโหมดแก้โพย</button>
+        <button class="clear" onclick="clearBuffer()">× ล้าง</button>
+        <div class="help">Step 5E Import Fix3: ใช้ชุดคีย์จาก Subkey + Import ถูกโครงสร้าง</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="agentModal" class="agent-modal">
+  <div class="agent-box">
+    <div class="agent-box-head">
+      <div>
+        <div class="agent-box-title" id="agentModalTitle">Agent Card</div>
+        <div class="agent-box-sub" id="agentModalSub">รายละเอียดเอเยนต์</div>
+      </div>
+      <button class="agent-box-close" onclick="closeAgentModal()">×</button>
+    </div>
+    <div class="agent-box-body">
+      <div class="agent-summary">
+        <div class="agent-sum-card"><small>ยอดรวมแทง</small><b id="agentSumTotal">฿0</b></div>
+        <div class="agent-sum-card"><small>ลูกค้า</small><b id="agentSumCustomers">0</b></div>
+        <div class="agent-sum-card"><small>โพย</small><b id="agentSumSlips">0</b></div>
+        <div class="agent-sum-card"><small>รายการ</small><b id="agentSumItems">0</b></div>
+      </div>
+      <div class="agent-tabs">
+        <button id="agentTabSlips" class="agent-tab on" onclick="setAgentTab('slips')">ลูกค้า/โพย</button>
+        <button id="agentTabRates" class="agent-tab" onclick="setAgentTab('rates')">เรทเอเยนต์</button>
+        <button id="agentTabLimits" class="agent-tab" onclick="setAgentTab('limits')">เลขอั้นเอเยนต์</button>
+        <button id="agentTabPrize" class="agent-tab" onclick="setAgentTab('prize')">ตรวจรางวัล</button>
+      </div>
+      <div id="agentModalContent"></div>
+    </div>
+  </div>
+</div>
+
+<div id="paperModal" class="paper-modal">
+  <div class="paper-shell">
+    <div class="paper-head">
+      <div><div class="paper-title">โพยกระดาษ</div><div class="paper-sub" id="paperSub">HTML Preview / Browser Print</div></div>
+      <div class="paper-actions">
+        <button class="btn small" onclick="closePaperSlip()">ปิด</button>
+        <button class="btn small" onclick="copyPaperOrSummaryText()">คัดลอกข้อความ</button>
+        <button class="btn small purple" onclick="exportPaperOrSummaryJSON()">Export JSON</button>
+        <button class="btn small gold" onclick="printPaperOrSummary()">พิมพ์</button>
+      </div>
+    </div>
+    <div class="paper-body"><div id="paperPreview" class="paper-page-wrap"></div></div>
+  </div>
+</div>
+
+<div id="pinModal" class="modal">
+  <div class="box">
+    <div class="box-head"><div class="box-title">📌 ปักหลัก</div><div id="pinNum" class="box-num">-</div><button class="close" onclick="closePin()">×</button></div>
+    <div class="box-body">
+      <div class="lbl">ประเภท</div><div class="seg type"><button id="pinTypeBon" onclick="setPinType('bon')">บน</button><button id="pinTypeLang" onclick="setPinType('lang')">ล่าง</button></div>
+      <div class="lbl">ตำแหน่ง</div><div id="pinPosWrap" class="seg pos3"></div>
+      <div class="lbl">ราคา</div><input id="pinPrice" class="pin-price" inputmode="numeric" value="">
+      <div class="actions"><button class="cancel" onclick="closePin()">ยกเลิก</button><button class="add" onclick="addPin()">+ เพิ่มรายการ</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const LABEL={bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
+const MARKET_RULES={
+  thai:{name:'ไทย',slotOrder:{1:['bon','lang'],2:['bon','lang','tod','na'],3:['bon','tod','lang','na'],4:['tod'],5:['tod']}},
+  lao:{name:'ลาว',slotOrder:{1:['bon','lang'],2:['bon','lang','tod'],3:['bon','tod','lang'],4:['bon','tod'],5:['tod']}}
+};
+const RATE_TYPES={
+  lao:['4ตัวบน','3ตัวบน','2ตัวบน','2ตัวล่าง','ลอยบน','ลอยล่าง','โต๊ด 2ตัว','โต๊ด 3ตัว','โต๊ด 4ตัว','โต๊ด 5ตัว','ปักบน','ปักล่าง'],
+  thai:['3ตัวบน','3ตัวหน้า','3ตัวล่าง','2ตัวบน','2ตัวหน้า','2ตัวล่าง','วิ่งบน','วิ่งล่าง','โต๊ด 3ตัว','โต๊ด 2ตัว','โต๊ด 4ตัว','โต๊ด 5ตัว','ปักหลักบน','ปักหลักล่าง']
+};
+const LIMIT_TYPES={lao:['บน','โต๊ด','ล่าง','กลับ','ชุด','ปักบน','ปักล่าง'],thai:['บน','โต๊ด','ล่าง','หน้า','กลับ','ชุด','ปักหลักบน','ปักหลักล่าง']};
+const LIMIT_LEVELS=[['closed','ปิดรับ'],['pay50','จ่าย 50%'],['pay20','จ่าย 20%'],['custom','กำหนดเอง']];
+const params=new URLSearchParams(location.search);
+let market=params.get('market')==='lao'?'lao':'thai';
+let rules=MARKET_RULES[market];
+const STORAGE_KEY='t999_v2_master_'+market+'_v4a';
+const PRIZE_HISTORY_KEY='t999_v2_prize_history_'+market;
+
+document.getElementById('thaiLink').className='mode-link '+(market==='thai'?'on':'');
+document.getElementById('laoLink').className='mode-link '+(market==='lao'?'on':'');
+document.body.classList.toggle('lao-mode',market==='lao');
+document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 5E Import Fix3';
+document.getElementById('marketBadge').textContent=rules.name;
+document.getElementById('typeRow').classList.toggle('thai',market==='thai');
+
+let workspace={workspaceId:'WS-'+market.toUpperCase()+'-'+Date.now(),market,marketName:rules.name,roundLabel:'',masterName:'Master',createdAt:Date.now(),updatedAt:Date.now()};
+let agents=[{id:'a1',name:'จอย',items:[],customers:[]},{id:'a2',name:'นายพล',items:[],customers:[]},{id:'a3',name:'บัญชา',items:[],customers:[]},{id:'a4',name:'แมน2',items:[],customers:[]},{id:'a5',name:'นา',items:[],customers:[]}];
+let activeAgentId='a1',activeSlipRef=null,currentPaperContext=null,_renderGroups=[],_saveTimer=null,leksText='',phase='lek',slots=[],slotIndex=0,priceBuf='',pin={type:'bon',positions:{hundred:true,ten:true,unit:true}};
+let agentModalAgentId=null,agentModalTab='slips';
+
+let rateLimitConfig=defaultRateLimitConfig();
+let prizeResult=defaultPrizeResult();
+let latestPrizeCheckReport=null;
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function uid(prefix){return prefix+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)}
+function money(n){return '฿'+Number(n||0).toLocaleString()}
+function safeName(s){return String(s||'file').replace(/[^\wก-ฮ0-9-]+/g,'_').slice(0,80)}
+function makeEmptyRates(m){const out={};RATE_TYPES[m].forEach(t=>out[t]={discount:0,pay:0});return out}
+function defaultRateLimitConfig(){return {version:'5E-ImportFix3',baseRates:{thai:makeEmptyRates('thai'),lao:makeEmptyRates('lao')},baseLimits:{thai:[],lao:[]},agentRates:{},agentLimits:{}}}
+function normalizeLimit(x){return {id:x&&x.id||uid('limit'),type:String(x&&x.type||''),number:String(x&&x.number||'').trim(),level:String(x&&x.level||'closed'),customPercent:Number(x&&x.customPercent||0),customPay:Number(x&&x.customPay||0),note:String(x&&x.note||'')}}
+function normalizeConfig(c){
+  const d=defaultRateLimitConfig(); c=c&&typeof c==='object'?c:{};
+  ['thai','lao'].forEach(m=>{
+    RATE_TYPES[m].forEach(t=>{
+      const r=c.baseRates&&c.baseRates[m]&&c.baseRates[m][t]||{};
+      d.baseRates[m][t]={discount:Number(r.discount||0),pay:Number(r.pay||0)};
+    });
+    d.baseLimits[m]=Array.isArray(c.baseLimits&&c.baseLimits[m])?c.baseLimits[m].map(normalizeLimit):[];
+  });
+  d.agentRates=c.agentRates&&typeof c.agentRates==='object'?c.agentRates:{};
+  d.agentLimits=c.agentLimits&&typeof c.agentLimits==='object'?c.agentLimits:{};
+  return d;
+}
+
+function defaultPrizeResult(){
+  return {
+    version:'5E-ImportFix3',
+    market,
+    updatedAt:0,
+    thai:{drawDate:'',top6:'',front3_1:'',front3_2:'',back3_1:'',back3_2:'',lower2:'',source:'manual'},
+    lao:{drawDate:'',top6:'',lower2:'',source:'manual'}
+  };
+}
+function onlyDigits(s,maxLen){
+  return String(s||'').replace(/\D/g,'').slice(0,maxLen||99);
+}
+function normalizePrizeResult(x){
+  const d=defaultPrizeResult();
+  x=x&&typeof x==='object'?x:{};
+  d.version=x.version||'4B';
+  d.market=x.market||market;
+  d.updatedAt=Number(x.updatedAt||0);
+  const th=x.thai||{};
+  d.thai={
+    drawDate:String(th.drawDate||''),
+    top6:onlyDigits(th.top6,6),
+    front3_1:onlyDigits(th.front3_1,3),
+    front3_2:onlyDigits(th.front3_2,3),
+    back3_1:onlyDigits(th.back3_1,3),
+    back3_2:onlyDigits(th.back3_2,3),
+    lower2:onlyDigits(th.lower2,2),
+    source:String(th.source||'manual')
+  };
+  const la=x.lao||{};
+  d.lao={
+    drawDate:String(la.drawDate||''),
+    top6:onlyDigits(la.top6,6),
+    lower2:onlyDigits(la.lower2,2),
+    source:String(la.source||'manual')
+  };
+  return d;
+}
+function currentPrize(){return prizeResult[market]||{};}
+function prizeReady(){
+  const r=currentPrize();
+  if(market==='thai')return r.top6&&r.top6.length===6&&r.lower2&&r.lower2.length===2;
+  return r.top6&&r.top6.length===6;
+}
+function ensureAgentConfig(agentId){
+  if(!agentId)return;
+  if(!rateLimitConfig.agentRates[agentId])rateLimitConfig.agentRates[agentId]={thai:{},lao:{}};
+  if(!rateLimitConfig.agentLimits[agentId])rateLimitConfig.agentLimits[agentId]={thai:[],lao:[]};
+  ['thai','lao'].forEach(m=>{
+    if(!rateLimitConfig.agentRates[agentId][m])rateLimitConfig.agentRates[agentId][m]={};
+    RATE_TYPES[m].forEach(t=>{
+      if(!rateLimitConfig.agentRates[agentId][m][t])rateLimitConfig.agentRates[agentId][m][t]={discount:'',pay:''};
+    });
+    if(!Array.isArray(rateLimitConfig.agentLimits[agentId][m]))rateLimitConfig.agentLimits[agentId][m]=[];
+  });
+}
+function getActiveAgent(){return agents.find(a=>a.id===activeAgentId)||agents[0]}
+
+function setWorkspace(){
+  let r=prompt('ชื่องวด / วันที่ / รอบ',workspace.roundLabel||rules.name+' '+new Date().toLocaleDateString('th-TH'));
+  if(r===null)return;
+  let m=prompt('ชื่อเจ้ามือ / ห้องคีย์ / Master',workspace.masterName||'Master');
+  if(m===null)return;
+  workspace.roundLabel=r.trim();workspace.masterName=m.trim()||'Master';workspace.updatedAt=Date.now();renderWorkspace();scheduleSave()
+}
+function renderWorkspace(){document.getElementById('workspaceText').textContent=rules.name+' | '+(workspace.roundLabel||'ยังไม่ได้ตั้งงวด')+' | '+(workspace.masterName||'Master')}
+
+function loadData(){
+  try{
+    let raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw){
+      const old=localStorage.getItem('t999_v2_master_'+market+'_v3k');
+      if(old) raw=old;
+    }
+    if(!raw)return;
+    let data=JSON.parse(raw);
+    if(data&&data.market===market&&Array.isArray(data.agents)){
+      agents=normalizeAgents(data.agents);
+      activeAgentId=data.activeAgentId||(agents[0]&&agents[0].id)||'a1';
+      workspace=data.workspace||workspace;
+      rateLimitConfig=normalizeConfig(data.rateLimitConfig||data.config||{});
+      prizeResult=normalizePrizeResult(data.prizeResult||{});
+      latestPrizeCheckReport=data.latestPrizeCheckReport||data.prizeCheckReport||null;
+      if(!agents.find(a=>a.id===activeAgentId)&&agents[0])activeAgentId=agents[0].id;
+      updateSaveLine(data.savedAt,'โหลดข้อมูลจากเครื่องแล้ว')
+    }
+  }catch(e){console.error(e);updateSaveLine(null,'โหลดข้อมูลเดิมไม่สำเร็จ')}
+}
+function saveData(){
+  try{
+    workspace.updatedAt=Date.now();
+    let payload={fileType:'T999_V2_MASTER_LOCAL',version:'5E-ImportFix3',market,activeAgentId,workspace,agents,rateLimitConfig,prizeResult,latestPrizeCheckReport,savedAt:Date.now()};
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(payload));
+    updateSaveLine(payload.savedAt,'บันทึกในเครื่องแล้ว')
+  }catch(e){console.error(e);updateSaveLine(null,'บันทึกไม่สำเร็จ')}
+}
+function scheduleSave(){clearTimeout(_saveTimer);_saveTimer=setTimeout(saveData,250)}
+function manualSave(){saveData();alert('บันทึกข้อมูลในเครื่องแล้ว')}
+function updateSaveLine(ts,msg){let el=document.getElementById('saveLine');if(!el)return;if(!ts){el.textContent=msg||'ยังไม่บันทึก';return}let t=new Date(ts).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});el.textContent='✅ '+(msg||'บันทึกแล้ว')+' | '+t}
+function clearLocalData(){
+  if(!confirm('ล้างข้อมูลที่บันทึกในเครื่องของโหมด '+rules.name+' ?'))return;
+  localStorage.removeItem(STORAGE_KEY);
+  workspace={workspaceId:'WS-'+market.toUpperCase()+'-'+Date.now(),market,marketName:rules.name,roundLabel:'',masterName:'Master',createdAt:Date.now(),updatedAt:Date.now()};
+  agents=[{id:'a1',name:'จอย',items:[],customers:[]},{id:'a2',name:'นายพล',items:[],customers:[]},{id:'a3',name:'บัญชา',items:[],customers:[]},{id:'a4',name:'แมน2',items:[],customers:[]},{id:'a5',name:'นา',items:[],customers:[]}];
+  rateLimitConfig=defaultRateLimitConfig();prizeResult=defaultPrizeResult();latestPrizeCheckReport=null;activeAgentId='a1';clearBuffer();selectAgent(activeAgentId,false);renderWorkspace();saveData()
+}
+
+function normalizeAgents(raw){
+  return (raw||[]).map((a,idx)=>{
+    const ag={id:a.id||('agent_'+Date.now()+'_'+idx),name:a.name||('เอเยนต์ '+(idx+1)),items:Array.isArray(a.items)?a.items:[],customers:Array.isArray(a.customers)?a.customers:[]};
+    ag.customers=ag.customers.map((c,ci)=>({id:c.id||('cus_'+Date.now()+'_'+ci),name:c.name||('ลูกค้า '+(ci+1)),slips:Array.isArray(c.slips)?c.slips:[]}));
+    return ag;
+  });
+}
+function exportJson(){
+  saveData();
+  let payload={fileType:'T999_V2_MASTER_EXPORT',version:'5E-ImportFix3',market,marketName:rules.name,workspace,activeAgentId,exportedAt:new Date().toISOString(),agents,rateLimitConfig,prizeResult,latestPrizeCheckReport};
+  downloadJSON(payload,'t999-v2-master-'+market+'-'+safeName(workspace.roundLabel||'round')+'-'+Date.now()+'.json')
+}
+function countLimitsForExport(){
+  const baseCount=((rateLimitConfig.baseLimits&&rateLimitConfig.baseLimits[market])||[]).length;
+  let agentCount=0;
+  Object.keys((rateLimitConfig.agentLimits||{})).forEach(agentId=>{
+    agentCount+=(((rateLimitConfig.agentLimits[agentId]||{})[market])||[]).length;
+  });
+  return {baseCount,agentCount,total:baseCount+agentCount};
+}
+function exportSubkeyWorkspace(){
+  let worker=prompt('ชื่อลูกน้อง / คนคีย์','');
+  if(worker===null)return;
+  worker=worker.trim();
+  if(!worker)return alert('ต้องใส่ชื่อลูกน้องก่อน');
+
+  const defaultRound=workspace.roundLabel||rules.name+' '+new Date().toLocaleDateString('th-TH');
+  let round=prompt('งวด / วันที่ ที่จะส่งให้ลูกน้อง',defaultRound);
+  if(round===null)return;
+  round=round.trim();
+  if(!round)return alert('ต้องใส่งวด / วันที่ก่อนสร้างไฟล์งาน');
+  workspace.roundLabel=round;
+
+  const limitCounts=countLimitsForExport();
+  const confirmMsg='ตรวจสอบก่อนสร้างไฟล์งานลูกน้อง\n\n'+
+    'ลูกน้อง/คนคีย์: '+worker+'\n'+
+    'ตลาด: '+rules.name+'\n'+
+    'งวด/วันที่: '+round+'\n\n'+
+    'เลขอั้นที่จะติดไปอัตโนมัติ:\n'+
+    '- เลขอั้นกลาง: '+limitCounts.baseCount+' รายการ\n'+
+    '- เลขอั้นรายเอเยนต์: '+limitCounts.agentCount+' รายการ\n'+
+    '- รวม: '+limitCounts.total+' รายการ\n\n'+
+    'Subkey จะตั้งเลขอั้นเฉพาะเอเยนต์เพิ่มเองได้ และต้องส่งกลับ Master ตอน Export Result';
+  if(!confirm(confirmMsg))return;
+
+  let sessionId='SUB-'+market.toUpperCase()+'-'+Date.now();
+  const allowedAgents=(agents||[]).map(a=>({
+    id:a.id,
+    name:a.name,
+    customers:(a.customers||[]).map(c=>({id:c.id,name:c.name,slips:[]})),
+    items:[]
+  }));
+  if(!allowedAgents.length)allowedAgents.push({id:'sub_inbox_'+Date.now(),name:'โพยลูกน้อง '+worker,items:[],customers:[]});
+  let payload={
+    fileType:'T999_V2_SUBKEY_WORKSPACE',
+    version:'4H-Fix1',
+    createdAt:new Date().toISOString(),
+    sessionId,
+    market,
+    marketName:rules.name,
+    roundLabel:round,
+    master:{name:workspace.masterName||'Master',workspaceId:workspace.workspaceId},
+    subKeyer:{id:'SUB_'+safeName(worker).toUpperCase()+'_'+Date.now(),name:worker},
+    settings:{
+      allowEditMarket:false,
+      allowEditRound:false,
+      source:'master-v2-step4h-fix1',
+      rateLimitConfig:JSON.parse(JSON.stringify(rateLimitConfig)),
+      prizeResult:JSON.parse(JSON.stringify(prizeResult||{})),
+      allowSubkeyLocalLimits:true,
+      subkeyMustReturnLimitStatus:true
+    },
+    rateLimitConfig:JSON.parse(JSON.stringify(rateLimitConfig)),
+    limitExportSummary:limitCounts,
+    allowedAgents,
+    agents:allowedAgents,
+    notes:'ไฟล์งานลูกน้องจาก T999 V2 Master Step 4H Fix1: แนบเลขอั้นกลาง/รายเอเยนต์ให้ Subkey เช็กตอนคีย์ และอนุญาตให้ Subkey ตั้งเลขอั้นเฉพาะเอเยนต์เองได้'
+  };
+  downloadJSON(payload,'T999_WORK_'+safeName(worker)+'_'+market.toUpperCase()+'_'+safeName(round)+'.json');
+  renderWorkspace();saveData();
+  alert('สร้างไฟล์งานลูกน้อง Step 4H Fix1 แล้ว\n'+worker+' | '+rules.name+' | '+round+'\n\nไฟล์นี้แนบเลขอั้นกลาง/รายเอเยนต์ไปด้วย\nรวมเลขอั้น: '+limitCounts.total+' รายการ');
+}
+function downloadJSON(payload,name){let blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
+function importJson(){document.getElementById('importFile').value='';document.getElementById('importFile').click()}
+function handleImportFile(ev){
+  let file=ev.target.files&&ev.target.files[0];if(!file)return;
+  let reader=new FileReader();
+  reader.onload=function(){
+    let data;try{data=JSON.parse(reader.result)}catch(e){alert('JSON เสีย หรือไฟล์ไม่ใช่ .json ที่ถูกต้อง');return}
+    try{
+      if(!data||!Array.isArray(data.agents)){alert('ไฟล์ไม่ถูกต้อง: ไม่พบข้อมูล agents');return}
+      if(data.market&&data.market!==market){alert('นำเข้าไม่ได้: ไฟล์นี้เป็นตลาด '+data.market+' แต่หน้านี้เป็น '+market);return}
+      if(data.fileType==='T999_V2_SUBKEY_RESULT')importSubkeyResult(data);else importNormalJson(data);
+    }catch(e){console.error(e);alert('นำเข้าไม่สำเร็จ: '+(e.message||e))}
+  };
+  reader.readAsText(file)
+}
+function importNormalJson(data){
+  let s=summarizeImport(data.agents);
+  if(!confirm('นำเข้า JSON นี้?\nรายการ: '+s.itemCount+'\nยอดรวม: '+money(s.total)))return;
+  agents=normalizeAgents(data.agents);
+  activeAgentId=data.activeAgentId||(agents[0]&&agents[0].id)||activeAgentId;
+  workspace=data.workspace||workspace;
+  if(data.rateLimitConfig)rateLimitConfig=normalizeConfig(data.rateLimitConfig);
+  if(data.prizeResult)prizeResult=normalizePrizeResult(data.prizeResult);
+  if(data.latestPrizeCheckReport||data.prizeCheckReport)latestPrizeCheckReport=data.latestPrizeCheckReport||data.prizeCheckReport;
+  selectAgent(activeAgentId,false);renderWorkspace();saveData();alert('นำเข้าเรียบร้อย')
+}
+function summarizeImport(importAgents){
+  let itemCount=0,total=0;(importAgents||[]).forEach(a=>{
+    (a.items||[]).forEach(it=>{itemCount++;total+=Number(it.amount||0)});
+    (a.customers||[]).forEach(c=>(c.slips||[]).forEach(s=>(s.items||[]).forEach(it=>{itemCount++;total+=Number(it.amount||0)})));
+  });return{itemCount,total}
+}
+function importedSessionExists(sessionId){
+  if(!sessionId)return false;
+  return agents.some(a=>(a.items||[]).some(it=>it.importSessionId===sessionId)||(a.customers||[]).some(c=>(c.slips||[]).some(s=>(s.items||[]).some(it=>it.importSessionId===sessionId))));
+}
+function removeImportedSession(sessionId){
+  agents.forEach(a=>{
+    a.items=(a.items||[]).filter(it=>it.importSessionId!==sessionId);
+    (a.customers||[]).forEach(c=>{
+      (c.slips||[]).forEach(s=>{s.items=(s.items||[]).filter(it=>it.importSessionId!==sessionId)});
+      c.slips=(c.slips||[]).filter(s=>(s.items||[]).length>0);
+    });
+    a.customers=(a.customers||[]).filter(c=>(c.slips||[]).length>0);
+  });
+}
+function getOrCreateMasterAgent(agentName, agentId){
+  const cleanName=(agentName||'เอเยนต์ไม่ระบุ').trim()||'เอเยนต์ไม่ระบุ';
+  let a=null;
+  if(agentId)a=agents.find(x=>String(x.id)===String(agentId));
+  if(!a)a=agents.find(x=>String(x.name||'').trim()===cleanName);
+  if(!a){
+    a={id:agentId||uid('agent_import'),name:cleanName,items:[],customers:[]};
+    agents.push(a);
+  }
+  if(!a.items)a.items=[];
+  if(!a.customers)a.customers=[];
+  return a;
+}
+function getOrCreateMasterCustomer(agent, customerName, customerId){
+  if(!agent.customers)agent.customers=[];
+  const cleanName=(customerName||'ลูกค้าไม่ระบุ').trim()||'ลูกค้าไม่ระบุ';
+  let c=customerId?agent.customers.find(x=>String(x.id)===String(customerId)):null;
+  if(!c)c=agent.customers.find(x=>String(x.name||'').trim()===cleanName);
+  if(!c){c={id:customerId||uid('cus_master'),name:cleanName,slips:[]};agent.customers.push(c)}
+  if(!c.slips)c.slips=[];
+  return c;
+}
+
+
+function countSubkeyLocalLimits(data){
+  const pack=data&&data.subkeyLocalLimits||{};
+  let n=0;
+  Object.keys(pack).forEach(k=>{
+    if(Array.isArray(pack[k]))n+=pack[k].length;
+    else if(pack[k]&&typeof pack[k]==='object')Object.keys(pack[k]).forEach(m=>{if(Array.isArray(pack[k][m]))n+=pack[k][m].length});
+  });
+  return n;
+}
+function mergeSubkeyLocalLimitsFromResult(data, agentIdMap={}){
+  if(!data||!data.subkeyLocalLimits)return 0;
+  let added=0;
+  const pack=data.subkeyLocalLimits;
+  const m=data.market==='lao'?'lao':'thai';
+  Object.keys(pack||{}).forEach(oldAgentId=>{
+    const targetAgentId=agentIdMap[oldAgentId]||oldAgentId;
+    ensureAgentConfig(targetAgentId);
+    const rows=Array.isArray(pack[oldAgentId])?pack[oldAgentId]:(Array.isArray(pack[oldAgentId]&&pack[oldAgentId][m])?pack[oldAgentId][m]:[]);
+    rows.forEach(r=>{
+      const row=normalizeLimit({...r,note:(r.note||'')+' | จาก Subkey '+(data.subKeyer&&data.subKeyer.name||'')});
+      const exists=(rateLimitConfig.agentLimits[targetAgentId][m]||[]).some(x=>String(x.number)===String(row.number)&&String(x.type)===String(row.type)&&String(x.level)===String(row.level));
+      if(!exists){rateLimitConfig.agentLimits[targetAgentId][m].push(row);added++;}
+    });
+  });
+  return added;
+}
+function importSubkeyResult(data){
+  // Fix2: ถ้าเคยนำเข้า session นี้แล้ว ไม่ต้องเด้งถามให้สับสน
+  // ให้ลบข้อมูล session เดิมแบบเงียบ ๆ แล้วนำเข้าใหม่ เพื่อให้โครงสร้างล่าสุดถูกต้อง
+  if(data.sessionId&&importedSessionExists(data.sessionId)){
+    removeImportedSession(data.sessionId);
+  }
+  let s=summarizeImport(data.agents);
+  const subLimitCount=countSubkeyLocalLimits(data);
+  if(!confirm('นำเข้าไฟล์ลูกน้อง?\nคนคีย์: '+(data.subKeyer&&data.subKeyer.name||'-')+'\nรายการ: '+s.itemCount+'\nยอดรวม: '+money(s.total)+'\nเลขอั้นที่ Subkey ตั้งเอง: '+subLimitCount+' รายการ\n\nหมายเหตุ: คนคีย์จะถูกเก็บเป็น worker ไม่ใช่เอเยนต์'))return;
+
+  const workerName=data.subKeyer&&data.subKeyer.name||'';
+  const agentIdMap={};
+  let firstImportedAgentId='';
+
+  (data.agents||[]).forEach(src=>{
+    // src คือเอเยนต์จริงจาก Subkey ห้ามแปลงเป็นลูกค้าของคนคีย์
+    const masterAgent=getOrCreateMasterAgent(src.name||src.agentName||'เอเยนต์ไม่ระบุ',src.id);
+    agentIdMap[src.id]=masterAgent.id;
+    if(!firstImportedAgentId)firstImportedAgentId=masterAgent.id;
+
+    if(Array.isArray(src.customers)&&src.customers.length){
+      src.customers.forEach(c=>{
+        const mc=getOrCreateMasterCustomer(masterAgent,c.name,c.id);
+        (c.slips||[]).forEach(sl=>{
+          const exists=(mc.slips||[]).some(x=>String(x.id)===String(sl.id)||((x.importSessionId===data.sessionId)&&String(x.sourceSlipId||'')===String(sl.id||'')));
+          if(exists)return;
+          const newSlip={...sl,
+            id:sl.id||uid('slip_import'),
+            sourceSlipId:sl.id||'',
+            importSessionId:data.sessionId,
+            importWorker:workerName,
+            workerName:workerName,
+            updatedAt:Date.now(),
+            items:(sl.items||[]).map(it=>({...it,
+              id:it.id||uid('it_import'),
+              importSessionId:data.sessionId,
+              importWorker:workerName,
+              workerName:workerName,
+              agentId:masterAgent.id,
+              agentName:masterAgent.name,
+              customerId:mc.id,
+              customerName:mc.name,
+              slipId:sl.id||'',
+              slipNo:sl.slipNo||''
+            }))
+          };
+          if(!newSlip.slipNo)newSlip.slipNo=(mc.slips||[]).length+1;
+          newSlip.items.forEach(it=>{it.slipId=newSlip.id;it.slipNo=newSlip.slipNo});
+          mc.slips.push(newSlip);
+          newSlip.items.forEach(it=>masterAgent.items.push(it));
+        });
+      });
+    }else{
+      // fallback สำหรับไฟล์เก่า: src ยังถือเป็นเอเยนต์จริง แต่ไม่มี customers
+      const mc=getOrCreateMasterCustomer(masterAgent,'ลูกค้าไม่ระบุ','cus_'+(src.id||Date.now()));
+      const slip={id:'slip_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),slipNo:(mc.slips||[]).length+1,label:'Import '+workerName,sourceSlipId:'',importSessionId:data.sessionId,importWorker:workerName,workerName:workerName,items:[]};
+      (src.items||[]).forEach(it=>slip.items.push({...it,
+        id:it.id||uid('it_import'),
+        importSessionId:data.sessionId,
+        importWorker:workerName,
+        workerName:workerName,
+        agentId:masterAgent.id,
+        agentName:masterAgent.name,
+        customerId:mc.id,
+        customerName:mc.name,
+        slipId:slip.id,
+        slipNo:slip.slipNo
+      }));
+      if(slip.items.length){mc.slips.push(slip);slip.items.forEach(it=>masterAgent.items.push(it))}
+    }
+  });
+
+  const mergedLimitCount=mergeSubkeyLocalLimitsFromResult(data,agentIdMap);
+  activeAgentId=firstImportedAgentId||(agents[0]&&agents[0].id)||activeAgentId;
+  selectAgent(activeAgentId,false);
+  saveData();
+  alert('นำเข้า Result จาก Subkey แล้ว\nคนคีย์: '+(workerName||'-')+'\nเอเยนต์จริงถูกเก็บตามไฟล์ Subkey แล้ว' + (typeof mergedLimitCount!=='undefined'&&mergedLimitCount?'\nเพิ่มเลขอั้นจาก Subkey: '+mergedLimitCount+' รายการ':''))
+}
+function collectImportedSessions(){
+  const map=new Map();
+  agents.forEach(a=>(a.items||[]).forEach(it=>{if(!it.importSessionId)return;if(!map.has(it.importSessionId))map.set(it.importSessionId,{sessionId:it.importSessionId,worker:it.importWorker||'ลูกน้อง',items:0,total:0});let s=map.get(it.importSessionId);s.items++;s.total+=Number(it.amount||0)}));
+  return Array.from(map.values());
+}
+function deleteSubkeySession(){
+  const sessions=collectImportedSessions();
+  if(!sessions.length)return alert('ยังไม่มีงานลูกน้องที่นำเข้า');
+  const msg=sessions.map((s,i)=>(i+1)+') '+s.worker+' | '+s.items+' รายการ | '+money(s.total)+' | '+s.sessionId).join('\n');
+  let n=prompt('เลือกเลขงานลูกน้องที่ต้องการลบ\n\n'+msg,'1');
+  if(n===null)return;let idx=Number(n)-1;if(!sessions[idx])return alert('เลือกไม่ถูกต้อง');
+  if(!confirm('ยืนยันลบงานลูกน้องนี้?\n'+sessions[idx].worker+'\n'+sessions[idx].items+' รายการ'))return;
+  removeImportedSession(sessions[idx].sessionId);selectAgent(activeAgentId,false);saveData()
+}
+
+function addAgent(){
+  let name=prompt('ชื่อเอเยนต์','');
+  if(name===null)return;name=name.trim();if(!name)return;
+  let a={id:'agent_'+Date.now(),name,items:[],customers:[]};agents.push(a);activeAgentId=a.id;selectAgent(a.id,false);saveData()
+}
+function renameAgent(agentId,ev){
+  if(ev)ev.stopPropagation();
+  let a=agents.find(x=>x.id===agentId);if(!a)return;
+  let n=prompt('แก้ชื่อเอเยนต์',a.name);if(n===null)return;n=n.trim();if(!n)return;
+  a.name=n;(a.items||[]).forEach(it=>{it.agentName=n});selectAgent(a.id,false);saveData()
+}
+function deleteAgent(agentId,ev){
+  if(ev)ev.stopPropagation();
+  let a=agents.find(x=>x.id===agentId);if(!a)return;
+  if(!confirm('ยืนยันลบเอเยนต์นี้?\n'+a.name+'\nยอดรวม '+money(totalAgent(a))))return;
+  agents=agents.filter(x=>x.id!==agentId);delete rateLimitConfig.agentRates[agentId];delete rateLimitConfig.agentLimits[agentId];
+  if(!agents.length)agents=[{id:'a1',name:'จอย',items:[],customers:[]}];
+  activeAgentId=agents[0].id;selectAgent(activeAgentId,false);saveData()
+}
+function selectAgent(id,save=true){activeAgentId=id;activeSlipRef=null;renderAll();if(save)scheduleSave()}
+function openSlipFromFolder(agentId,customerId,slipId,ev){
+  if(ev)ev.stopPropagation();
+  activeAgentId=agentId;
+  activeSlipRef={agentId,customerId,slipId};
+  renderAll();
+  scheduleSave();
+}
+function closeSlipEditMode(){activeSlipRef=null;renderAll();scheduleSave()}
+function findSlipRef(ref=activeSlipRef){
+  if(!ref)return null;
+  const a=agents.find(x=>x.id===ref.agentId);
+  const c=a&&(a.customers||[]).find(x=>x.id===ref.customerId);
+  const sl=c&&(c.slips||[]).find(x=>x.id===ref.slipId);
+  if(!a||!c||!sl)return null;
+  return {agent:a,customer:c,slip:sl};
+}
+function getPendingItems(agent){
+  const a=agent||getActiveAgent();
+  return a&&Array.isArray(a.items)?a.items.filter(it=>!it.slipId):[];
+}
+function getEditItems(){
+  const found=findSlipRef();
+  if(found)return found.slip.items||[];
+  return getPendingItems();
+}
+function editModeLabel(){
+  const found=findSlipRef();
+  if(found)return found.agent.name+' / '+found.customer.name+' / โพย #'+(found.slip.slipNo||'-');
+  const a=getActiveAgent();
+  return a?a.name+' / รายการใหม่':'-';
+}
+
+function renderFolderAction(){
+  const btn=document.getElementById('folderActionBtn');
+  const exit=document.getElementById('exitSlipEditBtn');
+  if(!btn)return;
+  const found=findSlipRef();
+  if(found){
+    btn.textContent='บันทึกโพยนี้';
+    btn.className='btn full gold';
+    if(exit)exit.style.display='block';
+  }else{
+    btn.textContent='เก็บเข้าแฟ้ม';
+    btn.className='btn full gold';
+    if(exit)exit.style.display='none';
+  }
+}
+function folderAction(){
+  const found=findSlipRef();
+  if(found){
+    saveData();
+    alert('บันทึกโพยนี้แล้ว\n'+found.agent.name+' / '+found.customer.name+' / โพย #'+(found.slip.slipNo||'-')+'\nยอด '+money(totalSlip(found.slip)));
+    renderAll();
+    return;
+  }
+  saveCurrentItemsToFolder();
+}
+function saveCurrentItemsToFolder(){
+  const a=getActiveAgent();
+  if(!a)return alert('ยังไม่มีเอเยนต์');
+  const pending=(a.items||[]).filter(it=>!it.slipId);
+  if(!pending.length){
+    return alert('ยังไม่มีรายการใหม่ที่ยังไม่ได้เก็บเข้าแฟ้ม\nถ้าต้องการแก้โพยเดิม ให้เปิดจาก Agent Card');
+  }
+  let customerName=prompt('ชื่อลูกค้า / เจ้าของโพย','');
+  if(customerName===null)return;
+  customerName=customerName.trim()||'ลูกค้าไม่ระบุ';
+  if(!a.customers)a.customers=[];
+  let c=a.customers.find(x=>x.name===customerName);
+  if(!c){c={id:uid('cus'),name:customerName,slips:[]};a.customers.push(c)}
+  if(!c.slips)c.slips=[];
+  const slipId=uid('slip');
+  const slipNo=(c.slips||[]).length+1;
+  const slip={id:slipId,slipNo,label:'โพยชุดที่ '+slipNo,createdAt:Date.now(),updatedAt:Date.now(),items:[]};
+  pending.forEach(it=>{
+    it.customerId=c.id;
+    it.customerName=c.name;
+    it.slipId=slipId;
+    it.slipNo=slipNo;
+    it.agentId=a.id;
+    it.agentName=a.name;
+    if(!it.id)it.id=uid('it');
+    slip.items.push(it);
+  });
+  c.slips.push(slip);
+  activeSlipRef=null;
+  clearBuffer();
+  saveData();
+  renderAll();
+  alert('เก็บเข้าแฟ้มแล้ว\nเอเยนต์: '+a.name+'\nลูกค้า: '+c.name+'\nโพย #'+slipNo+'\nยอด '+money(totalSlip(slip))+'\n\nหน้าจอพร้อมคีย์โพยใหม่แล้ว');
+}
+function clearCurrentAgent(){
+  let a=getActiveAgent();if(!a)return;
+  if(!confirm('ล้างแฟ้มนี้?\n'+a.name+'\nรายการ '+(a.items||[]).length+'\nยอด '+money(totalAgent(a))))return;
+  a.items=[];a.customers=[];renderAll();saveData()
+}
+function totalAgent(a){return (a.items||[]).reduce((s,it)=>s+Number(it.amount||0),0)}
+function totalCustomer(c){return (c.slips||[]).reduce((s,sl)=>s+(sl.items||[]).reduce((x,it)=>x+Number(it.amount||0),0),0)}
+function totalSlip(sl){return (sl.items||[]).reduce((s,it)=>s+Number(it.amount||0),0)}
+function totalAll(){return agents.reduce((s,a)=>s+totalAgent(a),0)}
+function itemCountAll(){return agents.reduce((s,a)=>s+(a.items||[]).length,0)}
+function cellAmount(it,type){return it.type===type?Number(it.amount||0):0}
+function cellText(it,type){
+  if(it.type!==type)return '';
+  const amt=Number(it.amount||0);
+  if(!amt)return '';
+  return esc(String(amt));
+}
+function itemNumber(it){return String(it.number ?? it.lek ?? it.num ?? it.n ?? '').trim()}
+function pinPositionName(pos){return ({hundred:'ร้อย',ten:'สิบ',unit:'หน่วย'}[pos]||pos||'')}
+function itemTypeName(it){return LABEL[it.type]||it.type||'-'}
+function itemPinLabel(it){
+  if(!it||!it.pin)return '';
+  const side=it.type==='lang'?'ล่าง':'บน';
+  return 'ปัก'+side+pinPositionName(it.pinPosition);
+}
+function itemLekDisplay(it){
+  const n=itemNumber(it)||'-';
+  if(it&&it.pin){
+    return n+pinPositionName(it.pinPosition);
+  }
+  return n;
+}
+function itemLekHtml(it){
+  const n=esc(itemLekDisplay(it));
+  if(it&&it.pin){
+    return `<span class="pin-main keytest-pin">${n}</span>`;
+  }
+  return n;
+}
+function renderAgents(){
+  const wrap=document.getElementById('agentList');document.getElementById('agentCount').textContent=agents.length;
+  wrap.innerHTML=agents.map(a=>{
+    if(!a.items)a.items=[];if(!a.customers)a.customers=[];
+    const customers=(a.customers||[]).slice(0,3).map(c=>`<div class="customer-row">👤 ${esc(c.name)} · ${c.slips.length} โพย · ${money(totalCustomer(c))}</div>`).join('');
+    const isEditing=activeSlipRef&&activeSlipRef.agentId===a.id;
+    return `<div class="agent-card ${a.id===activeAgentId?'active':''}" onclick="selectAgent('${a.id}')">
+      <div class="agent-name"><span>${esc(a.name)}</span><span>${(a.items||[]).length}</span></div>
+      <div class="agent-meta">ลูกค้า ${(a.customers||[]).length} · โพย ${countSlips(a)} · รายการ ${(a.items||[]).length}</div>
+      <div class="agent-total">${money(totalAgent(a))}</div>
+      ${customers}
+      ${isEditing?`<div class="customer-row" style="color:#f5c518;font-weight:900">🟡 กำลังแก้โพยจาก Agent Card</div>`:''}
+      <div class="agent-actions">
+        ${isEditing?`<button class="btn small" onclick="closeSlipEditMode();event.stopPropagation()">ดูรวม</button>`:''}
+        <button class="btn small" onclick="openAgentModal('${a.id}',event)">Agent Card</button>
+        <button class="btn small purple" onclick="openAgentRateTab('${a.id}',event)">เรท/อั้น</button>
+        <button class="btn small" onclick="renameAgent('${a.id}',event)">ชื่อ</button>
+        <button class="btn small red" onclick="deleteAgent('${a.id}',event)">ลบ</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function countSlips(a){return (a.customers||[]).reduce((s,c)=>s+(c.slips||[]).length,0)}
+function renderList(){
+  const a=getActiveAgent(),list=document.getElementById('list');
+  const found=findSlipRef();
+  document.getElementById('activeAgentName').textContent=editModeLabel();
+  const items=getEditItems();
+  if(!a||!items.length){
+    list.innerHTML=found?'<div class="empty">โพยนี้ยังไม่มีรายการ<br>คีย์เลขจากแป้นด้านขวาเพื่อเพิ่มเข้าโพยนี้ได้เลย</div>':'<div class="empty">พร้อมคีย์โพยใหม่<br>กดเลขด้านขวา แล้วกดเก็บเข้าแฟ้ม</div>';
+    document.getElementById('totalText').textContent='฿0';
+    return;
+  }
+  const modeHead=found?`<div class="table-row" style="background:#241b05;color:#f5c518;font-weight:900;grid-template-columns:1fr auto"><div>กำลังแก้เฉพาะโพย: ${esc(found.customer.name)} / โพย #${esc(found.slip.slipNo||'-')}</div><button class="btn small" onclick="closeSlipEditMode()">ดูรวมเอเยนต์</button></div>`:'';
+  list.innerHTML=modeHead+items.map((it,idx)=>`<div class="table-row">
+    <div class="lek ${it.follow?'follow':''} ${it.pin?'pinlek':''}">${itemLekHtml(it)}</div>
+    <div class="cell bon ${cellAmount(it,'bon')?'has':''}">${cellText(it,'bon')}</div>
+    <div class="cell tod ${cellAmount(it,'tod')?'has':''}">${cellText(it,'tod')}</div>
+    <div class="cell lang ${cellAmount(it,'lang')?'has':''}">${cellText(it,'lang')}</div>
+    <div class="cell na na-col ${cellAmount(it,'na')?'has':''}">${cellText(it,'na')}</div>
+    <button class="delbtn" onclick="deleteItem(${idx})">×</button>
+  </div>`).join('');
+  document.getElementById('totalText').textContent=found?money(totalSlip(found.slip)):money(items.reduce((s,it)=>s+Number(it.amount||0),0));
+}
+function renderSummary(){document.getElementById('sumAgents').textContent=agents.length;document.getElementById('sumItems').textContent=itemCountAll();document.getElementById('sumGrand').textContent=money(totalAll())}
+function renderAll(){renderWorkspace();renderAgents();renderList();renderSummary();render();renderFolderAction()}
+function deleteItem(idx){
+  let a=getActiveAgent();if(!a)return;
+  const found=findSlipRef();
+  if(found){
+    const removed=(found.slip.items||[]).splice(idx,1)[0];
+    if(removed){
+      if(removed.id){a.items=(a.items||[]).filter(x=>x.id!==removed.id)}
+      else{const pos=(a.items||[]).indexOf(removed);if(pos>=0)a.items.splice(pos,1)}
+    }
+  }else{
+    const pending=getPendingItems(a);
+    const removed=pending[idx];
+    if(removed){
+      if(removed.id)a.items=(a.items||[]).filter(x=>x.id!==removed.id);
+      else{const pos=(a.items||[]).indexOf(removed);if(pos>=0)a.items.splice(pos,1)}
+    }
+  }
+  renderAll();scheduleSave()
+}
+
+function getBaseLen(){
+  const first=(leksText.split('/')[0]||'').replace(/\D/g,'');
+  return first.length;
+}
+function normalizeLeksText(){
+  if(!leksText.includes('/'))return leksText;
+  const parts=leksText.split('/');
+  const first=(parts[0]||'').replace(/\D/g,'');
+  const rest=parts.slice(1).join('').replace(/\D/g,'');
+  const len=first.length;
+  if(!len)return leksText;
+  const chunks=[first];
+  for(let i=0;i<rest.length;i+=len){
+    const c=rest.slice(i,i+len);
+    if(c.length)chunks.push(c);
+  }
+  return chunks.join('/');
+}
+function getLeks(){
+  const txt=normalizeLeksText();
+  return txt.split('/').map(x=>x.replace(/\D/g,'')).filter(Boolean);
+}
+function currentDigits(){
+  const leks=getLeks();
+  if(!leks.length)return 0;
+  return leks[0].length;
+}
+function buildSlots(){
+  const d=currentDigits();
+  const order=(rules.slotOrder[d]||[]).slice();
+  slots=order.map(t=>({type:t,price:'',rev:false}));
+  slotIndex=0;
+}
+function currentSlot(){return slots[slotIndex]||null}
+function saveCurrentPrice(){
+  if(phase!=='price')return;
+  const s=currentSlot();
+  if(!s)return;
+  if(priceBuf!==''){
+    s.price=priceBuf;
+    priceBuf='';
+  }
+}
+function clearBuffer(){
+  leksText='';phase='lek';slots=[];slotIndex=0;priceBuf='';render();
+}
+function pressDigit(n){
+  if(phase==='lek'){
+    const raw=leksText.replace(/\//g,'');
+    if(!leksText.includes('/')&&raw.length>=5)return;
+    leksText+=n;
+  }else{
+    priceBuf+=n;
+  }
+  render();
+}
+function pressSlash(){
+  if(phase!=='lek')return;
+  if(!leksText)return;
+  if(leksText.includes('/'))return;
+  leksText+='/';
+  render();
+}
+function pressMinus(){
+  // ใช้เป็นปุ่มเคลียร์ราคาในโหมดใส่ราคา และกัน logic เก่าทับกับ Subkey
+  if(phase==='price'){
+    priceBuf='';
+    const s=currentSlot();
+    if(s)s.price='';
+  }else{
+    leksText=leksText.startsWith('-')?leksText.slice(1):('-'+leksText);
+  }
+  render();
+}
+function backspace(){
+  if(phase==='lek'){
+    leksText=leksText.slice(0,-1);
+  }else{
+    if(priceBuf.length){
+      priceBuf=priceBuf.slice(0,-1);
+    }else if(slotIndex>0){
+      slotIndex--;
+      priceBuf=slots[slotIndex].price||'';
+      slots[slotIndex].price='';
+      slots[slotIndex].rev=false;
+    }else{
+      phase='lek';slots=[];priceBuf='';
+    }
+  }
+  render();
+}
+function enterKey(){
+  if(phase==='lek'){
+    if(!getLeks().length)return alert('ยังไม่มีเลข');
+    leksText=normalizeLeksText();
+    buildSlots();
+    phase='price';
+    priceBuf='';
+    render();
+    return;
+  }
+  saveCurrentPrice();
+  if(slotIndex<slots.length-1)slotIndex++;
+  else commit();
+  render();
+}
+
+function statusFlash(msg){
+  const el=document.getElementById('statusLine');
+  if(el){
+    const old=el.textContent;
+    el.textContent=msg;
+    el.style.color='#f5c518';
+    clearTimeout(window.__t999StatusFlashTimer);
+    window.__t999StatusFlashTimer=setTimeout(()=>{try{renderStatus()}catch(e){el.textContent=old}},900);
+  }
+}
+function dotKey(){
+  if(phase==='lek'){
+    enterKey();
+    return;
+  }
+  const s=currentSlot();
+  if(!s)return;
+  if(s.type==='tod'){
+    statusFlash('โต๊ดไม่มีชุด ไม่ต้องกด .');
+    render();
+    return;
+  }
+  if(priceBuf!==''){
+    s.price=priceBuf;
+    priceBuf='';
+  }
+  s.rev=true;
+  if(slotIndex<slots.length-1)slotIndex++;
+  render();
+}
+
+function selectSlot(type){
+  if(phase!=='price')return;
+  const idx=slots.findIndex(s=>s.type===type);
+  if(idx>=0){
+    if(priceBuf!==''&&slots[slotIndex]){slots[slotIndex].price=priceBuf;priceBuf=''}
+    slotIndex=idx;
+    priceBuf=slots[idx].price||'';
+    slots[idx].price='';
+    render();
+  }
+}
+function expandReverseWithRole(num){
+  num=String(num||'');
+  if(num.length===2){
+    const r=num[1]+num[0];
+    if(r===num)return [{lek:num,role:'main'}];
+    return [{lek:num,role:'main'},{lek:r,role:'follow'}];
+  }
+  const ps=uniquePermutations(num);
+  const out=[{lek:num,role:'main'}];
+  ps.forEach(p=>{if(p!==num)out.push({lek:p,role:'follow'})});
+  return out;
+}
+function uniquePermutations(str){
+  const arr=String(str||'').split('');
+  const out=new Set();
+  function perm(path,rest){
+    if(!rest.length){out.add(path.join(''));return}
+    for(let i=0;i<rest.length;i++){
+      const next=rest.slice();
+      const ch=next.splice(i,1)[0];
+      perm(path.concat(ch),next);
+    }
+  }
+  perm([],arr);
+  return Array.from(out);
+}
+function commit(){
+  if(phase==='price')saveCurrentPrice();
+  const leks=getLeks();
+  if(!leks.length)return alert('ยังไม่มีเลข');
+  const a=getActiveAgent();if(!a)return alert('ยังไม่มีเอเยนต์');
+  if(!slots.length)buildSlots();
+  const active=slots.filter(s=>Number(s.price)>0);
+  if(!active.length)return alert('ยังไม่มีราคา');
+  const add=[];
+  leks.forEach(lek=>active.forEach(s=>{
+    const amount=Number(s.price);
+    if(s.rev){
+      expandReverseWithRole(lek).forEach(o=>add.push({number:o.lek,lek:o.lek,type:s.type,amount,role:o.role,follow:o.role==='follow',note:lek.length===2?'กลับ':'ชุด'}));
+    }else{
+      add.push({number:lek,lek,type:s.type,amount,role:'main',follow:false,note:''});
+    }
+  }));
+  add.forEach(it=>addItem(a,it));
+  clearBuffer();
+  renderAll();
+  scheduleSave();
+}
+function addItem(agent,it){
+  if(!agent.items)agent.items=[];
+  const found=findSlipRef();
+  const item={...it,id:uid('it'),market,createdAt:Date.now(),agentId:agent.id,agentName:agent.name};
+  if(!item.number&&item.lek)item.number=item.lek;
+  if(!item.lek&&item.number)item.lek=item.number;
+  if(found&&found.agent.id===agent.id){
+    item.customerId=found.customer.id;item.customerName=found.customer.name;item.slipId=found.slip.id;item.slipNo=found.slip.slipNo;
+    if(!found.slip.items)found.slip.items=[];
+    found.slip.items.push(item);
+  }
+  agent.items.push(item);
+}
+function render(){
+  const screen=document.getElementById('screen'),hint=document.getElementById('hint');
+  if(!screen)return;
+  if(phase==='lek'){
+    const shown=leksText.includes('/')?normalizeLeksText():leksText;
+    screen.textContent=shown||'—';
+    hint.innerHTML='กดเลข<br>แล้ว ↵<br>หลัก: '+(getBaseLen()||'-');
+  }else{
+    const s=currentSlot();
+    const left=(getLeks().join('/')||leksText)+'=';
+    const priceParts=slots.map((x,i)=>i===slotIndex?(priceBuf||x.price||''):(x.price||''));
+    screen.textContent=left+priceParts.join('×');
+    hint.innerHTML=s?'ราคา: '+LABEL[s.type]+'<br>'+(s.rev?'กลับ/ชุด ON':'กด . = กลับ/ชุด'):'ไม่มี slot';
+  }
+  renderSlots();
+  renderStatus();
+}
+function renderKeyStatus(){render()}
+function renderSlots(){
+  const row=document.getElementById('typeRow');
+  if(!row)return;
+  row.className='type-row '+(market==='thai'?'thai':'');
+  ['bon','tod','lang','na'].forEach(t=>{
+    const btn=document.getElementById('slot-'+t);if(!btn)return;
+    const idx=slots.findIndex(s=>s.type===t);
+    const visible=phase==='price'?idx>=0:((rules.slotOrder[getBaseLen()]||['bon','tod','lang','na']).includes(t));
+    btn.style.display=visible?'block':'none';
+    const active=phase==='price'&&idx===slotIndex;
+    const done=phase==='price'&&idx>=0&&Number(slots[idx].price)>0;
+    const rev=phase==='price'&&idx>=0&&slots[idx].rev;
+    btn.className='tbtn '+t+(active?' active '+t:'')+(done?' done':'')+(rev?(getBaseLen()===2?' rev':' rev3'):'');
+    btn.textContent=LABEL[t];
+  });
+}
+function renderStatus(){
+  const el=document.getElementById('statusLine');
+  if(!el)return;
+  if(phase==='lek')el.textContent='กำลังคีย์เลข — โหมด '+rules.name;
+  else el.textContent='กำลังใส่ราคา: '+(currentSlot()?LABEL[currentSlot().type]:'-')+' | '+(currentDigits()||'-')+' หลัก | '+rules.name;
+}
+
+/* Pin — ใช้ logic จาก Subkey */
+function openPin(){
+  const digit=phase==='lek'?(onlyDigits(leksText,5).slice(-1)||''):'';
+  if(!digit||digit.length!==1)return alert('ปักหลักต้องกดเลข 1 ตัวก่อน เช่น 4 แล้วกดปัก');
+  document.getElementById('pinNum').textContent=digit;
+  document.getElementById('pinPrice').value='';
+  pin.type='bon';pin.positions={hundred:true,ten:true,unit:true};
+  renderPinPositions();
+  document.getElementById('pinModal').classList.add('show');
+  setTimeout(()=>{try{document.getElementById('pinPrice').focus()}catch(e){}},80);
+}
+function closePin(){document.getElementById('pinModal').classList.remove('show')}
+function setPinType(t){
+  pin.type=t;
+  pin.positions=t==='bon'?{hundred:true,ten:true,unit:true}:{ten:true,unit:true};
+  renderPinPositions();
+}
+function togglePinPos(p){
+  pin.positions[p]=!pin.positions[p];
+  if(!Object.values(pin.positions).some(Boolean))pin.positions[p]=true;
+  renderPinPositions();
+}
+function renderPinPositions(){
+  document.getElementById('pinTypeBon').className=pin.type==='bon'?'on':'';
+  document.getElementById('pinTypeLang').className=pin.type==='lang'?'on':'';
+  const names={hundred:'ร้อย',ten:'สิบ',unit:'หน่วย'};
+  const wrap=document.getElementById('pinPosWrap');
+  wrap.className='seg '+(pin.type==='bon'?'pos3':'pos2');
+  wrap.innerHTML=Object.keys(pin.positions).map(p=>`<button class="${pin.positions[p]?'on':''}" onclick="togglePinPos('${p}')">${names[p]}</button>`).join('');
+}
+function addPin(){
+  const digit=document.getElementById('pinNum').textContent;
+  const amount=Number(document.getElementById('pinPrice').value||0);
+  if(!amount)return alert('ใส่ราคาปักก่อน');
+  const a=getActiveAgent();if(!a)return;
+  const positions=Object.keys(pin.positions).filter(k=>pin.positions[k]);
+  if(!positions.length)return alert('เลือกตำแหน่งปักก่อน');
+  positions.forEach(pos=>addItem(a,{number:digit,lek:digit,type:pin.type,amount,role:'main',follow:false,note:'ปัก',pin:true,pinPosition:pos}));
+  closePin();clearBuffer();renderAll();scheduleSave();
+}
+
+/* Agent Card */
+function openAgentModal(agentId,ev){if(ev)ev.stopPropagation();agentModalAgentId=agentId;agentModalTab='slips';renderAgentModal();document.getElementById('agentModal').classList.add('show')}
+function openAgentRateTab(agentId,ev){if(ev)ev.stopPropagation();agentModalAgentId=agentId;agentModalTab='rates';renderAgentModal();document.getElementById('agentModal').classList.add('show')}
+function closeAgentModal(){document.getElementById('agentModal').classList.remove('show')}
+function setAgentTab(tab){agentModalTab=tab;renderAgentModal()}
+function renderAgentModal(){
+  restoreAgentTabLabels();
+  const a=agents.find(x=>x.id===agentModalAgentId);if(!a)return;
+  document.getElementById('agentModalTitle').textContent='Agent Card: '+a.name;
+  document.getElementById('agentModalSub').textContent='Step 5B | '+rules.name+' | รายละเอียดเอเยนต์';
+  document.getElementById('agentSumTotal').textContent=money(totalAgent(a));
+  document.getElementById('agentSumCustomers').textContent=(a.customers||[]).length;
+  document.getElementById('agentSumSlips').textContent=countSlips(a);
+  document.getElementById('agentSumItems').textContent=(a.items||[]).length;
+  ['Slips','Rates','Limits','Prize'].forEach(x=>document.getElementById('agentTab'+x).classList.remove('on'));
+  document.getElementById('agentTab'+({slips:'Slips',rates:'Rates',limits:'Limits',prize:'Prize'}[agentModalTab])).classList.add('on');
+  if(agentModalTab==='slips')renderAgentSlipsTab(a);
+  if(agentModalTab==='rates')renderAgentRatesTab(a);
+  if(agentModalTab==='limits')renderAgentLimitsTab(a);
+  if(agentModalTab==='prize')renderAgentPrizeTab(a);
+}
+function renderAgentSlipsTab(a){
+  const el=document.getElementById('agentModalContent');
+  if(!(a.customers||[]).length){el.innerHTML='<div class="placeholder-box">ยังไม่มีลูกค้า/โพยในเอเยนต์นี้</div>';return}
+  el.innerHTML=`<div class="placeholder-box" style="margin-bottom:12px;text-align:left"><b style="color:#f5c518">เลือกโพยจาก Agent Card</b><br>ฝั่งซ้ายกลับไปเป็นแฟ้มเอเยนต์แบบสะอาดเหมือนเดิม<br>ถ้าต้องการแก้โพย ให้กด “เปิดโพย” จากรายการด้านล่าง แล้วจอกลางจะแสดงเฉพาะโพยนั้น<br>ปุ่ม “โพยกระดาษ” ใช้ดูตัวอย่างและพิมพ์โพยแบบ HTML ได้แล้ว<br><button class="btn small gold" style="margin-top:10px" onclick="openAgentSummary('${a.id}',event)">พิมพ์สรุปเอเยนต์</button></div>`+
+  (a.customers||[]).map(c=>`<div class="agent-section">
+    <div class="customer-head">
+      <div><div class="customer-title">👤 ${esc(c.name)}</div><div class="customer-meta">${(c.slips||[]).length} โพย · ${money(totalCustomer(c))}</div></div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><span class="pill">${money(totalCustomer(c))}</span><button class="btn small" onclick="openCustomerSummary('${a.id}','${c.id}',event)">สรุปลูกค้า</button></div>
+    </div>
+    ${(c.slips||[]).map(sl=>{
+      const isOpen=activeSlipRef&&activeSlipRef.agentId===a.id&&activeSlipRef.customerId===c.id&&activeSlipRef.slipId===sl.id;
+      return `<div class="agent-slip" style="border-color:${isOpen?'#f5c518':'#30364a'}">
+        <div>
+          <div class="agent-slip-title">โพย #${esc(sl.slipNo||'-')} · ${esc(sl.label||sl.id)}</div>
+          <div class="agent-slip-meta">${(sl.items||[]).length} รายการ · ${money(totalSlip(sl))}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+          <button class="btn small ${isOpen?'purple':''}" onclick="openSlipFromAgentCard('${a.id}','${c.id}','${sl.id}',event)">${isOpen?'กำลังแก้':'เปิดโพย'}</button>
+          <button class="btn small" onclick="openSlipSummary('${a.id}','${c.id}','${sl.id}',event)">สรุปโพย</button>
+          <button class="btn small" onclick="openPaperSlip('${a.id}','${c.id}','${sl.id}',event)">โพยกระดาษ</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`).join('');
+}
+function openSlipFromAgentCard(agentId,customerId,slipId,ev){
+  if(ev)ev.stopPropagation();
+  openSlipFromFolder(agentId,customerId,slipId,ev);
+  closeAgentModal();
+}
+function viewSlip(agentId,customerId,slipId){
+  const a=agents.find(x=>x.id===agentId);const c=a&&(a.customers||[]).find(x=>x.id===customerId);const sl=c&&(c.slips||[]).find(x=>x.id===slipId);if(!sl)return;
+  const lines=(sl.items||[]).map(it=>`${itemNumber(it)||'-'} ${LABEL[it.type]||it.type||'-'} ${it.amount||0}`).join('\n');
+  alert('โพย '+(sl.slipNo||'')+'\nลูกค้า: '+c.name+'\nยอด: '+money(totalSlip(sl))+'\n\n'+lines)
+}
+function getSlipContext(agentId,customerId,slipId){
+  const a=agents.find(x=>x.id===agentId);
+  const c=a&&(a.customers||[]).find(x=>x.id===customerId);
+  const sl=c&&(c.slips||[]).find(x=>x.id===slipId);
+  if(!a||!c||!sl)return null;
+  return {agent:a,customer:c,slip:sl};
+}
+function formatThaiDateTime(ts){try{return new Date(ts||Date.now()).toLocaleString('th-TH')}catch(e){return '-'}}
+function paperPositionName(pos){return {hundred:'ร้อย',ten:'สิบ',unit:'หน่วย'}[pos]||pos||''}
+function paperTypeLabel(it){return it.pin?itemPinLabel(it):(LABEL[it.type]||it.type||'-')}
+function paperAmountText(it){return '฿'+Number(it.amount||0).toLocaleString('th-TH')}
+function paperCategory(it){const len=String(itemNumber(it)).replace(/\D/g,'').length;if(it.pin||len===1)return 'one';if(it.type==='tod')return 'tod';if(it.type==='lang')return market==='thai'&&len===3?'threeLang':'two';if(it.type==='na')return market==='thai'&&len===2?'twoNa':'threeNa';if(len>=4)return 'four';if(len===3)return 'three';if(len===2)return 'two';return 'other'}
+function paperColumns(){return market==='lao'?[['four','4ตัว'],['three','3ตัว'],['two','2ตัว'],['one','1ตัว'],['tod','โต๊ด'],['total','รวม']]:[['three','3ตัว'],['two','2ตัว'],['one','1ตัว'],['tod','โต๊ด'],['threeLang','3ล่าง'],['total','รวม']]}
+function paperSummaryForItems(items){const sums={four:0,three:0,two:0,one:0,tod:0,threeLang:0,threeNa:0,twoNa:0,other:0,total:0};(items||[]).forEach(it=>{const amt=Number(it.amount||0);const cat=paperCategory(it);sums[cat]=(sums[cat]||0)+amt;sums.total+=amt});return sums}
+function buildPaperScanPayload(ctx,pageItems,pageNo,totalPages){const {agent,customer,slip}=ctx;return {app:'T999',version:'5E-ImportFix3',kind:'SLIP_PAGE',market,roundLabel:workspace.roundLabel||'',masterName:workspace.masterName||'Master',agentId:agent.id,agentName:agent.name,customerId:customer.id,customerName:customer.name,slipId:slip.id,slipNo:slip.slipNo||'',pageNo,totalPages,items:(pageItems||[]).map(it=>({id:it.id||'',number:itemNumber(it),type:it.type,amount:Number(it.amount||0),pin:!!it.pin,pinPosition:it.pinPosition||'',limitStatus:it.limitStatus||null}))}}
+function paperQrBox(payload){const txt='T999|'+(payload.market||'')+'|'+(payload.slipId||'')+'|'+payload.pageNo+'/'+payload.totalPages+'|'+(payload.items||[]).length;return `<div class="paper-qrbox" title="Scan payload is embedded for future QR mode">QR READY<br>${esc(txt)}</div><textarea class="paper-scan-payload">${esc(JSON.stringify(payload))}</textarea>`}
+function renderPaperSummaryTable(items,label='แผ่นนี้'){const cols=paperColumns();const sums=paperSummaryForItems(items);return `<table class="paper-summary"><thead><tr><th class="left">${esc(label)}</th>${cols.map(c=>`<th>${esc(c[1])}</th>`).join('')}</tr></thead><tbody><tr><td class="left">รวม</td>${cols.map(c=>`<td>${c[0]==='total'?money(sums.total):money(sums[c[0]]||0)}</td>`).join('')}</tr></tbody></table>`}
+function chunkItems(items,size){const out=[];for(let i=0;i<items.length;i+=size)out.push(items.slice(i,i+size));return out.length?out:[[]]}
+function buildPaperPage(ctx,pageItems,pageNo,totalPages){const {agent,customer,slip}=ctx;const payload=buildPaperScanPayload(ctx,pageItems,pageNo,totalPages);const rows=(pageItems||[]).map(it=>{const lim=it.limitStatus&&it.limitStatus.label?`<span class="limit">${esc(it.limitStatus.label)}</span>`:'';return `<div class="paper-bet-row"><div>${esc(itemNumber(it)||'-')}</div><div class="eq">=</div><div class="desc">${esc(paperTypeLabel(it))} ${esc(paperAmountText(it))}${lim}</div></div>`}).join('');return `<div class="paper-page"><div class="paper-top"><div><div class="paper-brand">🐯 TIGER 999 <small>${market==='lao'?'LA LAO':'THAI'}</small></div><div class="paper-info">งวด <b>${esc(workspace.roundLabel||'ยังไม่ได้ตั้งงวด')}</b> &nbsp; ลูกค้า <b>${esc(customer.name||'-')}</b> &nbsp; เอเยนต์ <b>${esc(agent.name||'-')}</b></div></div><div class="paper-id"><b>แผ่นที่ ${pageNo}/${totalPages}</b><br><span style="color:#7c3aed;font-weight:900">ID</span> ${esc(slip.id||'-')}<br>${esc(formatThaiDateTime(slip.updatedAt||slip.createdAt||Date.now()))}</div></div><div class="paper-list">${rows||'<div style="color:#777;text-align:center;padding:30px">ไม่มีรายการ</div>'}</div>${renderPaperSummaryTable(pageItems,'แผ่น')}<div class="paper-page-total"><span>ยอดรวมแผ่นนี้</span><b>${esc(money(totalSlip({items:pageItems})))}</b></div><div style="display:flex;justify-content:flex-end;margin-top:8px">${paperQrBox(payload)}</div><div class="paper-footer">ระบบ สะ-ล่าง ตะ-โต๊ด หน้า=หน้า บ=บน ล=ล่าง กลับ=กลับ · QR payload format รองรับ Scan Slip Mode ในอนาคต</div></div>`}
+function buildPaperSummaryPage(ctx,totalPages){const {agent,customer,slip}=ctx;const items=slip.items||[];const sums=paperSummaryForItems(items);const cols=paperColumns();return `<div class="paper-page paper-summary-page compact"><div class="paper-top"><div><div class="paper-brand">📊 สรุปรวม — ${esc(customer.name||'-')}</div><div class="paper-info">งวด <b>${esc(workspace.roundLabel||'ยังไม่ได้ตั้งงวด')}</b> &nbsp; ลูกค้า <b>${esc(customer.name||'-')}</b> &nbsp; เอเยนต์ <b>${esc(agent.name||'-')}</b></div></div><div class="paper-id"><b>${totalPages} แผ่น</b><br>ID ${esc(slip.id||'-')}</div></div><div class="paper-total-card"><table class="paper-summary"><thead><tr><th class="left">แผ่น</th>${cols.map(c=>`<th>${esc(c[1])}</th>`).join('')}</tr></thead><tbody><tr><td class="left">รวม</td>${cols.map(c=>`<td>${c[0]==='total'?money(sums.total):money(sums[c[0]]||0)}</td>`).join('')}</tr><tr><td class="left">หลังลด%</td>${cols.map(c=>`<td>-</td>`).join('')}</tr><tr><td class="left">ถูกรางวัล</td>${cols.map(c=>`<td>-</td>`).join('')}</tr></tbody></table><div class="paper-page-total"><span>ยอดรวมทั้งหมด</span><b>${esc(money(sums.total))}</b></div></div><div class="paper-footer">สรุปรวมจากโพย #${esc(slip.slipNo||'-')} · ${esc((items||[]).length)} รายการ · ${esc(formatThaiDateTime(Date.now()))}</div></div>`}
+function openPaperSlip(agentId,customerId,slipId,ev){if(ev)ev.stopPropagation();const ctx=getSlipContext(agentId,customerId,slipId);if(!ctx)return alert('ไม่พบโพยนี้');currentSummaryContext=null;currentPaperContext=ctx;document.querySelector('#paperModal .paper-title').textContent='โพยกระดาษ';const items=ctx.slip.items||[];const pages=chunkItems(items,market==='lao'?18:16);document.getElementById('paperSub').textContent='เอเยนต์: '+ctx.agent.name+' | ลูกค้า: '+ctx.customer.name+' | โพย #'+(ctx.slip.slipNo||'-')+' | '+pages.length+' แผ่น';document.getElementById('paperPreview').innerHTML=pages.map((pg,i)=>buildPaperPage(ctx,pg,i+1,pages.length)).join('')+buildPaperSummaryPage(ctx,pages.length);document.getElementById('paperModal').classList.add('show')}
+function closePaperSlip(){document.getElementById('paperModal').classList.remove('show')}
+function paperPlainText(ctx){const {agent,customer,slip}=ctx;const lines=[];lines.push('TIGER 999 '+rules.name);lines.push('งวด '+(workspace.roundLabel||'-')+' ลูกค้า '+(customer.name||'-')+' เอเยนต์ '+(agent.name||'-'));lines.push('Slip ID '+(slip.id||'-'));lines.push('----------------');(slip.items||[]).forEach(it=>lines.push((itemNumber(it)||'-')+' = '+paperTypeLabel(it)+' '+paperAmountText(it)));lines.push('----------------');lines.push('รวม '+money(totalSlip(slip)));return lines.join('\n')}
+function copyPaperSlipText(){if(!currentPaperContext)return alert('ยังไม่ได้เลือกโพย');const s=paperPlainText(currentPaperContext);if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(s).then(()=>alert('คัดลอกข้อความโพยแล้ว')).catch(()=>alert(s))}else alert(s)}
+
+function summaryCols(){return paperColumns()}
+function emptySummarySums(){return {four:0,three:0,two:0,one:0,tod:0,threeLang:0,threeNa:0,twoNa:0,other:0,total:0,net:0,count:0}}
+function addItemToSummary(sums,it,agentId){const amt=Number(it.amount||0);const cat=paperCategory(it);const rt=rateTypeForItem(it);const r=getEffectiveRate(agentId||it.agentId,rt);const net=amt*(100-Number(r.discount||0))/100;sums[cat]=(sums[cat]||0)+amt;sums.total+=amt;sums.net+=net;sums.count++;return sums}
+function summaryForItems(items,agentId){const s=emptySummarySums();(items||[]).forEach(it=>addItemToSummary(s,it,agentId));return s}
+function summaryNetByCol(items,agentId){const out=emptySummarySums();(items||[]).forEach(it=>{const amt=Number(it.amount||0);const cat=paperCategory(it);const rt=rateTypeForItem(it);const r=getEffectiveRate(agentId||it.agentId,rt);const net=amt*(100-Number(r.discount||0))/100;out[cat]=(out[cat]||0)+net;out.total+=net;out.net+=net});return out}
+function currentPrizeWinners(){return (typeof latestPrizeCheckReport!=='undefined'&&latestPrizeCheckReport&&Array.isArray(latestPrizeCheckReport.winners))?latestPrizeCheckReport.winners:[]}
+function prizeTotalForFilter(filter){return currentPrizeWinners().filter(filter).reduce((s,w)=>s+Number(w.payout||0),0)}
+function summaryTableHtml(rows,opts={}){const cols=summaryCols();const body=rows.map(r=>`<tr><td class="left">${esc(r.label)}</td>${cols.map(c=>`<td>${c[0]==='total'?money(r.sums.total):money(r.sums[c[0]]||0)}</td>`).join('')}</tr>`).join('');const total=rows.reduce((s,r)=>s+Number(r.sums.total||0),0);const net=Number(opts.netCols&&opts.netCols.total||rows.reduce((s,r)=>s+Number(r.sums.net||r.sums.total||0),0));const prize=Number(opts.prizeTotal||0);const profit=net-prize;const netRow=opts.showNet===false?'':`<tr style="background:#f3f4f6"><td class="left">หลังลด%</td>${cols.map(c=>`<td>${c[0]==='total'?money(net):money((opts.netCols&&opts.netCols[c[0]])||0)}</td>`).join('')}</tr>`;const prizeRow=opts.showPrize?`<tr><td class="left">ถูกรางวัล</td>${cols.map(c=>`<td>${c[0]==='total'?money(prize):'-'}</td>`).join('')}</tr>`:'';return `<table class="paper-summary"><thead><tr><th class="left">${esc(opts.firstCol||'รายการ')}</th>${cols.map(c=>`<th>${esc(c[1])}</th>`).join('')}</tr></thead><tbody>${body}${netRow}${prizeRow}</tbody></table>${opts.showPrize?`<div class="paper-page-total"><span>${profit>=0?'กำไรสุทธิ':'ขาดทุนสุทธิ'}</span><b>${money(profit)}</b></div>`:''}`}
+function summaryHeaderHtml(title,sub,right=''){return `<div class="paper-top"><div><div class="paper-brand">${title}</div><div class="paper-info">${sub}</div></div><div class="paper-id">${right}<br>${esc(formatThaiDateTime(Date.now()))}</div></div>`}
+function summaryPageHtml(title,sub,rows,opts={}){const totalItems=rows.reduce((s,r)=>s+Number(r.count||r.sums.count||0),0);const totalAmount=rows.reduce((s,r)=>s+Number(r.sums.total||0),0);return `<div class="paper-page compact">${summaryHeaderHtml(title,sub,opts.right||'')}${summaryTableHtml(rows,opts)}<div class="paper-page-total"><span>ยอดรวมทั้งหมด${opts.showNet===false?'':' (ก่อนลด)'}</span><b>${money(totalAmount)}</b></div><div class="paper-footer">${esc(totalItems)} รายการ · ${esc(rules.name)} · T999 V2 Summary</div></div>`}
+function openSlipSummary(agentId,customerId,slipId,ev){if(ev)ev.stopPropagation();const ctx=getSlipContext(agentId,customerId,slipId);if(!ctx)return alert('ไม่พบโพยนี้');const items=ctx.slip.items||[];const sums=summaryForItems(items,agentId);const netCols=summaryNetByCol(items,agentId);const prize=prizeTotalForFilter(w=>String(w.slipId)===String(slipId));const html=summaryPageHtml('📊 สรุปโพย — '+esc(ctx.customer.name||'-'),`งวด <b>${esc(workspace.roundLabel||'-')}</b> &nbsp; ลูกค้า <b>${esc(ctx.customer.name||'-')}</b> &nbsp; เอเยนต์ <b>${esc(ctx.agent.name||'-')}</b>`,[{label:'โพย #'+(ctx.slip.slipNo||'-'),sums,count:items.length}],{firstCol:'โพย',netCols,showPrize:true,prizeTotal:prize,right:'Slip ID<br><b>'+esc(ctx.slip.id||'-')+'</b>'});openSummaryPreview('สรุปโพย',html,{scope:'slip',agentId,customerId,slipId,rows:[{label:'slip',sums}],prize})}
+function openCustomerSummary(agentId,customerId,ev){if(ev)ev.stopPropagation();const a=agents.find(x=>x.id===agentId);const c=a&&(a.customers||[]).find(x=>x.id===customerId);if(!a||!c)return;const rows=(c.slips||[]).map(sl=>{const sums=summaryForItems(sl.items||[],agentId);return{label:'โพย #'+(sl.slipNo||'-'),sums,count:(sl.items||[]).length}});const allItems=(c.slips||[]).flatMap(sl=>sl.items||[]);const netCols=summaryNetByCol(allItems,agentId);const prize=prizeTotalForFilter(w=>String(w.agentId)===String(agentId)&&(String(w.customerId||'')===String(customerId)||String(w.customerName||'')===String(c.name||'')));const html=summaryPageHtml('📊 สรุปรวมลูกค้า — '+esc(c.name||'-'),`งวด <b>${esc(workspace.roundLabel||'-')}</b> &nbsp; ลูกค้า <b>${esc(c.name||'-')}</b> &nbsp; เอเยนต์ <b>${esc(a.name||'-')}</b>`,rows,{firstCol:'แผ่น',netCols,showPrize:true,prizeTotal:prize,right:'จำนวนโพย<br><b>'+((c.slips||[]).length)+'</b>'});openSummaryPreview('สรุปลูกค้า',html,{scope:'customer',agentId,customerId,rows,prize})}
+function openAgentSummary(agentId,ev){if(ev)ev.stopPropagation();const a=agents.find(x=>x.id===agentId);if(!a)return;const rows=(a.customers||[]).map(c=>{const items=(c.slips||[]).flatMap(sl=>sl.items||[]);return{label:c.name||'-',sums:summaryForItems(items,agentId),count:items.length}});const allItems=a.items||[];const netCols=summaryNetByCol(allItems,agentId);const prize=prizeTotalForFilter(w=>String(w.agentId)===String(agentId));const html=summaryPageHtml('📊 สรุปรวมเอเยนต์ — '+esc(a.name||'-'),`งวด <b>${esc(workspace.roundLabel||'-')}</b> &nbsp; เอเยนต์ <b>${esc(a.name||'-')}</b> &nbsp; ลูกค้า <b>${(a.customers||[]).length}</b> คน`,rows,{firstCol:'ลูกค้า',netCols,showPrize:true,prizeTotal:prize,right:'จำนวนโพย<br><b>'+countSlips(a)+'</b>'});openSummaryPreview('สรุปเอเยนต์',html,{scope:'agent',agentId,rows,prize})}
+function openRoundSummary(ev){if(ev)ev.stopPropagation();const rows=(agents||[]).map(a=>{const items=a.items||[];return{label:a.name||'-',sums:summaryForItems(items,a.id),count:items.length}});const netCols=emptySummarySums();(agents||[]).forEach(a=>{const n=summaryNetByCol(a.items||[],a.id);Object.keys(netCols).forEach(k=>netCols[k]+=Number(n[k]||0))});const prize=prizeTotalForFilter(w=>true);const html=summaryPageHtml('📊 สรุปยอดทั้งงวด',`งวด <b>${esc(workspace.roundLabel||'-')}</b> &nbsp; ตลาด <b>${esc(rules.name)}</b> &nbsp; เอเยนต์ <b>${agents.length}</b> คน`,rows,{firstCol:'เอเยนต์',netCols,showPrize:true,prizeTotal:prize,right:'โพยทั้งหมด<br><b>'+agents.reduce((s,a)=>s+countSlips(a),0)+'</b>'});openSummaryPreview('สรุปทั้งงวด',html,{scope:'round',rows,prize})}
+let currentSummaryContext=null;
+function openSummaryPreview(title,html,ctx){currentSummaryContext={title,html,ctx,createdAt:Date.now()};currentPaperContext=null;document.querySelector('#paperModal .paper-title').textContent=title;document.getElementById('paperSub').textContent='HTML Preview / Browser Print / Summary';document.getElementById('paperPreview').innerHTML=html;document.getElementById('paperModal').classList.add('show')}
+function exportPaperSlipJSON(){if(!currentPaperContext)return alert('ยังไม่ได้เลือกโพย');const ctx=currentPaperContext;downloadJSON({fileType:'T999_V2_PAPER_SLIP',version:'5E-ImportFix3',exportedAt:new Date().toISOString(),payload:buildPaperScanPayload(ctx,ctx.slip.items||[],1,1)},`t999-slip-${market}-${safeName(ctx.customer.name)}-${safeName(ctx.slip.id)}.json`)}
+function stripHtmlForText(html){const div=document.createElement('div');div.innerHTML=html;return (div.innerText||div.textContent||'').replace(/\n{3,}/g,'\n\n').trim()}
+function copyPaperOrSummaryText(){let s='';if(currentSummaryContext)s=stripHtmlForText(currentSummaryContext.html);else if(currentPaperContext)s=paperPlainText(currentPaperContext);else return alert('ยังไม่มีข้อมูลให้คัดลอก');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(s).then(()=>alert('คัดลอกข้อความแล้ว')).catch(()=>alert(s))}else alert(s)}
+function exportPaperOrSummaryJSON(){if(currentSummaryContext){return downloadJSON({fileType:'T999_V2_SUMMARY_REPORT',version:'5E-ImportFix3',exportedAt:new Date().toISOString(),workspace,market,marketName:rules.name,summary:currentSummaryContext},`t999-summary-${market}-${safeName(currentSummaryContext.title)}-${Date.now()}.json`)}return exportPaperSlipJSON()}
+function printPaperOrSummary(){return printPaperSlip()}
+function printPaperSlip(){const html=document.getElementById('paperPreview').innerHTML;if(!html)return alert('ยังไม่มีโพยให้พิมพ์');const w=window.open('','_blank','width=980,height=900');if(!w)return alert('เบราว์เซอร์บล็อกหน้าต่างพิมพ์');const css=`<style>body{background:#fff;margin:0;padding:0;font-family:Arial,"Sarabun",sans-serif}.paper-page-wrap{display:block}.paper-page{width:100%;min-height:auto;box-shadow:none;border-radius:0;border:0;padding:14px 18px;page-break-after:always;background:#fff;color:#111}.paper-top{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:8px}.paper-brand{font-size:22px;font-weight:900}.paper-brand small{font-size:13px;color:#333}.paper-info{font-size:12px;line-height:1.55;margin-top:3px;color:#333}.paper-id{text-align:right;font-size:12px;line-height:1.55;color:#333;min-width:190px}.paper-id b{font-size:16px;color:#111}.paper-list{min-height:330px;padding:4px 0 8px}.paper-bet-row{display:grid;grid-template-columns:56px 20px 1fr;gap:8px;align-items:start;min-height:28px;border-bottom:1px dashed #cfcfcf;padding:4px 0;font-size:18px;font-weight:900}.paper-bet-row .eq{color:#777;text-align:center}.paper-bet-row .desc{font-size:14px;font-weight:900;color:#222;line-height:1.4;padding-top:2px}.limit{display:inline-block;margin-left:6px;font-size:10px;border:1px solid #d97706;background:#fff7ed;color:#9a3412;border-radius:999px;padding:1px 6px}.paper-summary{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;border-top:1.5px solid #111;border-bottom:1.5px solid #111}.paper-summary th,.paper-summary td{border-bottom:1px solid #d6d6d6;padding:6px 8px;text-align:center;font-weight:900}.paper-summary th{font-size:12px;color:#333;border-bottom:1px solid #111}.paper-summary .left{text-align:left;color:#555}.paper-page-total{display:flex;justify-content:space-between;gap:10px;align-items:flex-end;margin-top:12px;font-size:16px;font-weight:900}.paper-page-total b{font-size:26px}.paper-qrbox{width:96px;height:96px;border:2px dashed #111;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;line-height:1.25;margin-left:auto;color:#111;word-break:break-all;padding:5px}.paper-footer{font-size:10px;color:#777;text-align:right;margin-top:8px;border-top:1px solid #eee;padding-top:5px}.paper-scan-payload{display:none}@page{size:A4;margin:8mm}</style>`;w.document.open();w.document.write('<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">'+css+'<title>T999 Paper Slip</title></head><body><div class="paper-page-wrap">'+html+'</div></body></html>');w.document.close();setTimeout(()=>{try{w.focus();w.print()}catch(e){}},350)}
+function deleteSlip(agentId,customerId,slipId){
+  const a=agents.find(x=>x.id===agentId);const c=a&&(a.customers||[]).find(x=>x.id===customerId);if(!c)return;
+  const sl=(c.slips||[]).find(x=>x.id===slipId);if(!sl)return;
+  if(!confirm('ลบโพยนี้?\nยอด '+money(totalSlip(sl))))return;
+  if(activeSlipRef&&activeSlipRef.slipId===slipId)activeSlipRef=null;c.slips=(c.slips||[]).filter(x=>x.id!==slipId);a.items=(a.items||[]).filter(it=>it.slipId!==slipId);renderAgentModal();renderAll();saveData()
+}
+function deleteCustomer(agentId,customerId){
+  const a=agents.find(x=>x.id===agentId);if(!a)return;const c=(a.customers||[]).find(x=>x.id===customerId);if(!c)return;
+  if(!confirm('ลบลูกค้า '+c.name+' และโพยทั้งหมด?'))return;
+  a.customers=(a.customers||[]).filter(x=>x.id!==customerId);a.items=(a.items||[]).filter(it=>it.customerId!==customerId);renderAgentModal();renderAll();saveData()
+}
+
+/* Step 4A/4B config */
+function openBaseConfig(tab){agentModalAgentId=null;agentModalTab=tab||'rates';document.getElementById('agentModal').classList.add('show');renderBaseConfig()}
+function openActiveAgentConfig(){const a=getActiveAgent();if(!a)return alert('ยังไม่มีเอเยนต์');openAgentRateTab(a.id)}
+function renderBaseConfig(){
+  document.getElementById('agentModalTitle').textContent='ตั้งค่าเรท/เลขอั้นกลาง';
+  document.getElementById('agentModalSub').textContent='Step 4C | '+rules.name+' | ค่ากลางทั้งระบบ';
+  document.getElementById('agentSumTotal').textContent=money(totalAll());
+  document.getElementById('agentSumCustomers').textContent='กลาง';
+  document.getElementById('agentSumSlips').textContent=RATE_TYPES[market].length;
+  document.getElementById('agentSumItems').textContent=(rateLimitConfig.baseLimits[market]||[]).length;
+  ['Slips','Rates','Limits','Prize'].forEach(x=>document.getElementById('agentTab'+x).classList.remove('on'));
+  document.getElementById('agentTabSlips').textContent='ภาพรวม';
+  document.getElementById('agentTabRates').textContent='เรทกลาง';
+  document.getElementById('agentTabLimits').textContent='เลขอั้นกลาง';
+  document.getElementById('agentTabPrize').textContent='ตรวจรางวัล';
+  document.getElementById('agentTabRates').onclick=()=>{agentModalTab='rates';renderBaseConfig()};
+  document.getElementById('agentTabLimits').onclick=()=>{agentModalTab='limits';renderBaseConfig()};
+  document.getElementById('agentTabSlips').onclick=()=>{agentModalTab='slips';renderBaseConfig()};
+  document.getElementById('agentTabPrize').onclick=()=>{agentModalTab='prize';renderBaseConfig()};
+  document.getElementById('agentTab'+({slips:'Slips',rates:'Rates',limits:'Limits',prize:'Prize'}[agentModalTab])).classList.add('on');
+  if(agentModalTab==='rates')renderBaseRatesTab();
+  else if(agentModalTab==='limits')renderBaseLimitsTab();
+  else if(agentModalTab==='prize')renderPrizeResultTab('base','');
+  else document.getElementById('agentModalContent').innerHTML='<div class="placeholder-box"><b style="color:#f5c518">Step 4C</b><br>ไฟล์นี้ใช้ฐาน Step 4A Fix4 และเพิ่มหน้ากรอกผลรางวัล/ดึงผลล่าสุด/ประวัติผลแล้ว<br>ข้อมูลเรท/เลขอั้น/ผลรางวัล ถูกบันทึกลง localStorage และ Export JSON ไปพร้อมไฟล์ Master</div>';
+}
+function restoreAgentTabLabels(){
+  document.getElementById('agentTabSlips').textContent='สรุปลูกค้า/โพย';
+  document.getElementById('agentTabRates').textContent='เรทเอเยนต์';
+  document.getElementById('agentTabLimits').textContent='เลขอั้นเอเยนต์';
+  document.getElementById('agentTabPrize').textContent='ตรวจรางวัล';
+  document.getElementById('agentTabSlips').onclick=()=>setAgentTab('slips');
+  document.getElementById('agentTabRates').onclick=()=>setAgentTab('rates');
+  document.getElementById('agentTabLimits').onclick=()=>setAgentTab('limits');
+  document.getElementById('agentTabPrize').onclick=()=>setAgentTab('prize');
+}
+function renderAgentRatesTab(agent){restoreAgentTabLabels();ensureAgentConfig(agent.id);document.getElementById('agentModalContent').innerHTML=rateFormHtml('agent',agent.id)}
+function renderAgentLimitsTab(agent){restoreAgentTabLabels();ensureAgentConfig(agent.id);document.getElementById('agentModalContent').innerHTML=limitFormHtml('agent',agent.id)}
+function renderAgentPrizeTab(agent){restoreAgentTabLabels();renderPrizeResultTab('agent',agent.id)}
+function renderPrizeResultTab(scope,agentId){
+  const r=currentPrize();
+  let html=`<div class="agent-section">
+    <div class="config-bar">
+      <span class="pill">${rules.name}</span>
+      <span class="pill">Step 4H</span>
+      <span class="pill">${prizeReady()?'กรอกผลแล้ว':'ยังไม่ครบ'}</span>
+    </div>
+    <div class="warn">Step 4H: กรอกผล/ตรวจรางวัล แล้วระบบจะบันทึกรายงานย้อนหลัง ดูซ้ำ Export และลบถาวรได้</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn purple" onclick="fetchLatestPrizeResult('${scope}','${agentId}')">ดึงผลล่าสุด</button>
+      <button class="btn" onclick="renderPrizeHistoryTab('${scope}','${agentId}')">ประวัติผลรางวัล</button>
+      <button class="btn green" onclick="runPrizeCheck('${scope}','${agentId}')">ตรวจถูกรางวัล</button>
+      <button class="btn" onclick="renderLastPrizeReport('${scope}','${agentId}')">รายงานล่าสุด</button>
+    </div>
+    ${market==='thai'?thaiPrizeFormHtml(r):laoPrizeFormHtml(r)}
+    <div id="prizePreview" class="placeholder-box" style="margin-top:10px;text-align:left">${prizePreviewHtml()}</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px">
+      <button class="btn red" onclick="clearPrizeResult()">ล้างผลรางวัล</button>
+      <button class="btn gold" onclick="savePrizeResult('${scope}','${agentId}')">บันทึกผลรางวัล</button>
+    </div>
+  </div>`;
+  document.getElementById('agentModalContent').innerHTML=html;
+  document.querySelectorAll('.prize-input').forEach(inp=>{
+    inp.addEventListener('input',function(){
+      if(this.dataset.digits==='yes')this.value=onlyDigits(this.value,Number(this.dataset.len||9));
+      document.getElementById('prizePreview').innerHTML=prizePreviewHtmlFromInputs();
+    });
+  });
+}
+function thaiPrizeFormHtml(r){
+  return `<div class="rate-grid" style="grid-template-columns:1fr 1fr;gap:8px">
+    <div class="type-cell">งวด/วันที่</div><input id="prize_drawDate" class="input prize-input" value="${esc(r.drawDate||'')}" placeholder="เช่น 16/05/2569 หรือ 2026-05-16">
+    <div class="type-cell">เลขรางวัล 6 หลัก</div><input id="prize_top6" class="input prize-input" data-digits="yes" data-len="6" inputmode="numeric" value="${esc(r.top6||'')}" placeholder="เช่น 536077">
+    <div class="type-cell">3ล่าง ชุดที่ 1</div><input id="prize_front3_1" class="input prize-input" data-digits="yes" data-len="3" inputmode="numeric" value="${esc(r.front3_1||'')}" placeholder="เช่น 267">
+    <div class="type-cell">3ล่าง ชุดที่ 2</div><input id="prize_front3_2" class="input prize-input" data-digits="yes" data-len="3" inputmode="numeric" value="${esc(r.front3_2||'')}" placeholder="เช่น 318">
+    <div class="type-cell">3ล่าง ชุดที่ 3</div><input id="prize_back3_1" class="input prize-input" data-digits="yes" data-len="3" inputmode="numeric" value="${esc(r.back3_1||'')}" placeholder="เช่น 065">
+    <div class="type-cell">3ล่าง ชุดที่ 4</div><input id="prize_back3_2" class="input prize-input" data-digits="yes" data-len="3" inputmode="numeric" value="${esc(r.back3_2||'')}" placeholder="เช่น 153">
+    <div class="type-cell">2 ตัวล่าง</div><input id="prize_lower2" class="input prize-input" data-digits="yes" data-len="2" inputmode="numeric" value="${esc(r.lower2||'')}" placeholder="เช่น 43">
+  </div>`;
+}
+function laoPrizeFormHtml(r){
+  return `<div class="rate-grid" style="grid-template-columns:1fr 1fr;gap:8px">
+    <div class="type-cell">งวด/วันที่</div><input id="prize_drawDate" class="input prize-input" value="${esc(r.drawDate||'')}" placeholder="เช่น 2026-05-07">
+    <div class="type-cell">เลขออก 6 หลัก</div><input id="prize_top6" class="input prize-input" data-digits="yes" data-len="6" inputmode="numeric" value="${esc(r.top6||'')}" placeholder="เช่น 123456">
+    <div class="type-cell">2 ตัวล่าง</div><input id="prize_lower2" class="input prize-input" data-digits="yes" data-len="2" inputmode="numeric" value="${esc(r.lower2||'')}" placeholder="เช่น 34">
+  </div>
+  <div class="warn" style="margin-top:8px">ลาวตอนนี้คีย์มือเป็นหลัก หากมี API Key หวยลาวพัฒนาในอนาคต จะเสียบให้ดึงอัตโนมัติได้</div>`;
+}
+function readPrizeInputs(){
+  const drawDate=String(document.getElementById('prize_drawDate')?.value||'').trim();
+  if(market==='thai'){
+    return {
+      drawDate,
+      top6:onlyDigits(document.getElementById('prize_top6')?.value,6),
+      front3_1:onlyDigits(document.getElementById('prize_front3_1')?.value,3),
+      front3_2:onlyDigits(document.getElementById('prize_front3_2')?.value,3),
+      back3_1:onlyDigits(document.getElementById('prize_back3_1')?.value,3),
+      back3_2:onlyDigits(document.getElementById('prize_back3_2')?.value,3),
+      lower2:onlyDigits(document.getElementById('prize_lower2')?.value,2),
+      source:'manual'
+    };
+  }
+  const top6=onlyDigits(document.getElementById('prize_top6')?.value,6);
+  let lower2=onlyDigits(document.getElementById('prize_lower2')?.value,2);
+  if(!lower2&&top6.length===6)lower2=top6.slice(2,4);
+  return {drawDate,top6,lower2,source:'manual'};
+}
+function prizePreviewHtml(){
+  return prizePreviewFrom(currentPrize());
+}
+function prizePreviewHtmlFromInputs(){
+  return prizePreviewFrom(readPrizeInputs());
+}
+function prizePreviewFrom(r){
+  const top6=onlyDigits(r.top6,6);
+  const top3=top6.length===6?top6.slice(-3):'';
+  const top2=top6.length===6?top6.slice(-2):'';
+  const lao4=top6.length===6?top6.slice(-4):'';
+  const thai3Front=top6.length===6?top6.slice(0,3):'';
+  const thai2Front=top6.length===6?top6.slice(3,5):'';
+  const lower2=onlyDigits(r.lower2,2)||(market==='lao'&&top6.length===6?top6.slice(2,4):'');
+  const drawDate=r.drawDate?`งวด: ${esc(r.drawDate)}<br>`:'';
+  if(market==='thai'){
+    const lower3=[r.front3_1,r.front3_2,r.back3_1,r.back3_2].filter(Boolean).join(' / ')||'-';
+    return `<b style="color:#f5c518">Preview กติกาไทย T999</b><br>${drawDate}
+      3ตัวบน: ${top3||'-'} · 2ตัวบน: ${top2||'-'} · 3หน้า: ${thai3Front||'-'} · 2หน้า: ${thai2Front||'-'}<br>
+      3ล่าง: ${esc(lower3)} · 2ตัวล่าง: ${lower2||'-'}<br>
+      โต๊ด 2/3/4/5 อิงชุด 3ตัวบนเท่านั้น · วิ่งบนอิง 3ตัวบน · วิ่งล่างอิง 2ตัวล่าง<br>
+      ปักบนอิง 3ตัวบน: ร้อย/สิบ/หน่วย · ปักล่างอิง 2ตัวล่าง: สิบ/หน่วย<br>
+      สถานะ: ${top6.length===6&&lower2.length===2?'พร้อมตรวจใน Step 4C':'ยังกรอกไม่ครบ'}`;
+  }
+  return `<b style="color:#f5c518">Preview กติกาลาว T999</b><br>${drawDate}
+    4ตัวบน: ${lao4||'-'} · 3ตัวบน: ${top3||'-'} · 2ตัวบน: ${top2||'-'} · 2ตัวล่าง: ${lower2||'-'}<br>
+    โต๊ด 2/3/4/5 อิงชุด 3ตัวบนเท่านั้น · วิ่ง/ปัก อิงบน/ล่างตามประเภท<br>
+    ปักบนอิง 3ตัวบน: ร้อย/สิบ/หน่วย · ปักล่างอิง 2ตัวล่าง: สิบ/หน่วย<br>
+    สถานะ: ${top6.length===6&&lower2.length===2?'พร้อมตรวจใน Step 4C':'ยังกรอกเลขออกไม่ครบ'}`;
+}
+function savePrizeResult(scope,agentId){
+  const r=readPrizeInputs();
+  if(!r.top6||r.top6.length!==6)return alert(market==='thai'?'กรุณากรอกเลขรางวัล 6 หลัก':'กรุณากรอกเลขออก 6 หลัก');
+  if(!r.lower2||r.lower2.length!==2)return alert('กรุณากรอก 2 ตัวล่าง');
+  prizeResult[market]=r;
+  prizeResult.market=market;
+  prizeResult.version='4D';
+  prizeResult.updatedAt=Date.now();
+  savePrizeHistory(r,'manual');
+  saveData();
+  alert('บันทึกผลรางวัล และเก็บเข้าประวัติแล้ว');
+  scope==='agent'?renderAgentModal():renderBaseConfig();
+}
+function clearPrizeResult(){
+  if(!confirm('ล้างผลรางวัลของโหมด '+rules.name+' ?'))return;
+  prizeResult[market]=market==='thai'?{drawDate:'',top6:'',front3_1:'',front3_2:'',back3_1:'',back3_2:'',lower2:'',source:'manual'}:{drawDate:'',top6:'',lower2:'',source:'manual'};
+  prizeResult.updatedAt=Date.now();
+  saveData();
+  if(agentModalAgentId)renderAgentModal();else renderBaseConfig();
+}
+function prizeHistoryList(){
+  try{return JSON.parse(localStorage.getItem(PRIZE_HISTORY_KEY)||'[]')}catch(e){return []}
+}
+function writePrizeHistory(list){
+  localStorage.setItem(PRIZE_HISTORY_KEY,JSON.stringify(list));
+}
+function prizeEntryKey(r){
+  return [market,r.drawDate||'',r.top6||'',r.lower2||''].join('|');
+}
+function savePrizeHistory(r,source){
+  const list=prizeHistoryList();
+  const key=prizeEntryKey(r);
+  const entry={id:'prize_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),key,market,marketName:rules.name,drawDate:r.drawDate||'',savedAt:Date.now(),source:source||r.source||'manual',result:{...r,source:source||r.source||'manual'}};
+  const idx=list.findIndex(x=>x.key===key);
+  if(idx>=0)list[idx]={...list[idx],...entry,id:list[idx].id,savedAt:Date.now()};
+  else list.unshift(entry);
+  writePrizeHistory(list.slice(0,200));
+}
+function renderPrizeHistoryTab(scope,agentId){
+  const list=prizeHistoryList();
+  const rows=list.length?list.map((h,i)=>{
+    const r=h.result||{};
+    const title=(h.drawDate||'ไม่ระบุงวด')+' · '+(r.top6||'-')+' · ล่าง '+(r.lower2||'-');
+    const meta=new Date(h.savedAt||Date.now()).toLocaleString('th-TH')+' · '+(h.source||'manual');
+    return `<div class="agent-slip">
+      <div><div class="agent-slip-title">${i+1}. ${esc(title)}</div><div class="agent-slip-meta">${esc(meta)}</div></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn small" onclick="loadPrizeHistory('${h.id}','${scope}','${agentId}')">โหลดผลนี้</button>
+        <button class="btn small" onclick="exportPrizeHistory('${h.id}')">Export JSON</button>
+        <button class="btn small red" onclick="deletePrizeHistoryPermanent('${h.id}','${scope}','${agentId}')">ลบถาวร</button>
+      </div>
+    </div>`;
+  }).join(''):'<div class="placeholder-box">ยังไม่มีประวัติผลรางวัล</div>';
+  document.getElementById('agentModalContent').innerHTML=`<div class="agent-section">
+    <div class="config-bar"><span class="pill">ประวัติผลรางวัล</span><span class="pill">${rules.name}</span><span class="pill">${list.length} รายการ</span></div>
+    <div class="warn">ประวัตินี้เก็บใน localStorage ของเครื่องนี้ ระยะต่อไปสามารถแนบไปกับ USB/Export ได้</div>
+    ${rows}
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
+      <button class="btn" onclick="renderPrizeResultTab('${scope}','${agentId}')">กลับหน้ากรอกผล</button>
+    </div>
+  </div>`;
+}
+function loadPrizeHistory(id,scope,agentId){
+  const h=prizeHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบประวัตินี้');
+  prizeResult[market]={...(h.result||{})};
+  prizeResult.market=market;
+  prizeResult.updatedAt=Date.now();
+  saveData();
+  alert('โหลดผลรางวัลเก่าแล้ว');
+  renderPrizeResultTab(scope,agentId);
+}
+function exportPrizeHistory(id){
+  const h=prizeHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบประวัตินี้');
+  downloadJSON({fileType:'T999_V2_PRIZE_HISTORY',version:'5E-ImportFix3',exportedAt:new Date().toISOString(),entry:h},`t999-prize-${market}-${safeName(h.drawDate||h.result?.top6||'history')}.json`);
+}
+function deletePrizeHistoryPermanent(id,scope,agentId){
+  const h=prizeHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบประวัตินี้');
+  if(!confirm('ลบถาวรประวัติผลรางวัลนี้?\n'+(h.drawDate||'ไม่ระบุงวด')+' · '+(h.result?.top6||'')))return;
+  const word=prompt('พิมพ์ DELETE เพื่อยืนยันลบถาวร','');
+  if(word!=='DELETE')return alert('ยกเลิกการลบถาวร');
+  writePrizeHistory(prizeHistoryList().filter(x=>x.id!==id));
+  alert('ลบถาวรแล้ว');
+  renderPrizeHistoryTab(scope,agentId);
+}
+async function fetchLatestPrizeResult(scope,agentId){
+  if(market==='lao'){
+    alert('หวยลาวตอนนี้ยังไม่มี API ที่ตั้งค่าไว้ในระบบ\nให้คีย์มือก่อน ถ้าคุณมี API Key หวยลาวพัฒนา เดี๋ยวผมจะเสียบให้ในสเต็ปถัดไป');
+    return;
+  }
+  const ok=confirm('ดึงผลหวยไทยล่าสุดจาก API สำนักงานสลากฯ?\nถ้าดึงไม่ได้ให้กรอกมือได้ตามปกติ');
+  if(!ok)return;
+  try{
+    const res=await fetch('https://www.glo.or.th/api/lottery/getLatestLottery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    const parsed=parseThaiLatestResult(data);
+    if(!parsed.top6)throw new Error('ไม่พบเลขรางวัลที่ 1 ในข้อมูล API');
+    prizeResult.thai={...parsed,source:'glo'};
+    prizeResult.market=market;
+    prizeResult.updatedAt=Date.now();
+    savePrizeHistory(prizeResult.thai,'glo');
+    saveData();
+    alert('ดึงผลล่าสุดและบันทึกเข้าประวัติแล้ว');
+    renderPrizeResultTab(scope,agentId);
+  }catch(e){
+    console.warn(e);
+    alert('ดึงผลล่าสุดไม่สำเร็จ อาจติด CORS/อินเทอร์เน็ต/API เปลี่ยน\nกรุณากรอกมือก่อน\n\nรายละเอียด: '+e.message);
+  }
+}
+function parseThaiLatestResult(data){
+  const firstNode=findNodeByKey(data,['first','firstPrize','first_prize','รางวัลที่ 1']);
+  const last2Node=findNodeByKey(data,['last2','last2digit','last_two','เลขท้าย 2 ตัว']);
+  const front3Node=findNodeByKey(data,['last3f','front3','front3digit','เลขหน้า 3 ตัว']);
+  const back3Node=findNodeByKey(data,['last3b','back3','last3','เลขท้าย 3 ตัว']);
+  const dateNode=findNodeByKey(data,['displayDate','date','drawDate','งวดวันที่']);
+  const top6=pickNumber(firstNode,6)||pickNumber(data,6);
+  const lower2=pickNumber(last2Node,2);
+  const front3=pickNumbers(front3Node,3).slice(0,2);
+  const back3=pickNumbers(back3Node,3).slice(0,2);
+  return {
+    drawDate:String(typeof dateNode==='string'?dateNode:''),
+    top6:top6||'',
+    front3_1:front3[0]||'',
+    front3_2:front3[1]||'',
+    back3_1:back3[0]||'',
+    back3_2:back3[1]||'',
+    lower2:lower2||'',
+    source:'glo'
+  };
+}
+function findNodeByKey(obj,keys){
+  if(!obj||typeof obj!=='object')return null;
+  const low=keys.map(k=>String(k).toLowerCase());
+  for(const k of Object.keys(obj)){
+    if(low.includes(String(k).toLowerCase()))return obj[k];
+  }
+  for(const k of Object.keys(obj)){
+    const v=obj[k];
+    if(v&&typeof v==='object'){
+      const found=findNodeByKey(v,keys);
+      if(found!==null&&found!==undefined)return found;
+    }
+  }
+  return null;
+}
+function pickNumber(obj,len){return pickNumbers(obj,len)[0]||''}
+function pickNumbers(obj,len){
+  const out=[];
+  function walk(x){
+    if(x===null||x===undefined)return;
+    if(typeof x==='string'||typeof x==='number'){
+      const m=String(x).match(new RegExp('\\d{'+len+'}','g'));
+      if(m)m.forEach(n=>out.push(n));
+    }else if(Array.isArray(x))x.forEach(walk);
+    else if(typeof x==='object')Object.values(x).forEach(walk);
+  }
+  walk(obj);
+  return Array.from(new Set(out));
+}
+function renderBaseRatesTab(){document.getElementById('agentModalContent').innerHTML=rateFormHtml('base','')}
+function renderBaseLimitsTab(){document.getElementById('agentModalContent').innerHTML=limitFormHtml('base','')}
+function rateFormHtml(scope,agentId){
+  const isAgent=scope==='agent';const title=isAgent?'เรทเฉพาะเอเยนต์':'เรทกลาง';
+  let html=`<div class="agent-section">
+    <div class="warn">${isAgent?'ถ้าปล่อยช่องว่าง ระบบจะใช้เรทกลางแทน':'ตั้งเรทกลางของตลาด '+rules.name} · แต่ละประเภทมี “ลด%” และ “จ่าย”</div>
+    <div class="rate-grid"><div class="grid-head">ประเภท</div><div class="grid-head">ลด %</div><div class="grid-head">จ่าย</div>`;
+  RATE_TYPES[market].forEach(t=>{
+    const r=isAgent?(rateLimitConfig.agentRates[agentId][market][t]||{discount:'',pay:''}):(rateLimitConfig.baseRates[market][t]||{discount:0,pay:0});
+    html+=`<div class="type-cell">${esc(t)}</div><input class="input rate-dis" data-type="${esc(t)}" type="number" value="${esc(r.discount)}" placeholder="${isAgent?'ใช้กลาง':'0'}"><input class="input rate-pay" data-type="${esc(t)}" type="number" value="${esc(r.pay)}" placeholder="${isAgent?'ใช้กลาง':'0'}">`;
+  });
+  html+=`</div><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+    ${isAgent?`<button class="btn red" onclick="clearAgentRates('${agentId}')">ล้างเรทเอเยนต์</button>`:''}
+    <button class="btn gold" onclick="saveRates('${scope}','${agentId}')">บันทึก${title}</button>
+  </div></div>`;
+  return html;
+}
+function saveRates(scope,agentId){
+  const isAgent=scope==='agent';if(isAgent)ensureAgentConfig(agentId);
+  document.querySelectorAll('.rate-dis').forEach(inp=>{
+    const type=inp.dataset.type;const pay=document.querySelector(`.rate-pay[data-type="${cssEsc(type)}"]`);
+    const obj={discount:inp.value===''?'':Number(inp.value||0),pay:pay.value===''?'':Number(pay.value||0)};
+    if(isAgent)rateLimitConfig.agentRates[agentId][market][type]=obj;else rateLimitConfig.baseRates[market][type]={discount:Number(obj.discount||0),pay:Number(obj.pay||0)};
+  });
+  saveData();alert('บันทึกเรทแล้ว'); if(isAgent)renderAgentModal();else renderBaseConfig()
+}
+function cssEsc(s){return window.CSS&&CSS.escape?CSS.escape(s):String(s).replace(/["\\]/g,'\\$&')}
+function clearAgentRates(agentId){if(!confirm('ล้างเรทเฉพาะเอเยนต์นี้?'))return;ensureAgentConfig(agentId);RATE_TYPES[market].forEach(t=>rateLimitConfig.agentRates[agentId][market][t]={discount:'',pay:''});saveData();renderAgentModal()}
+function limitFormHtml(scope,agentId){
+  const isAgent=scope==='agent';const rows=isAgent?rateLimitConfig.agentLimits[agentId][market]:rateLimitConfig.baseLimits[market];
+  let html=`<div class="agent-section">
+    <div class="config-bar"><button class="btn green" onclick="addLimitRow('${scope}','${agentId}')">+ เพิ่มเลขอั้น</button><span class="pill">${rules.name}</span><span class="pill">${isAgent?'เฉพาะเอเยนต์':'กลาง'}</span></div>
+    <div class="warn">ระดับจ่าย: ปิดรับ / จ่าย 50% / จ่าย 20% / กำหนดเอง · รายเอเยนต์มีสิทธิ์ก่อนเลขอั้นกลาง</div>
+    <div class="limit-grid"><div class="grid-head">ประเภท</div><div class="grid-head">เลข</div><div class="grid-head">ระดับจ่าย</div><div class="grid-head">กำหนด %</div><div class="grid-head">กำหนดจ่าย</div><div class="grid-head">หมายเหตุ</div><div class="grid-head">ลบ</div>`;
+  if(!rows.length)html+='<div class="note" style="grid-column:1/-1">ยังไม่มีเลขอั้น</div>';
+  rows.forEach((r,idx)=>{
+    html+=`<select class="select limit-type" data-idx="${idx}">${LIMIT_TYPES[market].map(t=>`<option ${r.type===t?'selected':''}>${esc(t)}</option>`).join('')}</select>
+    <input class="input limit-number" data-idx="${idx}" value="${esc(r.number)}" placeholder="เลข">
+    <select class="select limit-level" data-idx="${idx}">${LIMIT_LEVELS.map(([v,l])=>`<option value="${v}" ${r.level===v?'selected':''}>${l}</option>`).join('')}</select>
+    <input class="input limit-percent" data-idx="${idx}" type="number" value="${esc(r.customPercent)}" placeholder="%">
+    <input class="input limit-pay" data-idx="${idx}" type="number" value="${esc(r.customPay)}" placeholder="จ่าย">
+    <input class="input left limit-note" data-idx="${idx}" value="${esc(r.note)}" placeholder="หมายเหตุ">
+    <button class="btn red" onclick="deleteLimitRow('${scope}','${agentId}',${idx})">×</button>`;
+  });
+  html+=`</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn gold" onclick="saveLimits('${scope}','${agentId}')">บันทึกเลขอั้น</button></div></div>`;
+  return html;
+}
+function addLimitRow(scope,agentId){if(scope==='agent')ensureAgentConfig(agentId);const rows=scope==='agent'?rateLimitConfig.agentLimits[agentId][market]:rateLimitConfig.baseLimits[market];rows.push(normalizeLimit({type:LIMIT_TYPES[market][0],number:'',level:'closed'}));scope==='agent'?renderAgentModal():renderBaseConfig()}
+function deleteLimitRow(scope,agentId,idx){const rows=scope==='agent'?rateLimitConfig.agentLimits[agentId][market]:rateLimitConfig.baseLimits[market];rows.splice(idx,1);saveData();scope==='agent'?renderAgentModal():renderBaseConfig()}
+function saveLimits(scope,agentId){
+  const rows=[];document.querySelectorAll('.limit-type').forEach((el,idx)=>{
+    const number=document.querySelector(`.limit-number[data-idx="${idx}"]`).value.trim();if(!number)return;
+    rows.push(normalizeLimit({type:el.value,number,level:document.querySelector(`.limit-level[data-idx="${idx}"]`).value,customPercent:document.querySelector(`.limit-percent[data-idx="${idx}"]`).value,customPay:document.querySelector(`.limit-pay[data-idx="${idx}"]`).value,note:document.querySelector(`.limit-note[data-idx="${idx}"]`).value}));
+  });
+  if(scope==='agent'){ensureAgentConfig(agentId);rateLimitConfig.agentLimits[agentId][market]=rows}else rateLimitConfig.baseLimits[market]=rows;
+  saveData();alert('บันทึกเลขอั้นแล้ว');scope==='agent'?renderAgentModal():renderBaseConfig()
+}
+function getEffectiveRate(agentId,rateType){
+  const base=rateLimitConfig.baseRates[market][rateType]||{discount:0,pay:0};
+  const ag=agentId&&rateLimitConfig.agentRates[agentId]&&rateLimitConfig.agentRates[agentId][market]&&rateLimitConfig.agentRates[agentId][market][rateType];
+  return {discount:ag&&ag.discount!==''?Number(ag.discount):Number(base.discount||0),pay:ag&&ag.pay!==''?Number(ag.pay):Number(base.pay||0),source:ag&&(ag.discount!==''||ag.pay!=='')?'agent':'base'}
+}
+function getMatchedLimit(agentId,number,type){
+  const n=String(number||'').trim(),t=String(type||'').trim();
+  const match=r=>String(r.number).trim()===n&&(!r.type||!t||r.type===t);
+  const ar=agentId&&rateLimitConfig.agentLimits[agentId]&&rateLimitConfig.agentLimits[agentId][market]||[];
+  let found=ar.find(match);if(found)return{...found,source:'agent'};
+  found=(rateLimitConfig.baseLimits[market]||[]).find(match);if(found)return{...found,source:'base'};
+  return null;
+}
+
+/* Step 4C prize checking */
+function derivePrizeTargets(r=currentPrize()){
+  const top6=onlyDigits(r.top6,6);
+  const top3=top6.length===6?top6.slice(-3):'';
+  const top2=top6.length===6?top6.slice(-2):'';
+  const lower2=(onlyDigits(r.lower2,2)||(market==='lao'&&top6.length===6?top6.slice(2,4):''));
+  if(market==='thai'){
+    return {
+      market,drawDate:r.drawDate||'',top6,
+      top3,top2,
+      front3:top6.length===6?top6.slice(0,3):'',
+      front2:top6.length===6?top6.slice(3,5):'',
+      lower3:[r.front3_1,r.front3_2,r.back3_1,r.back3_2].map(x=>onlyDigits(x,3)).filter(x=>x.length===3),
+      lower2,
+      pinTop:{hundred:top3[0]||'',ten:top3[1]||'',unit:top3[2]||''},
+      pinLower:{ten:lower2[0]||'',unit:lower2[1]||''}
+    };
+  }
+  return {
+    market,drawDate:r.drawDate||'',top6,
+    top4:top6.length===6?top6.slice(-4):'',
+    top3,top2,lower2,
+    pinTop:{hundred:top3[0]||'',ten:top3[1]||'',unit:top3[2]||''},
+    pinLower:{ten:lower2[0]||'',unit:lower2[1]||''}
+  };
+}
+function canCheckPrize(){
+  const t=derivePrizeTargets();
+  if(!t.top6||t.top6.length!==6)return false;
+  if(!t.lower2||t.lower2.length!==2)return false;
+  return true;
+}
+function normalizeBetNumber(n){return onlyDigits(n,20)}
+function sortedDigits(s){return String(s||'').split('').sort().join('')}
+function uniquePermutationsOfLength(source,len){
+  source=String(source||'');len=Number(len||source.length);
+  const out=new Set();
+  function rec(prefix,rest){
+    if(prefix.length===len){out.add(prefix);return}
+    for(let i=0;i<rest.length;i++)rec(prefix+rest[i],rest.slice(0,i)+rest.slice(i+1));
+  }
+  rec('',source);
+  return out;
+}
+function todMatchFromTop3(bet,top3){
+  bet=normalizeBetNumber(bet);top3=normalizeBetNumber(top3);
+  if(!bet||!top3)return false;
+  if(bet.length>top3.length)return false;
+  if(bet.length===top3.length)return sortedDigits(bet)===sortedDigits(top3);
+  return uniquePermutationsOfLength(top3,bet.length).has(bet);
+}
+function rateTypeForItem(it){
+  const n=normalizeBetNumber(itemNumber(it));
+  const len=n.length;
+  if(it.pin){
+    if(market==='thai')return it.type==='lang'?'ปักหลักล่าง':'ปักหลักบน';
+    return it.type==='lang'?'ปักล่าง':'ปักบน';
+  }
+  if(it.type==='tod')return 'โต๊ด '+len+'ตัว';
+  if(market==='thai'){
+    if(it.type==='bon')return len===3?'3ตัวบน':len===2?'2ตัวบน':len===1?'วิ่งบน':'บน';
+    if(it.type==='lang')return len===3?'3ตัวล่าง':len===2?'2ตัวล่าง':len===1?'วิ่งล่าง':'ล่าง';
+    if(it.type==='na')return len===3?'3ตัวหน้า':len===2?'2ตัวหน้า':'หน้า';
+  }else{
+    if(it.type==='bon')return len===4?'4ตัวบน':len===3?'3ตัวบน':len===2?'2ตัวบน':len===1?'ลอยบน':'บน';
+    if(it.type==='lang')return len===2?'2ตัวล่าง':len===1?'ลอยล่าง':'ล่าง';
+  }
+  return LABEL[it.type]||it.type||'-';
+}
+function limitTypeForItem(it){
+  if(it.pin){
+    if(market==='thai')return it.type==='lang'?'ปักหลักล่าง':'ปักหลักบน';
+    return it.type==='lang'?'ปักล่าง':'ปักบน';
+  }
+  if(it.type==='tod')return 'โต๊ด';
+  if(it.type==='lang')return 'ล่าง';
+  if(it.type==='na')return 'หน้า';
+  return 'บน';
+}
+function checkItemWin(it,targets){
+  const n=normalizeBetNumber(itemNumber(it));
+  const len=n.length;
+  if(!n)return {win:false,reason:'ไม่มีเลข'};
+  if(it.pin){
+    const pos=it.pinPosition||'';
+    const digit=n.slice(-1);
+    if(it.type==='lang'){
+      const hit=targets.pinLower&&targets.pinLower[pos]===digit;
+      return {win:!!hit,reason:'ปักล่าง '+pos+' = '+(targets.pinLower&&targets.pinLower[pos]||'-')};
+    }
+    const hit=targets.pinTop&&targets.pinTop[pos]===digit;
+    return {win:!!hit,reason:'ปักบน '+pos+' = '+(targets.pinTop&&targets.pinTop[pos]||'-')};
+  }
+  if(it.type==='tod'){
+    const hit=todMatchFromTop3(n,targets.top3);
+    return {win:hit,reason:'โต๊ดอิง 3ตัวบน '+(targets.top3||'-')};
+  }
+  if(market==='thai'){
+    if(it.type==='bon'){
+      if(len===3)return {win:n===targets.top3,reason:'3ตัวบน '+targets.top3};
+      if(len===2)return {win:n===targets.top2,reason:'2ตัวบน '+targets.top2};
+      if(len===1)return {win:targets.top3.includes(n),reason:'วิ่งบนใน '+targets.top3};
+    }
+    if(it.type==='lang'){
+      if(len===3)return {win:(targets.lower3||[]).includes(n),reason:'3ล่าง '+((targets.lower3||[]).join('/')||'-')};
+      if(len===2)return {win:n===targets.lower2,reason:'2ตัวล่าง '+targets.lower2};
+      if(len===1)return {win:targets.lower2.includes(n),reason:'วิ่งล่างใน '+targets.lower2};
+    }
+    if(it.type==='na'){
+      if(len===3)return {win:n===targets.front3,reason:'3หน้า '+targets.front3};
+      if(len===2)return {win:n===targets.front2,reason:'2หน้า '+targets.front2};
+    }
+  }else{
+    if(it.type==='bon'){
+      if(len===4)return {win:n===targets.top4,reason:'4ตัวบน '+targets.top4};
+      if(len===3)return {win:n===targets.top3,reason:'3ตัวบน '+targets.top3};
+      if(len===2)return {win:n===targets.top2,reason:'2ตัวบน '+targets.top2};
+      if(len===1)return {win:targets.top3.includes(n),reason:'ลอยบนใน '+targets.top3};
+    }
+    if(it.type==='lang'){
+      if(len===2)return {win:n===targets.lower2,reason:'2ตัวล่าง '+targets.lower2};
+      if(len===1)return {win:targets.lower2.includes(n),reason:'ลอยล่างใน '+targets.lower2};
+    }
+  }
+  return {win:false,reason:'ประเภทนี้ยังไม่เข้าเงื่อนไขตรวจ'};
+}
+function payoutForWin(it,agentId,rateType,limit){
+  let amount=Number(it.amount||0);
+  const rate=getEffectiveRate(agentId,rateType);
+  let pay=Number(rate.pay||0);
+  if(!pay&&it.pin)pay=8;
+  let paySource=rate.source||'base';
+  let limitNote='';
+  if(limit){
+    if(limit.level==='closed')return {amount,pay,payout:0,rate,limit,limitNote:'ปิดรับ'};
+    if(limit.level==='pay50'){pay=pay*0.5;limitNote='เลขอั้นจ่าย 50%'}
+    else if(limit.level==='pay20'){pay=pay*0.2;limitNote='เลขอั้นจ่าย 20%'}
+    else if(limit.level==='custom'){
+      if(Number(limit.customPay||0)>0){pay=Number(limit.customPay);limitNote='เลขอั้นกำหนดจ่าย'}
+      else if(Number(limit.customPercent||0)>0){pay=pay*(Number(limit.customPercent)/100);limitNote='เลขอั้นกำหนด '+Number(limit.customPercent)+'%'}
+      else limitNote='เลขอั้นกำหนดเอง';
+    }
+  }
+  return {amount,pay,payout:amount*pay,rate,limit,limitNote,paySource};
+}
+function discountForItem(it,agentId,rateType){
+  const rate=getEffectiveRate(agentId,rateType);
+  const amount=Number(it.amount||0);
+  const discount=Number(rate.discount||0);
+  return {gross:amount,discountPercent:discount,net:amount-(amount*discount/100),rate};
+}
+function collectCheckItems(scope,agentId){
+  if(scope==='agent'&&agentId){
+    const a=agents.find(x=>x.id===agentId);
+    return a?[a]:[];
+  }
+  return agents;
+}
+function runPrizeCheck(scope='base',agentId=''){
+  const r=readPrizeInputs();
+  if(r.top6&&r.top6.length===6){prizeResult[market]=r;prizeResult.market=market;prizeResult.version='4D';prizeResult.updatedAt=Date.now();}
+  if(!canCheckPrize())return alert('กรุณากรอกผลรางวัลให้ครบก่อนตรวจ');
+  const targets=derivePrizeTargets(currentPrize());
+  const report={version:'5E-ImportFix3',market,marketName:rules.name,scope,agentId,drawDate:targets.drawDate||'',checkedAt:Date.now(),targets,totalGross:0,totalNet:0,totalPayout:0,profit:0,winCount:0,itemCount:0,winners:[],agentSummary:[]};
+  const checkAgents=collectCheckItems(scope,agentId);
+  checkAgents.forEach(a=>{
+    let agentSum={agentId:a.id,agentName:a.name,totalGross:0,totalNet:0,totalPayout:0,winCount:0,itemCount:0};
+    (a.items||[]).forEach(it=>{
+      const rateType=rateTypeForItem(it);
+      const disc=discountForItem(it,a.id,rateType);
+      agentSum.totalGross+=disc.gross;agentSum.totalNet+=disc.net;agentSum.itemCount++;report.itemCount++;
+      const chk=checkItemWin(it,targets);
+      if(chk.win){
+        const limit=getMatchedLimit(a.id,itemNumber(it),limitTypeForItem(it));
+        const p=payoutForWin(it,a.id,rateType,limit);
+        agentSum.totalPayout+=p.payout;agentSum.winCount++;report.winCount++;
+        report.winners.push({agentId:a.id,agentName:a.name,customerName:it.customerName||'',slipNo:it.slipNo||'',slipId:it.slipId||'',number:itemNumber(it),type:LABEL[it.type]||it.type,rateType,amount:Number(it.amount||0),pay:p.pay,payout:p.payout,reason:chk.reason,limit:p.limit||null,limitNote:p.limitNote||''});
+      }
+    });
+    report.totalGross+=agentSum.totalGross;report.totalNet+=agentSum.totalNet;report.totalPayout+=agentSum.totalPayout;
+    report.agentSummary.push(agentSum);
+  });
+  report.profit=report.totalNet-report.totalPayout;
+  latestPrizeCheckReport=report;
+  saveData();
+  renderPrizeReport(report,scope,agentId);
+}
+function renderPrizeReport(report,scope='base',agentId=''){
+  const winRows=report.winners.length?report.winners.map((w,i)=>`<div class="agent-slip">
+    <div>
+      <div class="agent-slip-title">${i+1}. ${esc(w.agentName)} ${w.customerName?' / '+esc(w.customerName):''} ${w.slipNo?' / โพย #'+esc(w.slipNo):''}</div>
+      <div class="agent-slip-meta">เลข ${esc(w.number)} · ${esc(w.rateType)} · แทง ${money(w.amount)} · จ่าย ${Number(w.pay||0).toLocaleString()} · ยอดจ่าย ${money(w.payout)}<br>${esc(w.reason)} ${w.limitNote?' · '+esc(w.limitNote):''}</div>
+    </div>
+  </div>`).join(''):'<div class="placeholder-box">ไม่พบผู้ถูกรางวัล</div>';
+  const agentRows=report.agentSummary.map(a=>`<div class="agent-slip">
+    <div><div class="agent-slip-title">${esc(a.agentName)}</div><div class="agent-slip-meta">รายการ ${a.itemCount} · ถูก ${a.winCount} · ยอดแทงหลังลด ${money(a.totalNet)} · ยอดจ่าย ${money(a.totalPayout)} · กำไร ${money(a.totalNet-a.totalPayout)}</div></div>
+  </div>`).join('');
+  const targetHtml=market==='thai'
+    ? `3บน ${report.targets.top3||'-'} · 2บน ${report.targets.top2||'-'} · 3หน้า ${report.targets.front3||'-'} · 2หน้า ${report.targets.front2||'-'} · 3ล่าง ${(report.targets.lower3||[]).join('/')||'-'} · 2ล่าง ${report.targets.lower2||'-'}`
+    : `4บน ${report.targets.top4||'-'} · 3บน ${report.targets.top3||'-'} · 2บน ${report.targets.top2||'-'} · 2ล่าง ${report.targets.lower2||'-'}`;
+  document.getElementById('agentModalContent').innerHTML=`<div class="agent-section">
+    <div class="config-bar"><span class="pill">รายงานตรวจรางวัล</span><span class="pill">${esc(rules.name)}</span><span class="pill">${report.winCount} รายการถูก</span></div>
+    <div class="placeholder-box" style="text-align:left">
+      <b style="color:#f5c518">ผลที่ใช้ตรวจ</b><br>${targetHtml}<br><br>
+      ยอดแทงรวม: <b>${money(report.totalGross)}</b> · หลังหักลด: <b>${money(report.totalNet)}</b> · ยอดจ่าย: <b>${money(report.totalPayout)}</b> · กำไร/ขาดทุน: <b style="color:${report.profit>=0?'#34d399':'#fb7185'}">${money(report.profit)}</b>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin:10px 0">
+      <button class="btn" onclick="renderPrizeResultTab('${scope}','${agentId}')">กลับหน้าผลรางวัล</button>
+      <button class="btn" onclick="exportPrizeCheckReport()">Export รายงาน</button>
+    </div>
+    <div class="warn">สรุปตามเอเยนต์</div>
+    ${agentRows||'<div class="placeholder-box">ไม่มีข้อมูลเอเยนต์</div>'}
+    <div class="warn" style="margin-top:10px">รายการที่ถูกรางวัล</div>
+    ${winRows}
+  </div>`;
+}
+function renderLastPrizeReport(scope='base',agentId=''){
+  if(!latestPrizeCheckReport)return alert('ยังไม่มีรายงานล่าสุด ให้กดตรวจถูกรางวัลก่อน');
+  renderPrizeReport(latestPrizeCheckReport,scope,agentId);
+}
+function exportPrizeCheckReport(){
+  if(!latestPrizeCheckReport)return alert('ยังไม่มีรายงานล่าสุด');
+  downloadJSON({fileType:'T999_V2_PRIZE_CHECK_REPORT',version:'5E-ImportFix3',exportedAt:new Date().toISOString(),report:latestPrizeCheckReport},`t999-prize-report-${market}-${safeName(latestPrizeCheckReport.drawDate||Date.now())}.json`);
+}
+
+
+/* Step 4H report history and detailed archive */
+var T999_STEP4D_REPORT_HISTORY_KEY='t999_v2_prize_report_history_'+market;
+function reportHistoryList(){
+  try{return JSON.parse(localStorage.getItem(T999_STEP4D_REPORT_HISTORY_KEY)||'[]')}catch(e){return []}
+}
+function writeReportHistory(list){
+  localStorage.setItem(T999_STEP4D_REPORT_HISTORY_KEY,JSON.stringify(list));
+}
+function reportEntryKey(report){
+  return [report.market||market,report.drawDate||'',report.checkedAt||'',report.scope||''].join('|');
+}
+function savePrizeReportHistory(report){
+  if(!report)return;
+  const list=reportHistoryList();
+  const key=reportEntryKey(report);
+  const entry={
+    id:'report_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    key,market,marketName:rules.name,
+    drawDate:report.drawDate||'',
+    checkedAt:report.checkedAt||Date.now(),
+    savedAt:Date.now(),
+    summary:{
+      totalGross:Number(report.totalGross||0),
+      totalNet:Number(report.totalNet||0),
+      totalPayout:Number(report.totalPayout||0),
+      profit:Number(report.profit||0),
+      winCount:Number(report.winCount||0),
+      itemCount:Number(report.itemCount||0)
+    },
+    report:JSON.parse(JSON.stringify(report))
+  };
+  const idx=list.findIndex(x=>x.key===key);
+  if(idx>=0)list[idx]={...list[idx],...entry,id:list[idx].id,savedAt:Date.now()};
+  else list.unshift(entry);
+  writeReportHistory(list.slice(0,200));
+}
+function renderReportHistoryTab(scope='base',agentId=''){
+  const list=reportHistoryList();
+  const rows=list.length?list.map((h,i)=>{
+    const s=h.summary||{};
+    const profit=Number(s.profit||0);
+    const title=(h.drawDate||'ไม่ระบุงวด')+' · '+new Date(h.checkedAt||h.savedAt||Date.now()).toLocaleString('th-TH');
+    const meta='แทง '+money(s.totalGross||0)+' · หลังลด '+money(s.totalNet||0)+' · จ่าย '+money(s.totalPayout||0)+' · กำไร/ขาดทุน '+money(profit)+' · ถูก '+(s.winCount||0)+' รายการ';
+    return `<div class="agent-slip">
+      <div>
+        <div class="agent-slip-title">${i+1}. ${esc(title)}</div>
+        <div class="agent-slip-meta">${esc(meta)}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn small" onclick="viewReportHistory('${h.id}','${scope}','${agentId}')">ดูรายงาน</button>
+        <button class="btn small" onclick="exportReportHistory('${h.id}')">Export Report</button>
+        <button class="btn small red" onclick="deleteReportHistoryPermanent('${h.id}','${scope}','${agentId}')">ลบถาวร</button>
+      </div>
+    </div>`;
+  }).join(''):'<div class="placeholder-box">ยังไม่มีประวัติรายงานตรวจรางวัล</div>';
+  document.getElementById('agentModalContent').innerHTML=`<div class="agent-section">
+    <div class="config-bar"><span class="pill">ประวัติรายงานตรวจรางวัล</span><span class="pill">${rules.name}</span><span class="pill">${list.length} รายการ</span></div>
+    <div class="warn">Step 4H: รายงานย้อนหลังเก็บใน localStorage ของเครื่องนี้ และ Export JSON ได้</div>
+    ${rows}
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
+      <button class="btn" onclick="renderPrizeResultTab('${scope}','${agentId}')">กลับหน้าผลรางวัล</button>
+    </div>
+  </div>`;
+}
+function viewReportHistory(id,scope='base',agentId=''){
+  const h=reportHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบรายงานนี้');
+  latestPrizeCheckReport=h.report;
+  saveData();
+  renderPrizeReport(h.report,scope,agentId);
+}
+function exportReportHistory(id){
+  const h=reportHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบรายงานนี้');
+  downloadJSON({fileType:'T999_V2_PRIZE_REPORT_HISTORY',version:'5E-ImportFix3',exportedAt:new Date().toISOString(),entry:h},`t999-report-history-${market}-${safeName(h.drawDate||h.id)}.json`);
+}
+function deleteReportHistoryPermanent(id,scope='base',agentId=''){
+  const h=reportHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบรายงานนี้');
+  if(!confirm('ลบถาวรรายงานตรวจรางวัลนี้?\n'+(h.drawDate||'ไม่ระบุงวด')+'\nการลบนี้ย้อนกลับไม่ได้'))return;
+  const word=prompt('พิมพ์ DELETE เพื่อยืนยันลบถาวร','');
+  if(word!=='DELETE')return alert('ยกเลิกการลบถาวร');
+  writeReportHistory(reportHistoryList().filter(x=>x.id!==id));
+  alert('ลบรายงานถาวรแล้ว');
+  renderReportHistoryTab(scope,agentId);
+}
+function renderDetailedProfitReport(report,scope='base',agentId=''){
+  if(!report)return alert('ยังไม่มีรายงาน');
+  const agentRows=(report.agentSummary||[]).map((a,i)=>{
+    const profit=Number(a.totalNet||0)-Number(a.totalPayout||0);
+    return `<div class="agent-slip">
+      <div>
+        <div class="agent-slip-title">${i+1}. ${esc(a.agentName)}</div>
+        <div class="agent-slip-meta">รายการ ${a.itemCount||0} · ถูก ${a.winCount||0} · แทงรวม ${money(a.totalGross||0)} · หลังลด ${money(a.totalNet||0)} · จ่าย ${money(a.totalPayout||0)} · กำไร/ขาดทุน ${money(profit)}</div>
+      </div>
+    </div>`;
+  }).join('')||'<div class="placeholder-box">ไม่มีข้อมูลเอเยนต์</div>';
+  const typeMap={};
+  (report.winners||[]).forEach(w=>{const k=w.rateType||w.type||'อื่นๆ';if(!typeMap[k])typeMap[k]={count:0,payout:0,amount:0};typeMap[k].count++;typeMap[k].payout+=Number(w.payout||0);typeMap[k].amount+=Number(w.amount||0)});
+  const typeRows=Object.keys(typeMap).length?Object.keys(typeMap).map(k=>`<div class="agent-slip"><div><div class="agent-slip-title">${esc(k)}</div><div class="agent-slip-meta">ถูก ${typeMap[k].count} รายการ · แทง ${money(typeMap[k].amount)} · จ่าย ${money(typeMap[k].payout)}</div></div></div>`).join(''):'<div class="placeholder-box">ยังไม่มีรายการถูกแยกประเภท</div>';
+  document.getElementById('agentModalContent').innerHTML=`<div class="agent-section">
+    <div class="config-bar"><span class="pill">รายงานกำไร/ขาดทุนละเอียด</span><span class="pill">${rules.name}</span><span class="pill">${report.drawDate||'ไม่ระบุงวด'}</span></div>
+    <div class="placeholder-box" style="text-align:left">
+      ยอดแทงรวม: <b>${money(report.totalGross||0)}</b><br>
+      ยอดหลังหักลด: <b>${money(report.totalNet||0)}</b><br>
+      ยอดจ่ายรางวัล: <b>${money(report.totalPayout||0)}</b><br>
+      กำไร/ขาดทุนสุทธิ: <b style="color:${Number(report.profit||0)>=0?'#34d399':'#fb7185'}">${money(report.profit||0)}</b><br>
+      รายการทั้งหมด: <b>${report.itemCount||0}</b> · รายการถูก: <b>${report.winCount||0}</b>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin:10px 0">
+      <button class="btn" onclick="renderPrizeReport(latestPrizeCheckReport,'${scope}','${agentId}')">กลับรายงานผู้ถูก</button>
+      <button class="btn" onclick="renderReportHistoryTab('${scope}','${agentId}')">ประวัติรายงาน</button>
+      <button class="btn" onclick="exportPrizeCheckReport()">Export รายงาน</button>
+    </div>
+    <div class="warn">สรุปแยกเอเยนต์</div>
+    ${agentRows}
+    <div class="warn" style="margin-top:10px">สรุปยอดจ่ายแยกประเภทที่ถูก</div>
+    ${typeRows}
+  </div>`;
+}
+
+/* Step 4H overrides */
+var T999_STEP4D_OLD_RUN_PRIZE_CHECK=runPrizeCheck;
+runPrizeCheck=function(scope='base',agentId=''){
+  T999_STEP4D_OLD_RUN_PRIZE_CHECK(scope,agentId);
+  if(latestPrizeCheckReport){savePrizeReportHistory(latestPrizeCheckReport);saveData();}
+};
+var T999_STEP4D_OLD_RENDER_PRIZE_RESULT_TAB=renderPrizeResultTab;
+renderPrizeResultTab=function(scope,agentId){
+  const r=currentPrize();
+  let html=`<div class="agent-section">
+    <div class="config-bar">
+      <span class="pill">${rules.name}</span>
+      <span class="pill">Step 4H</span>
+      <span class="pill">${prizeReady()?'กรอกผลแล้ว':'ยังไม่ครบ'}</span>
+    </div>
+    <div class="warn">Step 4H: กรอกผล/ตรวจรางวัล แล้วระบบจะบันทึกรายงานย้อนหลัง ดูซ้ำ Export และลบถาวรได้</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn purple" onclick="fetchLatestPrizeResult('${scope}','${agentId}')">ดึงผลล่าสุด</button>
+      <button class="btn" onclick="renderPrizeHistoryTab('${scope}','${agentId}')">ประวัติผลรางวัล</button>
+      <button class="btn" onclick="renderReportHistoryTab('${scope}','${agentId}')">ประวัติรายงาน</button>
+      <button class="btn green" onclick="runPrizeCheck('${scope}','${agentId}')">ตรวจถูกรางวัล</button>
+      <button class="btn" onclick="renderLastPrizeReport('${scope}','${agentId}')">รายงานล่าสุด</button>
+    </div>
+    ${market==='thai'?thaiPrizeFormHtml(r):laoPrizeFormHtml(r)}
+    <div id="prizePreview" class="placeholder-box" style="margin-top:10px;text-align:left">${prizePreviewHtml()}</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px">
+      <button class="btn red" onclick="clearPrizeResult()">ล้างผลรางวัล</button>
+      <button class="btn gold" onclick="savePrizeResult('${scope}','${agentId}')">บันทึกผลรางวัล</button>
+    </div>
+  </div>`;
+  document.getElementById('agentModalContent').innerHTML=html;
+  document.querySelectorAll('.prize-input').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      if(inp.dataset.digits==='yes')inp.value=onlyDigits(inp.value,Number(inp.dataset.len||10));
+      const prev=document.getElementById('prizePreview');if(prev)prev.innerHTML=prizePreviewHtmlFromInputs();
+    });
+  });
+};
+var T999_STEP4D_OLD_RENDER_PRIZE_REPORT=renderPrizeReport;
+renderPrizeReport=function(report,scope='base',agentId=''){
+  T999_STEP4D_OLD_RENDER_PRIZE_REPORT(report,scope,agentId);
+  const box=document.getElementById('agentModalContent');
+  if(box){
+    const bar=box.querySelector('div[style*="justify-content:flex-end"]');
+    if(bar && !box.querySelector('#step4dDetailBtn')){
+      bar.insertAdjacentHTML('beforeend',`<button id="step4dDetailBtn" class="btn purple" onclick="renderDetailedProfitReport(latestPrizeCheckReport,'${scope}','${agentId}')">รายงานละเอียด</button><button class="btn" onclick="renderReportHistoryTab('${scope}','${agentId}')">ประวัติรายงาน</button>`);
+    }
+  }
+};
+var T999_STEP4D_OLD_EXPORT_PRIZE_CHECK_REPORT=exportPrizeCheckReport;
+exportPrizeCheckReport=function(){
+  if(!latestPrizeCheckReport)return alert('ยังไม่มีรายงานล่าสุด');
+  savePrizeReportHistory(latestPrizeCheckReport);
+  downloadJSON({fileType:'T999_V2_PRIZE_CHECK_REPORT',version:'5E-ImportFix3',exportedAt:new Date().toISOString(),report:latestPrizeCheckReport},`t999-prize-report-${market}-${safeName(latestPrizeCheckReport.drawDate||Date.now())}.json`);
+};
+
+
+
+/* ===== Step 6B Limit UI Override — data schema unchanged ===== */
+function limitLevelText(v){const hit=(LIMIT_LEVELS||[]).find(x=>x[0]===v);return hit?hit[1]:(v||'-')}
+function limitRowsOf(scope,agentId){if(scope==='agent'){ensureAgentConfig(agentId);return rateLimitConfig.agentLimits[agentId][market]||[]}return rateLimitConfig.baseLimits[market]||[]}
+function setLimitRowsOf(scope,agentId,rows){if(scope==='agent'){ensureAgentConfig(agentId);rateLimitConfig.agentLimits[agentId][market]=rows}else rateLimitConfig.baseLimits[market]=rows}
+function limitScopeKey(scope,agentId){return scope+'_'+(agentId||'base')+'_'+market}
+window.limitUiState=window.limitUiState||{};
+function getLimitUi(scope,agentId){const k=limitScopeKey(scope,agentId);if(!limitUiState[k])limitUiState[k]={level:'closed',types:[LIMIT_TYPES[market][0]||'บน'],search:''};return limitUiState[k]}
+function setLimitLevel(scope,agentId,level){getLimitUi(scope,agentId).level=level;renderLimitPanel(scope,agentId)}
+function toggleLimitType(scope,agentId,type){const st=getLimitUi(scope,agentId);st.types=st.types||[];if(st.types.includes(type))st.types=st.types.filter(x=>x!==type);else st.types.push(type);if(!st.types.length)st.types=[type];renderLimitPanel(scope,agentId)}
+function setLimitSearch(scope,agentId,val){getLimitUi(scope,agentId).search=val||'';renderLimitListOnly(scope,agentId)}
+function limitFormHtml(scope,agentId){return `<div id="limitPanel_${esc(scope)}_${esc(agentId||'base')}">${buildLimitPanelHtml(scope,agentId)}</div>`}
+function buildLimitPanelHtml(scope,agentId){
+  const isAgent=scope==='agent';const st=getLimitUi(scope,agentId);const rows=limitRowsOf(scope,agentId);
+  const title=isAgent?'เลขอั้นเฉพาะเอเยนต์':'เลขอั้นกลาง';
+  const levelBtns=(LIMIT_LEVELS||[]).map(([v,l])=>`<button class="limit-chip level-${esc(v)} ${st.level===v?'on':''}" onclick="setLimitLevel('${scope}','${agentId}', '${v}')">${esc(l)}</button>`).join('');
+  const typeBtns=(LIMIT_TYPES[market]||[]).map(t=>`<button class="limit-chip ${st.types&&st.types.includes(t)?'on':''}" onclick="toggleLimitType('${scope}','${agentId}', '${esc(t)}')">${esc(t)}</button>`).join('');
+  return `<div class="agent-section">
+    <div class="limit-new-title"><span>⚙️ ${title}</span><span class="pill">${rules.name}</span></div>
+    <div class="warn">UI ใหม่: เพิ่มเร็ว · กดเลือกประเภทได้หลายอัน · โครงข้อมูลเดิมไม่เปลี่ยน · รายเอเยนต์มีสิทธิ์ก่อนเลขอั้นกลาง</div>
+    <div class="limit-new-box">
+      <div class="limit-new-title"><span>+ เพิ่มเลขอั้นแบบเร็ว</span><span class="pill">${rows.length} รายการ</span></div>
+      <div class="limit-quick-grid three">
+        <input id="limQuickNum" class="input" placeholder="เลข เช่น 77, 123, 1234" inputmode="numeric">
+        <input id="limQuickPercent" class="input" type="number" placeholder="กำหนด % ถ้ามี" value="0">
+        <input id="limQuickPay" class="input" type="number" placeholder="กำหนดจ่าย ถ้ามี" value="0">
+      </div>
+      <div class="limit-chip-row">${levelBtns}</div>
+      <div class="limit-chip-row">${typeBtns}</div>
+      <input id="limQuickNote" class="input left" placeholder="หมายเหตุ เช่น เลขแรง / รับเฉพาะขาประจำ">
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn green" onclick="addLimitQuick('${scope}','${agentId}')">+ เพิ่มเลขอั้น</button>
+      </div>
+      <div class="limit-small-note">เลือกหลายประเภทได้ เช่น บน + ล่าง แล้วกดเพิ่มครั้งเดียว ระบบจะบันทึกแยกรายการให้เอง</div>
+    </div>
+    <div class="limit-search"><input id="limitSearchInput" class="input left" value="${esc(st.search||'')}" placeholder="ค้นหาเลขอั้น / ประเภท / หมายเหตุ" oninput="setLimitSearch('${scope}','${agentId}',this.value)"></div>
+    <div id="limitListWrap">${buildLimitListHtml(scope,agentId)}</div>
+  </div>`;
+}
+function renderLimitPanel(scope,agentId){const el=document.querySelector(`[id^="limitPanel_${scope}_"]`);if(el)el.innerHTML=buildLimitPanelHtml(scope,agentId)}
+function renderLimitListOnly(scope,agentId){const el=document.getElementById('limitListWrap');if(el)el.innerHTML=buildLimitListHtml(scope,agentId)}
+function addLimitQuick(scope,agentId){
+  const number=(document.getElementById('limQuickNum')?.value||'').trim();if(!number)return alert('ใส่เลขก่อน');
+  const st=getLimitUi(scope,agentId);const types=st.types&&st.types.length?st.types:[LIMIT_TYPES[market][0]||'บน'];
+  const level=st.level||'closed';const customPercent=Number(document.getElementById('limQuickPercent')?.value||0);const customPay=Number(document.getElementById('limQuickPay')?.value||0);const note=(document.getElementById('limQuickNote')?.value||'').trim();
+  const rows=limitRowsOf(scope,agentId);
+  types.forEach(type=>{
+    const idx=rows.findIndex(r=>String(r.number)===number&&String(r.type)===String(type));
+    const row=normalizeLimit({type,number,level,customPercent,customPay,note});
+    if(idx>=0)rows[idx]=row;else rows.push(row);
+  });
+  setLimitRowsOf(scope,agentId,rows);saveData();renderLimitPanel(scope,agentId);
+}
+function editLimitQuick(scope,agentId,idx){
+  const rows=limitRowsOf(scope,agentId);const r=rows[idx];if(!r)return;
+  const st=getLimitUi(scope,agentId);st.level=r.level||'closed';st.types=[r.type||LIMIT_TYPES[market][0]];
+  renderLimitPanel(scope,agentId);
+  setTimeout(()=>{document.getElementById('limQuickNum').value=r.number||'';document.getElementById('limQuickPercent').value=r.customPercent||0;document.getElementById('limQuickPay').value=r.customPay||0;document.getElementById('limQuickNote').value=r.note||'';document.getElementById('limQuickNum').focus();},30);
+}
+function deleteLimitRow(scope,agentId,idx){const rows=limitRowsOf(scope,agentId);rows.splice(idx,1);setLimitRowsOf(scope,agentId,rows);saveData();renderLimitPanel(scope,agentId)}
+function saveLimits(scope,agentId){saveData();alert('บันทึกเลขอั้นแล้ว')}
+function addLimitRow(scope,agentId){renderLimitPanel(scope,agentId);setTimeout(()=>document.getElementById('limQuickNum')?.focus(),30)}
+function buildLimitListHtml(scope,agentId){
+  const st=getLimitUi(scope,agentId);const q=String(st.search||'').toLowerCase().trim();const rows=limitRowsOf(scope,agentId);
+  const filtered=rows.map((r,i)=>({r,i})).filter(x=>{if(!q)return true;return [x.r.number,x.r.type,limitLevelText(x.r.level),x.r.note].join(' ').toLowerCase().includes(q)});
+  if(!filtered.length)return `<div class="placeholder-box">ยังไม่มีเลขอั้น${q?'ที่ตรงกับคำค้น':''}</div>`;
+  return `<div class="limit-card-list">${filtered.map(({r,i})=>`<div class="limit-card">
+    <div class="limit-card-main"><div class="limit-card-num">${esc(r.number||'-')}</div><div class="limit-card-meta"><b>${esc(r.type||'-')}</b> · ${esc(limitLevelText(r.level))}${r.level==='custom'?' · '+(r.customPay?('จ่าย '+money(r.customPay)):(r.customPercent?('จ่าย '+r.customPercent+'%'):'กำหนดเอง')):''}</div>${r.note?`<div class="limit-card-note">${esc(r.note)}</div>`:''}</div>
+    <div class="limit-card-actions"><button class="btn small" onclick="editLimitQuick('${scope}','${agentId}',${i})">แก้</button><button class="btn small red" onclick="deleteLimitRow('${scope}','${agentId}',${i})">ลบ</button></div>
+  </div>`).join('')}</div>`;
+}
+
+
+
+/* =========================================================
+   STEP 6B FIX2 — KEY SAFE OVERRIDE
+   ใช้ชุดคีย์จาก Subkey/keytest เป็นฐานสุดท้าย
+   ห้าม logic อื่นทับ enter/render/dot/commit อีก
+========================================================= */
+function enterKey(){
+  if(phase==='lek'){
+    if(!getLeks().length)return alert('ยังไม่มีเลข');
+    leksText=normalizeLeksText();
+    buildSlots();
+    phase='price';
+    priceBuf='';
+    render();
+    return;
+  }
+  saveCurrentPrice();
+  if(slotIndex<slots.length-1){
+    slotIndex++;
+  }else{
+    commit();
+    return;
+  }
+  render();
+}
+function dotKey(){
+  if(phase==='lek'){
+    enterKey();
+    return;
+  }
+  const s=currentSlot();
+  if(!s)return;
+  if(s.type==='tod'){
+    statusFlash('โต๊ดไม่มีชุด ไม่ต้องกด .');
+    render();
+    return;
+  }
+  if(priceBuf!==''){
+    s.price=priceBuf;
+    priceBuf='';
+  }
+  s.rev=true;
+  if(slotIndex<slots.length-1)slotIndex++;
+  render();
+}
+function render(){
+  const screen=document.getElementById('screen'),hint=document.getElementById('hint');
+  if(!screen)return;
+  if(phase==='lek'){
+    const shown=leksText.includes('/')?normalizeLeksText():leksText;
+    screen.textContent=shown||'—';
+    if(hint)hint.innerHTML='กดเลข<br>แล้ว ↵<br>หลัก: '+(getBaseLen()||'-');
+  }else{
+    const s=currentSlot();
+    const left=(getLeks().join('/')||normalizeLeksText()||leksText)+'=';
+    const priceParts=slots.map((x,i)=>i===slotIndex?(priceBuf||x.price||''):(x.price||''));
+    screen.textContent=left+priceParts.join('×');
+    if(hint)hint.innerHTML=s?'ราคา: '+(LABEL[s.type]||s.type)+'<br>'+(s.type==='tod'?'โต๊ดไม่มีชุด':(s.rev?'กลับ/ชุด ON':'กด . = กลับ/ชุด')):'ไม่มี slot';
+  }
+  renderSlots();
+  renderStatus();
+}
+function renderKeyStatus(){render()}
+function renderSlots(){
+  const row=document.getElementById('typeRow');
+  if(!row)return;
+  row.className='type-row '+(market==='thai'?'thai':'');
+  ['bon','tod','lang','na'].forEach(t=>{
+    const btn=document.getElementById('slot-'+t);if(!btn)return;
+    const idx=slots.findIndex(s=>s.type===t);
+    const visible=phase==='price'?idx>=0:((rules.slotOrder[getBaseLen()]||['bon','tod','lang','na']).includes(t));
+    btn.style.display=visible?'block':'none';
+    const active=phase==='price'&&idx===slotIndex;
+    const done=phase==='price'&&idx>=0&&Number(slots[idx].price)>0;
+    const rev=phase==='price'&&idx>=0&&slots[idx].rev;
+    btn.className='tbtn '+t+(active?' active '+t:'')+(done?' done':'')+(rev?(getBaseLen()===2?' rev':' rev3'):'');
+    btn.textContent=LABEL[t]||t;
+  });
+}
+function renderStatus(){
+  const el=document.getElementById('statusLine');
+  if(!el)return;
+  if(phase==='lek')el.textContent='กำลังคีย์เลข — โหมด '+rules.name;
+  else el.textContent='กำลังใส่ราคา: '+(currentSlot()?LABEL[currentSlot().type]:'-')+' | '+(currentDigits()||'-')+' หลัก | '+rules.name;
+}
+function commit(){
+  if(phase==='price')saveCurrentPrice();
+  const leks=getLeks();
+  if(!leks.length)return alert('ยังไม่มีเลข');
+  const a=getActiveAgent();if(!a)return alert('ยังไม่มีเอเยนต์');
+  if(!slots.length)buildSlots();
+  const active=slots.filter(s=>Number(s.price)>0);
+  if(!active.length)return alert('ยังไม่มีราคา');
+  const add=[];
+  leks.forEach(lek=>active.forEach(s=>{
+    const amount=Number(s.price);
+    if(s.rev&&s.type!=='tod'){
+      expandReverseWithRole(lek).forEach(o=>add.push({number:o.lek,lek:o.lek,type:s.type,amount,role:o.role,follow:o.role==='follow',note:lek.length===2?'กลับ':'ชุด'}));
+    }else{
+      add.push({number:lek,lek,type:s.type,amount,role:'main',follow:false,note:''});
+    }
+  }));
+  const blocked=[];
+  add.forEach(it=>{
+    const st=(typeof t999ApplyLimitToItem==='function')?t999ApplyLimitToItem(a.id,it):{matched:false};
+    if(st&&st.matched&&st.level==='closed')blocked.push(it);
+  });
+  if(blocked.length){
+    alert(typeof t999LimitBlockMessage==='function'?t999LimitBlockMessage(blocked):'มีเลขปิดรับ ไม่สามารถเพิ่มรายการได้');
+    renderAll();
+    return;
+  }
+  add.forEach(it=>addItem(a,it));
+  const warned=add.filter(it=>it.limitStatus&&it.limitStatus.matched).map(it=>`${itemNumber(it)} ${LABEL[it.type]||it.type} = ${it.limitStatus.label}`);
+  clearBuffer();
+  renderAll();
+  scheduleSave();
+  if(warned.length)alert('พบเลขอั้น/เลขจ่ายพิเศษ:\n'+warned.join('\n'));
+}
+
+/* boot */
+
+
+/* =========================================================
+   STEP 6B LIMIT CHECK FIX1 — ทำให้เลขอั้นทำงานจริงตอนคีย์
+   - ปิดรับ: ไม่ให้เพิ่มรายการ
+   - 50/20/custom: เพิ่มรายการได้ + ติด limitStatus
+   - match type/เลขแบบยืดหยุ่นกว่าเดิม
+========================================================= */
+function t999LimitDigits(v){return String(v||'').replace(/\D/g,'');}
+function t999LimitSortDigits(v){return t999LimitDigits(v).split('').sort().join('');}
+function t999LimitTypeAliases(type){
+  const t=String(type||'').trim();
+  const map={
+    bon:['บน','bon'],
+    tod:['โต๊ด','tod'],
+    lang:['ล่าง','lang'],
+    na:['หน้า','na'],
+    pinbon:['ปักบน','ปักหลักบน'],
+    pinlang:['ปักล่าง','ปักหลักล่าง'],
+    rev:['กลับ'],
+    set:['ชุด']
+  };
+  if(t==='bon'||t==='บน')return map.bon;
+  if(t==='tod'||t==='โต๊ด')return map.tod;
+  if(t==='lang'||t==='ล่าง')return map.lang;
+  if(t==='na'||t==='หน้า')return map.na;
+  if(t==='ปักบน'||t==='ปักหลักบน')return map.pinbon;
+  if(t==='ปักล่าง'||t==='ปักหลักล่าง')return map.pinlang;
+  if(t==='กลับ')return map.rev;
+  if(t==='ชุด')return map.set;
+  return [t];
+}
+function t999LimitItemType(it){
+  if(it&&it.pin){return it.type==='lang' ? (market==='thai'?'ปักหลักล่าง':'ปักล่าง') : (market==='thai'?'ปักหลักบน':'ปักบน');}
+  if(it&&it.role==='follow'&&it.note==='กลับ')return 'กลับ';
+  if(it&&it.role==='follow'&&it.note==='ชุด')return 'ชุด';
+  if(it&&it.type==='tod')return 'โต๊ด';
+  if(it&&it.type==='lang')return 'ล่าง';
+  if(it&&it.type==='na')return 'หน้า';
+  return 'บน';
+}
+function t999LimitLevelLabel(level,row){
+  if(level==='closed')return 'ปิดรับ';
+  if(level==='pay50')return 'จ่าย 50%';
+  if(level==='pay20')return 'จ่าย 20%';
+  if(level==='custom'){
+    const pct=Number(row&&row.customPercent||0), pay=Number(row&&row.customPay||0);
+    if(pct&&pay)return 'กำหนดเอง '+pct+'% / จ่าย '+pay;
+    if(pct)return 'กำหนดเอง '+pct+'%';
+    if(pay)return 'กำหนดเอง จ่าย '+pay;
+    return 'กำหนดเอง';
+  }
+  try{return levelLabel(level)}catch(e){return level||''}
+}
+function t999NormalizeLimitRow(row){
+  const r=normalizeLimit ? normalizeLimit(row||{}) : (row||{});
+  r.number=String(r.number||'').trim();
+  r.type=String(r.type||'').trim();
+  r.level=String(r.level||'closed');
+  r.customPercent=Number(r.customPercent||0);
+  r.customPay=Number(r.customPay||0);
+  r.note=String(r.note||'');
+  return r;
+}
+function t999LimitMatchRow(row,it){
+  row=t999NormalizeLimitRow(row);
+  const betNum=t999LimitDigits(itemNumber(it));
+  const rowNum=t999LimitDigits(row.number);
+  if(!betNum||!rowNum)return false;
+  const itemType=t999LimitItemType(it);
+  const rowAliases=t999LimitTypeAliases(row.type);
+  const itemAliases=t999LimitTypeAliases(itemType);
+  const typeMatch=!row.type || rowAliases.some(x=>itemAliases.includes(x));
+  if(!typeMatch)return false;
+  if(rowNum===betNum)return true;
+  // โต๊ด/ชุด: เลขชุดเดียวกันให้ถือว่าเข้าเลขอั้น เช่น 123 กับ 321
+  if((rowAliases.includes('โต๊ด')||rowAliases.includes('ชุด')) && rowNum.length===betNum.length && t999LimitSortDigits(rowNum)===t999LimitSortDigits(betNum))return true;
+  return false;
+}
+function t999GetLimitRowsForAgent(agentId){
+  const cfg=(typeof getRateLimitConfig==='function'?getRateLimitConfig():null) || (typeof rateLimitConfig!=='undefined'?rateLimitConfig:null) || {};
+  const rows=[];
+  // Subkey local override first
+  try{
+    if(typeof subkeyLocalLimits!=='undefined' && subkeyLocalLimits){
+      const local=(subkeyLocalLimits[agentId]&&subkeyLocalLimits[agentId][market]) || (Array.isArray(subkeyLocalLimits[agentId])?subkeyLocalLimits[agentId]:[]);
+      (local||[]).forEach(r=>rows.push({source:'subkey',row:r}));
+    }
+  }catch(e){}
+  // Master agent limits
+  try{
+    const ar=cfg.agentLimits&&cfg.agentLimits[agentId]&&cfg.agentLimits[agentId][market];
+    (ar||[]).forEach(r=>rows.push({source:'agent',row:r}));
+  }catch(e){}
+  // Master/base limits
+  try{
+    const br=cfg.baseLimits&&cfg.baseLimits[market];
+    (br||[]).forEach(r=>rows.push({source:'base',row:r}));
+  }catch(e){}
+  return rows;
+}
+function t999GetLimitStatus(agentId,it){
+  const packs=t999GetLimitRowsForAgent(agentId);
+  for(const pack of packs){
+    const row=t999NormalizeLimitRow(pack.row);
+    if(t999LimitMatchRow(row,it)){
+      return {matched:true,source:pack.source,level:row.level,label:t999LimitLevelLabel(row.level,row),customPercent:row.customPercent||0,customPay:row.customPay||0,note:row.note||'',type:row.type,number:row.number};
+    }
+  }
+  return {matched:false};
+}
+function getLimitStatus(agentId,it){return t999GetLimitStatus(agentId,it)}
+function getMatchedLimit(agentId,number,type){
+  const probe={number:String(number||''),lek:String(number||''),type:type==='ล่าง'?'lang':type==='โต๊ด'?'tod':type==='หน้า'?'na':'bon',role:'main',note:''};
+  const st=t999GetLimitStatus(agentId,probe);
+  return st&&st.matched?st:null;
+}
+function t999ApplyLimitToItem(agentId,it){
+  const st=t999GetLimitStatus(agentId,it);
+  it.limitStatus=st;
+  return st;
+}
+function t999LimitBlockMessage(items){
+  return 'มีเลขปิดรับ ไม่สามารถเพิ่มรายการได้:\n'+items.map(x=>`${itemNumber(x)} ${LABEL[x.type]||x.type} ${x.limitStatus&&x.limitStatus.label?x.limitStatus.label:''}`).join('\n');
+}
+
+function commit(){
+  if(phase==='price')saveCurrentPrice();
+  const leks=getLeks();
+  if(!leks.length)return alert('ยังไม่มีเลข');
+  const a=getActiveAgent();if(!a)return alert('ยังไม่มีเอเยนต์');
+  if(!slots.length)buildSlots();
+  const active=slots.filter(s=>Number(s.price)>0);
+  if(!active.length)return alert('ยังไม่มีราคา');
+  const add=[];
+  leks.forEach(lek=>active.forEach(s=>{
+    const amount=Number(s.price);
+    if(s.rev){
+      expandReverseWithRole(lek).forEach(o=>add.push({number:o.lek,lek:o.lek,type:s.type,amount,role:o.role,follow:o.role==='follow',note:lek.length===2?'กลับ':'ชุด'}));
+    }else{
+      add.push({number:lek,lek,type:s.type,amount,role:'main',follow:false,note:''});
+    }
+  }));
+  const blocked=[];
+  add.forEach(it=>{const st=t999ApplyLimitToItem(a.id,it);if(st.matched&&st.level==='closed')blocked.push(it)});
+  if(blocked.length){alert(t999LimitBlockMessage(blocked));renderAll();return;}
+  add.forEach(it=>addItem(a,it));
+  const warned=add.filter(it=>it.limitStatus&&it.limitStatus.matched).map(it=>`${itemNumber(it)} ${LABEL[it.type]||it.type} = ${it.limitStatus.label}`);
+  clearBuffer();renderAll();scheduleSave();
+  if(warned.length)alert('พบเลขอั้น/เลขจ่ายพิเศษ:\n'+warned.join('\n'));
+}
+function cellText(it,type){
+  if(it.type!==type)return '';
+  const amt=Number(it.amount||0);if(!amt)return '';
+  const lim=it.limitStatus&&it.limitStatus.matched?`<div style="font-size:10px;color:#f5c518;margin-top:2px">${esc(it.limitStatus.label||'เลขอั้น')}</div>`:'';
+  return esc(String(amt))+lim;
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.target&&['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
+  if(e.key>='0'&&e.key<='9')pressDigit(e.key);
+  else if(e.key==='Enter')enterKey();
+  else if(e.key==='+')commit();
+  else if(e.key==='Backspace')backspace();
+  else if(e.key==='/')pressSlash();
+  else if(e.key==='.')dotKey();
+  else if(e.key==='Escape'){closePin();closeAgentModal();closePaperSlip()}
+});
+function init(){loadData();renderWorkspace();selectAgent(activeAgentId,false);saveData()}
+init();
+</script>
+</body>
+</html>
