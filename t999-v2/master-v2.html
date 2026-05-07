@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Master Step 5E Fix2 Import Fix1</title>
+<title>T999 V2 Master Step 5B Paper Slip Fix1</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -25,7 +25,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 .head-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .mode-link{color:var(--muted);text-decoration:none;font-weight:900;border:1px solid var(--line);background:var(--card2);padding:8px 12px;border-radius:10px;font-size:13px}
 .mode-link.on{background:var(--gold);color:#111;border-color:var(--gold)}
-.main{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(420px,1fr) 360px 330px;gap:8px;padding:8px}
+.main{flex:1;min-height:0;display:grid;grid-template-columns:270px 1fr 390px;gap:8px;padding:8px}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-height:0;display:flex;flex-direction:column}
 .panel-head{height:42px;background:var(--card2);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:14px;font-weight:900;color:#c7d2fe;gap:8px}
 .panel-body{flex:1;min-height:0;overflow:auto;padding:8px}
@@ -140,116 +140,20 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 .note{color:#94a3b8;font-size:12px;line-height:1.55}
 .pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#111827;border:1px solid #334155;color:#cbd5e1;font-size:11px;font-weight:900}
 .warn{background:#261d0a;border:1px solid #7c5e12;color:#fbbf24;border-radius:10px;padding:9px;font-size:12px;line-height:1.5;margin-bottom:8px}
-
-/* Zone 4 Dashboard */
-.panel.zone4{background:#121622;border-color:#26304a}
-.zone4 .panel-body{display:flex;flex-direction:column;gap:10px;overflow:auto}
-.z4-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:2px}
-.z4-tab{height:30px;border:0;border-bottom:2px solid transparent;background:transparent;color:#6f7890;font-weight:900;font-size:12px;cursor:pointer}
-.z4-tab.on{color:var(--gold);border-bottom-color:var(--gold)}
-.z4-big{background:#161b29;border:1px solid #2f3a59;border-radius:12px;padding:12px;text-align:center}
-.z4-big small{display:block;color:#8b94aa;font-size:11px;font-weight:900;margin-bottom:5px}.z4-big b{display:block;color:var(--gold);font-size:30px;line-height:1.05}.z4-big .subline{font-size:12px;color:#86efac;margin-top:6px;font-weight:900}
-.z4-mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.z4-mini{background:#171d2d;border:1px solid #2f3a59;border-radius:10px;padding:8px;text-align:center}.z4-mini small{display:block;color:#8b94aa;font-size:10px;font-weight:900}.z4-mini b{display:block;color:#f5c518;font-size:18px;margin-top:3px}
-.z4-card{background:#111827;border:1px solid #293246;border-radius:12px;padding:10px}.z4-title{font-size:13px;font-weight:900;color:#dbeafe;margin-bottom:8px;display:flex;justify-content:space-between;gap:8px}.z4-title span:last-child{color:#94a3b8;font-size:11px}
-.z4-bar-row{display:grid;grid-template-columns:54px 1fr 58px;gap:7px;align-items:center;margin:7px 0;font-size:12px;font-weight:900}.z4-bar-label{color:#cbd5e1;white-space:nowrap}.z4-bar-track{height:17px;background:#20283b;border-radius:999px;overflow:hidden}.z4-bar-fill{height:100%;background:linear-gradient(90deg,#2b63ff,#f5c518);border-radius:999px;min-width:2px}.z4-bar-val{text-align:right;color:#f0f2ff}
-.z4-list{display:flex;flex-direction:column;gap:6px}.z4-row{display:grid;grid-template-columns:54px 1fr auto;gap:8px;align-items:center;border-bottom:1px dashed #25304a;padding-bottom:6px;font-size:12px}.z4-row:last-child{border-bottom:0;padding-bottom:0}.z4-num{color:#f472b6;font-weight:900;font-size:15px}.z4-note{color:#cbd5e1;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.z4-pay{color:#ff6b6b;font-weight:900;text-align:right}.z4-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.z4-actions .btn{height:38px}.z4-muted{color:#7d8799;font-size:12px;line-height:1.5}.z4-warn{background:#2b1f0b;border:1px solid #66510d;color:#fcd34d;border-radius:10px;padding:9px;font-size:12px;font-weight:900;line-height:1.45}
-
-@media(max-width:900px){.main{grid-template-columns:1fr;padding:6px;overflow:auto}.panel.left{display:none}.panel.center{min-height:330px}.panel.right{min-height:560px}.panel.zone4{min-height:420px}.head-right{gap:4px}.logo{font-size:18px}}
+@media(max-width:900px){.main{grid-template-columns:1fr;padding:6px;overflow:auto}.panel.left{display:none}.panel.center{min-height:330px}.panel.right{min-height:560px}.head-right{gap:4px}.logo{font-size:18px}}
 @media(max-width:700px){.agent-summary{grid-template-columns:repeat(2,1fr)}.agent-box{width:98vw}.agent-box-body{padding:8px}.rate-grid{grid-template-columns:1fr .75fr .75fr}.limit-grid{grid-template-columns:1fr 1fr}.limit-grid .grid-head{display:none}}
 
 .keytest-pin{display:inline-block;color:#ff8a3d;font-size:17px;font-weight:900;white-space:nowrap}
-
-
-/* Step 5E Fix2 Tablet Smooth Mode */
-*{touch-action:manipulation}
-button,.btn,.key,.tbtn,.agent-card{-webkit-user-select:none;user-select:none}
-.panel,.panel-body,.table-list,.agent-box-body,.paper-body{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.panel{contain:layout paint style}.table-row,.agent-card,.z4-card,.z4-big,.z4-mini{contain:layout paint}
-body.tablet-mode .header{height:54px;padding:6px 10px}
-body.tablet-mode .logo{font-size:19px}
-body.tablet-mode .sub{font-size:11px}
-body.tablet-mode .head-right{gap:5px}
-body.tablet-mode .mode-link{height:34px;padding:7px 9px;font-size:12px;border-radius:9px}
-body.tablet-mode .btn{height:36px;font-size:13px;border-radius:9px;padding:0 10px}
-body.tablet-mode .btn.small{height:30px;font-size:11px;padding:0 8px}
-body.tablet-mode .main{gap:6px;padding:6px;grid-template-columns:190px minmax(300px,1fr) 300px 245px}
-body.tablet-mode .panel-head{height:38px;font-size:13px;padding:0 8px}
-body.tablet-mode .panel-body{padding:6px}
-body.tablet-mode .agent-card{padding:7px;margin-bottom:6px;border-radius:9px}
-body.tablet-mode .agent-name{font-size:14px}
-body.tablet-mode .agent-total{font-size:16px;margin-top:4px}
-body.tablet-mode .agent-meta,.customer-row{font-size:11px}
-body.tablet-mode .agent-actions{gap:4px;margin-top:5px;flex-wrap:wrap}
-body.tablet-mode .agent-actions button{height:25px;font-size:10px;padding:0 6px}
-body.tablet-mode .table-head,body.tablet-mode .table-row{grid-template-columns:78px 1fr 1fr 1fr var(--na-col) 30px;padding-left:8px;padding-right:8px}
-body.tablet-mode .table-head{font-size:12px;padding-top:6px;padding-bottom:6px}
-body.tablet-mode .table-row{font-size:13px;padding-top:6px;padding-bottom:6px}
-body.tablet-mode .lek{font-size:18px}
-body.tablet-mode .table-total{height:42px}
-body.tablet-mode .table-total b{font-size:21px}
-body.tablet-mode .summary-grid{gap:5px}
-body.tablet-mode .sum-card{padding:6px;border-radius:9px}
-body.tablet-mode .sum-card small{font-size:10px}
-body.tablet-mode .sum-card b{font-size:16px}
-body.tablet-mode .workspace-line,body.tablet-mode .save-line,body.tablet-mode .status-line{padding:5px 7px;font-size:11px;border-radius:7px}
-body.tablet-mode .display{min-height:52px;padding:7px 10px;border-radius:11px}
-body.tablet-mode #screen{font-size:28px}
-body.tablet-mode #hint{min-width:78px;font-size:9px}
-body.tablet-mode .type-row{gap:4px}
-body.tablet-mode .tbtn{height:32px;font-size:14px;border-radius:8px}
-body.tablet-mode .keypad{gap:4px}
-body.tablet-mode .key{min-height:43px;font-size:20px;border-radius:8px}
-body.tablet-mode .clear{height:34px;font-size:14px}
-body.tablet-mode .help{font-size:10px;line-height:1.35;max-height:34px;overflow:hidden}
-body.tablet-mode .z4-tabs{gap:4px}
-body.tablet-mode .z4-tab{height:28px;font-size:11px;padding:0 6px}
-body.tablet-mode .z4-big{padding:10px}
-body.tablet-mode .z4-big b{font-size:27px}
-body.tablet-mode .z4-mini-grid{gap:5px}
-body.tablet-mode .z4-mini{padding:7px}
-body.tablet-mode .z4-card{padding:8px}
-body.tablet-mode .z4-bar-row{grid-template-columns:44px 1fr 50px;gap:5px;font-size:11px;margin:5px 0}
-body.tablet-mode .z4-row{grid-template-columns:42px 1fr auto;gap:5px;font-size:11px}
-body.tablet-mode .z4-num{font-size:13px}
-body.tablet-mode .z4-actions{gap:6px}
-body.tablet-mode .z4-muted{display:none}
-body.tablet-mode .paper-shell,body.tablet-mode .agent-box{max-height:96vh;width:98vw}
-body.tablet-mode #tabletModeBtn{background:#0f5132;color:#bbf7d0;border-color:#15803d}
-@media (min-width:901px) and (max-width:1180px){
-  body.tablet-mode .main{grid-template-columns:178px minmax(270px,1fr) 282px 220px;gap:5px;padding:5px}
-  body.tablet-mode .head-right .btn:not(#tabletModeBtn):not(.gold),body.tablet-mode .head-right .mode-link{font-size:11px;padding-left:7px;padding-right:7px}
-  body.tablet-mode .panel-head{font-size:12px}
-  body.tablet-mode .table-head,body.tablet-mode .table-row{grid-template-columns:70px 1fr 1fr 1fr var(--na-col) 28px;font-size:12px}
-  body.tablet-mode .key{min-height:40px;font-size:19px}
-  body.tablet-mode #screen{font-size:25px}
-  body.tablet-mode .z4-big b{font-size:24px}
-}
-@media (max-width:900px){
-  body.tablet-mode .main{grid-template-columns:1fr;overflow:auto;height:auto;min-height:0;padding:6px;scroll-snap-type:y proximity}
-  body.tablet-mode .panel{min-height:auto;scroll-snap-align:start}
-  body.tablet-mode .panel.left{display:block;max-height:260px}
-  body.tablet-mode .panel.center{min-height:320px;max-height:46vh}
-  body.tablet-mode .panel.right{min-height:560px}
-  body.tablet-mode .panel.zone4{min-height:360px}
-  body.tablet-mode .app{overflow:auto}
-  body.tablet-mode html,body{overflow:auto}
-}
-@media (pointer:coarse){
-  .btn,.key,.tbtn,.mode-link{min-height:36px}
-  .delbtn{min-width:30px;min-height:30px}
-}
-
 </style>
 </head>
 <body>
 <input id="importFile" type="file" accept=".json,application/json" style="display:none" onchange="handleImportFile(event)">
 <div class="app">
   <div class="header">
-    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 5E Fix2 Tablet Smooth</div></div>
+    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 4H</div></div>
     <div class="head-right">
       <a id="thaiLink" class="mode-link" href="?market=thai">TH ไทย</a>
       <a id="laoLink" class="mode-link" href="?market=lao">LA ลาว</a>
-      <button id="tabletModeBtn" class="btn small" onclick="toggleTabletMode()">แท็บเล็ต</button>
       <button class="btn purple small" onclick="openBaseConfig('rates')">เรท/อั้นกลาง</button>
       <button class="btn small" onclick="openRoundSummary(event)">สรุปทั้งงวด</button>
       <button class="btn small" onclick="openBaseConfig('prize')">ผลรางวัล</button>
@@ -304,43 +208,7 @@ body.tablet-mode #tabletModeBtn{background:#0f5132;color:#bbf7d0;border-color:#1
         <button id="folderActionBtn" class="btn full gold" onclick="folderAction()">เก็บเข้าแฟ้ม</button>
         <button id="exitSlipEditBtn" class="btn full" style="display:none" onclick="closeSlipEditMode()">ออกจากโหมดแก้โพย</button>
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 5E Fix2: Tablet Smooth Mode + Zone 4</div>
-      </div>
-    </div>
-
-    <div class="panel zone4">
-      <div class="panel-head"><span>📊 สรุปสด</span><span id="z4MarketText">-</span></div>
-      <div class="panel-body">
-        <div class="z4-tabs">
-          <button class="z4-tab on">สรุป</button>
-          <button class="z4-tab">ตรวจ</button>
-          <button class="z4-tab">ตั้งอั้น</button>
-          <button class="z4-tab">เรท</button>
-        </div>
-        <div class="z4-big">
-          <small>ยอดรวมทั้งงวด</small>
-          <b id="z4GrandTotal">฿0</b>
-          <div class="subline" id="z4AfterDiscount">หลังหัก% ฿0</div>
-        </div>
-        <div class="z4-mini-grid">
-          <div class="z4-mini"><small>เอเยนต์</small><b id="z4Agents">0</b></div>
-          <div class="z4-mini"><small>ลูกค้า</small><b id="z4Customers">0</b></div>
-          <div class="z4-mini"><small>รายการ</small><b id="z4Items">0</b></div>
-        </div>
-        <div class="z4-card">
-          <div class="z4-title"><span>แยกประเภท</span><span id="z4TypeHint">สด</span></div>
-          <div id="z4TypeBars"></div>
-        </div>
-        <div class="z4-card">
-          <div class="z4-title"><span>🔥 เลขยอดสูงสุด</span><span>Top 5</span></div>
-          <div id="z4HotNumbers" class="z4-list"></div>
-        </div>
-        <div class="z4-warn" id="z4WarningBox">⚠️ ระบบจะแสดงเลขที่ยอดสูงขึ้นอัตโนมัติ</div>
-        <div class="z4-actions">
-          <button class="btn purple" onclick="openRoundSummary(event)">🧾 สรุปยอด</button>
-          <button class="btn green" onclick="openBaseConfig('prize')">🧮 คิดเลข</button>
-        </div>
-        <div class="z4-muted">Zone 4 เฉพาะ Master: แสดงภาพรวมสดระหว่างคีย์ ไม่กระทบ Subkey</div>
+        <div class="help">Step 5E Import Fix3: ใช้ชุดคีย์จาก Subkey + Import ถูกโครงสร้าง</div>
       </div>
     </div>
   </div>
@@ -421,7 +289,7 @@ const PRIZE_HISTORY_KEY='t999_v2_prize_history_'+market;
 document.getElementById('thaiLink').className='mode-link '+(market==='thai'?'on':'');
 document.getElementById('laoLink').className='mode-link '+(market==='lao'?'on':'');
 document.body.classList.toggle('lao-mode',market==='lao');
-document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 5C Fix5';
+document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 5E Import Fix3';
 document.getElementById('marketBadge').textContent=rules.name;
 document.getElementById('typeRow').classList.toggle('thai',market==='thai');
 
@@ -439,7 +307,7 @@ function uid(prefix){return prefix+'_'+Date.now()+'_'+Math.random().toString(36)
 function money(n){return '฿'+Number(n||0).toLocaleString()}
 function safeName(s){return String(s||'file').replace(/[^\wก-ฮ0-9-]+/g,'_').slice(0,80)}
 function makeEmptyRates(m){const out={};RATE_TYPES[m].forEach(t=>out[t]={discount:0,pay:0});return out}
-function defaultRateLimitConfig(){return {version:'4H',baseRates:{thai:makeEmptyRates('thai'),lao:makeEmptyRates('lao')},baseLimits:{thai:[],lao:[]},agentRates:{},agentLimits:{}}}
+function defaultRateLimitConfig(){return {version:'5E-ImportFix3',baseRates:{thai:makeEmptyRates('thai'),lao:makeEmptyRates('lao')},baseLimits:{thai:[],lao:[]},agentRates:{},agentLimits:{}}}
 function normalizeLimit(x){return {id:x&&x.id||uid('limit'),type:String(x&&x.type||''),number:String(x&&x.number||'').trim(),level:String(x&&x.level||'closed'),customPercent:Number(x&&x.customPercent||0),customPay:Number(x&&x.customPay||0),note:String(x&&x.note||'')}}
 function normalizeConfig(c){
   const d=defaultRateLimitConfig(); c=c&&typeof c==='object'?c:{};
@@ -457,7 +325,7 @@ function normalizeConfig(c){
 
 function defaultPrizeResult(){
   return {
-    version:'4H',
+    version:'5E-ImportFix3',
     market,
     updatedAt:0,
     thai:{drawDate:'',top6:'',front3_1:'',front3_2:'',back3_1:'',back3_2:'',lower2:'',source:'manual'},
@@ -546,7 +414,7 @@ function loadData(){
 function saveData(){
   try{
     workspace.updatedAt=Date.now();
-    let payload={fileType:'T999_V2_MASTER_LOCAL',version:'4H',market,activeAgentId,workspace,agents,rateLimitConfig,prizeResult,latestPrizeCheckReport,savedAt:Date.now()};
+    let payload={fileType:'T999_V2_MASTER_LOCAL',version:'5E-ImportFix3',market,activeAgentId,workspace,agents,rateLimitConfig,prizeResult,latestPrizeCheckReport,savedAt:Date.now()};
     localStorage.setItem(STORAGE_KEY,JSON.stringify(payload));
     updateSaveLine(payload.savedAt,'บันทึกในเครื่องแล้ว')
   }catch(e){console.error(e);updateSaveLine(null,'บันทึกไม่สำเร็จ')}
@@ -571,7 +439,7 @@ function normalizeAgents(raw){
 }
 function exportJson(){
   saveData();
-  let payload={fileType:'T999_V2_MASTER_EXPORT',version:'4H',market,marketName:rules.name,workspace,activeAgentId,exportedAt:new Date().toISOString(),agents,rateLimitConfig,prizeResult,latestPrizeCheckReport};
+  let payload={fileType:'T999_V2_MASTER_EXPORT',version:'5E-ImportFix3',market,marketName:rules.name,workspace,activeAgentId,exportedAt:new Date().toISOString(),agents,rateLimitConfig,prizeResult,latestPrizeCheckReport};
   downloadJSON(payload,'t999-v2-master-'+market+'-'+safeName(workspace.roundLabel||'round')+'-'+Date.now()+'.json')
 }
 function countLimitsForExport(){
@@ -1028,58 +896,7 @@ function renderList(){
   document.getElementById('totalText').textContent=found?money(totalSlip(found.slip)):money(items.reduce((s,it)=>s+Number(it.amount||0),0));
 }
 function renderSummary(){document.getElementById('sumAgents').textContent=agents.length;document.getElementById('sumItems').textContent=itemCountAll();document.getElementById('sumGrand').textContent=money(totalAll())}
-function allItems(){return agents.flatMap(a=>(a.items||[]).map(it=>({...it,_agentId:a.id,_agentName:a.name})))}
-function countCustomersAll(){return agents.reduce((s,a)=>s+(a.customers||[]).length,0)}
-function countSlipsAll(){return agents.reduce((s,a)=>s+countSlips(a),0)}
-function itemAfterDiscount(it){
-  try{
-    const rt=rateTypeForItem(it);
-    const r=getEffectiveRate(it.agentId||it._agentId||activeAgentId,rt);
-    const dis=Number(r.discount||0);
-    return Number(it.amount||0)*(1-dis/100);
-  }catch(e){return Number(it.amount||0)}
-}
-function renderZone4(){
-  const box=document.querySelector('.panel.zone4');if(!box)return;
-  const items=allItems();
-  const total=items.reduce((s,it)=>s+Number(it.amount||0),0);
-  const after=items.reduce((s,it)=>s+itemAfterDiscount(it),0);
-  const el=(id)=>document.getElementById(id);
-  if(el('z4MarketText'))el('z4MarketText').textContent=rules.name;
-  if(el('z4GrandTotal'))el('z4GrandTotal').textContent=money(total);
-  if(el('z4AfterDiscount'))el('z4AfterDiscount').textContent='หลังหัก% '+money(Math.round(after));
-  if(el('z4Agents'))el('z4Agents').textContent=agents.length;
-  if(el('z4Customers'))el('z4Customers').textContent=countCustomersAll();
-  if(el('z4Items'))el('z4Items').textContent=items.length;
-  const typeOrder=market==='lao'?['bon','tod','lang']:['bon','tod','lang','na'];
-  const typeTotals={};typeOrder.forEach(t=>typeTotals[t]=0);
-  items.forEach(it=>{const t=it.type;if(typeTotals[t]===undefined)typeTotals[t]=0;typeTotals[t]+=Number(it.amount||0)});
-  const maxType=Math.max(1,...Object.values(typeTotals));
-  if(el('z4TypeBars')){
-    el('z4TypeBars').innerHTML=typeOrder.map(t=>{
-      const val=typeTotals[t]||0;const pct=Math.max(2,Math.round(val/maxType*100));
-      return `<div class="z4-bar-row"><div class="z4-bar-label">${esc(LABEL[t]||t)}</div><div class="z4-bar-track"><div class="z4-bar-fill" style="width:${pct}%"></div></div><div class="z4-bar-val">${esc(money(val))}</div></div>`;
-    }).join('') || '<div class="z4-muted">ยังไม่มีรายการ</div>';
-  }
-  const numMap=new Map();
-  items.forEach(it=>{const n=itemNumber(it)||'-';const old=numMap.get(n)||{num:n,total:0,count:0};old.total+=Number(it.amount||0);old.count++;numMap.set(n,old)});
-  const hot=Array.from(numMap.values()).sort((a,b)=>b.total-a.total).slice(0,5);
-  if(el('z4HotNumbers')){
-    el('z4HotNumbers').innerHTML=hot.length?hot.map(x=>`<div class="z4-row"><div class="z4-num">${esc(x.num)}</div><div class="z4-note">รับ ${x.count} รายการ</div><div class="z4-pay">${esc(money(x.total))}</div></div>`).join(''):'<div class="z4-muted">ยังไม่มีเลขยอดสูง</div>';
-  }
-  const warning=hot[0]&&hot[0].total>=Math.max(1000,total*0.15);
-  if(el('z4WarningBox'))el('z4WarningBox').innerHTML=warning?`⚠️ เลข ${esc(hot[0].num)} ยอดสูงสุด ${esc(money(hot[0].total))} ควรเช็กเลขอั้น`:'✅ ยอดยังไม่กระจุกตัวผิดปกติ';
-}
-let _z4RAF=null,_z4Again=false;
-function renderZone4Smooth(){
-  if(_z4RAF){_z4Again=true;return}
-  _z4RAF=requestAnimationFrame(()=>{
-    _z4RAF=null;
-    try{renderZone4()}catch(e){console.warn('Zone4 render error',e)}
-    if(_z4Again){_z4Again=false;renderZone4Smooth()}
-  });
-}
-function renderAll(){renderWorkspace();renderAgents();renderList();renderSummary();render();renderFolderAction();renderZone4Smooth()}
+function renderAll(){renderWorkspace();renderAgents();renderList();renderSummary();render();renderFolderAction()}
 function deleteItem(idx){
   let a=getActiveAgent();if(!a)return;
   const found=findSlipRef();
@@ -1206,6 +1023,7 @@ function enterKey(){
   else commit();
   render();
 }
+
 function statusFlash(msg){
   const el=document.getElementById('statusLine');
   if(el){
@@ -1223,15 +1041,11 @@ function dotKey(){
   }
   const s=currentSlot();
   if(!s)return;
-
-  // Fix2: โต๊ดไม่มีชุด/กลับจากปุ่ม .
-  // ถ้าอยู่ช่องโต๊ด ให้ไม่ทำงาน เพื่อไม่แตกชุดโต๊ดผิดกติกา
   if(s.type==='tod'){
     statusFlash('โต๊ดไม่มีชุด ไม่ต้องกด .');
     render();
     return;
   }
-
   if(priceBuf!==''){
     s.price=priceBuf;
     priceBuf='';
@@ -1240,6 +1054,7 @@ function dotKey(){
   if(slotIndex<slots.length-1)slotIndex++;
   render();
 }
+
 function selectSlot(type){
   if(phase!=='price')return;
   const idx=slots.findIndex(s=>s.type===type);
@@ -1464,7 +1279,7 @@ function paperAmountText(it){return '฿'+Number(it.amount||0).toLocaleString('t
 function paperCategory(it){const len=String(itemNumber(it)).replace(/\D/g,'').length;if(it.pin||len===1)return 'one';if(it.type==='tod')return 'tod';if(it.type==='lang')return market==='thai'&&len===3?'threeLang':'two';if(it.type==='na')return market==='thai'&&len===2?'twoNa':'threeNa';if(len>=4)return 'four';if(len===3)return 'three';if(len===2)return 'two';return 'other'}
 function paperColumns(){return market==='lao'?[['four','4ตัว'],['three','3ตัว'],['two','2ตัว'],['one','1ตัว'],['tod','โต๊ด'],['total','รวม']]:[['three','3ตัว'],['two','2ตัว'],['one','1ตัว'],['tod','โต๊ด'],['threeLang','3ล่าง'],['total','รวม']]}
 function paperSummaryForItems(items){const sums={four:0,three:0,two:0,one:0,tod:0,threeLang:0,threeNa:0,twoNa:0,other:0,total:0};(items||[]).forEach(it=>{const amt=Number(it.amount||0);const cat=paperCategory(it);sums[cat]=(sums[cat]||0)+amt;sums.total+=amt});return sums}
-function buildPaperScanPayload(ctx,pageItems,pageNo,totalPages){const {agent,customer,slip}=ctx;return {app:'T999',version:'5C',kind:'SLIP_PAGE',market,roundLabel:workspace.roundLabel||'',masterName:workspace.masterName||'Master',agentId:agent.id,agentName:agent.name,customerId:customer.id,customerName:customer.name,slipId:slip.id,slipNo:slip.slipNo||'',pageNo,totalPages,items:(pageItems||[]).map(it=>({id:it.id||'',number:itemNumber(it),type:it.type,amount:Number(it.amount||0),pin:!!it.pin,pinPosition:it.pinPosition||'',limitStatus:it.limitStatus||null}))}}
+function buildPaperScanPayload(ctx,pageItems,pageNo,totalPages){const {agent,customer,slip}=ctx;return {app:'T999',version:'5E-ImportFix3',kind:'SLIP_PAGE',market,roundLabel:workspace.roundLabel||'',masterName:workspace.masterName||'Master',agentId:agent.id,agentName:agent.name,customerId:customer.id,customerName:customer.name,slipId:slip.id,slipNo:slip.slipNo||'',pageNo,totalPages,items:(pageItems||[]).map(it=>({id:it.id||'',number:itemNumber(it),type:it.type,amount:Number(it.amount||0),pin:!!it.pin,pinPosition:it.pinPosition||'',limitStatus:it.limitStatus||null}))}}
 function paperQrBox(payload){const txt='T999|'+(payload.market||'')+'|'+(payload.slipId||'')+'|'+payload.pageNo+'/'+payload.totalPages+'|'+(payload.items||[]).length;return `<div class="paper-qrbox" title="Scan payload is embedded for future QR mode">QR READY<br>${esc(txt)}</div><textarea class="paper-scan-payload">${esc(JSON.stringify(payload))}</textarea>`}
 function renderPaperSummaryTable(items,label='แผ่นนี้'){const cols=paperColumns();const sums=paperSummaryForItems(items);return `<table class="paper-summary"><thead><tr><th class="left">${esc(label)}</th>${cols.map(c=>`<th>${esc(c[1])}</th>`).join('')}</tr></thead><tbody><tr><td class="left">รวม</td>${cols.map(c=>`<td>${c[0]==='total'?money(sums.total):money(sums[c[0]]||0)}</td>`).join('')}</tr></tbody></table>`}
 function chunkItems(items,size){const out=[];for(let i=0;i<items.length;i+=size)out.push(items.slice(i,i+size));return out.length?out:[[]]}
@@ -1491,10 +1306,10 @@ function openAgentSummary(agentId,ev){if(ev)ev.stopPropagation();const a=agents.
 function openRoundSummary(ev){if(ev)ev.stopPropagation();const rows=(agents||[]).map(a=>{const items=a.items||[];return{label:a.name||'-',sums:summaryForItems(items,a.id),count:items.length}});const netCols=emptySummarySums();(agents||[]).forEach(a=>{const n=summaryNetByCol(a.items||[],a.id);Object.keys(netCols).forEach(k=>netCols[k]+=Number(n[k]||0))});const prize=prizeTotalForFilter(w=>true);const html=summaryPageHtml('📊 สรุปยอดทั้งงวด',`งวด <b>${esc(workspace.roundLabel||'-')}</b> &nbsp; ตลาด <b>${esc(rules.name)}</b> &nbsp; เอเยนต์ <b>${agents.length}</b> คน`,rows,{firstCol:'เอเยนต์',netCols,showPrize:true,prizeTotal:prize,right:'โพยทั้งหมด<br><b>'+agents.reduce((s,a)=>s+countSlips(a),0)+'</b>'});openSummaryPreview('สรุปทั้งงวด',html,{scope:'round',rows,prize})}
 let currentSummaryContext=null;
 function openSummaryPreview(title,html,ctx){currentSummaryContext={title,html,ctx,createdAt:Date.now()};currentPaperContext=null;document.querySelector('#paperModal .paper-title').textContent=title;document.getElementById('paperSub').textContent='HTML Preview / Browser Print / Summary';document.getElementById('paperPreview').innerHTML=html;document.getElementById('paperModal').classList.add('show')}
-function exportPaperSlipJSON(){if(!currentPaperContext)return alert('ยังไม่ได้เลือกโพย');const ctx=currentPaperContext;downloadJSON({fileType:'T999_V2_PAPER_SLIP',version:'5C',exportedAt:new Date().toISOString(),payload:buildPaperScanPayload(ctx,ctx.slip.items||[],1,1)},`t999-slip-${market}-${safeName(ctx.customer.name)}-${safeName(ctx.slip.id)}.json`)}
+function exportPaperSlipJSON(){if(!currentPaperContext)return alert('ยังไม่ได้เลือกโพย');const ctx=currentPaperContext;downloadJSON({fileType:'T999_V2_PAPER_SLIP',version:'5E-ImportFix3',exportedAt:new Date().toISOString(),payload:buildPaperScanPayload(ctx,ctx.slip.items||[],1,1)},`t999-slip-${market}-${safeName(ctx.customer.name)}-${safeName(ctx.slip.id)}.json`)}
 function stripHtmlForText(html){const div=document.createElement('div');div.innerHTML=html;return (div.innerText||div.textContent||'').replace(/\n{3,}/g,'\n\n').trim()}
 function copyPaperOrSummaryText(){let s='';if(currentSummaryContext)s=stripHtmlForText(currentSummaryContext.html);else if(currentPaperContext)s=paperPlainText(currentPaperContext);else return alert('ยังไม่มีข้อมูลให้คัดลอก');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(s).then(()=>alert('คัดลอกข้อความแล้ว')).catch(()=>alert(s))}else alert(s)}
-function exportPaperOrSummaryJSON(){if(currentSummaryContext){return downloadJSON({fileType:'T999_V2_SUMMARY_REPORT',version:'5C',exportedAt:new Date().toISOString(),workspace,market,marketName:rules.name,summary:currentSummaryContext},`t999-summary-${market}-${safeName(currentSummaryContext.title)}-${Date.now()}.json`)}return exportPaperSlipJSON()}
+function exportPaperOrSummaryJSON(){if(currentSummaryContext){return downloadJSON({fileType:'T999_V2_SUMMARY_REPORT',version:'5E-ImportFix3',exportedAt:new Date().toISOString(),workspace,market,marketName:rules.name,summary:currentSummaryContext},`t999-summary-${market}-${safeName(currentSummaryContext.title)}-${Date.now()}.json`)}return exportPaperSlipJSON()}
 function printPaperOrSummary(){return printPaperSlip()}
 function printPaperSlip(){const html=document.getElementById('paperPreview').innerHTML;if(!html)return alert('ยังไม่มีโพยให้พิมพ์');const w=window.open('','_blank','width=980,height=900');if(!w)return alert('เบราว์เซอร์บล็อกหน้าต่างพิมพ์');const css=`<style>body{background:#fff;margin:0;padding:0;font-family:Arial,"Sarabun",sans-serif}.paper-page-wrap{display:block}.paper-page{width:100%;min-height:auto;box-shadow:none;border-radius:0;border:0;padding:14px 18px;page-break-after:always;background:#fff;color:#111}.paper-top{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:8px}.paper-brand{font-size:22px;font-weight:900}.paper-brand small{font-size:13px;color:#333}.paper-info{font-size:12px;line-height:1.55;margin-top:3px;color:#333}.paper-id{text-align:right;font-size:12px;line-height:1.55;color:#333;min-width:190px}.paper-id b{font-size:16px;color:#111}.paper-list{min-height:330px;padding:4px 0 8px}.paper-bet-row{display:grid;grid-template-columns:56px 20px 1fr;gap:8px;align-items:start;min-height:28px;border-bottom:1px dashed #cfcfcf;padding:4px 0;font-size:18px;font-weight:900}.paper-bet-row .eq{color:#777;text-align:center}.paper-bet-row .desc{font-size:14px;font-weight:900;color:#222;line-height:1.4;padding-top:2px}.limit{display:inline-block;margin-left:6px;font-size:10px;border:1px solid #d97706;background:#fff7ed;color:#9a3412;border-radius:999px;padding:1px 6px}.paper-summary{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;border-top:1.5px solid #111;border-bottom:1.5px solid #111}.paper-summary th,.paper-summary td{border-bottom:1px solid #d6d6d6;padding:6px 8px;text-align:center;font-weight:900}.paper-summary th{font-size:12px;color:#333;border-bottom:1px solid #111}.paper-summary .left{text-align:left;color:#555}.paper-page-total{display:flex;justify-content:space-between;gap:10px;align-items:flex-end;margin-top:12px;font-size:16px;font-weight:900}.paper-page-total b{font-size:26px}.paper-qrbox{width:96px;height:96px;border:2px dashed #111;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;line-height:1.25;margin-left:auto;color:#111;word-break:break-all;padding:5px}.paper-footer{font-size:10px;color:#777;text-align:right;margin-top:8px;border-top:1px solid #eee;padding-top:5px}.paper-scan-payload{display:none}@page{size:A4;margin:8mm}</style>`;w.document.open();w.document.write('<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">'+css+'<title>T999 Paper Slip</title></head><body><div class="paper-page-wrap">'+html+'</div></body></html>');w.document.close();setTimeout(()=>{try{w.focus();w.print()}catch(e){}},350)}
 function deleteSlip(agentId,customerId,slipId){
@@ -1718,7 +1533,7 @@ function loadPrizeHistory(id,scope,agentId){
 }
 function exportPrizeHistory(id){
   const h=prizeHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบประวัตินี้');
-  downloadJSON({fileType:'T999_V2_PRIZE_HISTORY',version:'4H',exportedAt:new Date().toISOString(),entry:h},`t999-prize-${market}-${safeName(h.drawDate||h.result?.top6||'history')}.json`);
+  downloadJSON({fileType:'T999_V2_PRIZE_HISTORY',version:'5E-ImportFix3',exportedAt:new Date().toISOString(),entry:h},`t999-prize-${market}-${safeName(h.drawDate||h.result?.top6||'history')}.json`);
 }
 function deletePrizeHistoryPermanent(id,scope,agentId){
   const h=prizeHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบประวัตินี้');
@@ -2038,7 +1853,7 @@ function runPrizeCheck(scope='base',agentId=''){
   if(r.top6&&r.top6.length===6){prizeResult[market]=r;prizeResult.market=market;prizeResult.version='4D';prizeResult.updatedAt=Date.now();}
   if(!canCheckPrize())return alert('กรุณากรอกผลรางวัลให้ครบก่อนตรวจ');
   const targets=derivePrizeTargets(currentPrize());
-  const report={version:'4H',market,marketName:rules.name,scope,agentId,drawDate:targets.drawDate||'',checkedAt:Date.now(),targets,totalGross:0,totalNet:0,totalPayout:0,profit:0,winCount:0,itemCount:0,winners:[],agentSummary:[]};
+  const report={version:'5E-ImportFix3',market,marketName:rules.name,scope,agentId,drawDate:targets.drawDate||'',checkedAt:Date.now(),targets,totalGross:0,totalNet:0,totalPayout:0,profit:0,winCount:0,itemCount:0,winners:[],agentSummary:[]};
   const checkAgents=collectCheckItems(scope,agentId);
   checkAgents.forEach(a=>{
     let agentSum={agentId:a.id,agentName:a.name,totalGross:0,totalNet:0,totalPayout:0,winCount:0,itemCount:0};
@@ -2097,7 +1912,7 @@ function renderLastPrizeReport(scope='base',agentId=''){
 }
 function exportPrizeCheckReport(){
   if(!latestPrizeCheckReport)return alert('ยังไม่มีรายงานล่าสุด');
-  downloadJSON({fileType:'T999_V2_PRIZE_CHECK_REPORT',version:'4H',exportedAt:new Date().toISOString(),report:latestPrizeCheckReport},`t999-prize-report-${market}-${safeName(latestPrizeCheckReport.drawDate||Date.now())}.json`);
+  downloadJSON({fileType:'T999_V2_PRIZE_CHECK_REPORT',version:'5E-ImportFix3',exportedAt:new Date().toISOString(),report:latestPrizeCheckReport},`t999-prize-report-${market}-${safeName(latestPrizeCheckReport.drawDate||Date.now())}.json`);
 }
 
 
@@ -2173,7 +1988,7 @@ function viewReportHistory(id,scope='base',agentId=''){
 }
 function exportReportHistory(id){
   const h=reportHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบรายงานนี้');
-  downloadJSON({fileType:'T999_V2_PRIZE_REPORT_HISTORY',version:'4H',exportedAt:new Date().toISOString(),entry:h},`t999-report-history-${market}-${safeName(h.drawDate||h.id)}.json`);
+  downloadJSON({fileType:'T999_V2_PRIZE_REPORT_HISTORY',version:'5E-ImportFix3',exportedAt:new Date().toISOString(),entry:h},`t999-report-history-${market}-${safeName(h.drawDate||h.id)}.json`);
 }
 function deleteReportHistoryPermanent(id,scope='base',agentId=''){
   const h=reportHistoryList().find(x=>x.id===id);if(!h)return alert('ไม่พบรายงานนี้');
@@ -2272,32 +2087,8 @@ var T999_STEP4D_OLD_EXPORT_PRIZE_CHECK_REPORT=exportPrizeCheckReport;
 exportPrizeCheckReport=function(){
   if(!latestPrizeCheckReport)return alert('ยังไม่มีรายงานล่าสุด');
   savePrizeReportHistory(latestPrizeCheckReport);
-  downloadJSON({fileType:'T999_V2_PRIZE_CHECK_REPORT',version:'4H',exportedAt:new Date().toISOString(),report:latestPrizeCheckReport},`t999-prize-report-${market}-${safeName(latestPrizeCheckReport.drawDate||Date.now())}.json`);
+  downloadJSON({fileType:'T999_V2_PRIZE_CHECK_REPORT',version:'5E-ImportFix3',exportedAt:new Date().toISOString(),report:latestPrizeCheckReport},`t999-prize-report-${market}-${safeName(latestPrizeCheckReport.drawDate||Date.now())}.json`);
 };
-
-
-/* Step 5E Fix2 Tablet Smooth Mode */
-function shouldAutoTabletMode(){
-  return window.innerWidth<=1280 || (navigator.maxTouchPoints&&navigator.maxTouchPoints>0);
-}
-function applyTabletMode(){
-  const saved=localStorage.getItem('t999_v2_tablet_mode')||'auto';
-  const on=saved==='on' || (saved==='auto' && shouldAutoTabletMode());
-  document.body.classList.toggle('tablet-mode',!!on);
-  const btn=document.getElementById('tabletModeBtn');
-  if(btn){
-    btn.textContent=on?'แท็บเล็ต ✓':'แท็บเล็ต';
-    btn.title='โหมดแท็บเล็ต: '+(saved==='auto'?'อัตโนมัติ':saved==='on'?'เปิด':'ปิด');
-  }
-}
-function toggleTabletMode(){
-  const now=document.body.classList.contains('tablet-mode');
-  localStorage.setItem('t999_v2_tablet_mode',now?'off':'on');
-  applyTabletMode();
-  setTimeout(()=>{try{renderAll()}catch(e){}},60);
-}
-window.addEventListener('resize',()=>{clearTimeout(window._t999ResizeTimer);window._t999ResizeTimer=setTimeout(()=>{applyTabletMode();try{renderZone4Smooth()}catch(e){}},160)});
-applyTabletMode();
 
 /* boot */
 document.addEventListener('keydown',e=>{
