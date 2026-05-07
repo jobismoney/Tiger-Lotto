@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Master Step 5E Fix2 Import Fix1</title>
+<title>T999 V2 Master Step 5F Auto Layout Picker</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -239,17 +239,78 @@ body.tablet-mode #tabletModeBtn{background:#0f5132;color:#bbf7d0;border-color:#1
   .delbtn{min-width:30px;min-height:30px}
 }
 
+
+/* Step 5F Auto Layout + Save Picker Restore */
+:root{
+  --z1-agent:220px;
+  --z3-key:340px;
+  --z4-side:280px;
+}
+body.layout-wide .main{grid-template-columns:250px minmax(360px,1fr) 360px 330px}
+body.layout-notebook .main{grid-template-columns:var(--z1-agent) minmax(280px,1fr) var(--z3-key) var(--z4-side)}
+body.layout-notebook .panel.center .panel-head{font-size:13px}
+body.layout-notebook .table-head,body.layout-notebook .table-row{grid-template-columns:76px 1fr 1fr 1fr var(--na-col) 30px;padding-left:8px;padding-right:8px}
+body.layout-notebook .lek{font-size:18px}
+body.layout-notebook .agent-card{padding:8px;margin-bottom:7px}
+body.layout-notebook .agent-name{font-size:15px}
+body.layout-notebook .agent-total{font-size:17px}
+body.layout-notebook .z4-mini-grid{gap:5px}
+body.layout-notebook .z4-big b{font-size:26px}
+body.layout-notebook .key{min-height:46px}
+body.layout-compact .main{grid-template-columns:210px minmax(260px,1fr) 335px;grid-template-areas:"agent list key" "zone zone zone";align-items:stretch}
+body.layout-compact .panel.left{grid-area:agent;display:flex!important;min-height:0}
+body.layout-compact .panel.center{grid-area:list;min-height:330px}
+body.layout-compact .panel.right{grid-area:key;min-height:560px}
+body.layout-compact .panel.zone4{grid-area:zone;min-height:260px;max-height:340px}
+body.layout-compact .zone4 .panel-body{display:grid;grid-template-columns:260px 1fr 1fr;grid-auto-rows:min-content;align-items:start}
+body.layout-compact .z4-tabs{grid-column:1/-1;grid-template-columns:repeat(4,120px);justify-content:start}
+body.layout-compact .z4-actions,body.layout-compact .z4-muted{display:none}
+body.layout-compact .z4-big b{font-size:24px}
+body.layout-compact .z4-card{min-height:0}
+body.layout-mobile .main{grid-template-columns:1fr;overflow:auto;height:auto;min-height:0}
+body.layout-mobile .app{height:auto;min-height:100vh;overflow:auto}
+body.layout-mobile html,body{overflow:auto}
+body.layout-mobile .panel.left{display:flex!important;max-height:300px}
+body.layout-mobile .panel.center{min-height:320px;max-height:48vh}
+body.layout-mobile .panel.right{min-height:560px}
+body.layout-mobile .panel.zone4{min-height:380px}
+body.layout-mobile .head-right{justify-content:flex-start}
+body.layout-mobile .logo{font-size:18px}
+.layout-pill{font-size:11px;color:#94a3b8;font-weight:900;margin-left:4px}
+
+.save-picker-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:16px;z-index:110}
+.save-picker-modal.show{display:flex}
+.save-picker-box{width:min(860px,96vw);max-height:92vh;overflow:hidden;background:#151824;border:2px solid var(--gold);border-radius:18px;display:flex;flex-direction:column;box-shadow:0 22px 70px rgba(0,0,0,.55)}
+.save-picker-head{min-height:58px;background:#202332;border-bottom:1px solid #34394f;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px}
+.save-picker-title{font-size:20px;font-weight:900;color:var(--gold)}
+.save-picker-sub{font-size:12px;color:#94a3b8;margin-top:2px;line-height:1.35}
+.save-picker-body{padding:12px;overflow:auto}
+.save-picker-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.save-picker-panel{background:#0f1117;border:1px solid var(--line);border-radius:12px;padding:10px;min-height:300px;display:flex;flex-direction:column}
+.save-picker-panel-title{font-size:15px;font-weight:900;color:var(--gold);margin-bottom:8px;display:flex;justify-content:space-between;gap:8px}
+.save-picker-search,.save-picker-new input{width:100%;height:40px;border-radius:9px;border:1px solid #475569;background:#e7eefc;color:#000;font-size:15px;font-weight:900;padding:0 10px;outline:none;margin-bottom:8px}
+.save-picker-list{flex:1;min-height:0;max-height:250px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.save-picker-row{width:100%;min-height:42px;border-radius:9px;border:1px solid #334155;background:#1b2030;color:#dbeafe;text-align:left;font-weight:900;padding:8px 10px;cursor:pointer}
+.save-picker-row.on{border-color:var(--gold);background:rgba(245,197,24,.14);color:#fff}
+.save-picker-row small{display:block;color:#94a3b8;font-size:11px;margin-top:2px;line-height:1.35}
+.save-picker-new{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:8px}
+.save-picker-new input{margin-bottom:0}
+.save-picker-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;background:#0f1117;border:1px solid var(--line);border-radius:12px;padding:10px}
+.save-picker-summary{color:#cbd5e1;font-size:13px;font-weight:900;line-height:1.5}
+.save-picker-summary b{color:var(--gold)}
+@media(max-width:760px){.save-picker-grid{grid-template-columns:1fr}.save-picker-panel{min-height:auto}.save-picker-list{max-height:170px}.save-picker-head{align-items:flex-start;flex-direction:column}.save-picker-footer{align-items:flex-start;flex-direction:column}}
+
 </style>
 </head>
 <body>
 <input id="importFile" type="file" accept=".json,application/json" style="display:none" onchange="handleImportFile(event)">
 <div class="app">
   <div class="header">
-    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 5E Fix2 Tablet Smooth</div></div>
+    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 5F Auto Layout + Picker</div></div>
     <div class="head-right">
       <a id="thaiLink" class="mode-link" href="?market=thai">TH ไทย</a>
       <a id="laoLink" class="mode-link" href="?market=lao">LA ลาว</a>
-      <button id="tabletModeBtn" class="btn small" onclick="toggleTabletMode()">แท็บเล็ต</button>
+      <button id="tabletModeBtn" class="btn small" onclick="toggleTabletMode()">แท็บเล็ต</button><span id="layoutPill" class="layout-pill">Auto</span>
       <button class="btn purple small" onclick="openBaseConfig('rates')">เรท/อั้นกลาง</button>
       <button class="btn small" onclick="openRoundSummary(event)">สรุปทั้งงวด</button>
       <button class="btn small" onclick="openBaseConfig('prize')">ผลรางวัล</button>
@@ -304,7 +365,7 @@ body.tablet-mode #tabletModeBtn{background:#0f5132;color:#bbf7d0;border-color:#1
         <button id="folderActionBtn" class="btn full gold" onclick="folderAction()">เก็บเข้าแฟ้ม</button>
         <button id="exitSlipEditBtn" class="btn full" style="display:none" onclick="closeSlipEditMode()">ออกจากโหมดแก้โพย</button>
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 5E Fix2: Tablet Smooth Mode + Zone 4</div>
+        <div class="help">Step 5F: Auto Layout + เก็บเข้าแฟ้มแบบ Popup</div>
       </div>
     </div>
 
@@ -385,6 +446,20 @@ body.tablet-mode #tabletModeBtn{background:#0f5132;color:#bbf7d0;border-color:#1
       </div>
     </div>
     <div class="paper-body"><div id="paperPreview" class="paper-page-wrap"></div></div>
+  </div>
+</div>
+
+
+<div id="savePickerModal" class="save-picker-modal">
+  <div class="save-picker-box">
+    <div class="save-picker-head">
+      <div>
+        <div class="save-picker-title">เก็บเข้าแฟ้ม</div>
+        <div class="save-picker-sub">เลือกเอเยนต์และลูกค้าแบบเดียวกับ Subkey · ไม่ต้องพิมพ์ชื่อลูกค้าซ้ำ</div>
+      </div>
+      <button class="agent-box-close" onclick="closeSavePicker()">×</button>
+    </div>
+    <div class="save-picker-body" id="savePickerBody"></div>
   </div>
 </div>
 
@@ -917,33 +992,118 @@ function saveCurrentItemsToFolder(){
   if(!pending.length){
     return alert('ยังไม่มีรายการใหม่ที่ยังไม่ได้เก็บเข้าแฟ้ม\nถ้าต้องการแก้โพยเดิม ให้เปิดจาก Agent Card');
   }
-  let customerName=prompt('ชื่อลูกค้า / เจ้าของโพย','');
-  if(customerName===null)return;
-  customerName=customerName.trim()||'ลูกค้าไม่ระบุ';
+  openSavePicker();
+}
+
+let savePicker={agentId:'',customerId:'',agentQ:'',customerQ:'',newCustomerName:''};
+function openSavePicker(){
+  const a=getActiveAgent();
+  if(!a)return alert('ยังไม่มีเอเยนต์');
+  const pending=(a.items||[]).filter(it=>!it.slipId);
+  if(!pending.length)return alert('ยังไม่มีรายการใหม่ที่ยังไม่ได้เก็บเข้าแฟ้ม');
+  savePicker={agentId:a.id,customerId:'',agentQ:'',customerQ:'',newCustomerName:''};
+  if(a.customers&&a.customers.length)savePicker.customerId=a.customers[0].id;
+  document.getElementById('savePickerModal').classList.add('show');
+  renderSavePicker();
+}
+function closeSavePicker(){const m=document.getElementById('savePickerModal');if(m)m.classList.remove('show')}
+function setSavePickerAgentSearch(v){savePicker.agentQ=String(v||'');renderSavePicker()}
+function setSavePickerCustomerSearch(v){savePicker.customerQ=String(v||'');renderSavePicker()}
+function setSavePickerAgent(id){
+  savePicker.agentId=id;
+  savePicker.customerId='';
+  const a=agents.find(x=>x.id===id);
+  const customers=(a&&a.customers)||[];
+  if(customers.length)savePicker.customerId=customers[0].id;
+  renderSavePicker();
+}
+function setSavePickerCustomer(id){savePicker.customerId=id;savePicker.newCustomerName='';renderSavePicker()}
+function setSavePickerNewCustomer(v){savePicker.newCustomerName=String(v||'');savePicker.customerId='';renderSavePicker()}
+function createCustomerInSavePicker(){
+  const a=agents.find(x=>x.id===savePicker.agentId)||getActiveAgent();
+  if(!a)return;
+  const name=(savePicker.newCustomerName||'').trim();
+  if(!name)return alert('ใส่ชื่อลูกค้าใหม่ก่อน');
   if(!a.customers)a.customers=[];
-  let c=a.customers.find(x=>x.name===customerName);
-  if(!c){c={id:uid('cus'),name:customerName,slips:[]};a.customers.push(c)}
-  if(!c.slips)c.slips=[];
+  let c=a.customers.find(x=>x.name===name);
+  if(!c){c={id:uid('cus'),name,slips:[]};a.customers.push(c)}
+  savePicker.customerId=c.id;savePicker.customerQ='';savePicker.newCustomerName='';
+  renderSavePicker();scheduleSave();
+}
+function renderSavePicker(){
+  const body=document.getElementById('savePickerBody');if(!body)return;
+  const fromAgent=getActiveAgent();
+  const pending=fromAgent?(fromAgent.items||[]).filter(it=>!it.slipId):[];
+  const total=pending.reduce((s,it)=>s+Number(it.amount||0),0);
+  const aq=(savePicker.agentQ||'').toLowerCase();
+  const agentRows=(agents||[]).filter(a=>!aq||String(a.name||'').toLowerCase().includes(aq));
+  const targetAgent=agents.find(a=>a.id===savePicker.agentId)||fromAgent;
+  const cq=(savePicker.customerQ||'').toLowerCase();
+  const customers=((targetAgent&&targetAgent.customers)||[]).filter(c=>!cq||String(c.name||'').toLowerCase().includes(cq));
+  body.innerHTML=`
+    <div class="save-picker-grid">
+      <div class="save-picker-panel">
+        <div class="save-picker-panel-title"><span>1) เลือกเอเยนต์</span><span>${agentRows.length}</span></div>
+        <input class="save-picker-search" placeholder="ค้นหาเอเยนต์" value="${esc(savePicker.agentQ)}" oninput="setSavePickerAgentSearch(this.value)">
+        <div class="save-picker-list">
+          ${agentRows.map(a=>`<button class="save-picker-row ${a.id===savePicker.agentId?'on':''}" onclick="setSavePickerAgent('${a.id}')">${esc(a.name)}<small>ลูกค้า ${(a.customers||[]).length} · โพย ${countSlips(a)} · ยอด ${money(totalAgent(a))}</small></button>`).join('')||'<div class="empty">ไม่พบเอเยนต์</div>'}
+        </div>
+      </div>
+      <div class="save-picker-panel">
+        <div class="save-picker-panel-title"><span>2) เลือกลูกค้า</span><span>${customers.length}</span></div>
+        <input class="save-picker-search" placeholder="ค้นหาลูกค้า" value="${esc(savePicker.customerQ)}" oninput="setSavePickerCustomerSearch(this.value)">
+        <div class="save-picker-list">
+          ${customers.map(c=>`<button class="save-picker-row ${c.id===savePicker.customerId?'on':''}" onclick="setSavePickerCustomer('${c.id}')">${esc(c.name)}<small>โพย ${(c.slips||[]).length} · ยอด ${money(totalCustomer(c))}</small></button>`).join('')||'<div class="empty">ยังไม่มีลูกค้า หรือค้นหาไม่พบ</div>'}
+        </div>
+        <div class="save-picker-new">
+          <input placeholder="สร้างลูกค้าใหม่" value="${esc(savePicker.newCustomerName||'')}" oninput="setSavePickerNewCustomer(this.value)">
+          <button class="btn gold small" onclick="createCustomerInSavePicker()">เพิ่ม</button>
+        </div>
+      </div>
+    </div>
+    <div class="save-picker-footer">
+      <div class="save-picker-summary">
+        รายการใหม่ <b>${pending.length}</b> รายการ · ยอด <b>${money(total)}</b><br>
+        จากแฟ้ม: <b>${esc(fromAgent&&fromAgent.name||'-')}</b> → เก็บที่: <b>${esc(targetAgent&&targetAgent.name||'-')}</b>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="closeSavePicker()">ยกเลิก</button>
+        <button class="btn green" onclick="confirmSavePicker()">เก็บเข้าแฟ้ม</button>
+      </div>
+    </div>`;
+}
+function confirmSavePicker(){
+  const sourceAgent=getActiveAgent();
+  const targetAgent=agents.find(a=>a.id===savePicker.agentId)||sourceAgent;
+  if(!sourceAgent||!targetAgent)return alert('ไม่พบเอเยนต์');
+  const pending=(sourceAgent.items||[]).filter(it=>!it.slipId);
+  if(!pending.length)return alert('ยังไม่มีรายการใหม่');
+  let customer=null;
+  if(savePicker.customerId)customer=(targetAgent.customers||[]).find(c=>c.id===savePicker.customerId);
+  const newName=(savePicker.newCustomerName||'').trim();
+  if(!customer&&newName){
+    if(!targetAgent.customers)targetAgent.customers=[];
+    customer=targetAgent.customers.find(c=>c.name===newName);
+    if(!customer){customer={id:uid('cus'),name:newName,slips:[]};targetAgent.customers.push(customer)}
+  }
+  if(!customer)return alert('เลือกลูกค้า หรือสร้างลูกค้าใหม่ก่อน');
+  if(!customer.slips)customer.slips=[];
   const slipId=uid('slip');
-  const slipNo=(c.slips||[]).length+1;
+  const slipNo=(customer.slips||[]).length+1;
   const slip={id:slipId,slipNo,label:'โพยชุดที่ '+slipNo,createdAt:Date.now(),updatedAt:Date.now(),items:[]};
   pending.forEach(it=>{
-    it.customerId=c.id;
-    it.customerName=c.name;
-    it.slipId=slipId;
-    it.slipNo=slipNo;
-    it.agentId=a.id;
-    it.agentName=a.name;
-    if(!it.id)it.id=uid('it');
+    if(sourceAgent.id!==targetAgent.id){
+      const idx=sourceAgent.items.indexOf(it);if(idx>=0)sourceAgent.items.splice(idx,1);
+      if(!targetAgent.items)targetAgent.items=[];targetAgent.items.push(it);
+    }
+    it.customerId=customer.id;it.customerName=customer.name;it.slipId=slipId;it.slipNo=slipNo;it.agentId=targetAgent.id;it.agentName=targetAgent.name;if(!it.id)it.id=uid('it');
     slip.items.push(it);
   });
-  c.slips.push(slip);
-  activeSlipRef=null;
-  clearBuffer();
-  saveData();
-  renderAll();
-  alert('เก็บเข้าแฟ้มแล้ว\nเอเยนต์: '+a.name+'\nลูกค้า: '+c.name+'\nโพย #'+slipNo+'\nยอด '+money(totalSlip(slip))+'\n\nหน้าจอพร้อมคีย์โพยใหม่แล้ว');
+  customer.slips.push(slip);
+  activeAgentId=targetAgent.id;activeSlipRef=null;closeSavePicker();clearBuffer();saveData();renderAll();
+  alert('เก็บเข้าแฟ้มแล้ว\nเอเยนต์: '+targetAgent.name+'\nลูกค้า: '+customer.name+'\nโพย #'+slipNo+'\nยอด '+money(totalSlip(slip))+'\n\nหน้าจอพร้อมคีย์โพยใหม่แล้ว');
 }
+
 function clearCurrentAgent(){
   let a=getActiveAgent();if(!a)return;
   if(!confirm('ล้างแฟ้มนี้?\n'+a.name+'\nรายการ '+(a.items||[]).length+'\nยอด '+money(totalAgent(a))))return;
@@ -2276,11 +2436,30 @@ exportPrizeCheckReport=function(){
 };
 
 
-/* Step 5E Fix2 Tablet Smooth Mode */
+/* Step 5F Auto Layout Engine */
+function getAutoLayoutMode(){
+  const w=window.innerWidth||document.documentElement.clientWidth||1366;
+  if(w>=1460)return 'wide';
+  if(w>=1180)return 'notebook';
+  if(w>=900)return 'compact';
+  return 'mobile';
+}
 function shouldAutoTabletMode(){
-  return window.innerWidth<=1280 || (navigator.maxTouchPoints&&navigator.maxTouchPoints>0);
+  const mode=getAutoLayoutMode();
+  return mode==='compact'||mode==='mobile'||(window.innerWidth<=1280 && navigator.maxTouchPoints&&navigator.maxTouchPoints>0);
+}
+function applyAutoLayout(){
+  const mode=getAutoLayoutMode();
+  document.body.classList.remove('layout-wide','layout-notebook','layout-compact','layout-mobile');
+  document.body.classList.add('layout-'+mode);
+  const pill=document.getElementById('layoutPill');
+  if(pill){
+    const label={wide:'จอใหญ่',notebook:'โน้ตบุ๊ก',compact:'แท็บเล็ต/จอกลาง',mobile:'มือถือ'}[mode]||mode;
+    pill.textContent='Auto: '+label;
+  }
 }
 function applyTabletMode(){
+  applyAutoLayout();
   const saved=localStorage.getItem('t999_v2_tablet_mode')||'auto';
   const on=saved==='on' || (saved==='auto' && shouldAutoTabletMode());
   document.body.classList.toggle('tablet-mode',!!on);
@@ -2291,8 +2470,9 @@ function applyTabletMode(){
   }
 }
 function toggleTabletMode(){
-  const now=document.body.classList.contains('tablet-mode');
-  localStorage.setItem('t999_v2_tablet_mode',now?'off':'on');
+  const saved=localStorage.getItem('t999_v2_tablet_mode')||'auto';
+  const next=saved==='auto'?'on':(saved==='on'?'off':'auto');
+  localStorage.setItem('t999_v2_tablet_mode',next);
   applyTabletMode();
   setTimeout(()=>{try{renderAll()}catch(e){}},60);
 }
@@ -2308,7 +2488,7 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='Backspace')backspace();
   else if(e.key==='/')pressSlash();
   else if(e.key==='.')dotKey();
-  else if(e.key==='Escape'){closePin();closeAgentModal();closePaperSlip()}
+  else if(e.key==='Escape'){closePin();closeAgentModal();closePaperSlip();closeSavePicker()}
 });
 function init(){loadData();renderWorkspace();selectAgent(activeAgentId,false);saveData()}
 init();
