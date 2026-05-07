@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Master Step 5G KeyLock Layout Fix</title>
+<title>T999 V2 Master Step 5H KeyLock Layout Fix</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -240,18 +240,18 @@ body.tablet-mode #tabletModeBtn{background:#0f5132;color:#bbf7d0;border-color:#1
 }
 
 
-/* Step 5G KeyLock Layout Guard */
+/* Step 5H KeyLock Layout Guard */
 .keylock-note{color:#94a3b8;font-size:10px;line-height:1.35;margin-top:4px}
 .current-list-badge{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:999px;background:rgba(245,197,24,.13);border:1px solid rgba(245,197,24,.4);color:var(--gold);font-size:10px;font-weight:900;white-space:nowrap}
 
-/* Step 5G Resizable 4 Zones */
+/* Step 5H Resizable 4 Zones */
 .zone-resizer{width:7px;min-width:7px;cursor:col-resize;background:linear-gradient(180deg,rgba(245,197,24,.05),rgba(245,197,24,.2),rgba(245,197,24,.05));border:1px solid rgba(245,197,24,.10);border-radius:10px;margin:0 3px;touch-action:none;position:relative;z-index:8}
 .zone-resizer:before{content:"";position:absolute;top:50%;left:50%;width:3px;height:44px;transform:translate(-50%,-50%);border-radius:999px;background:rgba(245,197,24,.55)}
 .zone-resizer:hover,.zone-resizer.dragging{background:rgba(245,197,24,.28);border-color:rgba(245,197,24,.55)}
 body.resizing-zones{cursor:col-resize;user-select:none}
 .resize-hint{font-size:10px;color:#94a3b8;font-weight:900;margin-left:6px}
 
-/* Step 5G Save Picker Popup */
+/* Step 5H Save Picker Popup */
 .save-picker-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:16px;z-index:110}
 .save-picker-modal.show{display:flex}
 .save-picker-box{width:min(860px,96vw);max-height:92vh;overflow:hidden;background:#151824;border:2px solid var(--gold);border-radius:18px;display:flex;flex-direction:column;box-shadow:0 22px 70px rgba(0,0,0,.55)}
@@ -273,7 +273,7 @@ body.resizing-zones{cursor:col-resize;user-select:none}
 .save-picker-summary{color:#cbd5e1;font-size:13px;font-weight:900;line-height:1.5}
 .save-picker-summary b{color:var(--gold)}
 
-/* Step 5G Easy Limit Popup/Card UI */
+/* Step 5H Easy Limit Popup/Card UI */
 .limit-new-box{background:#0f1117;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
 .limit-new-title{font-weight:900;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .limit-quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
@@ -299,7 +299,7 @@ body.resizing-zones{cursor:col-resize;user-select:none}
 <input id="importFile" type="file" accept=".json,application/json" style="display:none" onchange="handleImportFile(event)">
 <div class="app">
   <div class="header">
-    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 5G KeyLock Layout</div></div>
+    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 5H KeyLock Layout</div></div>
     <div class="head-right">
       <a id="thaiLink" class="mode-link" href="?market=thai">TH ไทย</a>
       <a id="laoLink" class="mode-link" href="?market=lao">LA ลาว</a>
@@ -360,7 +360,7 @@ body.resizing-zones{cursor:col-resize;user-select:none}
         <button id="folderActionBtn" class="btn full gold" onclick="folderAction()">เก็บเข้าแฟ้ม</button>
         <button id="exitSlipEditBtn" class="btn full" style="display:none" onclick="closeSlipEditMode()">ออกจากโหมดแก้โพย</button>
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 5G: KeyLock + Resizable Zones + Compact Rows</div>
+        <div class="help">Step 5H: KeyLock + Resizable Zones + Compact Rows</div>
       </div>
     </div>
     <div class="zone-resizer" data-left="key" data-right="zone4" title="ลากเพื่อปรับโซนคีย์เลข / สรุปสด"></div>
@@ -492,7 +492,7 @@ const PRIZE_HISTORY_KEY='t999_v2_prize_history_'+market;
 document.getElementById('thaiLink').className='mode-link '+(market==='thai'?'on':'');
 document.getElementById('laoLink').className='mode-link '+(market==='lao'?'on':'');
 document.body.classList.toggle('lao-mode',market==='lao');
-document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 5G KeyLock Layout';
+document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 5H KeyLock Layout';
 document.getElementById('marketBadge').textContent=rules.name;
 document.getElementById('typeRow').classList.toggle('thai',market==='thai');
 
@@ -2461,7 +2461,7 @@ applyTabletMode();
 
 
 
-/* Step 5G Resizable Zone Engine: wrapper only, does not touch Core Key Engine */
+/* Step 5H Resizable Zone Engine: wrapper only, does not touch Core Key Engine */
 const ZONE_LAYOUT_KEY='t999_v2_master_zone_sizes_v5g';
 const ZONE_DEFAULTS={agent:250,list:420,key:360,zone4:330};
 const ZONE_MINS={agent:160,list:260,key:280,zone4:220};
@@ -2494,6 +2494,91 @@ function initZoneResizers(){
       document.addEventListener('pointermove',move);document.addEventListener('pointerup',up,{once:true});
     });
   });
+}
+
+
+
+/* =========================================================
+   STEP 5H LIMIT POPUP FIX — wrapper only, does not touch Core Key Engine
+   Fixes:
+   1) ปุ่ม chip ระดับ/ประเภทกดแล้วอัปเดตทันที
+   2) ใส่เลขหลายตัวแบบ 52/54/78 ได้ แต่ทุกเลขต้องหลักเท่ากัน
+   3) กด 50% / 20% / ปิดรับ แล้วเลขไม่หาย
+========================================================= */
+let limitEditorContext={scope:'base',agentId:''};
+function t999CaptureLimitDraftFromDom(){
+  const n=document.getElementById('limitDraftNumber');
+  const pct=document.getElementById('limitDraftPercent');
+  const pay=document.getElementById('limitDraftPay');
+  const note=document.getElementById('limitDraftNote');
+  if(n)limitDraft.number=n.value;
+  if(pct)limitDraft.customPercent=pct.value;
+  if(pay)limitDraft.customPay=pay.value;
+  if(note)limitDraft.note=note.value;
+}
+function t999SplitLimitNumbers(raw){
+  const parts=String(raw||'').replace(/[\s,，]+/g,'/').split('/').map(x=>x.replace(/\D/g,'')).filter(Boolean);
+  const unique=[];parts.forEach(x=>{if(!unique.includes(x))unique.push(x)});
+  if(!unique.length)return [];
+  const len=unique[0].length;
+  if(unique.some(x=>x.length!==len)){
+    alert('เลขอั้นชุดเดียวกันต้องมีจำนวนหลักเท่ากัน เช่น 52/54/78 หรือ 325/458/785 หรือ 1/2/4/6');
+    return null;
+  }
+  return unique;
+}
+function setLimitDraft(k,v){
+  t999CaptureLimitDraftFromDom();
+  limitDraft[k]=v;
+  if(k==='type'||k==='level')renderLimitEditor(limitEditorContext.scope,limitEditorContext.agentId);
+}
+function limitFormHtml(scope,agentId){
+  const isAgent=scope==='agent'; if(isAgent)ensureAgentConfig(agentId);
+  const rows=limitRows(scope,agentId); if(!limitDraft.type||!LIMIT_TYPES[market].includes(limitDraft.type))limitDraft.type=LIMIT_TYPES[market][0];
+  const q=String(limitDraft.q||'').trim();
+  const shown=rows.map((r,i)=>({...r,_idx:i})).filter(r=>!q||String(r.number||'').includes(q)||String(r.type||'').includes(q)||String(r.note||'').includes(q));
+  const typeChips=LIMIT_TYPES[market].map(t=>`<button type="button" class="limit-chip ${limitDraft.type===t?'on':''}" onclick="setLimitDraft('type','${esc(t)}')">${esc(t)}</button>`).join('');
+  const levelChips=LIMIT_LEVELS.map(([v,l])=>`<button type="button" class="limit-chip level-${v} ${limitDraft.level===v?'on':''}" onclick="setLimitDraft('level','${v}')">${l}</button>`).join('');
+  return `<div class="agent-section">
+    <div class="limit-new-box">
+      <div class="limit-new-title"><span>ตั้งเลขอั้นแบบคีย์เร็ว</span><span class="pill">${rules.name} · ${isAgent?'เฉพาะเอเยนต์':'กลาง'}</span></div>
+      <div class="limit-chip-row">${typeChips}</div>
+      <div class="limit-quick-grid three">
+        <input id="limitDraftNumber" class="input" inputmode="numeric" placeholder="หลายเลขได้ เช่น 52/54/78 หรือ 1/2/4/6" value="${esc(limitDraft.number||'')}" oninput="setLimitDraft('number',this.value)">
+        <input id="limitDraftPercent" class="input" type="number" placeholder="กำหนด %" value="${esc(limitDraft.customPercent||'')}" oninput="setLimitDraft('customPercent',this.value)">
+        <input id="limitDraftPay" class="input" type="number" placeholder="กำหนดจ่าย" value="${esc(limitDraft.customPay||'')}" oninput="setLimitDraft('customPay',this.value)">
+      </div>
+      <div class="limit-chip-row">${levelChips}</div>
+      <input id="limitDraftNote" class="input left" placeholder="หมายเหตุ" value="${esc(limitDraft.note||'')}" oninput="setLimitDraft('note',this.value)">
+      <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:10px">
+        <button type="button" class="btn" onclick="clearLimitDraft('${scope}','${agentId}')">ล้างช่อง</button>
+        <button type="button" class="btn green" onclick="addLimitFromDraft('${scope}','${agentId}')">+ เพิ่มเลขอั้น</button>
+      </div>
+      <div class="limit-small-note">ใส่หลายเลขได้ด้วย / แต่ทุกเลขต้องจำนวนหลักเท่ากัน · กดปุ่ม 50%/20% แล้วเลขจะไม่หาย</div>
+    </div>
+    <div class="limit-search"><input class="input left" placeholder="ค้นหาเลขอั้น" value="${esc(limitDraft.q||'')}" oninput="setLimitDraft('q',this.value);renderLimitEditor('${scope}','${agentId}')"></div>
+    <div class="limit-card-list">
+      ${shown.length?shown.map(r=>limitCardHtml(scope,agentId,r)).join(''):'<div class="empty">ยังไม่มีเลขอั้น</div>'}
+    </div>
+  </div>`;
+}
+function addLimitFromDraft(scope,agentId){
+  t999CaptureLimitDraftFromDom();
+  const nums=t999SplitLimitNumbers(limitDraft.number); if(nums===null)return; if(!nums.length)return alert('ใส่เลขอั้นก่อน');
+  if(scope==='agent')ensureAgentConfig(agentId);
+  const rows=limitRows(scope,agentId);
+  nums.forEach(number=>{
+    const row=normalizeLimit({type:limitDraft.type||LIMIT_TYPES[market][0],number,level:limitDraft.level||'closed',customPercent:limitDraft.customPercent,customPay:limitDraft.customPay,note:limitDraft.note||''});
+    const idx=rows.findIndex(r=>String(r.number)===String(number)&&String(r.type)===String(row.type));
+    if(idx>=0)rows[idx]=row; else rows.push(row);
+  });
+  limitDraft.number='';limitDraft.note='';saveData();renderLimitEditor(scope,agentId);
+  setTimeout(()=>{const el=document.getElementById('limitDraftNumber');if(el)el.focus()},60);
+}
+function renderLimitEditor(scope,agentId){
+  limitEditorContext={scope,agentId};
+  const html=limitFormHtml(scope,agentId);
+  const box=document.getElementById('agentModalContent'); if(box)box.innerHTML=html;
 }
 
 /* boot */
