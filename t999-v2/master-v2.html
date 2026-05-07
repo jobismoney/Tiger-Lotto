@@ -1,4 +1,40 @@
-TJE6KH.btn.full{width:100%;margin-bottom:8px}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>T999 V2 Master Step 5B Paper Slip Fix1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f1117;--card:#1a1d27;--card2:#222533;--line:#30364a;
+  --gold:#f5c518;--gold2:#c9a010;--muted:#9ca3af;--white:#f0f2ff;
+  --blue:#60a5fa;--pink:#f472b6;--green:#34d399;--orange:#fb923c;
+  --red:#ef4444;--purple:#a78bfa;--na-col:1fr
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:Arial,"Sarabun",sans-serif;background:var(--bg);color:var(--white)}
+body.lao-mode{--na-col:0px}
+body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
+.hidden{display:none!important}
+.app{height:100vh;display:flex;flex-direction:column}
+.header{height:60px;flex-shrink:0;background:linear-gradient(135deg,#1a1d27,#10131d);border-bottom:2px solid var(--gold);display:flex;align-items:center;justify-content:space-between;padding:8px 14px}
+.logo{font-size:22px;font-weight:900;color:var(--gold)}
+.sub{font-size:12px;color:var(--muted);margin-top:2px}
+.head-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.mode-link{color:var(--muted);text-decoration:none;font-weight:900;border:1px solid var(--line);background:var(--card2);padding:8px 12px;border-radius:10px;font-size:13px}
+.mode-link.on{background:var(--gold);color:#111;border-color:var(--gold)}
+.main{flex:1;min-height:0;display:grid;grid-template-columns:270px 1fr 390px;gap:8px;padding:8px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-height:0;display:flex;flex-direction:column}
+.panel-head{height:42px;background:var(--card2);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:14px;font-weight:900;color:#c7d2fe;gap:8px}
+.panel-body{flex:1;min-height:0;overflow:auto;padding:8px}
+.btn{border:1px solid var(--line);background:#1b2030;color:#dbeafe;border-radius:9px;height:38px;font-weight:900;font-size:14px;cursor:pointer;padding:0 12px}
+.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:0}
+.btn.green{background:#20a85a;color:#fff;border:0}
+.btn.red{background:#321019;color:#ff9aa9;border:1px solid #7f1d1d}
+.btn.purple{background:#2e1a45;color:#e9d5ff;border:1px solid #7e22ce}
+.btn.full{width:100%;margin-bottom:8px}
 .btn.small{height:32px;font-size:12px;padding:0 10px}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .agent-card{background:#222638;border:1px solid var(--line);border-radius:10px;padding:9px;margin-bottom:8px;cursor:pointer}
@@ -2147,6 +2183,126 @@ function buildLimitListHtml(scope,agentId){
   </div>`).join('')}</div>`;
 }
 
+
+
+/* =========================================================
+   STEP 6B FIX2 — KEY SAFE OVERRIDE
+   ใช้ชุดคีย์จาก Subkey/keytest เป็นฐานสุดท้าย
+   ห้าม logic อื่นทับ enter/render/dot/commit อีก
+========================================================= */
+function enterKey(){
+  if(phase==='lek'){
+    if(!getLeks().length)return alert('ยังไม่มีเลข');
+    leksText=normalizeLeksText();
+    buildSlots();
+    phase='price';
+    priceBuf='';
+    render();
+    return;
+  }
+  saveCurrentPrice();
+  if(slotIndex<slots.length-1){
+    slotIndex++;
+  }else{
+    commit();
+    return;
+  }
+  render();
+}
+function dotKey(){
+  if(phase==='lek'){
+    enterKey();
+    return;
+  }
+  const s=currentSlot();
+  if(!s)return;
+  if(s.type==='tod'){
+    statusFlash('โต๊ดไม่มีชุด ไม่ต้องกด .');
+    render();
+    return;
+  }
+  if(priceBuf!==''){
+    s.price=priceBuf;
+    priceBuf='';
+  }
+  s.rev=true;
+  if(slotIndex<slots.length-1)slotIndex++;
+  render();
+}
+function render(){
+  const screen=document.getElementById('screen'),hint=document.getElementById('hint');
+  if(!screen)return;
+  if(phase==='lek'){
+    const shown=leksText.includes('/')?normalizeLeksText():leksText;
+    screen.textContent=shown||'—';
+    if(hint)hint.innerHTML='กดเลข<br>แล้ว ↵<br>หลัก: '+(getBaseLen()||'-');
+  }else{
+    const s=currentSlot();
+    const left=(getLeks().join('/')||normalizeLeksText()||leksText)+'=';
+    const priceParts=slots.map((x,i)=>i===slotIndex?(priceBuf||x.price||''):(x.price||''));
+    screen.textContent=left+priceParts.join('×');
+    if(hint)hint.innerHTML=s?'ราคา: '+(LABEL[s.type]||s.type)+'<br>'+(s.type==='tod'?'โต๊ดไม่มีชุด':(s.rev?'กลับ/ชุด ON':'กด . = กลับ/ชุด')):'ไม่มี slot';
+  }
+  renderSlots();
+  renderStatus();
+}
+function renderKeyStatus(){render()}
+function renderSlots(){
+  const row=document.getElementById('typeRow');
+  if(!row)return;
+  row.className='type-row '+(market==='thai'?'thai':'');
+  ['bon','tod','lang','na'].forEach(t=>{
+    const btn=document.getElementById('slot-'+t);if(!btn)return;
+    const idx=slots.findIndex(s=>s.type===t);
+    const visible=phase==='price'?idx>=0:((rules.slotOrder[getBaseLen()]||['bon','tod','lang','na']).includes(t));
+    btn.style.display=visible?'block':'none';
+    const active=phase==='price'&&idx===slotIndex;
+    const done=phase==='price'&&idx>=0&&Number(slots[idx].price)>0;
+    const rev=phase==='price'&&idx>=0&&slots[idx].rev;
+    btn.className='tbtn '+t+(active?' active '+t:'')+(done?' done':'')+(rev?(getBaseLen()===2?' rev':' rev3'):'');
+    btn.textContent=LABEL[t]||t;
+  });
+}
+function renderStatus(){
+  const el=document.getElementById('statusLine');
+  if(!el)return;
+  if(phase==='lek')el.textContent='กำลังคีย์เลข — โหมด '+rules.name;
+  else el.textContent='กำลังใส่ราคา: '+(currentSlot()?LABEL[currentSlot().type]:'-')+' | '+(currentDigits()||'-')+' หลัก | '+rules.name;
+}
+function commit(){
+  if(phase==='price')saveCurrentPrice();
+  const leks=getLeks();
+  if(!leks.length)return alert('ยังไม่มีเลข');
+  const a=getActiveAgent();if(!a)return alert('ยังไม่มีเอเยนต์');
+  if(!slots.length)buildSlots();
+  const active=slots.filter(s=>Number(s.price)>0);
+  if(!active.length)return alert('ยังไม่มีราคา');
+  const add=[];
+  leks.forEach(lek=>active.forEach(s=>{
+    const amount=Number(s.price);
+    if(s.rev&&s.type!=='tod'){
+      expandReverseWithRole(lek).forEach(o=>add.push({number:o.lek,lek:o.lek,type:s.type,amount,role:o.role,follow:o.role==='follow',note:lek.length===2?'กลับ':'ชุด'}));
+    }else{
+      add.push({number:lek,lek,type:s.type,amount,role:'main',follow:false,note:''});
+    }
+  }));
+  const blocked=[];
+  add.forEach(it=>{
+    const st=(typeof t999ApplyLimitToItem==='function')?t999ApplyLimitToItem(a.id,it):{matched:false};
+    if(st&&st.matched&&st.level==='closed')blocked.push(it);
+  });
+  if(blocked.length){
+    alert(typeof t999LimitBlockMessage==='function'?t999LimitBlockMessage(blocked):'มีเลขปิดรับ ไม่สามารถเพิ่มรายการได้');
+    renderAll();
+    return;
+  }
+  add.forEach(it=>addItem(a,it));
+  const warned=add.filter(it=>it.limitStatus&&it.limitStatus.matched).map(it=>`${itemNumber(it)} ${LABEL[it.type]||it.type} = ${it.limitStatus.label}`);
+  clearBuffer();
+  renderAll();
+  scheduleSave();
+  if(warned.length)alert('พบเลขอั้น/เลขจ่ายพิเศษ:\n'+warned.join('\n'));
+}
 
 /* boot */
 
