@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Master Step 5E Import Fix1</title>
+<title>T999 V2 Master Step 5E Fix2 Import Fix1</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -160,7 +160,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 .keytest-pin{display:inline-block;color:#ff8a3d;font-size:17px;font-weight:900;white-space:nowrap}
 
 
-/* Step 5E Tablet Smooth Mode */
+/* Step 5E Fix2 Tablet Smooth Mode */
 *{touch-action:manipulation}
 button,.btn,.key,.tbtn,.agent-card{-webkit-user-select:none;user-select:none}
 .panel,.panel-body,.table-list,.agent-box-body,.paper-body{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
@@ -245,7 +245,7 @@ body.tablet-mode #tabletModeBtn{background:#0f5132;color:#bbf7d0;border-color:#1
 <input id="importFile" type="file" accept=".json,application/json" style="display:none" onchange="handleImportFile(event)">
 <div class="app">
   <div class="header">
-    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 5E Tablet Smooth</div></div>
+    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 5E Fix2 Tablet Smooth</div></div>
     <div class="head-right">
       <a id="thaiLink" class="mode-link" href="?market=thai">TH ไทย</a>
       <a id="laoLink" class="mode-link" href="?market=lao">LA ลาว</a>
@@ -304,7 +304,7 @@ body.tablet-mode #tabletModeBtn{background:#0f5132;color:#bbf7d0;border-color:#1
         <button id="folderActionBtn" class="btn full gold" onclick="folderAction()">เก็บเข้าแฟ้ม</button>
         <button id="exitSlipEditBtn" class="btn full" style="display:none" onclick="closeSlipEditMode()">ออกจากโหมดแก้โพย</button>
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 5E: Tablet Smooth Mode + Zone 4</div>
+        <div class="help">Step 5E Fix2: Tablet Smooth Mode + Zone 4</div>
       </div>
     </div>
 
@@ -741,8 +741,9 @@ function mergeSubkeyLocalLimitsFromResult(data, agentIdMap={}){
   return added;
 }
 function importSubkeyResult(data){
+  // Fix2: ถ้าเคยนำเข้า session นี้แล้ว ไม่ต้องเด้งถามให้สับสน
+  // ให้ลบข้อมูล session เดิมแบบเงียบ ๆ แล้วนำเข้าใหม่ เพื่อให้โครงสร้างล่าสุดถูกต้อง
   if(data.sessionId&&importedSessionExists(data.sessionId)){
-    if(!confirm('Session นี้เคยนำเข้าแล้ว ต้องการลบของเดิมแล้วนำเข้าใหม่หรือไม่?'))return;
     removeImportedSession(data.sessionId);
   }
   let s=summarizeImport(data.agents);
@@ -1205,6 +1206,16 @@ function enterKey(){
   else commit();
   render();
 }
+function statusFlash(msg){
+  const el=document.getElementById('statusLine');
+  if(el){
+    const old=el.textContent;
+    el.textContent=msg;
+    el.style.color='#f5c518';
+    clearTimeout(window.__t999StatusFlashTimer);
+    window.__t999StatusFlashTimer=setTimeout(()=>{try{renderStatus()}catch(e){el.textContent=old}},900);
+  }
+}
 function dotKey(){
   if(phase==='lek'){
     enterKey();
@@ -1212,6 +1223,15 @@ function dotKey(){
   }
   const s=currentSlot();
   if(!s)return;
+
+  // Fix2: โต๊ดไม่มีชุด/กลับจากปุ่ม .
+  // ถ้าอยู่ช่องโต๊ด ให้ไม่ทำงาน เพื่อไม่แตกชุดโต๊ดผิดกติกา
+  if(s.type==='tod'){
+    statusFlash('โต๊ดไม่มีชุด ไม่ต้องกด .');
+    render();
+    return;
+  }
+
   if(priceBuf!==''){
     s.price=priceBuf;
     priceBuf='';
@@ -2256,7 +2276,7 @@ exportPrizeCheckReport=function(){
 };
 
 
-/* Step 5E Tablet Smooth Mode */
+/* Step 5E Fix2 Tablet Smooth Mode */
 function shouldAutoTabletMode(){
   return window.innerWidth<=1280 || (navigator.maxTouchPoints&&navigator.maxTouchPoints>0);
 }
