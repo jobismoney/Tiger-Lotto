@@ -144,6 +144,26 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 @media(max-width:700px){.agent-summary{grid-template-columns:repeat(2,1fr)}.agent-box{width:98vw}.agent-box-body{padding:8px}.rate-grid{grid-template-columns:1fr .75fr .75fr}.limit-grid{grid-template-columns:1fr 1fr}.limit-grid .grid-head{display:none}}
 
 .keytest-pin{display:inline-block;color:#ff8a3d;font-size:17px;font-weight:900;white-space:nowrap}
+
+/* Step 6B Limit UI */
+.limit-new-box{background:#0f1117;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.limit-new-title{font-weight:900;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.limit-quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.limit-quick-grid.three{grid-template-columns:1fr 1fr 1fr}
+.limit-chip-row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.limit-chip{height:34px;border-radius:999px;border:1px solid #334155;background:#151824;color:#cbd5e1;font-weight:900;padding:0 12px;cursor:pointer}
+.limit-chip.on{background:rgba(245,197,24,.16);border-color:var(--gold);color:var(--gold)}
+.limit-chip.level-closed.on{background:rgba(239,68,68,.18);border-color:#ef4444;color:#fecaca}
+.limit-chip.level-pay50.on,.limit-chip.level-pay20.on{background:rgba(245,197,24,.16);border-color:var(--gold);color:var(--gold)}
+.limit-chip.level-custom.on{background:rgba(167,139,250,.18);border-color:#a78bfa;color:#e9d5ff}
+.limit-card-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.limit-card{background:#151824;border:1px solid #30364a;border-radius:12px;padding:10px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.limit-card-main{min-width:0}.limit-card-num{font-size:20px;font-weight:900;color:var(--gold)}
+.limit-card-meta{font-size:12px;color:#cbd5e1;margin-top:3px;line-height:1.45}.limit-card-note{font-size:11px;color:#94a3b8;margin-top:3px}
+.limit-card-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+.limit-search{margin:8px 0}.limit-small-note{font-size:12px;color:#94a3b8;line-height:1.55;margin-top:6px}
+@media(max-width:800px){.limit-quick-grid,.limit-quick-grid.three{grid-template-columns:1fr}.limit-card{align-items:flex-start;flex-direction:column}.limit-card-actions{width:100%;justify-content:flex-start}}
+
 </style>
 </head>
 <body>
@@ -2089,6 +2109,80 @@ exportPrizeCheckReport=function(){
   savePrizeReportHistory(latestPrizeCheckReport);
   downloadJSON({fileType:'T999_V2_PRIZE_CHECK_REPORT',version:'5E-ImportFix3',exportedAt:new Date().toISOString(),report:latestPrizeCheckReport},`t999-prize-report-${market}-${safeName(latestPrizeCheckReport.drawDate||Date.now())}.json`);
 };
+
+
+
+/* ===== Step 6B Limit UI Override — data schema unchanged ===== */
+function limitLevelText(v){const hit=(LIMIT_LEVELS||[]).find(x=>x[0]===v);return hit?hit[1]:(v||'-')}
+function limitRowsOf(scope,agentId){if(scope==='agent'){ensureAgentConfig(agentId);return rateLimitConfig.agentLimits[agentId][market]||[]}return rateLimitConfig.baseLimits[market]||[]}
+function setLimitRowsOf(scope,agentId,rows){if(scope==='agent'){ensureAgentConfig(agentId);rateLimitConfig.agentLimits[agentId][market]=rows}else rateLimitConfig.baseLimits[market]=rows}
+function limitScopeKey(scope,agentId){return scope+'_'+(agentId||'base')+'_'+market}
+window.limitUiState=window.limitUiState||{};
+function getLimitUi(scope,agentId){const k=limitScopeKey(scope,agentId);if(!limitUiState[k])limitUiState[k]={level:'closed',types:[LIMIT_TYPES[market][0]||'บน'],search:''};return limitUiState[k]}
+function setLimitLevel(scope,agentId,level){getLimitUi(scope,agentId).level=level;renderLimitPanel(scope,agentId)}
+function toggleLimitType(scope,agentId,type){const st=getLimitUi(scope,agentId);st.types=st.types||[];if(st.types.includes(type))st.types=st.types.filter(x=>x!==type);else st.types.push(type);if(!st.types.length)st.types=[type];renderLimitPanel(scope,agentId)}
+function setLimitSearch(scope,agentId,val){getLimitUi(scope,agentId).search=val||'';renderLimitListOnly(scope,agentId)}
+function limitFormHtml(scope,agentId){return `<div id="limitPanel_${esc(scope)}_${esc(agentId||'base')}">${buildLimitPanelHtml(scope,agentId)}</div>`}
+function buildLimitPanelHtml(scope,agentId){
+  const isAgent=scope==='agent';const st=getLimitUi(scope,agentId);const rows=limitRowsOf(scope,agentId);
+  const title=isAgent?'เลขอั้นเฉพาะเอเยนต์':'เลขอั้นกลาง';
+  const levelBtns=(LIMIT_LEVELS||[]).map(([v,l])=>`<button class="limit-chip level-${esc(v)} ${st.level===v?'on':''}" onclick="setLimitLevel('${scope}','${agentId}', '${v}')">${esc(l)}</button>`).join('');
+  const typeBtns=(LIMIT_TYPES[market]||[]).map(t=>`<button class="limit-chip ${st.types&&st.types.includes(t)?'on':''}" onclick="toggleLimitType('${scope}','${agentId}', '${esc(t)}')">${esc(t)}</button>`).join('');
+  return `<div class="agent-section">
+    <div class="limit-new-title"><span>⚙️ ${title}</span><span class="pill">${rules.name}</span></div>
+    <div class="warn">UI ใหม่: เพิ่มเร็ว · กดเลือกประเภทได้หลายอัน · โครงข้อมูลเดิมไม่เปลี่ยน · รายเอเยนต์มีสิทธิ์ก่อนเลขอั้นกลาง</div>
+    <div class="limit-new-box">
+      <div class="limit-new-title"><span>+ เพิ่มเลขอั้นแบบเร็ว</span><span class="pill">${rows.length} รายการ</span></div>
+      <div class="limit-quick-grid three">
+        <input id="limQuickNum" class="input" placeholder="เลข เช่น 77, 123, 1234" inputmode="numeric">
+        <input id="limQuickPercent" class="input" type="number" placeholder="กำหนด % ถ้ามี" value="0">
+        <input id="limQuickPay" class="input" type="number" placeholder="กำหนดจ่าย ถ้ามี" value="0">
+      </div>
+      <div class="limit-chip-row">${levelBtns}</div>
+      <div class="limit-chip-row">${typeBtns}</div>
+      <input id="limQuickNote" class="input left" placeholder="หมายเหตุ เช่น เลขแรง / รับเฉพาะขาประจำ">
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn green" onclick="addLimitQuick('${scope}','${agentId}')">+ เพิ่มเลขอั้น</button>
+      </div>
+      <div class="limit-small-note">เลือกหลายประเภทได้ เช่น บน + ล่าง แล้วกดเพิ่มครั้งเดียว ระบบจะบันทึกแยกรายการให้เอง</div>
+    </div>
+    <div class="limit-search"><input id="limitSearchInput" class="input left" value="${esc(st.search||'')}" placeholder="ค้นหาเลขอั้น / ประเภท / หมายเหตุ" oninput="setLimitSearch('${scope}','${agentId}',this.value)"></div>
+    <div id="limitListWrap">${buildLimitListHtml(scope,agentId)}</div>
+  </div>`;
+}
+function renderLimitPanel(scope,agentId){const el=document.querySelector(`[id^="limitPanel_${scope}_"]`);if(el)el.innerHTML=buildLimitPanelHtml(scope,agentId)}
+function renderLimitListOnly(scope,agentId){const el=document.getElementById('limitListWrap');if(el)el.innerHTML=buildLimitListHtml(scope,agentId)}
+function addLimitQuick(scope,agentId){
+  const number=(document.getElementById('limQuickNum')?.value||'').trim();if(!number)return alert('ใส่เลขก่อน');
+  const st=getLimitUi(scope,agentId);const types=st.types&&st.types.length?st.types:[LIMIT_TYPES[market][0]||'บน'];
+  const level=st.level||'closed';const customPercent=Number(document.getElementById('limQuickPercent')?.value||0);const customPay=Number(document.getElementById('limQuickPay')?.value||0);const note=(document.getElementById('limQuickNote')?.value||'').trim();
+  const rows=limitRowsOf(scope,agentId);
+  types.forEach(type=>{
+    const idx=rows.findIndex(r=>String(r.number)===number&&String(r.type)===String(type));
+    const row=normalizeLimit({type,number,level,customPercent,customPay,note});
+    if(idx>=0)rows[idx]=row;else rows.push(row);
+  });
+  setLimitRowsOf(scope,agentId,rows);saveData();renderLimitPanel(scope,agentId);
+}
+function editLimitQuick(scope,agentId,idx){
+  const rows=limitRowsOf(scope,agentId);const r=rows[idx];if(!r)return;
+  const st=getLimitUi(scope,agentId);st.level=r.level||'closed';st.types=[r.type||LIMIT_TYPES[market][0]];
+  renderLimitPanel(scope,agentId);
+  setTimeout(()=>{document.getElementById('limQuickNum').value=r.number||'';document.getElementById('limQuickPercent').value=r.customPercent||0;document.getElementById('limQuickPay').value=r.customPay||0;document.getElementById('limQuickNote').value=r.note||'';document.getElementById('limQuickNum').focus();},30);
+}
+function deleteLimitRow(scope,agentId,idx){const rows=limitRowsOf(scope,agentId);rows.splice(idx,1);setLimitRowsOf(scope,agentId,rows);saveData();renderLimitPanel(scope,agentId)}
+function saveLimits(scope,agentId){saveData();alert('บันทึกเลขอั้นแล้ว')}
+function addLimitRow(scope,agentId){renderLimitPanel(scope,agentId);setTimeout(()=>document.getElementById('limQuickNum')?.focus(),30)}
+function buildLimitListHtml(scope,agentId){
+  const st=getLimitUi(scope,agentId);const q=String(st.search||'').toLowerCase().trim();const rows=limitRowsOf(scope,agentId);
+  const filtered=rows.map((r,i)=>({r,i})).filter(x=>{if(!q)return true;return [x.r.number,x.r.type,limitLevelText(x.r.level),x.r.note].join(' ').toLowerCase().includes(q)});
+  if(!filtered.length)return `<div class="placeholder-box">ยังไม่มีเลขอั้น${q?'ที่ตรงกับคำค้น':''}</div>`;
+  return `<div class="limit-card-list">${filtered.map(({r,i})=>`<div class="limit-card">
+    <div class="limit-card-main"><div class="limit-card-num">${esc(r.number||'-')}</div><div class="limit-card-meta"><b>${esc(r.type||'-')}</b> · ${esc(limitLevelText(r.level))}${r.level==='custom'?' · '+(r.customPay?('จ่าย '+money(r.customPay)):(r.customPercent?('จ่าย '+r.customPercent+'%'):'กำหนดเอง')):''}</div>${r.note?`<div class="limit-card-note">${esc(r.note)}</div>`:''}</div>
+    <div class="limit-card-actions"><button class="btn small" onclick="editLimitQuick('${scope}','${agentId}',${i})">แก้</button><button class="btn small red" onclick="deleteLimitRow('${scope}','${agentId}',${i})">ลบ</button></div>
+  </div>`).join('')}</div>`;
+}
+
 
 /* boot */
 document.addEventListener('keydown',e=>{
