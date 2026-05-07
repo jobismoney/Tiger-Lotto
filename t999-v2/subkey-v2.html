@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Subkey Step 6A Picker</title>
+<title>T999 V2 Subkey Step 6C Limit Bulk Fix</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0f1117;--card:#1a1d27;--card2:#222533;--line:#30364a;--gold:#f5c518;--gold2:#c9a010;--white:#f0f2ff;--muted:#9ca3af;--blue:#60a5fa;--pink:#f472b6;--green:#34d399;--orange:#fb923c;--red:#ef4444;--purple:#a78bfa;--na-col:1fr}
@@ -53,7 +53,7 @@ html,body{height:100%;overflow:hidden}body{font-family:Arial,"Sarabun",sans-seri
 <div class="main">
 <div class="panel left"><div class="panel-head"><span>👤 งานลูกน้อง</span><span id="agentCount">0</span></div><div class="panel-body"><div class="info-card"><small>คนคีย์</small><b id="workerName">-</b></div><div class="info-card"><small>งวด</small><b id="roundLabel">-</b></div><div class="info-card"><small>Session ID</small><b id="sessionShort">-</b></div><button class="btn full purple" onclick="openLimitModal()">ตั้งเลขอั้นเอเยนต์นี้</button><button class="btn full purple" onclick="savePendingSlip()">เก็บโพยนี้เข้าแฟ้ม</button><button class="btn full gold" onclick="createAgentPrompt()">+ สร้างเอเยนต์</button><button class="btn full" onclick="selectWorkFile()">เลือกไฟล์งานใหม่</button><div id="agentList"></div></div></div>
 <div class="panel center"><div class="panel-head"><span id="pendingHeader">🧾 ชุดใหม่ / ยังไม่เลือกโพย</span><button class="btn" onclick="clearPendingSlip()">ล้างชุดนี้</button></div><div class="table-head"><span>เลข</span><span>บน</span><span>โต๊ด</span><span>ล่าง</span><span class="na-col">หน้า</span><span></span></div><div class="table-list" id="list"><div class="empty">ยังไม่มีรายการในชุดนี้</div></div><div class="table-total"><span>ยอดรวมชุดนี้</span><b id="totalText">฿0</b></div></div>
-<div class="panel right"><div class="panel-head"><span>⌨️ คีย์เลข</span><span id="workStatus">พร้อม</span></div><div class="panel-body key-wrap"><div class="summary-grid"><div class="sum-card"><small>โพยเก็บแล้ว</small><b id="sumSlips">0</b></div><div class="sum-card"><small>รายการรวม</small><b id="sumItems">0</b></div><div class="sum-card"><small>ยอดรวม</small><b id="sumGrand">฿0</b></div></div><div class="pending-line"><span id="pendingText">ชุดใหม่ยังไม่เก็บ</span><button class="btn small" onclick="savePendingSlip()">เก็บ</button></div><div class="save-line" id="saveLine">ยังไม่บันทึก</div><div class="status-line" id="statusLine">กำลังคีย์</div><div class="display"><div id="screen">—</div><div id="hint">กดเลข<br>แล้ว ↵</div></div><div id="typeRow" class="type-row"><button id="slot-bon" class="tbtn">บน</button><button id="slot-tod" class="tbtn">โต๊ด</button><button id="slot-lang" class="tbtn">ล่าง</button><button id="slot-na" class="tbtn na-col">หน้า</button></div><div class="keypad"><button class="key top" onclick="pressSlash()">/</button><button class="key pin" onclick="openPin()">📌</button><button class="key minus" onclick="pressMinus()">−</button><button class="key del" onclick="backspace()">⌫</button><button class="key" onclick="pressDigit('7')">7</button><button class="key" onclick="pressDigit('8')">8</button><button class="key" onclick="pressDigit('9')">9</button><button class="key plus" onclick="commit()">+</button><button class="key" onclick="pressDigit('4')">4</button><button class="key" onclick="pressDigit('5')">5</button><button class="key" onclick="pressDigit('6')">6</button><button class="key" onclick="pressDigit('1')">1</button><button class="key" onclick="pressDigit('2')">2</button><button class="key" onclick="pressDigit('3')">3</button><button class="key enter" onclick="enterKey()">↵</button><button class="key zero" onclick="pressDigit('0')">0</button><button class="key dot" onclick="dotKey()">.</button></div><button class="clear" onclick="clearBuffer()">× ล้าง</button><div class="help">Subkey 4H: คีย์โพย + เช็กเลขอั้นเท่านั้น · ไม่ตรวจรางวัล ไม่โชว์ยอดจ่ายเจ้ามือ</div></div></div>
+<div class="panel right"><div class="panel-head"><span>⌨️ คีย์เลข</span><span id="workStatus">พร้อม</span></div><div class="panel-body key-wrap"><div class="summary-grid"><div class="sum-card"><small>โพยเก็บแล้ว</small><b id="sumSlips">0</b></div><div class="sum-card"><small>รายการรวม</small><b id="sumItems">0</b></div><div class="sum-card"><small>ยอดรวม</small><b id="sumGrand">฿0</b></div></div><div class="pending-line"><span id="pendingText">ชุดใหม่ยังไม่เก็บ</span><button class="btn small" onclick="savePendingSlip()">เก็บ</button></div><div class="save-line" id="saveLine">ยังไม่บันทึก</div><div class="status-line" id="statusLine">กำลังคีย์</div><div class="display"><div id="screen">—</div><div id="hint">กดเลข<br>แล้ว ↵</div></div><div id="typeRow" class="type-row"><button id="slot-bon" class="tbtn">บน</button><button id="slot-tod" class="tbtn">โต๊ด</button><button id="slot-lang" class="tbtn">ล่าง</button><button id="slot-na" class="tbtn na-col">หน้า</button></div><div class="keypad"><button class="key top" onclick="pressSlash()">/</button><button class="key pin" onclick="openPin()">📌</button><button class="key minus" onclick="pressMinus()">−</button><button class="key del" onclick="backspace()">⌫</button><button class="key" onclick="pressDigit('7')">7</button><button class="key" onclick="pressDigit('8')">8</button><button class="key" onclick="pressDigit('9')">9</button><button class="key plus" onclick="commit()">+</button><button class="key" onclick="pressDigit('4')">4</button><button class="key" onclick="pressDigit('5')">5</button><button class="key" onclick="pressDigit('6')">6</button><button class="key" onclick="pressDigit('1')">1</button><button class="key" onclick="pressDigit('2')">2</button><button class="key" onclick="pressDigit('3')">3</button><button class="key enter" onclick="enterKey()">↵</button><button class="key zero" onclick="pressDigit('0')">0</button><button class="key dot" onclick="dotKey()">.</button></div><button class="clear" onclick="clearBuffer()">× ล้าง</button><div class="help">Subkey 6C: คีย์โพย + เช็กเลขอั้นเท่านั้น · ไม่ตรวจรางวัล ไม่โชว์ยอดจ่ายเจ้ามือ</div></div></div>
 </div></div>
 <div id="pinModal" class="modal"><div class="box small"><div class="box-head"><div class="box-title">📌 ปักหลัก</div><div id="pinNum" class="box-num">-</div><button class="close" onclick="closePin()">×</button></div><div class="box-body"><div class="lbl">ประเภท</div><div class="seg type"><button id="pinTypeBon" onclick="setPinType('bon')">บน</button><button id="pinTypeLang" onclick="setPinType('lang')">ล่าง</button></div><div class="lbl">ตำแหน่ง</div><div id="pinPosWrap" class="seg pos3"></div><div class="lbl">ราคา</div><input id="pinPrice" class="pin-price" inputmode="numeric" value=""><div class="actions"><button class="cancel" onclick="closePin()">ยกเลิก</button><button class="add" onclick="addPin()">+ เพิ่มรายการ</button></div></div></div></div>
 <div id="limitModal" class="modal"><div class="box"><div class="box-head"><div class="box-title" id="limitTitle">เลขอั้นเอเยนต์</div><button class="close" onclick="closeLimitModal()">×</button></div><div class="box-body"><div class="note">เลขอั้นที่ตั้งใน Subkey จะมีผลก่อน Master และจะถูก Export กลับไปให้ Master เห็นด้วย</div><button class="btn green small" onclick="addLocalLimitRow()">+ เพิ่มเลขอั้น</button><div style="height:8px"></div><div id="limitRows"></div><div style="height:10px"></div><button class="btn gold full" onclick="saveLocalLimitRows()">บันทึกเลขอั้นเอเยนต์นี้</button></div></div></div>
@@ -75,7 +75,7 @@ function loadWork(data){work=data;market=data.market==='lao'?'lao':'thai';rules=
 function normalizeAgents(raw){return (raw||[]).map((a,i)=>({id:a.id||('agent_'+Date.now()+'_'+i),name:a.name||('เอเยนต์ '+(i+1)),customers:Array.isArray(a.customers)?a.customers.map((c,ci)=>({id:c.id||('cus_'+Date.now()+'_'+ci),name:c.name||('ลูกค้า '+(ci+1)),slips:Array.isArray(c.slips)?c.slips:[]})):[]}))}
 function getRateLimitConfig(){return (work&&work.rateLimitConfig)||(work&&work.settings&&work.settings.rateLimitConfig)||{baseLimits:{thai:[],lao:[]},agentLimits:{}}}
 function getWorkerName(){return work&&work.subKeyer&&work.subKeyer.name?work.subKeyer.name:'ลูกน้อง'}
-function renderWorkInfo(){document.getElementById('modeText').textContent='โหมด '+rules.name+' — Subkey 4H';document.getElementById('marketBadge').textContent=rules.name;document.getElementById('workerName').textContent=getWorkerName();document.getElementById('roundLabel').textContent=work.roundLabel||'-';document.getElementById('sessionShort').textContent=(work.sessionId||'-').slice(0,18);document.getElementById('workStatus').textContent='พร้อม'}
+function renderWorkInfo(){document.getElementById('modeText').textContent='โหมด '+rules.name+' — Subkey 6C';document.getElementById('marketBadge').textContent=rules.name;document.getElementById('workerName').textContent=getWorkerName();document.getElementById('roundLabel').textContent=work.roundLabel||'-';document.getElementById('sessionShort').textContent=(work.sessionId||'-').slice(0,18);document.getElementById('workStatus').textContent='พร้อม'}
 function loadSession(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'null')}catch(e){return null}}
 function saveData(){if(!work||!STORAGE_KEY)return;const payload={fileType:'T999_V2_SUBKEY_LOCAL',version:'6A',sessionId:work.sessionId,market,activeAgentId,activeCustomerName,work,agents,pendingItems,editSlipRef,editingSlipId,subkeyLocalLimits,savedAt:Date.now()};try{localStorage.setItem(STORAGE_KEY,JSON.stringify(payload));updateSaveLine(payload.savedAt,'บันทึกในเครื่องแล้ว')}catch(e){console.error(e);updateSaveLine(null,'บันทึกไม่สำเร็จ')}}function scheduleSave(){clearTimeout(_saveTimer);_saveTimer=setTimeout(saveData,200)}function updateSaveLine(ts,msg){const el=document.getElementById('saveLine');if(!el)return;if(!ts){el.textContent=msg||'ยังไม่บันทึก';return}el.textContent='✅ '+(msg||'บันทึกแล้ว')+' | '+new Date(ts).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
 function clearSession(){if(!work)return;if(!confirm('ล้างข้อมูลสำรองในเครื่องของ Session นี้?'))return;localStorage.removeItem(STORAGE_KEY);agents=normalizeAgents(work.allowedAgents||work.agents||[]);pendingItems=[];editSlipRef=null;editingSlipId=null;activeAgentId=agents[0]?agents[0].id:'';activeCustomerName='';subkeyLocalLimits={};clearBuffer();renderAll();saveData()}
@@ -291,6 +291,68 @@ function limitBadge(it){
   const cls=ls.level==='closed'?'':' warn';
   return `<span class="limit-pill${cls}">${esc(ls.label||ls.level)}</span>`;
 }
+
+
+
+/* =========================================================
+   SUBKEY STEP 6C LIMIT POPUP FIX — wrapper only, does not touch Core Key Engine
+   Fixes:
+   1) ปุ่มระดับ/ประเภทกดแล้วไม่ลบเลข
+   2) เพิ่มเลขอั้นหลายตัวด้วย / ได้ เช่น 52/54/78 หรือ 1/2/4/6
+   3) ทุกเลขในชุดเดียวกันต้องมีจำนวนหลักเท่ากัน
+========================================================= */
+window.subLimitUiState=window.subLimitUiState||{level:'closed',types:[],search:'',number:'',note:'Subkey ตั้งเอง'};
+function t999SubCaptureLimitInputs(){
+  const n=document.getElementById('subLimQuickNum');
+  const note=document.getElementById('subLimQuickNote');
+  if(n)subLimitUiState.number=n.value;
+  if(note)subLimitUiState.note=note.value;
+}
+function t999SubSplitLimitNumbers(raw){
+  const parts=String(raw||'').replace(/[\s,，]+/g,'/').split('/').map(x=>x.replace(/\D/g,'')).filter(Boolean);
+  const unique=[];parts.forEach(x=>{if(!unique.includes(x))unique.push(x)});
+  if(!unique.length)return [];
+  const len=unique[0].length;
+  if(unique.some(x=>x.length!==len)){
+    alert('เลขอั้นชุดเดียวกันต้องมีจำนวนหลักเท่ากัน เช่น 52/54/78 หรือ 325/458/785 หรือ 1/2/4/6');
+    return null;
+  }
+  return unique;
+}
+function setSubLimitLevel(level){t999SubCaptureLimitInputs();subLimitUiState.level=level;renderLimitRows()}
+function toggleSubLimitType(type){
+  t999SubCaptureLimitInputs();
+  if(!subLimitUiState.types.length)subLimitUiState.types=[LIMIT_TYPES[market][0]||'บน'];
+  if(subLimitUiState.types.includes(type))subLimitUiState.types=subLimitUiState.types.filter(x=>x!==type);else subLimitUiState.types.push(type);
+  if(!subLimitUiState.types.length)subLimitUiState.types=[type];renderLimitRows()
+}
+function setSubLimitSearch(v){subLimitUiState.search=v||'';renderLimitListOnly()}
+function setSubLimitDraft(k,v){subLimitUiState[k]=v}
+function renderLimitRows(){
+  const a=getActiveAgent();if(!a)return;const rows=currentLimitRows();const st=subLimitUiState;if(!st.types.length)st.types=[LIMIT_TYPES[market][0]||'บน'];
+  const levelBtns=(LIMIT_LEVELS||[]).map(([v,l])=>`<button type="button" class="limit-chip level-${esc(v)} ${st.level===v?'on':''}" onclick="setSubLimitLevel('${v}')">${esc(l)}</button>`).join('');
+  const typeBtns=(LIMIT_TYPES[market]||[]).map(t=>`<button type="button" class="limit-chip ${st.types.includes(t)?'on':''}" onclick="toggleSubLimitType('${esc(t)}')">${esc(t)}</button>`).join('');
+  document.getElementById('limitRows').innerHTML=`<div class="limit-new-box">
+    <div class="limit-new-title"><span>+ เพิ่มเลขอั้นแบบเร็ว</span><span class="pill">${rows.length} รายการ</span></div>
+    <div class="warning">Subkey ตั้งเองมีสิทธิ์ก่อน Master · ใส่หลายเลขได้ด้วย / เช่น 52/54/78 หรือ 1/2/4/6</div>
+    <div class="limit-quick-grid"><input id="subLimQuickNum" class="input" placeholder="เลข เช่น 52/54/78" inputmode="numeric" value="${esc(st.number||'')}" oninput="setSubLimitDraft('number',this.value)"><input id="subLimQuickNote" class="input" placeholder="หมายเหตุ" value="${esc(st.note||'Subkey ตั้งเอง')}" oninput="setSubLimitDraft('note',this.value)"></div>
+    <div class="limit-chip-row">${levelBtns}</div><div class="limit-chip-row">${typeBtns}</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:8px"><button type="button" class="btn green" onclick="addSubLimitQuick()">+ เพิ่มเลขอั้น</button></div>
+  </div>
+  <div class="limit-search"><input class="input" value="${esc(st.search||'')}" placeholder="ค้นหาเลขอั้น" oninput="setSubLimitSearch(this.value)"></div>
+  <div id="subLimitListWrap">${buildSubLimitListHtml()}</div>`;
+}
+function addSubLimitQuick(){
+  t999SubCaptureLimitInputs();
+  const nums=t999SubSplitLimitNumbers(subLimitUiState.number); if(nums===null)return; if(!nums.length)return alert('ใส่เลขก่อน');
+  const rows=currentLimitRows();const types=subLimitUiState.types.length?subLimitUiState.types:[LIMIT_TYPES[market][0]||'บน'];
+  const note=(subLimitUiState.note||'Subkey ตั้งเอง').trim();
+  nums.forEach(n=>{types.forEach(type=>{const idx=rows.findIndex(r=>String(r.number)===n&&String(r.type)===String(type));const row=normalizeLimit({type,number:n,level:subLimitUiState.level||'closed',note});if(idx>=0)rows[idx]=row;else rows.push(row)})});
+  subLimitUiState.number='';saveData();renderLimitRows();setTimeout(()=>document.getElementById('subLimQuickNum')?.focus(),30);
+}
+function editSubLimitQuick(idx){const rows=currentLimitRows();const r=rows[idx];if(!r)return;subLimitUiState.level=r.level||'closed';subLimitUiState.types=[r.type||LIMIT_TYPES[market][0]];subLimitUiState.number=r.number||'';subLimitUiState.note=r.note||'Subkey ตั้งเอง';renderLimitRows();setTimeout(()=>document.getElementById('subLimQuickNum')?.focus(),30)}
+function deleteLocalLimitRow(i){currentLimitRows().splice(i,1);saveData();renderLimitRows()}
+function saveLocalLimitRows(){saveData();closeLimitModal();alert('บันทึกเลขอั้นเอเยนต์แล้ว')}
 
 document.addEventListener('keydown',e=>{if(e.target&&['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;if(e.key>='0'&&e.key<='9'){e.preventDefault();pressDigit(e.key)}else if(e.key==='Enter'){e.preventDefault();enterKey()}else if(e.key==='+'){e.preventDefault();commit()}else if(e.key==='.'){e.preventDefault();dotKey()}else if(e.key==='/'){e.preventDefault();pressSlash()}else if(e.key==='*'){e.preventDefault();openPin()}else if(e.key==='Backspace'){e.preventDefault();backspace()}else if(e.key==='Escape'){e.preventDefault();clearBuffer()}});
 render();
