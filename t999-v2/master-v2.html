@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 V2 Master Step 5F Auto Layout Picker</title>
+<title>T999 V2 Master Step 5G KeyLock Layout Fix</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -25,7 +25,7 @@ body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
 .head-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .mode-link{color:var(--muted);text-decoration:none;font-weight:900;border:1px solid var(--line);background:var(--card2);padding:8px 12px;border-radius:10px;font-size:13px}
 .mode-link.on{background:var(--gold);color:#111;border-color:var(--gold)}
-.main{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(420px,1fr) 360px 330px;gap:8px;padding:8px}
+.main{flex:1;min-height:0;display:grid;grid-template-columns:var(--z-agent,250px) 7px minmax(260px,var(--z-list,420px)) 7px var(--z-key,360px) 7px var(--z-zone4,330px);gap:0;padding:8px}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-height:0;display:flex;flex-direction:column}
 .panel-head{height:42px;background:var(--card2);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:14px;font-weight:900;color:#c7d2fe;gap:8px}
 .panel-body{flex:1;min-height:0;overflow:auto;padding:8px}
@@ -240,44 +240,18 @@ body.tablet-mode #tabletModeBtn{background:#0f5132;color:#bbf7d0;border-color:#1
 }
 
 
-/* Step 5F Auto Layout + Save Picker Restore */
-:root{
-  --z1-agent:220px;
-  --z3-key:340px;
-  --z4-side:280px;
-}
-body.layout-wide .main{grid-template-columns:250px minmax(360px,1fr) 360px 330px}
-body.layout-notebook .main{grid-template-columns:var(--z1-agent) minmax(280px,1fr) var(--z3-key) var(--z4-side)}
-body.layout-notebook .panel.center .panel-head{font-size:13px}
-body.layout-notebook .table-head,body.layout-notebook .table-row{grid-template-columns:76px 1fr 1fr 1fr var(--na-col) 30px;padding-left:8px;padding-right:8px}
-body.layout-notebook .lek{font-size:18px}
-body.layout-notebook .agent-card{padding:8px;margin-bottom:7px}
-body.layout-notebook .agent-name{font-size:15px}
-body.layout-notebook .agent-total{font-size:17px}
-body.layout-notebook .z4-mini-grid{gap:5px}
-body.layout-notebook .z4-big b{font-size:26px}
-body.layout-notebook .key{min-height:46px}
-body.layout-compact .main{grid-template-columns:210px minmax(260px,1fr) 335px;grid-template-areas:"agent list key" "zone zone zone";align-items:stretch}
-body.layout-compact .panel.left{grid-area:agent;display:flex!important;min-height:0}
-body.layout-compact .panel.center{grid-area:list;min-height:330px}
-body.layout-compact .panel.right{grid-area:key;min-height:560px}
-body.layout-compact .panel.zone4{grid-area:zone;min-height:260px;max-height:340px}
-body.layout-compact .zone4 .panel-body{display:grid;grid-template-columns:260px 1fr 1fr;grid-auto-rows:min-content;align-items:start}
-body.layout-compact .z4-tabs{grid-column:1/-1;grid-template-columns:repeat(4,120px);justify-content:start}
-body.layout-compact .z4-actions,body.layout-compact .z4-muted{display:none}
-body.layout-compact .z4-big b{font-size:24px}
-body.layout-compact .z4-card{min-height:0}
-body.layout-mobile .main{grid-template-columns:1fr;overflow:auto;height:auto;min-height:0}
-body.layout-mobile .app{height:auto;min-height:100vh;overflow:auto}
-body.layout-mobile html,body{overflow:auto}
-body.layout-mobile .panel.left{display:flex!important;max-height:300px}
-body.layout-mobile .panel.center{min-height:320px;max-height:48vh}
-body.layout-mobile .panel.right{min-height:560px}
-body.layout-mobile .panel.zone4{min-height:380px}
-body.layout-mobile .head-right{justify-content:flex-start}
-body.layout-mobile .logo{font-size:18px}
-.layout-pill{font-size:11px;color:#94a3b8;font-weight:900;margin-left:4px}
+/* Step 5G KeyLock Layout Guard */
+.keylock-note{color:#94a3b8;font-size:10px;line-height:1.35;margin-top:4px}
+.current-list-badge{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:999px;background:rgba(245,197,24,.13);border:1px solid rgba(245,197,24,.4);color:var(--gold);font-size:10px;font-weight:900;white-space:nowrap}
 
+/* Step 5G Resizable 4 Zones */
+.zone-resizer{width:7px;min-width:7px;cursor:col-resize;background:linear-gradient(180deg,rgba(245,197,24,.05),rgba(245,197,24,.2),rgba(245,197,24,.05));border:1px solid rgba(245,197,24,.10);border-radius:10px;margin:0 3px;touch-action:none;position:relative;z-index:8}
+.zone-resizer:before{content:"";position:absolute;top:50%;left:50%;width:3px;height:44px;transform:translate(-50%,-50%);border-radius:999px;background:rgba(245,197,24,.55)}
+.zone-resizer:hover,.zone-resizer.dragging{background:rgba(245,197,24,.28);border-color:rgba(245,197,24,.55)}
+body.resizing-zones{cursor:col-resize;user-select:none}
+.resize-hint{font-size:10px;color:#94a3b8;font-weight:900;margin-left:6px}
+
+/* Step 5G Save Picker Popup */
 .save-picker-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:16px;z-index:110}
 .save-picker-modal.show{display:flex}
 .save-picker-box{width:min(860px,96vw);max-height:92vh;overflow:hidden;background:#151824;border:2px solid var(--gold);border-radius:18px;display:flex;flex-direction:column;box-shadow:0 22px 70px rgba(0,0,0,.55)}
@@ -298,7 +272,26 @@ body.layout-mobile .logo{font-size:18px}
 .save-picker-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;background:#0f1117;border:1px solid var(--line);border-radius:12px;padding:10px}
 .save-picker-summary{color:#cbd5e1;font-size:13px;font-weight:900;line-height:1.5}
 .save-picker-summary b{color:var(--gold)}
-@media(max-width:760px){.save-picker-grid{grid-template-columns:1fr}.save-picker-panel{min-height:auto}.save-picker-list{max-height:170px}.save-picker-head{align-items:flex-start;flex-direction:column}.save-picker-footer{align-items:flex-start;flex-direction:column}}
+
+/* Step 5G Easy Limit Popup/Card UI */
+.limit-new-box{background:#0f1117;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.limit-new-title{font-weight:900;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.limit-quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.limit-quick-grid.three{grid-template-columns:1fr 1fr 1fr}
+.limit-chip-row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.limit-chip{height:34px;border-radius:999px;border:1px solid #334155;background:#151824;color:#cbd5e1;font-weight:900;padding:0 12px;cursor:pointer}
+.limit-chip.on{background:rgba(245,197,24,.16);border-color:var(--gold);color:var(--gold)}
+.limit-chip.level-closed.on{background:rgba(239,68,68,.18);border-color:#ef4444;color:#fecaca}
+.limit-chip.level-pay50.on,.limit-chip.level-pay20.on{background:rgba(245,197,24,.16);border-color:var(--gold);color:var(--gold)}
+.limit-chip.level-custom.on{background:rgba(167,139,250,.18);border-color:#a78bfa;color:#e9d5ff}
+.limit-card-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.limit-card{background:#151824;border:1px solid #30364a;border-radius:12px;padding:10px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.limit-card-main{min-width:0}.limit-card-num{font-size:20px;font-weight:900;color:var(--gold)}
+.limit-card-meta{font-size:12px;color:#cbd5e1;margin-top:3px;line-height:1.45}.limit-card-note{font-size:11px;color:#94a3b8;margin-top:3px}
+.limit-card-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+.limit-search{margin:8px 0}.limit-small-note{font-size:12px;color:#94a3b8;line-height:1.55;margin-top:6px}
+@media(max-width:1100px){.zone-resizer{display:none}.main{grid-template-columns:1fr!important;gap:6px!important;overflow:auto}.panel.left{display:block}.panel.zone4{min-height:360px}.save-picker-grid{grid-template-columns:1fr}.save-picker-panel{min-height:auto}.save-picker-list{max-height:170px}}
+@media(max-width:800px){.limit-quick-grid,.limit-quick-grid.three{grid-template-columns:1fr}.limit-card{align-items:flex-start;flex-direction:column}.limit-card-actions{width:100%;justify-content:flex-start}}
 
 </style>
 </head>
@@ -306,11 +299,11 @@ body.layout-mobile .logo{font-size:18px}
 <input id="importFile" type="file" accept=".json,application/json" style="display:none" onchange="handleImportFile(event)">
 <div class="app">
   <div class="header">
-    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 5F Auto Layout + Picker</div></div>
+    <div><div class="logo">🐯 T999 V2 MASTER</div><div class="sub" id="modeText">Master V2 — Step 5G KeyLock Layout</div></div>
     <div class="head-right">
       <a id="thaiLink" class="mode-link" href="?market=thai">TH ไทย</a>
       <a id="laoLink" class="mode-link" href="?market=lao">LA ลาว</a>
-      <button id="tabletModeBtn" class="btn small" onclick="toggleTabletMode()">แท็บเล็ต</button><span id="layoutPill" class="layout-pill">Auto</span>
+      <button id="tabletModeBtn" class="btn small" onclick="toggleTabletMode()">แท็บเล็ต</button>
       <button class="btn purple small" onclick="openBaseConfig('rates')">เรท/อั้นกลาง</button>
       <button class="btn small" onclick="openRoundSummary(event)">สรุปทั้งงวด</button>
       <button class="btn small" onclick="openBaseConfig('prize')">ผลรางวัล</button>
@@ -332,10 +325,11 @@ body.layout-mobile .logo{font-size:18px}
         <div id="agentList"></div>
       </div>
     </div>
+    <div class="zone-resizer" data-left="agent" data-right="list" title="ลากเพื่อปรับโซนเอเยนต์ / รายการ"></div>
 
     <div class="panel center">
       <div class="panel-head">
-        <span>🧾 รายการ — <b id="activeAgentName">-</b></span>
+        <span>🧾 รายการปัจจุบัน <span class="current-list-badge">CURRENT</span> — <b id="activeAgentName">-</b></span>
         <div style="display:flex;gap:6px">
           <button class="btn small purple" onclick="openActiveAgentConfig()">เรท/อั้นเอเยนต์</button>
           <button class="btn small" onclick="clearCurrentAgent()">ล้างแฟ้มนี้</button>
@@ -345,6 +339,7 @@ body.layout-mobile .logo{font-size:18px}
       <div class="table-list" id="list"><div class="empty">ยังไม่มีรายการ</div></div>
       <div class="table-total"><span>ยอดรวมแฟ้มนี้</span><b id="totalText">฿0</b></div>
     </div>
+    <div class="zone-resizer" data-left="list" data-right="key" title="ลากเพื่อปรับโซนรายการ / คีย์เลข"></div>
 
     <div class="panel right">
       <div class="panel-head"><span>⌨️ คีย์เลข</span><span id="marketBadge">ไทย</span></div>
@@ -365,9 +360,10 @@ body.layout-mobile .logo{font-size:18px}
         <button id="folderActionBtn" class="btn full gold" onclick="folderAction()">เก็บเข้าแฟ้ม</button>
         <button id="exitSlipEditBtn" class="btn full" style="display:none" onclick="closeSlipEditMode()">ออกจากโหมดแก้โพย</button>
         <button class="clear" onclick="clearBuffer()">× ล้าง</button>
-        <div class="help">Step 5F: Auto Layout + เก็บเข้าแฟ้มแบบ Popup</div>
+        <div class="help">Step 5G: KeyLock + Resizable Zones + Compact Rows</div>
       </div>
     </div>
+    <div class="zone-resizer" data-left="key" data-right="zone4" title="ลากเพื่อปรับโซนคีย์เลข / สรุปสด"></div>
 
     <div class="panel zone4">
       <div class="panel-head"><span>📊 สรุปสด</span><span id="z4MarketText">-</span></div>
@@ -496,7 +492,7 @@ const PRIZE_HISTORY_KEY='t999_v2_prize_history_'+market;
 document.getElementById('thaiLink').className='mode-link '+(market==='thai'?'on':'');
 document.getElementById('laoLink').className='mode-link '+(market==='lao'?'on':'');
 document.body.classList.toggle('lao-mode',market==='lao');
-document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 5C Fix5';
+document.getElementById('modeText').textContent='โหมด '+rules.name+' — Master V2 Step 5G KeyLock Layout';
 document.getElementById('marketBadge').textContent=rules.name;
 document.getElementById('typeRow').classList.toggle('thai',market==='thai');
 
@@ -1003,32 +999,21 @@ function openSavePicker(){
   if(!pending.length)return alert('ยังไม่มีรายการใหม่ที่ยังไม่ได้เก็บเข้าแฟ้ม');
   savePicker={agentId:a.id,customerId:'',agentQ:'',customerQ:'',newCustomerName:''};
   if(a.customers&&a.customers.length)savePicker.customerId=a.customers[0].id;
-  document.getElementById('savePickerModal').classList.add('show');
+  const m=document.getElementById('savePickerModal');if(m)m.classList.add('show');
   renderSavePicker();
 }
 function closeSavePicker(){const m=document.getElementById('savePickerModal');if(m)m.classList.remove('show')}
 function setSavePickerAgentSearch(v){savePicker.agentQ=String(v||'');renderSavePicker()}
 function setSavePickerCustomerSearch(v){savePicker.customerQ=String(v||'');renderSavePicker()}
-function setSavePickerAgent(id){
-  savePicker.agentId=id;
-  savePicker.customerId='';
-  const a=agents.find(x=>x.id===id);
-  const customers=(a&&a.customers)||[];
-  if(customers.length)savePicker.customerId=customers[0].id;
-  renderSavePicker();
-}
+function setSavePickerAgent(id){savePicker.agentId=id;savePicker.customerId='';const a=agents.find(x=>x.id===id);const cs=(a&&a.customers)||[];if(cs.length)savePicker.customerId=cs[0].id;renderSavePicker()}
 function setSavePickerCustomer(id){savePicker.customerId=id;savePicker.newCustomerName='';renderSavePicker()}
 function setSavePickerNewCustomer(v){savePicker.newCustomerName=String(v||'');savePicker.customerId='';renderSavePicker()}
 function createCustomerInSavePicker(){
-  const a=agents.find(x=>x.id===savePicker.agentId)||getActiveAgent();
-  if(!a)return;
-  const name=(savePicker.newCustomerName||'').trim();
-  if(!name)return alert('ใส่ชื่อลูกค้าใหม่ก่อน');
+  const a=agents.find(x=>x.id===savePicker.agentId)||getActiveAgent(); if(!a)return;
+  const name=(savePicker.newCustomerName||'').trim(); if(!name)return alert('ใส่ชื่อลูกค้าใหม่ก่อน');
   if(!a.customers)a.customers=[];
-  let c=a.customers.find(x=>x.name===name);
-  if(!c){c={id:uid('cus'),name,slips:[]};a.customers.push(c)}
-  savePicker.customerId=c.id;savePicker.customerQ='';savePicker.newCustomerName='';
-  renderSavePicker();scheduleSave();
+  let c=a.customers.find(x=>x.name===name); if(!c){c={id:uid('cus'),name,slips:[]};a.customers.push(c)}
+  savePicker.customerId=c.id;savePicker.customerQ='';savePicker.newCustomerName='';renderSavePicker();scheduleSave();
 }
 function renderSavePicker(){
   const body=document.getElementById('savePickerBody');if(!body)return;
@@ -1042,65 +1027,30 @@ function renderSavePicker(){
   const customers=((targetAgent&&targetAgent.customers)||[]).filter(c=>!cq||String(c.name||'').toLowerCase().includes(cq));
   body.innerHTML=`
     <div class="save-picker-grid">
-      <div class="save-picker-panel">
-        <div class="save-picker-panel-title"><span>1) เลือกเอเยนต์</span><span>${agentRows.length}</span></div>
+      <div class="save-picker-panel"><div class="save-picker-panel-title"><span>1) เลือกเอเยนต์</span><span>${agentRows.length}</span></div>
         <input class="save-picker-search" placeholder="ค้นหาเอเยนต์" value="${esc(savePicker.agentQ)}" oninput="setSavePickerAgentSearch(this.value)">
-        <div class="save-picker-list">
-          ${agentRows.map(a=>`<button class="save-picker-row ${a.id===savePicker.agentId?'on':''}" onclick="setSavePickerAgent('${a.id}')">${esc(a.name)}<small>ลูกค้า ${(a.customers||[]).length} · โพย ${countSlips(a)} · ยอด ${money(totalAgent(a))}</small></button>`).join('')||'<div class="empty">ไม่พบเอเยนต์</div>'}
-        </div>
+        <div class="save-picker-list">${agentRows.map(a=>`<button class="save-picker-row ${a.id===savePicker.agentId?'on':''}" onclick="setSavePickerAgent('${a.id}')">${esc(a.name)}<small>ลูกค้า ${(a.customers||[]).length} · โพย ${countSlips(a)} · ยอด ${money(totalAgent(a))}</small></button>`).join('')||'<div class="empty">ไม่พบเอเยนต์</div>'}</div>
       </div>
-      <div class="save-picker-panel">
-        <div class="save-picker-panel-title"><span>2) เลือกลูกค้า</span><span>${customers.length}</span></div>
+      <div class="save-picker-panel"><div class="save-picker-panel-title"><span>2) เลือกลูกค้า</span><span>${customers.length}</span></div>
         <input class="save-picker-search" placeholder="ค้นหาลูกค้า" value="${esc(savePicker.customerQ)}" oninput="setSavePickerCustomerSearch(this.value)">
-        <div class="save-picker-list">
-          ${customers.map(c=>`<button class="save-picker-row ${c.id===savePicker.customerId?'on':''}" onclick="setSavePickerCustomer('${c.id}')">${esc(c.name)}<small>โพย ${(c.slips||[]).length} · ยอด ${money(totalCustomer(c))}</small></button>`).join('')||'<div class="empty">ยังไม่มีลูกค้า หรือค้นหาไม่พบ</div>'}
-        </div>
-        <div class="save-picker-new">
-          <input placeholder="สร้างลูกค้าใหม่" value="${esc(savePicker.newCustomerName||'')}" oninput="setSavePickerNewCustomer(this.value)">
-          <button class="btn gold small" onclick="createCustomerInSavePicker()">เพิ่ม</button>
-        </div>
+        <div class="save-picker-list">${customers.map(c=>`<button class="save-picker-row ${c.id===savePicker.customerId?'on':''}" onclick="setSavePickerCustomer('${c.id}')">${esc(c.name)}<small>โพย ${(c.slips||[]).length} · ยอด ${money(totalCustomer(c))}</small></button>`).join('')||'<div class="empty">ยังไม่มีลูกค้า หรือค้นหาไม่พบ</div>'}</div>
+        <div class="save-picker-new"><input placeholder="สร้างลูกค้าใหม่" value="${esc(savePicker.newCustomerName||'')}" oninput="setSavePickerNewCustomer(this.value)"><button class="btn gold small" onclick="createCustomerInSavePicker()">เพิ่ม</button></div>
       </div>
     </div>
-    <div class="save-picker-footer">
-      <div class="save-picker-summary">
-        รายการใหม่ <b>${pending.length}</b> รายการ · ยอด <b>${money(total)}</b><br>
-        จากแฟ้ม: <b>${esc(fromAgent&&fromAgent.name||'-')}</b> → เก็บที่: <b>${esc(targetAgent&&targetAgent.name||'-')}</b>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" onclick="closeSavePicker()">ยกเลิก</button>
-        <button class="btn green" onclick="confirmSavePicker()">เก็บเข้าแฟ้ม</button>
-      </div>
-    </div>`;
+    <div class="save-picker-footer"><div class="save-picker-summary">รายการใหม่ <b>${pending.length}</b> รายการ · ยอด <b>${money(total)}</b><br>จากแฟ้ม: <b>${esc(fromAgent&&fromAgent.name||'-')}</b> → เก็บที่: <b>${esc(targetAgent&&targetAgent.name||'-')}</b></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="closeSavePicker()">ยกเลิก</button><button class="btn green" onclick="confirmSavePicker()">เก็บเข้าแฟ้ม</button></div></div>`;
 }
 function confirmSavePicker(){
-  const sourceAgent=getActiveAgent();
-  const targetAgent=agents.find(a=>a.id===savePicker.agentId)||sourceAgent;
+  const sourceAgent=getActiveAgent(); const targetAgent=agents.find(a=>a.id===savePicker.agentId)||sourceAgent;
   if(!sourceAgent||!targetAgent)return alert('ไม่พบเอเยนต์');
-  const pending=(sourceAgent.items||[]).filter(it=>!it.slipId);
-  if(!pending.length)return alert('ยังไม่มีรายการใหม่');
-  let customer=null;
-  if(savePicker.customerId)customer=(targetAgent.customers||[]).find(c=>c.id===savePicker.customerId);
+  const pending=(sourceAgent.items||[]).filter(it=>!it.slipId); if(!pending.length)return alert('ยังไม่มีรายการใหม่');
+  let customer=null; if(savePicker.customerId)customer=(targetAgent.customers||[]).find(c=>c.id===savePicker.customerId);
   const newName=(savePicker.newCustomerName||'').trim();
-  if(!customer&&newName){
-    if(!targetAgent.customers)targetAgent.customers=[];
-    customer=targetAgent.customers.find(c=>c.name===newName);
-    if(!customer){customer={id:uid('cus'),name:newName,slips:[]};targetAgent.customers.push(customer)}
-  }
-  if(!customer)return alert('เลือกลูกค้า หรือสร้างลูกค้าใหม่ก่อน');
-  if(!customer.slips)customer.slips=[];
-  const slipId=uid('slip');
-  const slipNo=(customer.slips||[]).length+1;
-  const slip={id:slipId,slipNo,label:'โพยชุดที่ '+slipNo,createdAt:Date.now(),updatedAt:Date.now(),items:[]};
-  pending.forEach(it=>{
-    if(sourceAgent.id!==targetAgent.id){
-      const idx=sourceAgent.items.indexOf(it);if(idx>=0)sourceAgent.items.splice(idx,1);
-      if(!targetAgent.items)targetAgent.items=[];targetAgent.items.push(it);
-    }
-    it.customerId=customer.id;it.customerName=customer.name;it.slipId=slipId;it.slipNo=slipNo;it.agentId=targetAgent.id;it.agentName=targetAgent.name;if(!it.id)it.id=uid('it');
-    slip.items.push(it);
-  });
-  customer.slips.push(slip);
-  activeAgentId=targetAgent.id;activeSlipRef=null;closeSavePicker();clearBuffer();saveData();renderAll();
+  if(!customer&&newName){if(!targetAgent.customers)targetAgent.customers=[];customer=targetAgent.customers.find(c=>c.name===newName);if(!customer){customer={id:uid('cus'),name:newName,slips:[]};targetAgent.customers.push(customer)}}
+  if(!customer)return alert('เลือกลูกค้า หรือสร้างลูกค้าใหม่ก่อน'); if(!customer.slips)customer.slips=[];
+  const slipId=uid('slip'); const slipNo=(customer.slips||[]).length+1; const slip={id:slipId,slipNo,label:'โพยชุดที่ '+slipNo,createdAt:Date.now(),updatedAt:Date.now(),items:[]};
+  pending.slice().forEach(it=>{if(sourceAgent.id!==targetAgent.id){const idx=sourceAgent.items.indexOf(it);if(idx>=0)sourceAgent.items.splice(idx,1);if(!targetAgent.items)targetAgent.items=[];targetAgent.items.push(it)}it.customerId=customer.id;it.customerName=customer.name;it.slipId=slipId;it.slipNo=slipNo;it.agentId=targetAgent.id;it.agentName=targetAgent.name;if(!it.id)it.id=uid('it');slip.items.push(it)});
+  customer.slips.push(slip); activeAgentId=targetAgent.id;activeSlipRef=null;closeSavePicker();clearBuffer();saveData();renderAll();
   alert('เก็บเข้าแฟ้มแล้ว\nเอเยนต์: '+targetAgent.name+'\nลูกค้า: '+customer.name+'\nโพย #'+slipNo+'\nยอด '+money(totalSlip(slip))+'\n\nหน้าจอพร้อมคีย์โพยใหม่แล้ว');
 }
 
@@ -1166,24 +1116,42 @@ function renderAgents(){
   }).join('');
 }
 function countSlips(a){return (a.customers||[]).reduce((s,c)=>s+(c.slips||[]).length,0)}
+function buildCompactDisplayRows(items){
+  const groups=[]; const map={};
+  (items||[]).forEach((it,idx)=>{
+    const key=[String(it.lek||it.number||''),String(it.role||''),String(it.note||''),String(it.pin?'pin':'')].join('|');
+    if(!map[key]){map[key]={lek:it.lek||it.number||'',role:it.role||'',follow:!!it.follow,pin:!!it.pin,note:it.note||'',items:[],idxs:[],amounts:{bon:0,tod:0,lang:0,na:0},sample:it};groups.push(map[key]);}
+    map[key].items.push(it);map[key].idxs.push(idx); const t=it.type; if(map[key].amounts[t]!==undefined)map[key].amounts[t]+=Number(it.amount||0);
+  });
+  return groups;
+}
+function compactCellText(g,t){const v=g.amounts&&g.amounts[t];return v?String(v):''}
+function compactCellAmount(g,t){return Number((g.amounts&&g.amounts[t])||0)}
+function deleteCompactGroup(idxs){
+  if(!Array.isArray(idxs)||!idxs.length)return;
+  if(idxs.length>1&&!confirm('ลบรายการในแถวนี้ทั้งหมด '+idxs.length+' รายการ?'))return;
+  idxs.slice().sort((a,b)=>b-a).forEach(i=>deleteItem(i,true));
+  renderAll();scheduleSave();
+}
 function renderList(){
   const a=getActiveAgent(),list=document.getElementById('list');
   const found=findSlipRef();
   document.getElementById('activeAgentName').textContent=editModeLabel();
   const items=getEditItems();
   if(!a||!items.length){
-    list.innerHTML=found?'<div class="empty">โพยนี้ยังไม่มีรายการ<br>คีย์เลขจากแป้นด้านขวาเพื่อเพิ่มเข้าโพยนี้ได้เลย</div>':'<div class="empty">พร้อมคีย์โพยใหม่<br>กดเลขด้านขวา แล้วกดเก็บเข้าแฟ้ม</div>';
+    list.innerHTML=found?'<div class="empty">โพยนี้ยังไม่มีรายการ<br>คีย์เลขจากแป้นด้านขวาเพื่อเพิ่มเข้าโพยนี้ได้เลย</div>':'<div class="empty">รายการปัจจุบันพร้อมคีย์โพยใหม่<br>กดเลขด้านขวา แล้วกดเก็บเข้าแฟ้ม</div>';
     document.getElementById('totalText').textContent='฿0';
     return;
   }
-  const modeHead=found?`<div class="table-row" style="background:#241b05;color:#f5c518;font-weight:900;grid-template-columns:1fr auto"><div>กำลังแก้เฉพาะโพย: ${esc(found.customer.name)} / โพย #${esc(found.slip.slipNo||'-')}</div><button class="btn small" onclick="closeSlipEditMode()">ดูรวมเอเยนต์</button></div>`:'';
-  list.innerHTML=modeHead+items.map((it,idx)=>`<div class="table-row">
-    <div class="lek ${it.follow?'follow':''} ${it.pin?'pinlek':''}">${itemLekHtml(it)}</div>
-    <div class="cell bon ${cellAmount(it,'bon')?'has':''}">${cellText(it,'bon')}</div>
-    <div class="cell tod ${cellAmount(it,'tod')?'has':''}">${cellText(it,'tod')}</div>
-    <div class="cell lang ${cellAmount(it,'lang')?'has':''}">${cellText(it,'lang')}</div>
-    <div class="cell na na-col ${cellAmount(it,'na')?'has':''}">${cellText(it,'na')}</div>
-    <button class="delbtn" onclick="deleteItem(${idx})">×</button>
+  const modeHead=found?`<div class="table-row" style="background:#241b05;color:#f5c518;font-weight:900;grid-template-columns:1fr auto"><div>กำลังแก้เฉพาะโพย: ${esc(found.customer.name)} / โพย #${esc(found.slip.slipNo||'-')}</div><button class="btn small" onclick="closeSlipEditMode()">ดูรวมเอเยนต์</button></div>`:`<div class="table-row" style="background:#101827;color:#f5c518;font-weight:900;grid-template-columns:1fr auto"><div>รายการปัจจุบัน / ชุดที่กำลังคีย์</div><span class="resize-hint">Key Lock Wrapper</span></div>`;
+  const rows=buildCompactDisplayRows(items);
+  list.innerHTML=modeHead+rows.map((g)=>`<div class="table-row">
+    <div class="lek ${g.follow?'follow':''} ${g.pin?'pinlek':''}">${itemLekHtml(g.sample)}</div>
+    <div class="cell bon ${compactCellAmount(g,'bon')?'has':''}">${compactCellText(g,'bon')}</div>
+    <div class="cell tod ${compactCellAmount(g,'tod')?'has':''}">${compactCellText(g,'tod')}</div>
+    <div class="cell lang ${compactCellAmount(g,'lang')?'has':''}">${compactCellText(g,'lang')}</div>
+    <div class="cell na na-col ${compactCellAmount(g,'na')?'has':''}">${compactCellText(g,'na')}</div>
+    <button class="delbtn" onclick="deleteCompactGroup([${g.idxs.join(',')}])">×</button>
   </div>`).join('');
   document.getElementById('totalText').textContent=found?money(totalSlip(found.slip)):money(items.reduce((s,it)=>s+Number(it.amount||0),0));
 }
@@ -1240,7 +1208,7 @@ function renderZone4Smooth(){
   });
 }
 function renderAll(){renderWorkspace();renderAgents();renderList();renderSummary();render();renderFolderAction();renderZone4Smooth()}
-function deleteItem(idx){
+function deleteItem(idx,silent=false){
   let a=getActiveAgent();if(!a)return;
   const found=findSlipRef();
   if(found){
@@ -1257,7 +1225,7 @@ function deleteItem(idx){
       else{const pos=(a.items||[]).indexOf(removed);if(pos>=0)a.items.splice(pos,1)}
     }
   }
-  renderAll();scheduleSave()
+  if(!silent){renderAll();scheduleSave()}
 }
 
 function getBaseLen(){
@@ -1992,35 +1960,67 @@ function saveRates(scope,agentId){
 }
 function cssEsc(s){return window.CSS&&CSS.escape?CSS.escape(s):String(s).replace(/["\\]/g,'\\$&')}
 function clearAgentRates(agentId){if(!confirm('ล้างเรทเฉพาะเอเยนต์นี้?'))return;ensureAgentConfig(agentId);RATE_TYPES[market].forEach(t=>rateLimitConfig.agentRates[agentId][market][t]={discount:'',pay:''});saveData();renderAgentModal()}
+let limitDraft={type:'',number:'',level:'closed',customPercent:0,customPay:0,note:'',q:''};
+function limitRows(scope,agentId){return scope==='agent'?rateLimitConfig.agentLimits[agentId][market]:rateLimitConfig.baseLimits[market]}
 function limitFormHtml(scope,agentId){
-  const isAgent=scope==='agent';const rows=isAgent?rateLimitConfig.agentLimits[agentId][market]:rateLimitConfig.baseLimits[market];
-  let html=`<div class="agent-section">
-    <div class="config-bar"><button class="btn green" onclick="addLimitRow('${scope}','${agentId}')">+ เพิ่มเลขอั้น</button><span class="pill">${rules.name}</span><span class="pill">${isAgent?'เฉพาะเอเยนต์':'กลาง'}</span></div>
-    <div class="warn">ระดับจ่าย: ปิดรับ / จ่าย 50% / จ่าย 20% / กำหนดเอง · รายเอเยนต์มีสิทธิ์ก่อนเลขอั้นกลาง</div>
-    <div class="limit-grid"><div class="grid-head">ประเภท</div><div class="grid-head">เลข</div><div class="grid-head">ระดับจ่าย</div><div class="grid-head">กำหนด %</div><div class="grid-head">กำหนดจ่าย</div><div class="grid-head">หมายเหตุ</div><div class="grid-head">ลบ</div>`;
-  if(!rows.length)html+='<div class="note" style="grid-column:1/-1">ยังไม่มีเลขอั้น</div>';
-  rows.forEach((r,idx)=>{
-    html+=`<select class="select limit-type" data-idx="${idx}">${LIMIT_TYPES[market].map(t=>`<option ${r.type===t?'selected':''}>${esc(t)}</option>`).join('')}</select>
-    <input class="input limit-number" data-idx="${idx}" value="${esc(r.number)}" placeholder="เลข">
-    <select class="select limit-level" data-idx="${idx}">${LIMIT_LEVELS.map(([v,l])=>`<option value="${v}" ${r.level===v?'selected':''}>${l}</option>`).join('')}</select>
-    <input class="input limit-percent" data-idx="${idx}" type="number" value="${esc(r.customPercent)}" placeholder="%">
-    <input class="input limit-pay" data-idx="${idx}" type="number" value="${esc(r.customPay)}" placeholder="จ่าย">
-    <input class="input left limit-note" data-idx="${idx}" value="${esc(r.note)}" placeholder="หมายเหตุ">
-    <button class="btn red" onclick="deleteLimitRow('${scope}','${agentId}',${idx})">×</button>`;
-  });
-  html+=`</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn gold" onclick="saveLimits('${scope}','${agentId}')">บันทึกเลขอั้น</button></div></div>`;
-  return html;
+  const isAgent=scope==='agent'; if(isAgent)ensureAgentConfig(agentId);
+  const rows=limitRows(scope,agentId); if(!limitDraft.type||!LIMIT_TYPES[market].includes(limitDraft.type))limitDraft.type=LIMIT_TYPES[market][0];
+  const q=String(limitDraft.q||'').trim();
+  const shown=rows.map((r,i)=>({...r,_idx:i})).filter(r=>!q||String(r.number||'').includes(q)||String(r.type||'').includes(q)||String(r.note||'').includes(q));
+  const typeChips=LIMIT_TYPES[market].map(t=>`<button class="limit-chip ${limitDraft.type===t?'on':''}" onclick="setLimitDraft('type','${esc(t)}')">${esc(t)}</button>`).join('');
+  const levelChips=LIMIT_LEVELS.map(([v,l])=>`<button class="limit-chip level-${v} ${limitDraft.level===v?'on':''}" onclick="setLimitDraft('level','${v}')">${l}</button>`).join('');
+  return `<div class="agent-section">
+    <div class="limit-new-box">
+      <div class="limit-new-title"><span>ตั้งเลขอั้นแบบคีย์เร็ว</span><span class="pill">${rules.name} · ${isAgent?'เฉพาะเอเยนต์':'กลาง'}</span></div>
+      <div class="limit-chip-row">${typeChips}</div>
+      <div class="limit-quick-grid three">
+        <input id="limitDraftNumber" class="input" inputmode="numeric" placeholder="เลขอั้น เช่น 54 / 123" value="${esc(limitDraft.number||'')}" oninput="setLimitDraft('number',this.value)">
+        <input class="input" type="number" placeholder="กำหนด %" value="${esc(limitDraft.customPercent||'')}" oninput="setLimitDraft('customPercent',this.value)">
+        <input class="input" type="number" placeholder="กำหนดจ่าย" value="${esc(limitDraft.customPay||'')}" oninput="setLimitDraft('customPay',this.value)">
+      </div>
+      <div class="limit-chip-row">${levelChips}</div>
+      <input class="input left" placeholder="หมายเหตุ" value="${esc(limitDraft.note||'')}" oninput="setLimitDraft('note',this.value)">
+      <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:10px">
+        <button class="btn" onclick="clearLimitDraft('${scope}','${agentId}')">ล้างช่อง</button>
+        <button class="btn green" onclick="addLimitFromDraft('${scope}','${agentId}')">+ เพิ่มเลขอั้น</button>
+      </div>
+      <div class="limit-small-note">รายเอเยนต์มีสิทธิ์ก่อนเลขอั้นกลาง · แบบนี้คือ popup/card เหมือน Subkey และคีย์ง่ายกว่าแบบตาราง</div>
+    </div>
+    <div class="limit-search"><input class="input left" placeholder="ค้นหาเลขอั้น" value="${esc(limitDraft.q||'')}" oninput="setLimitDraft('q',this.value);renderLimitEditor('${scope}','${agentId}')"></div>
+    <div class="limit-card-list">
+      ${shown.length?shown.map(r=>limitCardHtml(scope,agentId,r)).join(''):'<div class="empty">ยังไม่มีเลขอั้น</div>'}
+    </div>
+  </div>`;
 }
-function addLimitRow(scope,agentId){if(scope==='agent')ensureAgentConfig(agentId);const rows=scope==='agent'?rateLimitConfig.agentLimits[agentId][market]:rateLimitConfig.baseLimits[market];rows.push(normalizeLimit({type:LIMIT_TYPES[market][0],number:'',level:'closed'}));scope==='agent'?renderAgentModal():renderBaseConfig()}
-function deleteLimitRow(scope,agentId,idx){const rows=scope==='agent'?rateLimitConfig.agentLimits[agentId][market]:rateLimitConfig.baseLimits[market];rows.splice(idx,1);saveData();scope==='agent'?renderAgentModal():renderBaseConfig()}
-function saveLimits(scope,agentId){
-  const rows=[];document.querySelectorAll('.limit-type').forEach((el,idx)=>{
-    const number=document.querySelector(`.limit-number[data-idx="${idx}"]`).value.trim();if(!number)return;
-    rows.push(normalizeLimit({type:el.value,number,level:document.querySelector(`.limit-level[data-idx="${idx}"]`).value,customPercent:document.querySelector(`.limit-percent[data-idx="${idx}"]`).value,customPay:document.querySelector(`.limit-pay[data-idx="${idx}"]`).value,note:document.querySelector(`.limit-note[data-idx="${idx}"]`).value}));
-  });
-  if(scope==='agent'){ensureAgentConfig(agentId);rateLimitConfig.agentLimits[agentId][market]=rows}else rateLimitConfig.baseLimits[market]=rows;
-  saveData();alert('บันทึกเลขอั้นแล้ว');scope==='agent'?renderAgentModal():renderBaseConfig()
+function limitCardHtml(scope,agentId,r){
+  const label=(LIMIT_LEVELS.find(x=>x[0]===r.level)||['',r.level])[1];
+  const extra=r.level==='custom'?` · % ${Number(r.customPercent||0)} · จ่าย ${Number(r.customPay||0)}`:'';
+  return `<div class="limit-card">
+    <div class="limit-card-main"><div class="limit-card-num">${esc(r.number||'-')}</div><div class="limit-card-meta">${esc(r.type||'-')} · ${esc(label)}${extra}</div>${r.note?`<div class="limit-card-note">${esc(r.note)}</div>`:''}</div>
+    <div class="limit-card-actions"><button class="btn small" onclick="editLimitToDraft('${scope}','${agentId}',${r._idx})">แก้</button><button class="btn red small" onclick="deleteLimitRow('${scope}','${agentId}',${r._idx})">ลบ</button></div>
+  </div>`;
 }
+function setLimitDraft(k,v){limitDraft[k]=v}
+function clearLimitDraft(scope,agentId){limitDraft={type:LIMIT_TYPES[market][0],number:'',level:'closed',customPercent:0,customPay:0,note:'',q:limitDraft.q||''};renderLimitEditor(scope,agentId)}
+function addLimitFromDraft(scope,agentId){
+  const number=String(limitDraft.number||'').trim(); if(!number)return alert('ใส่เลขอั้นก่อน');
+  if(scope==='agent')ensureAgentConfig(agentId);
+  const rows=limitRows(scope,agentId);
+  rows.push(normalizeLimit({type:limitDraft.type||LIMIT_TYPES[market][0],number,level:limitDraft.level||'closed',customPercent:limitDraft.customPercent,customPay:limitDraft.customPay,note:limitDraft.note||''}));
+  limitDraft.number='';limitDraft.note='';saveData();renderLimitEditor(scope,agentId);
+}
+function editLimitToDraft(scope,agentId,idx){
+  const rows=limitRows(scope,agentId); const r=rows[idx]; if(!r)return;
+  limitDraft={type:r.type||LIMIT_TYPES[market][0],number:r.number||'',level:r.level||'closed',customPercent:r.customPercent||0,customPay:r.customPay||0,note:r.note||'',q:limitDraft.q||''};
+  rows.splice(idx,1);saveData();renderLimitEditor(scope,agentId);setTimeout(()=>{const el=document.getElementById('limitDraftNumber');if(el)el.focus()},80);
+}
+function renderLimitEditor(scope,agentId){
+  const html=limitFormHtml(scope,agentId);
+  const box=document.getElementById('agentModalContent'); if(box)box.innerHTML=html;
+}
+function addLimitRow(scope,agentId){clearLimitDraft(scope,agentId);setTimeout(()=>{const el=document.getElementById('limitDraftNumber');if(el)el.focus()},80)}
+function deleteLimitRow(scope,agentId,idx){const rows=limitRows(scope,agentId);rows.splice(idx,1);saveData();renderLimitEditor(scope,agentId)}
+function saveLimits(scope,agentId){saveData();alert('บันทึกเลขอั้นแล้ว');renderLimitEditor(scope,agentId)}
 function getEffectiveRate(agentId,rateType){
   const base=rateLimitConfig.baseRates[market][rateType]||{discount:0,pay:0};
   const ag=agentId&&rateLimitConfig.agentRates[agentId]&&rateLimitConfig.agentRates[agentId][market]&&rateLimitConfig.agentRates[agentId][market][rateType];
@@ -2436,30 +2436,11 @@ exportPrizeCheckReport=function(){
 };
 
 
-/* Step 5F Auto Layout Engine */
-function getAutoLayoutMode(){
-  const w=window.innerWidth||document.documentElement.clientWidth||1366;
-  if(w>=1460)return 'wide';
-  if(w>=1180)return 'notebook';
-  if(w>=900)return 'compact';
-  return 'mobile';
-}
+/* Step 5E Fix2 Tablet Smooth Mode */
 function shouldAutoTabletMode(){
-  const mode=getAutoLayoutMode();
-  return mode==='compact'||mode==='mobile'||(window.innerWidth<=1280 && navigator.maxTouchPoints&&navigator.maxTouchPoints>0);
-}
-function applyAutoLayout(){
-  const mode=getAutoLayoutMode();
-  document.body.classList.remove('layout-wide','layout-notebook','layout-compact','layout-mobile');
-  document.body.classList.add('layout-'+mode);
-  const pill=document.getElementById('layoutPill');
-  if(pill){
-    const label={wide:'จอใหญ่',notebook:'โน้ตบุ๊ก',compact:'แท็บเล็ต/จอกลาง',mobile:'มือถือ'}[mode]||mode;
-    pill.textContent='Auto: '+label;
-  }
+  return window.innerWidth<=1280 || (navigator.maxTouchPoints&&navigator.maxTouchPoints>0);
 }
 function applyTabletMode(){
-  applyAutoLayout();
   const saved=localStorage.getItem('t999_v2_tablet_mode')||'auto';
   const on=saved==='on' || (saved==='auto' && shouldAutoTabletMode());
   document.body.classList.toggle('tablet-mode',!!on);
@@ -2470,14 +2451,50 @@ function applyTabletMode(){
   }
 }
 function toggleTabletMode(){
-  const saved=localStorage.getItem('t999_v2_tablet_mode')||'auto';
-  const next=saved==='auto'?'on':(saved==='on'?'off':'auto');
-  localStorage.setItem('t999_v2_tablet_mode',next);
+  const now=document.body.classList.contains('tablet-mode');
+  localStorage.setItem('t999_v2_tablet_mode',now?'off':'on');
   applyTabletMode();
   setTimeout(()=>{try{renderAll()}catch(e){}},60);
 }
 window.addEventListener('resize',()=>{clearTimeout(window._t999ResizeTimer);window._t999ResizeTimer=setTimeout(()=>{applyTabletMode();try{renderZone4Smooth()}catch(e){}},160)});
 applyTabletMode();
+
+
+
+/* Step 5G Resizable Zone Engine: wrapper only, does not touch Core Key Engine */
+const ZONE_LAYOUT_KEY='t999_v2_master_zone_sizes_v5g';
+const ZONE_DEFAULTS={agent:250,list:420,key:360,zone4:330};
+const ZONE_MINS={agent:160,list:260,key:280,zone4:220};
+function getZoneSizes(){try{return {...ZONE_DEFAULTS,...JSON.parse(localStorage.getItem(ZONE_LAYOUT_KEY)||'{}')}}catch(e){return {...ZONE_DEFAULTS}}}
+function saveZoneSizes(sizes){localStorage.setItem(ZONE_LAYOUT_KEY,JSON.stringify(sizes))}
+function applyZoneSizes(){
+  const sizes=getZoneSizes();
+  const root=document.documentElement;
+  root.style.setProperty('--z-agent',sizes.agent+'px');
+  root.style.setProperty('--z-list',sizes.list+'px');
+  root.style.setProperty('--z-key',sizes.key+'px');
+  root.style.setProperty('--z-zone4',sizes.zone4+'px');
+}
+function initZoneResizers(){
+  applyZoneSizes();
+  document.querySelectorAll('.zone-resizer').forEach(handle=>{
+    handle.addEventListener('pointerdown',ev=>{
+      if(window.innerWidth<=1100)return;
+      ev.preventDefault();
+      const left=handle.dataset.left,right=handle.dataset.right;
+      const startX=ev.clientX; const start=getZoneSizes();
+      handle.classList.add('dragging');document.body.classList.add('resizing-zones');
+      function move(e){
+        const dx=e.clientX-startX; const next={...start};
+        next[left]=Math.max(ZONE_MINS[left]||120,start[left]+dx);
+        next[right]=Math.max(ZONE_MINS[right]||120,start[right]-dx);
+        saveZoneSizes(next);applyZoneSizes();
+      }
+      function up(){handle.classList.remove('dragging');document.body.classList.remove('resizing-zones');document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);try{renderZone4Smooth()}catch(e){}}
+      document.addEventListener('pointermove',move);document.addEventListener('pointerup',up,{once:true});
+    });
+  });
+}
 
 /* boot */
 document.addEventListener('keydown',e=>{
@@ -2490,7 +2507,7 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='.')dotKey();
   else if(e.key==='Escape'){closePin();closeAgentModal();closePaperSlip();closeSavePicker()}
 });
-function init(){loadData();renderWorkspace();selectAgent(activeAgentId,false);saveData()}
+function init(){initZoneResizers();loadData();renderWorkspace();selectAgent(activeAgentId,false);saveData()}
 init();
 </script>
 </body>
