@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>T999 LAN USB - Subkey</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#111827;
+      --panel2:#1f2937;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --line:#334155;
+      --good:#22c55e;
+      --bad:#ef4444;
+      --warn:#f59e0b;
+      --blue:#38bdf8;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:linear-gradient(135deg,#020617,#111827);
+      color:var(--text);
+      font-family:Tahoma,Arial,sans-serif;
+    }
+    header{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      background:rgba(15,23,42,.95);
+      position:sticky;
+      top:0;
+      z-index:5;
+    }
+    h1{font-size:18px;margin:0 0 8px}
+    .topbar{
+      display:grid;
+      grid-template-columns:1.1fr .8fr .8fr .8fr .8fr;
+      gap:8px;
+      align-items:end;
+    }
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+    input,select,textarea{
+      width:100%;
+      background:#020617;
+      border:1px solid var(--line);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px;
+      font-family:Tahoma,Arial,sans-serif;
+    }
+    textarea{
+      min-height:240px;
+      resize:vertical;
+      font-size:18px;
+      line-height:1.55;
+    }
+    .status{
+      font-size:12px;
+      color:var(--muted);
+      padding-bottom:10px;
+    }
+    .dot{
+      display:inline-block;
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:var(--bad);
+      margin-right:6px;
+    }
+    .dot.on{background:var(--good)}
+    .layout{
+      padding:14px;
+      display:grid;
+      grid-template-columns:1fr 1.15fr .72fr;
+      gap:12px;
+    }
+    .panel{
+      background:rgba(17,24,39,.92);
+      border:1px solid var(--line);
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 10px 30px rgba(0,0,0,.22);
+    }
+    .panel h2{
+      font-size:16px;
+      margin:0;
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:center;
+    }
+    .body{padding:12px}
+    .imageBox{
+      height:330px;
+      border:1px dashed #475569;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      text-align:center;
+      padding:20px;
+      background:rgba(2,6,23,.55);
+      line-height:1.6;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:16px;
+    }
+    th,td{
+      padding:10px;
+      border-bottom:1px solid rgba(51,65,85,.75);
+      text-align:left;
+      vertical-align:top;
+    }
+    th{
+      color:#cbd5e1;
+      background:rgba(30,41,59,.75);
+    }
+    .btn{
+      width:100%;
+      border:1px solid var(--line);
+      background:#1e293b;
+      color:var(--text);
+      border-radius:14px;
+      padding:13px 12px;
+      cursor:pointer;
+      margin-bottom:10px;
+      font-weight:700;
+      font-family:Tahoma,Arial,sans-serif;
+    }
+    .btn:hover{background:#334155}
+    .btn.primary{background:#0369a1;border-color:#0284c7}
+    .btn.good{background:#15803d;border-color:#22c55e}
+    .btn.bad{background:#991b1b;border-color:#ef4444}
+    .hint{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.55;
+    }
+    .tag{
+      font-size:12px;
+      border:1px solid var(--line);
+      padding:3px 8px;
+      border-radius:999px;
+      color:#cbd5e1;
+      white-space:nowrap;
+    }
+    .muted{color:var(--muted)}
+    code{
+      background:#020617;
+      border:1px solid #334155;
+      border-radius:8px;
+      padding:2px 6px;
+      color:#bae6fd;
+    }
+    .rowError{
+      color:#fecaca;
+      font-size:13px;
+    }
+    @media(max-width:950px){
+      .topbar{grid-template-columns:1fr 1fr}
+      .layout{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>T999 LAN USB - SUBKEY</h1>
+  <div class="topbar">
+    <div>
+      <label>เอเยนต์</label>
+      <select id="agent"></select>
+    </div>
+    <div>
+      <label>เลขที่ใบ / Paper No.</label>
+      <input id="paperNo" placeholder="ไม่ใส่ก็ได้">
+    </div>
+    <div>
+      <label>โหมด</label>
+      <select id="mode">
+        <option value="paper">Paper Mode</option>
+        <option value="image">Image Queue Mode</option>
+      </select>
+    </div>
+    <div>
+      <label>เครื่อง / ผู้คีย์</label>
+      <input id="machineName" placeholder="Subkey-01">
+    </div>
+    <div class="status">
+      <span id="dot" class="dot"></span><span id="conn">กำลังเชื่อมต่อ...</span>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="panel" id="imagePanel">
+    <h2>รูปโพย <span class="tag">Image Queue</span></h2>
+    <div class="body">
+      <div class="imageBox">
+        Step 1 เตรียมช่อง Image Queue ไว้ก่อน<br>
+        Step ต่อไปจะเพิ่มคิวรูป, ซูม, เลื่อน, และเก็บรูปต้นฉบับ<br><br>
+        Paper Mode ใช้งานได้โดยไม่ต้องใช้ช่องรูปนี้
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>รายการเข้าใบปัจจุบัน <span class="tag">แตกแถวจริง</span></h2>
+    <div class="body">
+      <textarea id="rawInput" placeholder="ตัวอย่าง:
+25 บน 100
+52 บน 100
+25 100
+บ52=100x100"></textarea>
+
+      <div style="height:10px"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>เลข</th>
+            <th>ประเภท</th>
+            <th>ยอด</th>
+          </tr>
+        </thead>
+        <tbody id="previewRows">
+          <tr><td colspan="3" class="muted">ยังไม่มีรายการ</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>คำสั่ง</h2>
+    <div class="body">
+      <button class="btn primary" onclick="parseNow()">ดูตัวอย่าง / แตกแถว</button>
+      <button class="btn good" onclick="saveSlip()">เก็บใบ ส่งเข้า Master</button>
+      <button class="btn" onclick="newSlip()">ใบใหม่</button>
+      <button class="btn bad" onclick="clearSlip()">ล้างใบปัจจุบัน</button>
+
+      <div class="hint">
+        <b>Parser Step 1</b><br><br>
+        รองรับตัวอย่าง:<br>
+        - <code>25 บน 100</code><br>
+        - <code>52 บน 100</code><br>
+        - <code>25 100</code> = บน 100<br>
+        - <code>บ52=100x100</code><br><br>
+
+        <b>กฎสำคัญ:</b><br>
+        <code>บ52=100x100</code><br>
+        = 52 บน 100<br>
+        = 25 บน 100<br><br>
+
+        ไม่ใช่ บน/ล่าง<br><br>
+
+        หลังจากกด <b>เก็บใบ</b> แล้ว<br>
+        Subkey จะแก้ใบนี้ไม่ได้อีก<br>
+        ถ้าผิดให้ Master แก้
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  const agentEl = document.getElementById("agent");
+  const paperNoEl = document.getElementById("paperNo");
+  const modeEl = document.getElementById("mode");
+  const machineEl = document.getElementById("machineName");
+  const rawEl = document.getElementById("rawInput");
+  const previewEl = document.getElementById("previewRows");
+  const dot = document.getElementById("dot");
+  const conn = document.getElementById("conn");
+
+  let currentItems = [];
+
+  machineEl.value = localStorage.getItem("t999_subkey_machine") || "Subkey-01";
+  machineEl.addEventListener("input", () => {
+    localStorage.setItem("t999_subkey_machine", machineEl.value);
+  });
+
+  function esc(s){
+    return String(s ?? "").replace(/[&<>"']/g, m => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    }[m]));
+  }
+
+  function reverseNumber(n){
+    return String(n).split("").reverse().join("");
+  }
+
+  function parseLine(line){
+    const text = line.trim();
+    if(!text) return [];
+
+    // กฎใหม่ที่ล็อกไว้:
+    // บ52=100x100 = 52 บน 100 และ 25 บน 100
+    // ไม่ใช่ บน/ล่าง
+    const reverseSameType = text.match(/^บ(\d{2,5})\s*=\s*(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)$/i);
+    if(reverseSameType){
+      const num = reverseSameType[1];
+      const amount1 = Number(reverseSameType[2]);
+      const amount2 = Number(reverseSameType[3]);
+
+      return [
+        {
+          number: num,
+          type: "บน",
+          amount: amount1,
+          note: "ตรงจากสูตร บเลข=ยอดxยอด"
+        },
+        {
+          number: reverseNumber(num),
+          type: "บน",
+          amount: amount2,
+          note: "กลับจากสูตร บเลข=ยอดxยอด"
+        }
+      ];
+    }
+
+    // 25 บน 100 / 25 ล่าง 100 / 123 โต๊ด 100
+    const simple = text.match(/^(\d{1,6})\s*(บน|ล่าง|หน้า|โต๊ด|วิ่งบน|วิ่งล่าง|ปักบน|ปักล่าง)\s*(\d+(?:\.\d+)?)$/i);
+    if(simple){
+      return [{
+        number: simple[1],
+        type: simple[2],
+        amount: Number(simple[3])
+      }];
+    }
+
+    // 25 100 = default บน
+    const shorthand = text.match(/^(\d{1,6})\s+(\d+(?:\.\d+)?)$/);
+    if(shorthand){
+      return [{
+        number: shorthand[1],
+        type: "บน",
+        amount: Number(shorthand[2])
+      }];
+    }
+
+    return [{
+      number: "?",
+      type: "อ่านไม่ได้",
+      amount: 0,
+      note: text
+    }];
+  }
+
+  function parseAll(){
+    const lines = rawEl.value.split(/\n+/);
+    const items = [];
+
+    for(const line of lines){
+      items.push(...parseLine(line));
+    }
+
+    return items.filter(i => i.number && i.amount > 0);
+  }
+
+  function renderPreview(){
+    previewEl.innerHTML = currentItems.map(i => `
+      <tr>
+        <td><b>${esc(i.number)}</b></td>
+        <td>${esc(i.type)}</td>
+        <td>${Number(i.amount || 0).toLocaleString("th-TH")}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="3" class="muted">ยังไม่มีรายการ</td></tr>`;
+  }
+
+  function parseNow(){
+    currentItems = parseAll();
+    renderPreview();
+  }
+
+  async function loadAgents(){
+    const res = await fetch("/api/agents");
+    const agents = await res.json();
+
+    agentEl.innerHTML = agents.map(a => {
+      return `<option value="${esc(a.id)}">${esc(a.name)}</option>`;
+    }).join("");
+  }
+
+  async function saveSlip(){
+    parseNow();
+
+    if(!agentEl.value){
+      alert("กรุณาเลือกเอเยนต์");
+      return;
+    }
+
+    if(currentItems.length === 0){
+      alert("ยังไม่มีรายการในใบ");
+      return;
+    }
+
+    const payload = {
+      source: "subkey",
+      mode: modeEl.value,
+      machineName: machineEl.value,
+      operatorName: "",
+      agentId: agentEl.value,
+      paperNo: paperNoEl.value.trim(),
+      market: "thai",
+      items: currentItems
+    };
+
+    const res = await fetch("/api/slips", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if(!data.ok){
+      alert(data.error || "บันทึกไม่สำเร็จ");
+      return;
+    }
+
+    alert("เก็บใบแล้ว ส่งเข้า Master เรียบร้อย");
+    newSlip();
+  }
+
+  function newSlip(){
+    paperNoEl.value = "";
+    rawEl.value = "";
+    currentItems = [];
+    renderPreview();
+    rawEl.focus();
+  }
+
+  function clearSlip(){
+    if(confirm("ล้างใบปัจจุบันใช่ไหม?")){
+      rawEl.value = "";
+      currentItems = [];
+      renderPreview();
+      rawEl.focus();
+    }
+  }
+
+  function connect(){
+    const es = new EventSource("/api/events");
+
+    es.onopen = () => {
+      dot.classList.add("on");
+      conn.textContent = "เชื่อมต่อ Server แล้ว";
+    };
+
+    es.onerror = () => {
+      dot.classList.remove("on");
+      conn.textContent = "หลุดการเชื่อมต่อ";
+    };
+  }
+
+  rawEl.addEventListener("input", () => {
+    currentItems = parseAll();
+    renderPreview();
+  });
+
+  loadAgents();
+  connect();
+  rawEl.focus();
+</script>
+</body>
+</html>
