@@ -4,91 +4,391 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 LAN USB - Subkey Keyboard</title>
+<title>T999 LAN USB - Subkey Real Layout</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#0f1117;--card:#1a1d27;--card2:#222533;--line:#30364a;
-  --gold:#f5c518;--gold2:#c9a010;--white:#f0f2ff;--muted:#9ca3af;
-  --blue:#60a5fa;--pink:#f472b6;--green:#34d399;--orange:#fb923c;
-  --red:#ef4444;--purple:#a78bfa;--ok:#22c55e;--na-col:1fr;
+  --bg:#080b12;
+  --panel:#151922;
+  --panel2:#1c2230;
+  --panel3:#10141d;
+  --line:#2c3446;
+  --line2:#3b4560;
+  --gold:#f5c518;
+  --gold2:#8a6500;
+  --white:#f2f5ff;
+  --muted:#9aa6bb;
+  --blue:#60a5fa;
+  --pink:#f472b6;
+  --green:#34d399;
+  --orange:#fb923c;
+  --red:#ef4444;
+  --purple:#a78bfa;
+  --ok:#22c55e;
+  --na-col:1fr;
 }
 html,body{height:100%;overflow:hidden}
 body{
   font-family:Arial,Tahoma,"Sarabun",sans-serif;
-  background:var(--bg);color:var(--white);
+  background:var(--bg);
+  color:var(--white);
 }
 body.lao-mode{--na-col:0px}
-body.lao-mode .na-col,body.lao-mode #slot-na{display:none!important}
+body.lao-mode .na-col,
+body.lao-mode #slot-na{display:none!important}
 
-.app{height:100vh;display:grid;grid-template-rows:auto 1fr;background:#0f1117}
+.app{
+  width:100%;
+  height:100vh;
+  display:grid;
+  grid-template-rows:auto 1fr;
+  background:linear-gradient(135deg,#080b12,#111827);
+}
+
 .top{
-  background:linear-gradient(135deg,#111827,#0f172a);
+  padding:9px 10px;
+  background:#101827;
   border-bottom:2px solid var(--gold);
-  padding:10px;
 }
-.title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
-.logo{font-size:20px;font-weight:900;color:var(--gold)}
-.conn{font-size:13px;color:var(--muted);font-weight:800;white-space:nowrap}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:6px}
+.title-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:8px;
+}
+.logo{
+  font-size:20px;
+  font-weight:900;
+  color:var(--gold);
+  letter-spacing:.3px;
+}
+.conn{
+  color:var(--muted);
+  font-size:13px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.dot{
+  display:inline-block;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#ef4444;
+  margin-right:6px;
+}
 .dot.on{background:var(--ok)}
-.top-grid{display:grid;grid-template-columns:1fr .75fr .75fr .75fr .9fr;gap:7px}
-label{display:block;color:var(--muted);font-size:11px;font-weight:900;margin-bottom:3px}
+.top-grid{
+  display:grid;
+  grid-template-columns:1.1fr .65fr .65fr .65fr .75fr .9fr;
+  gap:7px;
+  align-items:end;
+}
+label{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:900;
+  margin-bottom:3px;
+}
 select,input{
-  width:100%;height:36px;border-radius:9px;border:1px solid var(--line);
-  background:#080b13;color:var(--white);font-weight:900;font-size:14px;padding:0 9px;
+  width:100%;
+  height:34px;
+  border-radius:8px;
+  border:1px solid var(--line2);
+  background:#070a12;
+  color:var(--white);
+  padding:0 8px;
+  font-size:13px;
+  font-weight:900;
 }
-.main{min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}
-.left,.right{min-height:0;display:flex;flex-direction:column;gap:8px}
+.save-top{
+  height:34px;
+  border:1px solid var(--gold2);
+  background:linear-gradient(135deg,#c89400,#6f5100);
+  color:#fff8d0;
+  border-radius:8px;
+  font-weight:900;
+  cursor:pointer;
+}
 
-.list-panel{
-  border:1px solid var(--line);background:var(--card);border-radius:12px;overflow:hidden;flex:1;min-height:0;
+.main{
+  min-height:0;
+  display:grid;
+  grid-template-columns:360px 1fr 370px;
+  gap:8px;
+  padding:8px;
 }
-.list-head{
-  padding:7px 9px;background:var(--card2);border-bottom:1px solid var(--line);
-  display:flex;justify-content:space-between;color:var(--muted);font-size:12px;font-weight:900;
+
+/* Panels */
+.panel{
+  min-height:0;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:10px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.panel-head{
+  height:44px;
+  flex-shrink:0;
+  background:#171c27;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 10px;
+}
+.panel-title{
+  font-size:18px;
+  font-weight:900;
+  color:#dbe7ff;
+}
+.tag{
+  border:1px solid var(--line2);
+  background:#141a25;
+  color:#cbd5e1;
+  border-radius:999px;
+  padding:4px 9px;
+  font-size:12px;
+  font-weight:900;
+}
+
+/* Image zone */
+.image-zone{
+  padding:10px;
+  height:100%;
+  min-height:0;
+}
+.image-box{
+  height:100%;
+  min-height:360px;
+  border:1px dashed #475569;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:var(--muted);
+  background:#070a12;
+  line-height:1.7;
+  padding:18px;
+  font-size:15px;
+}
+.image-tools{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin-top:8px;
+}
+.small-btn{
+  height:34px;
+  border:1px solid var(--line2);
+  background:#1e293b;
+  color:var(--white);
+  border-radius:8px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+/* List zone */
+.list-panel{
+  flex:1;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  background:#11151e;
+}
+.list-note{
+  color:var(--gold);
+  font-size:14px;
+  font-weight:900;
 }
 .tbl-head,.row{
-  display:grid;grid-template-columns:74px 1fr 1fr 1fr var(--na-col) 26px;
-  gap:2px;text-align:center;align-items:center;
+  display:grid;
+  grid-template-columns:74px 1fr 1fr 1fr var(--na-col) 72px 34px;
+  gap:1px;
+  align-items:center;
+  text-align:center;
 }
 .tbl-head{
-  padding:6px 8px;background:#252938;border-bottom:1px solid var(--line);
-  color:#aeb8d4;font-size:12px;font-weight:900;
+  flex-shrink:0;
+  background:#242938;
+  color:#9fb1d0;
+  font-size:13px;
+  font-weight:900;
+  border-bottom:1px solid var(--line);
+}
+.tbl-head span{
+  padding:9px 6px;
+  border-right:1px solid var(--line);
 }
 .tbl-head span:first-child{text-align:left}
-.list{height:100%;max-height:calc(100vh - 270px);overflow:auto}
-.empty{padding:16px;text-align:center;color:var(--muted);font-size:13px}
+.list{
+  flex:1;
+  min-height:0;
+  overflow:auto;
+  background:#10131b;
+}
+.empty{
+  padding:28px;
+  text-align:center;
+  color:var(--muted);
+  font-size:14px;
+}
 .row{
-  padding:7px 8px;border-bottom:1px solid var(--line);font-size:13px;
+  min-height:54px;
+  border-bottom:1px solid #262d3f;
+  font-size:15px;
 }
-.lek{font-size:20px;font-weight:900;color:var(--gold);text-align:left}
-.lek.follow{color:var(--purple);font-size:16px;padding-left:8px}
-.lek.pinlek{color:#ff8a3d;font-size:15px}
-.cell{text-align:center;min-height:18px;font-weight:900;color:#3c425a;font-size:17px}
-.cell.has{color:#f0f2ff}.cell.bon{color:#bfdbfe}.cell.tod{color:#fbcfe8}.cell.lang{color:#bbf7d0}.cell.na{color:#fed7aa}
-.row button{background:transparent;border:0;color:var(--red);font-size:18px}
-.total{
-  padding:8px 10px;background:var(--card2);display:flex;justify-content:space-between;align-items:center;
+.row:nth-child(even){background:#121723}
+.row > div{
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-right:1px solid #202637;
 }
-.total span{font-size:13px;color:var(--muted);font-weight:800}
-.total b{color:var(--gold);font-size:24px}
+.lek{
+  justify-content:flex-start!important;
+  padding-left:12px;
+  font-size:22px;
+  color:#eef2ff;
+  font-weight:900;
+}
+.lek.follow{
+  color:var(--purple);
+  font-size:20px;
+}
+.lek.pinlek{
+  color:#fb923c;
+  font-size:17px;
+}
+.cell{
+  color:#3d4660;
+  font-size:20px;
+  font-weight:900;
+}
+.cell.has{color:#dbe7ff}
+.cell.bon{color:#bcd7ff}
+.cell.tod{color:#ffc9e8}
+.cell.lang{color:#bbf7d0}
+.cell.na{color:#fed7aa}
+.sum-cell{
+  color:var(--gold);
+  font-weight:900;
+}
+.del-btn{
+  background:transparent;
+  border:0;
+  color:#ef4444;
+  font-size:22px;
+  cursor:pointer;
+}
+.total-bar{
+  height:45px;
+  flex-shrink:0;
+  background:#202637;
+  border-top:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 12px;
+}
+.total-bar span{
+  color:var(--muted);
+  font-weight:900;
+}
+.total-bar b{
+  color:var(--gold);
+  font-size:24px;
+}
 
+/* Keyboard zone */
+.key-panel{
+  background:#11151e;
+}
+.ticket-title{
+  color:var(--gold);
+  font-size:15px;
+  font-weight:900;
+}
+.fk{
+  border:1px solid var(--gold2);
+  background:#6f5100;
+  color:#ffeaa0;
+  border-radius:8px;
+  padding:5px 12px;
+  font-size:13px;
+  font-weight:900;
+}
+.key-body{
+  padding:10px;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  height:100%;
+}
 .status-line{
-  background:#151824;border:1px solid #202538;border-radius:8px;
-  padding:7px 9px;color:var(--gold);font-size:13px;font-weight:900;text-align:right;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  background:#171923;
+  border:1px solid #242b3d;
+  border-radius:8px;
+  padding:8px 9px;
+  color:var(--gold);
+  font-size:13px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 .display{
-  min-height:68px;background:#0b0e18;border:2px solid var(--line);
-  border-radius:12px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  min-height:66px;
+  border:2px solid var(--line2);
+  border-radius:12px;
+  background:#070a12;
+  padding:8px 11px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
 }
-#screen{font-size:34px;font-weight:900;color:var(--gold);word-break:break-all;line-height:1.05;letter-spacing:1px}
-#hint{min-width:96px;text-align:right;font-size:11px;color:var(--muted);line-height:1.5;font-weight:800}
-.type-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+#screen{
+  color:var(--gold);
+  font-size:32px;
+  font-weight:900;
+  letter-spacing:1px;
+  line-height:1.05;
+  word-break:break-all;
+}
+#hint{
+  min-width:84px;
+  text-align:right;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:900;
+  line-height:1.45;
+}
+.short-help{
+  color:#8f9bb2;
+  font-size:11px;
+  line-height:1.45;
+}
+.type-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+}
 .tbtn{
-  height:38px;border-radius:8px;border:1px solid var(--line);
-  background:var(--card2);color:var(--muted);font-size:15px;font-weight:900;position:relative;
+  height:38px;
+  border-radius:8px;
+  border:1px solid var(--line2);
+  background:#252938;
+  color:var(--muted);
+  font-size:15px;
+  font-weight:900;
+  position:relative;
 }
 .tbtn.active.bon{background:rgba(96,165,250,.18);border-color:var(--blue);color:#bfdbfe}
 .tbtn.active.tod{background:rgba(244,114,182,.18);border-color:var(--pink);color:#fbcfe8}
@@ -98,132 +398,240 @@ select,input{
 .tbtn.rev:before{content:"กลับ";position:absolute;left:4px;bottom:2px;font-size:9px;color:var(--gold)}
 .tbtn.rev3:before{content:"ชุด";position:absolute;left:4px;bottom:2px;font-size:9px;color:var(--gold)}
 
-.keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;flex:1;min-height:260px}
-.key{
-  border:1px solid var(--line);border-radius:9px;background:#191d2a;color:var(--white);
-  font-size:24px;font-weight:900;min-height:48px;
+.keypad{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+  flex:1;
+  min-height:280px;
 }
+.key{
+  border:1px solid var(--line2);
+  border-radius:9px;
+  background:#171c27;
+  color:var(--white);
+  font-size:24px;
+  font-weight:900;
+  min-height:48px;
+  cursor:pointer;
+}
+.key:hover{filter:brightness(1.15)}
 .key.top{font-size:22px;color:var(--purple)}
 .key.pin{color:#ff5fa2;background:#2a1724;border-color:#5b213f}
 .key.minus{color:var(--gold);background:#24220e;border-color:#64530c}
 .key.del{color:#ff6b6b}
-.key.plus{background:#20a85a;color:white;border-color:#20a85a;grid-row:span 2}
-.key.enter{background:#12305a;color:#8ec5ff;border-color:#275d9c;grid-row:span 2}
+.key.plus{background:#16a34a;color:white;border-color:#22c55e;grid-row:span 2;font-size:30px}
+.key.enter{background:#12213d;color:#8ec5ff;border-color:#275d9c;grid-row:span 2;font-size:30px}
 .key.dot{color:var(--gold);background:#221b0a;border-color:#634b08}
 .key.zero{grid-column:span 2}
-.action-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.action-grid{
+  display:grid;
+  grid-template-columns:1.3fr 1fr;
+  gap:6px;
+}
 .action{
-  height:42px;border-radius:9px;border:1px solid var(--line);background:#1e293b;color:var(--white);font-weight:900;font-size:14px;
+  height:42px;
+  border-radius:9px;
+  border:1px solid var(--line2);
+  font-size:15px;
+  font-weight:900;
+  color:var(--white);
+  cursor:pointer;
 }
 .action.save{background:#15803d;border-color:#22c55e}
-.action.clear{background:#7f1d1d;border-color:#ef4444;color:#fecaca}
-.help{color:var(--muted);font-size:11px;line-height:1.55}
-kbd,code{background:#080b13;border:1px solid #30364a;border-radius:6px;padding:1px 5px;color:#bae6fd;font-weight:900}
+.action.clear{background:#2b0f19;border-color:#7f1d1d;color:#ff8a8a}
 
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+/* PIN modal */
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.62);
+  display:none;align-items:center;justify-content:center;padding:20px;z-index:50;
+}
 .modal.show{display:flex}
-.box{width:100%;max-width:340px;background:#202332;border:2px solid var(--gold);border-radius:15px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.55)}
-.box-head{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #34394f}
-.box-title{color:var(--gold);font-weight:900}.box-num{font-size:26px;font-weight:900;color:var(--white)}
+.box{
+  width:100%;max-width:340px;background:#202332;
+  border:2px solid var(--gold);border-radius:15px;overflow:hidden;
+  box-shadow:0 20px 50px rgba(0,0,0,.55);
+}
+.box-head{
+  height:54px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;border-bottom:1px solid #34394f;
+}
+.box-title{color:var(--gold);font-weight:900}
+.box-num{font-size:26px;font-weight:900;color:var(--white)}
 .close{background:#242938;border:1px solid #4b5563;color:#cbd5e1;font-size:22px;border-radius:8px;width:34px;height:34px}
-.box-body{padding:14px}.lbl{font-size:11px;color:#9ca3af;font-weight:900;margin:0 0 6px}
-.seg{display:grid;gap:7px;margin-bottom:12px}.seg.type{grid-template-columns:repeat(2,1fr)}.seg.pos3{grid-template-columns:repeat(3,1fr)}.seg.pos2{grid-template-columns:repeat(2,1fr)}
-.seg button{height:45px;border-radius:8px;border:1px solid #374151;background:#141827;color:#9ca3af;font-weight:900}
-.seg button.on{color:var(--gold);border-color:var(--gold);background:rgba(245,197,24,.13)}
+.box-body{padding:14px}
+.lbl{font-size:11px;color:#7b8192;font-weight:900;margin:0 0 6px}
+.seg{display:grid;gap:7px;margin-bottom:12px}
+.seg.type{grid-template-columns:repeat(2,1fr)}
+.seg.pos3{grid-template-columns:repeat(3,1fr)}
+.seg.pos2{grid-template-columns:repeat(2,1fr)}
+.seg button{
+  height:45px;border-radius:8px;border:1px solid #374151;
+  background:#141827;color:#9ca3af;font-weight:900;
+}
+.seg button.on{
+  color:var(--gold);border-color:var(--gold);
+  background:rgba(245,197,24,.13);
+}
 .seg small{display:block;font-size:10px;color:#788094;margin-top:2px}
-.pin-price{width:100%;height:45px;border-radius:8px;border:1px solid var(--gold);background:#e7eefc;color:#000;font-size:22px;font-weight:900;text-align:center;outline:none;margin-bottom:12px}
-.actions{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}.actions button{height:40px;border:0;border-radius:8px;font-size:14px;font-weight:900}
-.cancel{background:#111827;color:#667085}.add{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111}
+.pin-price{
+  width:100%;height:45px;border-radius:8px;
+  border:1px solid var(--gold);background:#e7eefc;color:#000;
+  font-size:22px;font-weight:900;text-align:center;outline:none;
+  margin-bottom:12px;
+}
+.actions{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
+.actions button{
+  height:40px;border:0;border-radius:8px;font-size:14px;font-weight:900;
+}
+.cancel{background:#111827;color:#667085}
+.add{background:linear-gradient(135deg,var(--gold),#c9a010);color:#111}
 
-@media(max-width:900px){
+@media(max-width:1200px){
   html,body{overflow:auto}
   .app{height:auto;min-height:100vh}
-  .top-grid{grid-template-columns:1fr 1fr}
+  .top-grid{grid-template-columns:1fr 1fr 1fr}
   .main{grid-template-columns:1fr}
-  .list{max-height:300px}
+  .image-box{min-height:220px}
+  .keypad{min-height:320px}
 }
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="top">
+  <header class="top">
     <div class="title-row">
       <div class="logo">T999 LAN USB - SUBKEY</div>
       <div class="conn"><span id="dot" class="dot"></span><span id="conn">กำลังเชื่อมต่อ...</span></div>
     </div>
     <div class="top-grid">
-      <div><label>เอเยนต์</label><select id="agent"></select></div>
-      <div><label>เลขที่ใบ</label><input id="paperNo" placeholder="ไม่ใส่ก็ได้"></div>
-      <div><label>ตลาด</label><select id="marketSelect"><option value="thai">ไทย</option><option value="lao">ลาว</option></select></div>
-      <div><label>โหมด</label><select id="mode"><option value="paper">Paper</option><option value="image">Image Queue</option></select></div>
-      <div><label>เครื่อง</label><input id="machineName" placeholder="Subkey-01"></div>
+      <div>
+        <label>เอเยนต์</label>
+        <select id="agent"></select>
+      </div>
+      <div>
+        <label>เลขที่ใบ / Paper No.</label>
+        <input id="paperNo" placeholder="ไม่ใส่ก็ได้">
+      </div>
+      <div>
+        <label>ตลาด</label>
+        <select id="marketSelect">
+          <option value="thai">ไทย</option>
+          <option value="lao">ลาว</option>
+        </select>
+      </div>
+      <div>
+        <label>โหมด</label>
+        <select id="mode">
+          <option value="paper">Paper Mode</option>
+          <option value="image">Image Queue</option>
+        </select>
+      </div>
+      <div>
+        <label>เครื่อง / ผู้คีย์</label>
+        <input id="machineName" placeholder="Subkey-01">
+      </div>
+      <button class="save-top" onclick="saveSlip()">📁 เก็บเข้าแฟ้ม</button>
     </div>
-  </div>
+  </header>
 
-  <div class="main">
-    <div class="left">
-      <div class="list-panel">
-        <div class="list-head"><span>รายการใบปัจจุบัน</span><span id="countText">0 รายการ</span></div>
-        <div class="tbl-head">
-          <span>เลข</span><span>บน</span><span>โต๊ด</span><span>ล่าง</span><span class="na-col">หน้า</span><span></span>
+  <main class="main">
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">รูปโพย</div>
+        <span class="tag">Image Queue</span>
+      </div>
+      <div class="image-zone">
+        <div class="image-box">
+          ช่องดูรูปโพยทางซ้าย<br>
+          Step นี้ยังเป็นช่องเตรียมไว้ก่อน<br><br>
+          ต่อไปจะเพิ่ม:<br>
+          รับคิวรูป / ซูม / เลื่อน / หมุนรูป / เก็บรูปต้นฉบับ
         </div>
-        <div id="list" class="list"><div class="empty">ยังไม่มีรายการ</div></div>
-        <div class="total"><span>ยอดรวมใบนี้</span><b id="totalText">฿0</b></div>
+        <div class="image-tools">
+          <button class="small-btn" onclick="alert('Step ถัดไปจะเพิ่มเลือกคิวรูป')">เลือกรูป/คิว</button>
+          <button class="small-btn" onclick="alert('Step ถัดไปจะเพิ่มซูมรูป')">ซูม/เลื่อน</button>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <div class="right">
-      <div class="status-line" id="statusLine">กำลังคีย์</div>
-
-      <div class="display">
-        <div id="screen">—</div>
-        <div id="hint">กดเลข<br>แล้ว ↵</div>
+    <section class="panel list-panel">
+      <div class="panel-head">
+        <div class="panel-title">📋 รายการ — <span id="agentNameTop">เอ</span></div>
+        <span class="list-note" id="setText">ชุดที่ 1 — กำลังคีย์</span>
       </div>
-
-      <div id="typeRow" class="type-row">
-        <button id="slot-bon" class="tbtn">บน</button>
-        <button id="slot-tod" class="tbtn">โต๊ด</button>
-        <button id="slot-lang" class="tbtn">ล่าง</button>
-        <button id="slot-na" class="tbtn na-col">หน้า</button>
+      <div class="tbl-head">
+        <span>เลข</span>
+        <span>บน</span>
+        <span>โต๊ด</span>
+        <span>ล่าง</span>
+        <span class="na-col">หน้า</span>
+        <span>รวม</span>
+        <span></span>
       </div>
-
-      <div class="keypad">
-        <button class="key top" onclick="pressSlash()">/</button>
-        <button class="key pin" onclick="openPin()">📌</button>
-        <button class="key minus" onclick="pressMinus()">−</button>
-        <button class="key del" onclick="backspace()">⌫</button>
-
-        <button class="key" onclick="pressDigit('7')">7</button>
-        <button class="key" onclick="pressDigit('8')">8</button>
-        <button class="key" onclick="pressDigit('9')">9</button>
-        <button class="key plus" onclick="commit()">+</button>
-
-        <button class="key" onclick="pressDigit('4')">4</button>
-        <button class="key" onclick="pressDigit('5')">5</button>
-        <button class="key" onclick="pressDigit('6')">6</button>
-
-        <button class="key" onclick="pressDigit('1')">1</button>
-        <button class="key" onclick="pressDigit('2')">2</button>
-        <button class="key" onclick="pressDigit('3')">3</button>
-        <button class="key enter" onclick="enterKey()">↵</button>
-
-        <button class="key zero" onclick="pressDigit('0')">0</button>
-        <button class="key dot" onclick="dotKey()">.</button>
+      <div id="list" class="list"><div class="empty">ยังไม่มีรายการ</div></div>
+      <div class="total-bar">
+        <span id="countText">0 รายการ</span>
+        <b id="totalText">฿0</b>
       </div>
+    </section>
 
-      <div class="action-row">
-        <button class="action save" onclick="saveSlip()">เก็บใบ ส่งเข้า Master</button>
-        <button class="action clear" onclick="clearAllCurrent()">ล้างใบ</button>
+    <section class="panel key-panel">
+      <div class="panel-head">
+        <div class="panel-title">⌨️ คีย์เลข — <span id="agentNameKey">เอ</span></div>
+        <span class="fk">⚡ FK✓</span>
       </div>
+      <div class="key-body">
+        <div class="ticket-title" id="ticketTitle">คีย์เลขของ เอ - ชุดที่ 1</div>
 
-      <div class="help">
-        ตัวอย่าง: <code>21 ↵ 100 +</code> = 21 บน 100<br>
-        <code>21 ↵ 100 ↵ 100 +</code> = 21 บน 100 / ล่าง 100<br>
-        <code>21 ↵ 100 . 100 +</code> = 21/12 บน 100 + 21 ล่าง 100<br>
-        <code>/</code> คั่นเลข, <code>.</code> กลับ/ชุด, <code>*</code> ปักหลัก
+        <div class="display">
+          <div id="screen">—</div>
+          <div id="hint">กดเลข<br>แล้ว ↵</div>
+        </div>
+
+        <div class="short-help">
+          ข้ามประเภท · กลับ/ชุด = <b>.</b> · ปัก = <b>*</b> · เพิ่มรายการ = <b>+</b><br>
+          ตัวอย่าง: <b>21 Enter 100 +</b> = 21 บน 100
+        </div>
+
+        <div id="typeRow" class="type-row">
+          <button id="slot-bon" class="tbtn">บน</button>
+          <button id="slot-tod" class="tbtn">โต๊ด</button>
+          <button id="slot-lang" class="tbtn">ล่าง</button>
+          <button id="slot-na" class="tbtn na-col">หน้า</button>
+        </div>
+
+        <div class="keypad">
+          <button class="key top" onclick="pressSlash()">/</button>
+          <button class="key pin" onclick="openPin()">📌</button>
+          <button class="key minus" onclick="pressMinus()">−</button>
+          <button class="key del" onclick="backspace()">⌫</button>
+
+          <button class="key" onclick="pressDigit('7')">7</button>
+          <button class="key" onclick="pressDigit('8')">8</button>
+          <button class="key" onclick="pressDigit('9')">9</button>
+          <button class="key plus" onclick="commit()">+</button>
+
+          <button class="key" onclick="pressDigit('4')">4</button>
+          <button class="key" onclick="pressDigit('5')">5</button>
+          <button class="key" onclick="pressDigit('6')">6</button>
+
+          <button class="key" onclick="pressDigit('1')">1</button>
+          <button class="key" onclick="pressDigit('2')">2</button>
+          <button class="key" onclick="pressDigit('3')">3</button>
+          <button class="key enter" onclick="enterKey()">↵</button>
+
+          <button class="key zero" onclick="pressDigit('0')">0</button>
+          <button class="key dot" onclick="dotKey()">.</button>
+        </div>
+
+        <div class="action-grid">
+          <button class="action save" onclick="saveSlip()">📁 เก็บใบ ส่งเข้า Master</button>
+          <button class="action clear" onclick="clearAllCurrent()">× ล้าง</button>
+        </div>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 </div>
 
 <div id="pinModal" class="modal">
@@ -239,10 +647,13 @@ kbd,code{background:#080b13;border:1px solid #30364a;border-radius:6px;padding:1
         <button id="pinTypeBon" onclick="setPinType('bon')">บน</button>
         <button id="pinTypeLang" onclick="setPinType('lang')">ล่าง</button>
       </div>
+
       <div class="lbl">ตำแหน่ง</div>
       <div id="pinPosWrap" class="seg pos3"></div>
+
       <div class="lbl">ราคา</div>
       <input id="pinPrice" class="pin-price" inputmode="numeric" value="">
+
       <div class="actions">
         <button class="cancel" onclick="closePin()">ยกเลิก</button>
         <button class="add" onclick="addPin()">+ เพิ่มรายการ</button>
@@ -290,7 +701,7 @@ let market = localStorage.getItem("t999_market") || "thai";
 let rules = MARKET_RULES[market];
 
 let leksText = '';
-let phase = 'lek';
+let phase = 'lek'; // lek | price
 let slots = [];
 let slotIndex = 0;
 let priceBuf = '';
@@ -307,6 +718,8 @@ document.body.classList.toggle('lao-mode', market === 'lao');
 machineEl.value = localStorage.getItem("t999_subkey_machine") || "Subkey-01";
 
 machineEl.addEventListener("input", () => localStorage.setItem("t999_subkey_machine", machineEl.value));
+agentEl.addEventListener("change", updateAgentLabels);
+
 marketEl.addEventListener("change", () => {
   market = marketEl.value;
   rules = MARKET_RULES[market];
@@ -329,6 +742,7 @@ function normalizeLeksText(){
   const rest = parts.slice(1).join('').replace(/\D/g,'');
   const len = first.length;
   if(!len) return leksText;
+
   let chunks = [first];
   for(let i=0;i<rest.length;i+=len){
     const c = rest.slice(i,i+len);
@@ -387,6 +801,7 @@ function enterKey(){
     render();
     return;
   }
+
   saveCurrentPrice();
   moveNextOrCommit();
   render();
@@ -397,16 +812,21 @@ function dotKey(){
     enterKey();
     return;
   }
+
   const slot = currentSlot();
   if(!slot) return;
+
   if(priceBuf !== ''){
     slot.price = priceBuf;
     priceBuf = '';
   }
+
   slot.rev = true;
+
   if(slotIndex < slots.length - 1){
     slotIndex++;
   }
+
   render();
 }
 
@@ -430,7 +850,7 @@ function pressSlash(){
 }
 
 function pressMinus(){
-  alert('ปุ่ม - รอผูก logic ขั้นถัดไป');
+  alert('ปุ่ม - รอผูก logic ส่งออก/แก้รายการใน Step ถัดไป');
 }
 
 function backspace(){
@@ -478,6 +898,7 @@ function expandReverseWithRole(num){
       {lek:r, role:'follow'}
     ];
   }
+
   const perms = uniquePermutations(num);
   const out = [];
   out.push({lek:num, role:'main'});
@@ -490,17 +911,20 @@ function expandReverseWithRole(num){
 function uniquePermutations(str){
   const arr = str.split('');
   const out = new Set();
+
   function perm(path, rest){
     if(!rest.length){
       out.add(path.join(''));
       return;
     }
+
     for(let i=0;i<rest.length;i++){
       const next = rest.slice();
       const ch = next.splice(i,1)[0];
       perm(path.concat(ch), next);
     }
   }
+
   perm([], arr);
   return Array.from(out);
 }
@@ -509,24 +933,40 @@ function commit(){
   if(phase === 'price'){
     saveCurrentPrice();
   }
+
   const leks = getLeks();
   if(!leks.length) return alert('ยังไม่มีเลข');
+
   if(!slots.length){
     buildSlots();
   }
+
   const active = slots.filter(s => Number(s.price) > 0);
   if(!active.length) return alert('ยังไม่มีราคา');
 
   leks.forEach(lek => {
     active.forEach(s => {
       const amount = Number(s.price);
+
       if(s.rev){
         const targets = expandReverseWithRole(lek);
         targets.forEach(obj => {
-          items.push({lek:obj.lek,type:s.type,amount,role:obj.role,note:lek.length === 2 ? 'กลับ' : 'ชุด'});
+          items.push({
+            lek:obj.lek,
+            type:s.type,
+            amount,
+            role:obj.role,
+            note:lek.length === 2 ? 'กลับ' : 'ชุด'
+          });
         });
       }else{
-        items.push({lek,type:s.type,amount,role:'main',note:''});
+        items.push({
+          lek,
+          type:s.type,
+          amount,
+          role:'main',
+          note:''
+        });
       }
     });
   });
@@ -552,6 +992,7 @@ function render(){
       return s.price || '';
     });
     screen.textContent = left + priceParts.join('×');
+
     hint.innerHTML = slot
       ? 'ราคา: ' + LABEL[slot.type] + '<br>' + (slot.rev ? 'กลับ/ชุด ON' : 'กด . = กลับ/ชุด')
       : 'ไม่มี slot';
@@ -589,31 +1030,42 @@ function isTypeVisibleBeforePrice(t){
 }
 
 function renderStatus(){
-  const el = document.getElementById('statusLine');
+  const el = document.getElementById('ticketTitle');
+
   if(phase === 'lek'){
-    el.textContent = 'กำลังคีย์เลข — โหมด ' + rules.name;
+    el.textContent = 'คีย์เลขของ ' + getAgentNameShort() + ' - ชุดที่ 1 - กำลังคีย์';
   }else{
     const slot = currentSlot();
     const d = currentDigits();
     el.textContent = slot
-      ? 'กำลังใส่ราคา: ' + LABEL[slot.type] + ' | ' + d + ' หลัก | ' + rules.name
+      ? 'ใส่ราคา: ' + LABEL[slot.type] + ' | ' + d + ' หลัก | ' + rules.name
       : 'กำลังใส่ราคา';
   }
 }
 
 function renderList(){
   const list = document.getElementById('list');
+
   if(!items.length){
     list.innerHTML = '<div class="empty">ยังไม่มีรายการ</div>';
     window._renderGroups = [];
   }else{
     const grouped = [];
+
     items.forEach((it, originalIndex) => {
       let found = grouped.find(g => g.lek === it.lek && g.role === it.role && g.note === it.note);
+
       if(!found){
-        found = {lek:it.lek,role:it.role,note:it.note,amounts:{bon:null,tod:null,lang:null,na:null},indexes:[]};
+        found = {
+          lek: it.lek,
+          role: it.role,
+          note: it.note,
+          amounts: {bon:null,tod:null,lang:null,na:null},
+          indexes: []
+        };
         grouped.push(found);
       }
+
       found.amounts[it.type] = (found.amounts[it.type] || 0) + Number(it.amount || 0);
       found.indexes.push(originalIndex);
     });
@@ -621,8 +1073,21 @@ function renderList(){
     list.innerHTML = grouped.map((g,gi)=>{
       const isPin = g.note === 'ปัก';
       const lekClass = isPin ? 'pinlek' : (g.role === 'follow' ? 'follow' : '');
-      function money(t){return g.amounts[t] ? g.amounts[t].toLocaleString() : '-'}
-      function has(t){return g.amounts[t] ? 'has' : ''}
+
+      function money(t){
+        return g.amounts[t] ? g.amounts[t].toLocaleString() : '-';
+      }
+
+      function has(t){
+        return g.amounts[t] ? 'has' : '';
+      }
+
+      const rowSum =
+        Number(g.amounts.bon || 0) +
+        Number(g.amounts.tod || 0) +
+        Number(g.amounts.lang || 0) +
+        Number(g.amounts.na || 0);
+
       return `
         <div class="row">
           <div class="lek ${lekClass}">${escapeHtml(g.lek)}</div>
@@ -630,57 +1095,84 @@ function renderList(){
           <div class="cell tod ${has('tod')}">${money('tod')}</div>
           <div class="cell lang ${has('lang')}">${money('lang')}</div>
           <div class="cell na na-col ${has('na')}">${money('na')}</div>
-          <button onclick="removeGroup(${gi})">×</button>
+          <div class="sum-cell">${rowSum.toLocaleString()}</div>
+          <button class="del-btn" onclick="removeGroup(${gi})">×</button>
         </div>
       `;
     }).join('');
+
     window._renderGroups = grouped;
   }
 
   const total = items.reduce((s,x)=>s+Number(x.amount || 0),0);
   document.getElementById('totalText').textContent = '฿' + total.toLocaleString();
   document.getElementById('countText').textContent = items.length + ' รายการ';
+  document.getElementById('setText').textContent = 'ชุดที่ 1 — กำลังคีย์';
 }
 
 function removeGroup(groupIndex){
   const g = window._renderGroups && window._renderGroups[groupIndex];
   if(!g) return;
+
   items = items.filter((_,idx) => !g.indexes.includes(idx));
   renderList();
 }
 
+/* ===== PIN / ปักหลัก ===== */
+
 function openPin(){
-  const digit = phase === 'lek' ? (leksText.replace(/\D/g,'').slice(-1) || '') : '';
+  const digit = phase === 'lek'
+    ? (leksText.replace(/\D/g,'').slice(-1) || '')
+    : '';
+
   if(!digit || digit.length !== 1){
     alert('ปักหลักต้องกดเลข 1 ตัวก่อน เช่น 4 แล้วกดปัก');
     return;
   }
+
   document.getElementById('pinNum').textContent = digit;
   document.getElementById('pinPrice').value = '';
+
   pin.type = 'bon';
   pin.positions = {hundred:true,ten:true,unit:true};
+
   renderPin();
   document.getElementById('pinModal').classList.add('show');
   setTimeout(()=>document.getElementById('pinPrice').focus(),100);
 }
 
-function closePin(){document.getElementById('pinModal').classList.remove('show')}
+function closePin(){
+  document.getElementById('pinModal').classList.remove('show');
+}
+
 function setPinType(t){
   pin.type = t;
-  pin.positions = t === 'bon' ? {hundred:true,ten:true,unit:true} : {ten:true,unit:true};
+  if(t === 'bon'){
+    pin.positions = {hundred:true,ten:true,unit:true};
+  }else{
+    pin.positions = {ten:true,unit:true};
+  }
   renderPin();
 }
+
 function togglePinPos(p){
   pin.positions[p] = !pin.positions[p];
+
   const hasAny = Object.keys(pin.positions).some(k => pin.positions[k]);
-  if(!hasAny) pin.positions[p] = true;
+  if(!hasAny){
+    pin.positions[p] = true;
+  }
+
   renderPin();
 }
+
 function renderPin(){
   document.getElementById('pinTypeBon').className = pin.type === 'bon' ? 'on' : '';
   document.getElementById('pinTypeLang').className = pin.type === 'lang' ? 'on' : '';
+
   const digit = document.getElementById('pinNum').textContent;
   const wrap = document.getElementById('pinPosWrap');
+
   if(pin.type === 'bon'){
     wrap.className = 'seg pos3';
     wrap.innerHTML = `
@@ -696,15 +1188,18 @@ function renderPin(){
     `;
   }
 }
+
 function addPin(){
   const digit = document.getElementById('pinNum').textContent;
   const price = Number(document.getElementById('pinPrice').value || 0);
   if(!price) return alert('ใส่ราคาปักก่อน');
+
   const selectedPositions = Object.keys(pin.positions).filter(k => pin.positions[k]);
   if(!selectedPositions.length) return alert('เลือกตำแหน่งปักก่อน');
 
   selectedPositions.forEach(pos => {
     let lek = '';
+
     if(pin.type === 'bon'){
       if(pos === 'hundred') lek = digit + 'ร้อย';
       if(pos === 'ten') lek = digit + 'สิบ';
@@ -713,13 +1208,22 @@ function addPin(){
       if(pos === 'ten') lek = digit + 'สิบ';
       if(pos === 'unit') lek = digit + 'หน่วย';
     }
-    items.push({lek,type:pin.type,amount:price,role:'main',note:'ปัก'});
+
+    items.push({
+      lek,
+      type: pin.type,
+      amount: price,
+      role:'main',
+      note:'ปัก'
+    });
   });
 
   closePin();
   clearBuffer();
   renderList();
 }
+
+/* ===== LAN SAVE ===== */
 
 function toServerItems(){
   return items.map((it,index)=>({
@@ -752,6 +1256,7 @@ async function saveSlip(){
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify(payload)
   });
+
   const data = await res.json();
   if(!data.ok) return alert(data.error || "บันทึกไม่สำเร็จ");
 
@@ -766,12 +1271,32 @@ async function loadAgents(){
   const res = await fetch("/api/agents");
   const agents = await res.json();
   agentEl.innerHTML = agents.map(a=>`<option value="${escapeHtml(a.id)}">${escapeHtml(a.name)}</option>`).join("");
+  updateAgentLabels();
+}
+
+function updateAgentLabels(){
+  const name = getAgentNameShort();
+  document.getElementById('agentNameTop').textContent = name;
+  document.getElementById('agentNameKey').textContent = name;
+  document.getElementById('ticketTitle').textContent = 'คีย์เลขของ ' + name + ' - ชุดที่ 1';
+}
+
+function getAgentNameShort(){
+  const opt = agentEl.options[agentEl.selectedIndex];
+  if(!opt) return 'เอ';
+  return opt.textContent.replace('เอเยนต์','').trim() || opt.textContent;
 }
 
 function connect(){
   const es = new EventSource("/api/events");
-  es.onopen = () => {dot.classList.add("on");conn.textContent="เชื่อมต่อ Server แล้ว"};
-  es.onerror = () => {dot.classList.remove("on");conn.textContent="หลุดการเชื่อมต่อ"};
+  es.onopen = () => {
+    dot.classList.add("on");
+    conn.textContent = "เชื่อมต่อ Server แล้ว";
+  };
+  es.onerror = () => {
+    dot.classList.remove("on");
+    conn.textContent = "หลุดการเชื่อมต่อ";
+  };
 }
 
 function escapeHtml(s){
@@ -780,15 +1305,35 @@ function escapeHtml(s){
 
 document.addEventListener('keydown', e=>{
   if(e.target && ['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
-  if(e.key >= '0' && e.key <= '9'){e.preventDefault();pressDigit(e.key)}
-  else if(e.key === 'Enter'){e.preventDefault();enterKey()}
-  else if(e.key === '+'){e.preventDefault();commit()}
-  else if(e.key === '.'){e.preventDefault();dotKey()}
-  else if(e.key === '/'){e.preventDefault();pressSlash()}
-  else if(e.key === '*'){e.preventDefault();openPin()}
-  else if(e.key === '-'){e.preventDefault();pressMinus()}
-  else if(e.key === 'Backspace'){e.preventDefault();backspace()}
-  else if(e.key === 'Escape'){e.preventDefault();clearBuffer()}
+
+  if(e.key >= '0' && e.key <= '9'){
+    e.preventDefault();
+    pressDigit(e.key);
+  }else if(e.key === 'Enter'){
+    e.preventDefault();
+    enterKey();
+  }else if(e.key === '+'){
+    e.preventDefault();
+    commit();
+  }else if(e.key === '.'){
+    e.preventDefault();
+    dotKey();
+  }else if(e.key === '/'){
+    e.preventDefault();
+    pressSlash();
+  }else if(e.key === '*'){
+    e.preventDefault();
+    openPin();
+  }else if(e.key === '-'){
+    e.preventDefault();
+    pressMinus();
+  }else if(e.key === 'Backspace'){
+    e.preventDefault();
+    backspace();
+  }else if(e.key === 'Escape'){
+    e.preventDefault();
+    clearBuffer();
+  }
 });
 
 loadAgents();
