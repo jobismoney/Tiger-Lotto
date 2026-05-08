@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>T999 LAN USB - Master</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#111827;
+      --panel2:#1f2937;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --line:#334155;
+      --good:#22c55e;
+      --bad:#ef4444;
+      --warn:#f59e0b;
+      --blue:#38bdf8;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:linear-gradient(135deg,#020617,#111827);
+      color:var(--text);
+      font-family:Tahoma,Arial,sans-serif;
+    }
+    header{
+      padding:14px 18px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      background:rgba(15,23,42,.95);
+      position:sticky;
+      top:0;
+      z-index:5;
+    }
+    h1{font-size:20px;margin:0}
+    .status{font-size:13px;color:var(--muted);margin-top:4px}
+    .dot{
+      display:inline-block;
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:var(--bad);
+      margin-right:6px;
+    }
+    .dot.on{background:var(--good)}
+    .wrap{padding:16px;display:grid;gap:14px}
+    .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .card,.panel{
+      background:rgba(17,24,39,.92);
+      border:1px solid var(--line);
+      border-radius:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.22);
+    }
+    .card{padding:16px}
+    .label{font-size:13px;color:var(--muted)}
+    .value{font-size:28px;font-weight:800;margin-top:6px}
+    .grid{display:grid;grid-template-columns:1.25fr .9fr;gap:14px}
+    .panel{overflow:hidden}
+    .panel h2{
+      font-size:17px;
+      margin:0;
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+    }
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{
+      padding:10px 12px;
+      border-bottom:1px solid rgba(51,65,85,.75);
+      text-align:left;
+      vertical-align:top;
+    }
+    th{color:#cbd5e1;background:rgba(30,41,59,.75)}
+    .muted{color:var(--muted)}
+    .danger{color:#fecaca;font-weight:700}
+    .warn{color:#fde68a;font-weight:700}
+    .btn{
+      border:1px solid var(--line);
+      background:#1e293b;
+      color:var(--text);
+      border-radius:12px;
+      padding:9px 12px;
+      cursor:pointer;
+      font-family:Tahoma,Arial,sans-serif;
+    }
+    .btn:hover{background:#334155}
+    .tag{
+      font-size:12px;
+      border:1px solid var(--line);
+      padding:3px 8px;
+      border-radius:999px;
+      color:#cbd5e1;
+      white-space:nowrap;
+    }
+    .small{font-size:12px}
+    .scroll{max-height:420px;overflow:auto}
+    .runtime{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.5;
+      margin-top:4px;
+    }
+    code{
+      background:#020617;
+      border:1px solid #334155;
+      border-radius:8px;
+      padding:2px 6px;
+      color:#bae6fd;
+    }
+    @media(max-width:900px){
+      .cards{grid-template-columns:repeat(2,1fr)}
+      .grid{grid-template-columns:1fr}
+      header{align-items:flex-start;flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>T999 LAN USB - MASTER</h1>
+      <div class="status"><span id="dot" class="dot"></span><span id="conn">กำลังเชื่อมต่อ...</span></div>
+      <div id="runtime" class="runtime">USB Runtime / LAN Server</div>
+    </div>
+    <button class="btn" onclick="resetDemo()">ล้างข้อมูลทดลอง</button>
+  </header>
+
+  <main class="wrap">
+    <section class="cards">
+      <div class="card">
+        <div class="label">บัญชียอดรวมทั้งหมด</div>
+        <div id="mainTotal" class="value">0</div>
+        <div id="mainSlip" class="muted small">0 ใบ</div>
+      </div>
+      <div class="card">
+        <div class="label">บัญชียอดส่งออก / ส่งนอก</div>
+        <div id="outTotal" class="value">0</div>
+        <div class="muted small">แยกบัญชี ไม่หักยอดรวมหลัก</div>
+      </div>
+      <div class="card">
+        <div class="label">เลขเกิน Limit</div>
+        <div id="overCount" class="value">0</div>
+        <div class="muted small">Step 1 ใช้ limit ทดลอง 1,000</div>
+      </div>
+      <div class="card">
+        <div class="label">จำนวนเอเยนต์ที่มีโพย</div>
+        <div id="agentCount" class="value">0</div>
+        <div class="muted small">รับจาก Subkey real-time</div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>ยอดรวมแยกเลขแบบ Real-time <span class="tag">บัญชีที่ 1</span></h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>ตลาด</th>
+                <th>ประเภท</th>
+                <th>เลข</th>
+                <th>ยอดรับ</th>
+                <th>ส่งออกแล้ว</th>
+                <th>เกินใหม่</th>
+              </tr>
+            </thead>
+            <tbody id="totalsRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>เลขเกิน / ต้องพิจารณาส่งออก <span class="tag">Real-time</span></h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>เลข</th>
+                <th>ประเภท</th>
+                <th>ยอดรับ</th>
+                <th>เกิน</th>
+              </tr>
+            </thead>
+            <tbody id="overRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>ใบโพยเข้าใหม่จาก Subkey <span class="tag">หลังเก็บใบ Subkey แก้ไม่ได้</span></h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>เวลา</th>
+                <th>เอเยนต์</th>
+                <th>เลขที่ใบ</th>
+                <th>เครื่อง</th>
+                <th>รายการ</th>
+              </tr>
+            </thead>
+            <tbody id="slipRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>สรุปเอเยนต์ <span class="tag">จากยอดรับทั้งหมด</span></h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>เอเยนต์</th>
+                <th>จำนวนใบ</th>
+                <th>ยอดรวม</th>
+              </tr>
+            </thead>
+            <tbody id="agentRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+  const fmt = new Intl.NumberFormat("th-TH");
+  const dot = document.getElementById("dot");
+  const conn = document.getElementById("conn");
+  const runtime = document.getElementById("runtime");
+
+  function money(n){
+    return fmt.format(Number(n || 0));
+  }
+
+  function esc(s){
+    return String(s ?? "").replace(/[&<>"']/g, m => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    }[m]));
+  }
+
+  function render(data){
+    document.getElementById("mainTotal").textContent = money(data.accountMain?.totalAmount);
+    document.getElementById("mainSlip").textContent = `${money(data.accountMain?.slipCount)} ใบ`;
+    document.getElementById("outTotal").textContent = money(data.accountOutbound?.totalAmount);
+    document.getElementById("overCount").textContent = money(data.overLimit?.length);
+    document.getElementById("agentCount").textContent = money(data.agentTotals?.length);
+
+    if(data.runtime){
+      const ips = data.runtime.ips || [];
+      runtime.innerHTML = `
+        รันจาก: <code>${esc(data.runtime.root || "")}</code><br>
+        Master/Subkey LAN: ${ips.length ? ips.map(ip => `<code>http://${ip}:${data.runtime.port}</code>`).join(" ") : "ยังไม่พบ IP LAN"}
+      `;
+    }
+
+    document.getElementById("totalsRows").innerHTML = (data.totalsByNumber || []).map(r => `
+      <tr>
+        <td>${esc(r.market)}</td>
+        <td>${esc(r.type)}</td>
+        <td><b>${esc(r.number)}</b></td>
+        <td>${money(r.amount)}</td>
+        <td>${money(r.outboundAmount)}</td>
+        <td class="${r.overAmount > 0 ? 'warn' : 'muted'}">${money(r.overAmount)}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="6" class="muted">ยังไม่มีข้อมูล</td></tr>`;
+
+    document.getElementById("overRows").innerHTML = (data.overLimit || []).map(r => `
+      <tr>
+        <td><b>${esc(r.number)}</b></td>
+        <td>${esc(r.type)}</td>
+        <td>${money(r.amount)}</td>
+        <td class="danger">${money(r.overAmount)}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="4" class="muted">ยังไม่มีเลขเกิน</td></tr>`;
+
+    document.getElementById("slipRows").innerHTML = (data.slips || []).slice(0,80).map(s => `
+      <tr>
+        <td class="small">${new Date(s.createdAt).toLocaleString("th-TH")}</td>
+        <td>${esc(s.agentName || s.agentId)}</td>
+        <td>${esc(s.paperNo || "-")}</td>
+        <td>${esc(s.machineName || "-")}</td>
+        <td>${(s.items || []).map(i => `${esc(i.number)} ${esc(i.type)} ${money(i.amount)}`).join("<br>")}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="5" class="muted">ยังไม่มีใบโพยเข้า</td></tr>`;
+
+    document.getElementById("agentRows").innerHTML = (data.agentTotals || []).map(a => `
+      <tr>
+        <td>${esc(a.agentName)}</td>
+        <td>${money(a.slipCount)}</td>
+        <td>${money(a.amount)}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="3" class="muted">ยังไม่มีข้อมูลเอเยนต์</td></tr>`;
+  }
+
+  function connect(){
+    const es = new EventSource("/api/events");
+
+    es.onopen = () => {
+      dot.classList.add("on");
+      conn.textContent = "เชื่อมต่อ Master Server แล้ว";
+    };
+
+    es.onmessage = ev => {
+      render(JSON.parse(ev.data));
+    };
+
+    es.onerror = () => {
+      dot.classList.remove("on");
+      conn.textContent = "หลุดการเชื่อมต่อ กำลังรอเชื่อมใหม่...";
+    };
+  }
+
+  async function resetDemo(){
+    if(!confirm("ล้างข้อมูลทดลองทั้งหมดใน slips/outbound ใช่ไหม?")) return;
+    await fetch("/api/reset-demo", { method:"POST" });
+  }
+
+  connect();
+</script>
+</body>
+</html>
