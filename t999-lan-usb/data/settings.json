@@ -1,0 +1,22 @@
+{
+  "appName": "T999 LAN USB",
+  "step": "1",
+  "runtime": "usb-lan-offline",
+  "demoLimit": 1000,
+  "ui": {
+    "subkeyDefaultPreset": "standard",
+    "masterDefaultView": "dashboard"
+  },
+  "rules": {
+    "separateAccounts": true,
+    "doNotSubtractOutboundFromMainAccount": true,
+    "printedDocumentAvoidWord": "ตัดเลข",
+    "printedDocumentUseWords": [
+      "ส่งนอก",
+      "ส่งเจ้า A",
+      "โพยส่ง",
+      "ใบส่ง"
+    ]
+  },
+  "note": "Step 1: USB เป็นที่เก็บโปรแกรม/ข้อมูล, LAN เป็นทางเชื่อม Master/Subkey แบบ real-time"
+}
