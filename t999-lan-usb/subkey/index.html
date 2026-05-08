@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>T999 LAN USB - Subkey Real Layout</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T999 LAN USB - Subkey Real Layout V2</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -80,7 +80,7 @@ body.lao-mode #slot-na{display:none!important}
 .dot.on{background:var(--ok)}
 .top-grid{
   display:grid;
-  grid-template-columns:1.1fr .65fr .65fr .65fr .75fr .9fr;
+  grid-template-columns:1.1fr .65fr .65fr .65fr .75fr .85fr;
   gap:7px;
   align-items:end;
 }
@@ -112,13 +112,16 @@ select,input{
   cursor:pointer;
 }
 
+/* IMPORTANT: keep 3 zones side-by-side by default */
 .main{
   min-height:0;
   display:grid;
-  grid-template-columns:360px 1fr 370px;
+  grid-template-columns:minmax(280px, 360px) minmax(460px, 1fr) minmax(330px, 370px);
   gap:8px;
   padding:8px;
+  align-items:stretch;
 }
+.main > section{min-width:0}
 
 /* Panels */
 .panel{
@@ -160,10 +163,12 @@ select,input{
   padding:10px;
   height:100%;
   min-height:0;
+  display:flex;
+  flex-direction:column;
 }
 .image-box{
-  height:100%;
-  min-height:360px;
+  flex:1;
+  min-height:260px;
   border:1px dashed #475569;
   border-radius:12px;
   display:flex;
@@ -249,6 +254,7 @@ select,input{
   align-items:center;
   justify-content:center;
   border-right:1px solid #202637;
+  min-width:0;
 }
 .lek{
   justify-content:flex-start!important;
@@ -331,45 +337,6 @@ select,input{
   gap:8px;
   height:100%;
 }
-.status-line{
-  background:#171923;
-  border:1px solid #242b3d;
-  border-radius:8px;
-  padding:8px 9px;
-  color:var(--gold);
-  font-size:13px;
-  font-weight:900;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.display{
-  min-height:66px;
-  border:2px solid var(--line2);
-  border-radius:12px;
-  background:#070a12;
-  padding:8px 11px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-}
-#screen{
-  color:var(--gold);
-  font-size:32px;
-  font-weight:900;
-  letter-spacing:1px;
-  line-height:1.05;
-  word-break:break-all;
-}
-#hint{
-  min-width:84px;
-  text-align:right;
-  color:var(--muted);
-  font-size:11px;
-  font-weight:900;
-  line-height:1.45;
-}
 .short-help{
   color:#8f9bb2;
   font-size:11px;
@@ -397,6 +364,34 @@ select,input{
 .tbtn.done:after{content:"✓";position:absolute;right:6px;top:4px;font-size:10px;color:var(--gold)}
 .tbtn.rev:before{content:"กลับ";position:absolute;left:4px;bottom:2px;font-size:9px;color:var(--gold)}
 .tbtn.rev3:before{content:"ชุด";position:absolute;left:4px;bottom:2px;font-size:9px;color:var(--gold)}
+
+.display{
+  min-height:66px;
+  border:2px solid var(--line2);
+  border-radius:12px;
+  background:#070a12;
+  padding:8px 11px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+#screen{
+  color:var(--gold);
+  font-size:32px;
+  font-weight:900;
+  letter-spacing:1px;
+  line-height:1.05;
+  word-break:break-all;
+}
+#hint{
+  min-width:84px;
+  text-align:right;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:900;
+  line-height:1.45;
+}
 
 .keypad{
   display:grid;
@@ -487,13 +482,32 @@ select,input{
 .cancel{background:#111827;color:#667085}
 .add{background:linear-gradient(135deg,var(--gold),#c9a010);color:#111}
 
-@media(max-width:1200px){
+/* responsive rules:
+   1) keep 3 zones for most desktop widths
+   2) switch to 2+1 only on narrower screens
+   3) stack only on mobile/tablet */
+@media(max-width:1350px){
+  .main{
+    grid-template-columns:minmax(250px, 320px) minmax(420px, 1fr) minmax(300px, 340px);
+  }
+  .top-grid{
+    grid-template-columns:1fr 1fr 1fr;
+  }
+}
+@media(max-width:980px){
   html,body{overflow:auto}
   .app{height:auto;min-height:100vh}
-  .top-grid{grid-template-columns:1fr 1fr 1fr}
-  .main{grid-template-columns:1fr}
+  .main{
+    grid-template-columns:1fr;
+  }
+  .top-grid{
+    grid-template-columns:1fr 1fr;
+  }
   .image-box{min-height:220px}
   .keypad{min-height:320px}
+}
+@media(max-width:620px){
+  .top-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -544,8 +558,8 @@ select,input{
       <div class="image-zone">
         <div class="image-box">
           ช่องดูรูปโพยทางซ้าย<br>
-          Step นี้ยังเป็นช่องเตรียมไว้ก่อน<br><br>
-          ต่อไปจะเพิ่ม:<br>
+          ตอนนี้ปรับให้ layout เรียง 3 โซนแนวนอนก่อนแล้ว<br><br>
+          Step ถัดไปค่อยเพิ่ม:<br>
           รับคิวรูป / ซูม / เลื่อน / หมุนรูป / เก็บรูปต้นฉบับ
         </div>
         <div class="image-tools">
@@ -701,7 +715,7 @@ let market = localStorage.getItem("t999_market") || "thai";
 let rules = MARKET_RULES[market];
 
 let leksText = '';
-let phase = 'lek'; // lek | price
+let phase = 'lek';
 let slots = [];
 let slotIndex = 0;
 let priceBuf = '';
@@ -917,7 +931,6 @@ function uniquePermutations(str){
       out.add(path.join(''));
       return;
     }
-
     for(let i=0;i<rest.length;i++){
       const next = rest.slice();
       const ch = next.splice(i,1)[0];
@@ -1118,8 +1131,6 @@ function removeGroup(groupIndex){
   renderList();
 }
 
-/* ===== PIN / ปักหลัก ===== */
-
 function openPin(){
   const digit = phase === 'lek'
     ? (leksText.replace(/\D/g,'').slice(-1) || '')
@@ -1157,12 +1168,8 @@ function setPinType(t){
 
 function togglePinPos(p){
   pin.positions[p] = !pin.positions[p];
-
   const hasAny = Object.keys(pin.positions).some(k => pin.positions[k]);
-  if(!hasAny){
-    pin.positions[p] = true;
-  }
-
+  if(!hasAny) pin.positions[p] = true;
   renderPin();
 }
 
@@ -1199,7 +1206,6 @@ function addPin(){
 
   selectedPositions.forEach(pos => {
     let lek = '';
-
     if(pin.type === 'bon'){
       if(pos === 'hundred') lek = digit + 'ร้อย';
       if(pos === 'ten') lek = digit + 'สิบ';
@@ -1222,8 +1228,6 @@ function addPin(){
   clearBuffer();
   renderList();
 }
-
-/* ===== LAN SAVE ===== */
 
 function toServerItems(){
   return items.map((it,index)=>({
