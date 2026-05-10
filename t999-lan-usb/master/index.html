@@ -1,333 +1,2974 @@
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>T999 LAN USB - Master</title>
-  <style>
-    :root{
-      --bg:#0f172a;
-      --panel:#111827;
-      --panel2:#1f2937;
-      --text:#e5e7eb;
-      --muted:#9ca3af;
-      --line:#334155;
-      --good:#22c55e;
-      --bad:#ef4444;
-      --warn:#f59e0b;
-      --blue:#38bdf8;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      background:linear-gradient(135deg,#020617,#111827);
-      color:var(--text);
-      font-family:Tahoma,Arial,sans-serif;
-    }
-    header{
-      padding:14px 18px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      gap:12px;
-      align-items:center;
-      justify-content:space-between;
-      background:rgba(15,23,42,.95);
-      position:sticky;
-      top:0;
-      z-index:5;
-    }
-    h1{font-size:20px;margin:0}
-    .status{font-size:13px;color:var(--muted);margin-top:4px}
-    .dot{
-      display:inline-block;
-      width:10px;
-      height:10px;
-      border-radius:50%;
-      background:var(--bad);
-      margin-right:6px;
-    }
-    .dot.on{background:var(--good)}
-    .wrap{padding:16px;display:grid;gap:14px}
-    .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-    .card,.panel{
-      background:rgba(17,24,39,.92);
-      border:1px solid var(--line);
-      border-radius:18px;
-      box-shadow:0 10px 30px rgba(0,0,0,.22);
-    }
-    .card{padding:16px}
-    .label{font-size:13px;color:var(--muted)}
-    .value{font-size:28px;font-weight:800;margin-top:6px}
-    .grid{display:grid;grid-template-columns:1.25fr .9fr;gap:14px}
-    .panel{overflow:hidden}
-    .panel h2{
-      font-size:17px;
-      margin:0;
-      padding:14px 16px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:8px;
-    }
-    table{width:100%;border-collapse:collapse;font-size:14px}
-    th,td{
-      padding:10px 12px;
-      border-bottom:1px solid rgba(51,65,85,.75);
-      text-align:left;
-      vertical-align:top;
-    }
-    th{color:#cbd5e1;background:rgba(30,41,59,.75)}
-    .muted{color:var(--muted)}
-    .danger{color:#fecaca;font-weight:700}
-    .warn{color:#fde68a;font-weight:700}
-    .btn{
-      border:1px solid var(--line);
-      background:#1e293b;
-      color:var(--text);
-      border-radius:12px;
-      padding:9px 12px;
-      cursor:pointer;
-      font-family:Tahoma,Arial,sans-serif;
-    }
-    .btn:hover{background:#334155}
-    .tag{
-      font-size:12px;
-      border:1px solid var(--line);
-      padding:3px 8px;
-      border-radius:999px;
-      color:#cbd5e1;
-      white-space:nowrap;
-    }
-    .small{font-size:12px}
-    .scroll{max-height:420px;overflow:auto}
-    .runtime{
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.5;
-      margin-top:4px;
-    }
-    code{
-      background:#020617;
-      border:1px solid #334155;
-      border-radius:8px;
-      padding:2px 6px;
-      color:#bae6fd;
-    }
-    @media(max-width:900px){
-      .cards{grid-template-columns:repeat(2,1fr)}
-      .grid{grid-template-columns:1fr}
-      header{align-items:flex-start;flex-direction:column}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T999 LAN USB - Master Agent File Step 4H Market Split</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070a12;
+  --panel:#111827;
+  --panel2:#1f2937;
+  --panel3:#0f172a;
+  --line:#334155;
+  --line2:#475569;
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+  --gold:#f5c518;
+  --blue:#38bdf8;
+  --green:#22c55e;
+  --red:#ef4444;
+  --orange:#fb923c;
+  --purple:#a78bfa;
+}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:Tahoma,Arial,"Sarabun",sans-serif;
+  background:linear-gradient(135deg,#020617,#111827);
+  color:var(--text);
+}
+button,input,select{font-family:Tahoma,Arial,"Sarabun",sans-serif}
+.app{
+  height:100vh;
+  display:grid;
+  grid-template-rows:auto 1fr;
+}
+
+/* TOP */
+.top{
+  background:#0f172a;
+  border-bottom:2px solid var(--gold);
+  padding:10px 12px;
+}
+.top-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:9px;
+}
+.logo{
+  color:var(--gold);
+  font-size:22px;
+  font-weight:900;
+}
+.sub{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:2px;
+}
+.conn{
+  color:var(--muted);
+  font-weight:900;
+  white-space:nowrap;
+}
+.dot{
+  width:11px;
+  height:11px;
+  display:inline-block;
+  border-radius:50%;
+  background:var(--red);
+  margin-right:7px;
+}
+.dot.on{background:var(--green)}
+.top-actions{
+  display:grid;
+  grid-template-columns:1.15fr 1fr 1fr 150px 150px;
+  gap:8px;
+}
+
+.market-filter{
+  margin-top:8px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.market-filter .label{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:900;
+}
+.market-btn{
+  height:34px;
+  border:1px solid var(--line2);
+  background:#0b1220;
+  color:#cbd5e1;
+  border-radius:999px;
+  padding:0 16px;
+  font-weight:900;
+  cursor:pointer;
+}
+.market-btn:hover{filter:brightness(1.15)}
+.market-btn.on{
+  background:var(--gold);
+  border-color:var(--gold);
+  color:#111827;
+}
+.market-note{
+  color:#94a3b8;
+  font-size:12px;
+  font-weight:900;
+}
+
+.info-box{
+  border:1px solid var(--line);
+  background:#020617;
+  border-radius:10px;
+  padding:8px 10px;
+  min-height:50px;
+}
+.info-label{
+  font-size:11px;
+  color:var(--muted);
+  font-weight:900;
+}
+.info-value{
+  margin-top:3px;
+  color:#e2e8f0;
+  font-size:14px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.btn{
+  border:1px solid var(--line2);
+  background:#1e293b;
+  color:var(--text);
+  height:36px;
+  padding:0 10px;
+  border-radius:9px;
+  font-weight:900;
+  cursor:pointer;
+}
+.btn:hover{filter:brightness(1.12)}
+.btn.green{background:#15803d;border-color:#22c55e}
+.btn.red{background:#7f1d1d;border-color:#ef4444}
+.btn.gold{background:#7c5b00;border-color:#f5c518;color:#fff7cc}
+.btn.blue{background:#0369a1;border-color:#38bdf8}
+
+/* MAIN */
+.main{
+  min-height:0;
+  padding:9px;
+  display:grid;
+  grid-template-columns:310px 1fr 430px;
+  gap:9px;
+}
+.panel{
+  min-height:0;
+  background:rgba(17,24,39,.96);
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.panel-head{
+  min-height:48px;
+  flex-shrink:0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  background:#111827;
+  border-bottom:1px solid var(--line);
+}
+.panel-title{
+  font-size:17px;
+  font-weight:900;
+  color:#e2e8f0;
+}
+.tag{
+  font-size:12px;
+  font-weight:900;
+  color:#cbd5e1;
+  border:1px solid var(--line);
+  background:#0f172a;
+  padding:4px 9px;
+  border-radius:999px;
+  white-space:nowrap;
+}
+.panel-body{
+  min-height:0;
+  flex:1;
+  overflow:auto;
+}
+
+/* LEFT AGENTS */
+.agent-search{
+  padding:10px;
+  border-bottom:1px solid var(--line);
+  background:#0b1220;
+}
+.agent-search input{
+  width:100%;
+  height:38px;
+  border:1px solid var(--line);
+  background:#020617;
+  color:#e5e7eb;
+  border-radius:10px;
+  padding:0 10px;
+  font-weight:900;
+}
+.agent-list{
+  padding:10px;
+  display:grid;
+  gap:8px;
+}
+.agent-card{
+  border:1px solid var(--line);
+  background:#0b1220;
+  border-radius:12px;
+  padding:10px;
+  cursor:pointer;
+}
+.agent-card:hover{border-color:#64748b}
+.agent-card.active{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,#1e293b,#111827);
+  box-shadow:inset 0 0 0 1px rgba(245,197,24,.25);
+}
+.agent-name{
+  font-size:16px;
+  font-weight:900;
+  color:#e2e8f0;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+}
+.agent-meta{
+  margin-top:8px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+.meta-pill{
+  background:#020617;
+  border:1px solid var(--line);
+  border-radius:9px;
+  padding:6px;
+}
+.meta-label{
+  font-size:10px;
+  color:var(--muted);
+  font-weight:900;
+}
+.meta-value{
+  margin-top:2px;
+  color:var(--gold);
+  font-size:15px;
+  font-weight:900;
+}
+.all-agent{
+  border-color:#475569;
+}
+
+/* CENTER */
+.center{
+  min-height:0;
+  display:grid;
+  grid-template-rows:auto 1fr;
+  gap:9px;
+}
+.cards{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+}
+.card{
+  background:rgba(17,24,39,.96);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:11px;
+  min-width:0;
+}
+.card .label{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.card .value{
+  margin-top:5px;
+  font-size:24px;
+  line-height:1;
+  font-weight:900;
+  color:#f8fafc;
+}
+.card.gold .value{color:var(--gold)}
+.card.green .value{color:#86efac}
+.card.red .value{color:#fecaca}
+.card.blue .value{color:#bae6fd}
+.card.purple .value{color:#ddd6fe}
+
+.slip-toolbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  padding:10px;
+  border-bottom:1px solid var(--line);
+  background:#0b1220;
+}
+.slip-toolbar input{
+  height:34px;
+  width:240px;
+  border:1px solid var(--line);
+  background:#020617;
+  color:#e5e7eb;
+  border-radius:9px;
+  padding:0 10px;
+  font-weight:900;
+}
+.slip-list{
+  padding:10px;
+  display:grid;
+  gap:8px;
+}
+.slip-card{
+  border:1px solid var(--line);
+  background:#0b1220;
+  border-radius:12px;
+  overflow:hidden;
+}
+.slip-head{
+  min-height:42px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  padding:9px 10px;
+  background:#111827;
+  border-bottom:1px solid var(--line);
+}
+.slip-title{
+  font-weight:900;
+  color:#e2e8f0;
+}
+.slip-time{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:900;
+}
+.slip-body{
+  display:grid;
+  grid-template-columns:1fr 145px;
+  gap:8px;
+  padding:10px;
+}
+.slip-items{
+  line-height:1.62;
+  color:#e5e7eb;
+}
+.slip-items b{color:#fff}
+.slip-side{
+  border-left:1px solid var(--line);
+  padding-left:10px;
+  display:grid;
+  align-content:start;
+  gap:8px;
+}
+.total-amount{
+  color:var(--gold);
+  font-size:22px;
+  font-weight:900;
+  text-align:right;
+}
+.side-small{
+  color:var(--muted);
+  font-size:12px;
+  text-align:right;
+}
+.slip-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+
+/* RIGHT */
+.right{
+  min-height:0;
+  display:grid;
+  grid-template-rows:1fr 1fr;
+  gap:9px;
+}
+.tabs{
+  display:flex;
+  gap:7px;
+}
+.tab{
+  height:30px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#0f172a;
+  color:#cbd5e1;
+  padding:0 10px;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+.tab.on{
+  background:var(--gold);
+  color:#111827;
+  border-color:var(--gold);
+}
+.view{display:none}
+.view.on{display:block;height:100%}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+th,td{
+  border-bottom:1px solid rgba(51,65,85,.85);
+  padding:9px 10px;
+  text-align:left;
+  vertical-align:top;
+}
+th{
+  position:sticky;
+  top:0;
+  z-index:1;
+  background:#1e293b;
+  color:#cbd5e1;
+  font-size:12px;
+}
+td.num,th.num{text-align:right}
+td.center,th.center{text-align:center}
+.muted{color:var(--muted)}
+.bad{color:#fecaca;font-weight:900}
+.blue{color:#bae6fd;font-weight:900}
+.gold{color:var(--gold);font-weight:900}
+.small{font-size:12px}
+.placeholder{
+  color:var(--muted);
+  text-align:center;
+  padding:28px 14px;
+  line-height:1.65;
+}
+.queue-card{
+  border:1px solid var(--line);
+  background:#0b1220;
+  border-radius:12px;
+  padding:10px;
+  margin:10px;
+}
+.queue-title{
+  font-weight:900;
+  color:#e2e8f0;
+  margin-bottom:5px;
+}
+.queue-meta{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
+.queue-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin-top:8px;
+}
+
+.outbound-form{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:9px;
+}
+.outbound-form input,.outbound-form select{
+  width:100%;
+  height:34px;
+  border:1px solid var(--line);
+  background:#020617;
+  color:#e5e7eb;
+  border-radius:9px;
+  padding:0 9px;
+  font-weight:900;
+}
+.outbound-history{
+  display:grid;
+  gap:8px;
+  padding:10px;
+}
+.outbound-card{
+  border:1px solid var(--line);
+  background:#0b1220;
+  border-radius:12px;
+  overflow:hidden;
+}
+.outbound-head{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  padding:9px 10px;
+  background:#111827;
+  border-bottom:1px solid var(--line);
+}
+.outbound-title{font-weight:900;color:#e2e8f0}
+.outbound-body{padding:10px;display:grid;gap:8px}
+.outbound-items{line-height:1.62;color:#e5e7eb}
+.outbound-total{color:var(--gold);font-weight:900;font-size:20px;text-align:right}
+code{
+  background:#020617;
+  border:1px solid var(--line);
+  border-radius:6px;
+  color:#bae6fd;
+  padding:1px 5px;
+}
+
+
+/* DRAFT MODAL - Step 4D */
+.modal-mask{
+  position:fixed;
+  inset:0;
+  background:rgba(2,6,23,.72);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:90;
+  padding:18px;
+}
+.modal-mask.show{display:flex}
+.modal-box{
+  width:min(760px,96vw);
+  max-height:88vh;
+  background:#0f172a;
+  border:1px solid var(--line2);
+  border-radius:16px;
+  box-shadow:0 25px 70px rgba(0,0,0,.55);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.modal-head{
+  flex-shrink:0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:12px 14px;
+  background:#111827;
+  border-bottom:1px solid var(--line);
+}
+.modal-title{
+  color:var(--gold);
+  font-size:18px;
+  font-weight:900;
+}
+.modal-body{
+  padding:14px;
+  overflow:auto;
+  line-height:1.55;
+}
+.modal-foot{
+  flex-shrink:0;
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  padding:12px 14px;
+  background:#0b1220;
+  border-top:1px solid var(--line);
+}
+.draft-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:12px;
+}
+.draft-info{
+  border:1px solid var(--line);
+  background:#020617;
+  border-radius:10px;
+  padding:8px 10px;
+}
+.draft-info .k{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:900;
+}
+.draft-info .v{
+  margin-top:4px;
+  color:#e2e8f0;
+  font-weight:900;
+  word-break:break-word;
+}
+.draft-warning{
+  border:1px solid #7c5b00;
+  background:rgba(124,91,0,.18);
+  color:#fff7cc;
+  border-radius:10px;
+  padding:10px 12px;
+  margin:10px 0 12px;
+  font-weight:900;
+}
+.draft-items{
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+}
+.draft-items table th{
+  position:static;
+}
+.draft-empty{
+  color:var(--muted);
+  text-align:center;
+  padding:24px 12px;
+}
+@media(max-width:900px){.draft-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.draft-grid{grid-template-columns:1fr}}
+
+@media(max-width:1350px){
+  html,body{overflow:auto}
+  .app{height:auto;min-height:100vh}
+  .main{grid-template-columns:1fr}
+  .right{grid-template-columns:1fr 1fr;grid-template-rows:auto}
+}
+@media(max-width:900px){
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .top-actions{grid-template-columns:1fr 1fr}
+  .right{grid-template-columns:1fr}
+  .slip-body{grid-template-columns:1fr}
+  .slip-side{border-left:0;border-top:1px solid var(--line);padding-left:0;padding-top:8px}
+}
+
+/* STEP 4I: compact slip cards + full detail popup */
+.slip-card.compact{
+  border-color:#334155;
+}
+.slip-card.compact .slip-body{
+  grid-template-columns:1fr 170px;
+  padding:9px 10px;
+}
+.slip-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(90px,1fr));
+  gap:7px;
+  margin-bottom:8px;
+}
+.slip-mini{
+  background:#020617;
+  border:1px solid var(--line);
+  border-radius:9px;
+  padding:7px 8px;
+  min-width:0;
+}
+.slip-mini .k{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.slip-mini .v{
+  margin-top:3px;
+  color:#e2e8f0;
+  font-size:15px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.slip-preview{
+  background:#020617;
+  border:1px solid rgba(51,65,85,.85);
+  border-radius:10px;
+  padding:7px 9px;
+  line-height:1.55;
+  color:#e5e7eb;
+  font-size:14px;
+  max-height:120px;
+  overflow:hidden;
+}
+.slip-preview-row{
+  display:grid;
+  grid-template-columns:54px 70px 1fr;
+  gap:8px;
+  border-bottom:1px dashed rgba(51,65,85,.7);
+  padding:2px 0;
+}
+.slip-preview-row:last-child{border-bottom:0}
+.slip-more{
+  margin-top:5px;
+  color:var(--gold);
+  font-size:12px;
+  font-weight:900;
+}
+.slip-kind-list{
+  color:#cbd5e1;
+  font-size:12px;
+  font-weight:900;
+  text-align:right;
+  line-height:1.4;
+}
+.slip-detail-head{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:10px;
+}
+.slip-detail-box{
+  background:#020617;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px 10px;
+}
+.slip-detail-box .k{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:900;
+}
+.slip-detail-box .v{
+  margin-top:4px;
+  color:#f8fafc;
+  font-size:16px;
+  font-weight:900;
+}
+.slip-type-sum{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  margin:10px 0;
+}
+.slip-type-sum .box{
+  background:#0b1220;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px;
+  min-width:0;
+}
+.slip-type-sum .box b{
+  display:block;
+  color:var(--gold);
+  font-size:18px;
+  margin-top:3px;
+}
+.slip-items-table{
+  max-height:430px;
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:10px;
+}
+@media(max-width:900px){
+  .slip-card.compact .slip-body{grid-template-columns:1fr}
+  .slip-summary-grid,.slip-detail-head,.slip-type-sum{grid-template-columns:1fr 1fr}
+}
+
+
+/* STEP 5A: Rate settings panel */
+.rate-toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.rate-note{background:#020617;border:1px solid var(--line);color:#cbd5e1;border-radius:10px;padding:8px 10px;font-size:12px;line-height:1.55;margin-bottom:8px}
+.rate-market-title{color:var(--gold);font-size:15px;font-weight:900;margin:8px 0 6px}
+.rate-table-wrap{border:1px solid var(--line);border-radius:10px;overflow:auto;background:#020617;margin-bottom:10px;max-width:100%}
+.rate-input{width:78px;height:30px;border:1px solid var(--line2);border-radius:8px;background:#020617;color:#f8fafc;padding:0 7px;font-weight:900;text-align:right}
+.rate-label-input{width:100%;min-width:130px;height:30px;border:1px solid var(--line2);border-radius:8px;background:#020617;color:#f8fafc;padding:0 7px;font-weight:900}
+.rate-save-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+
+
+/* STEP 5C-UI: workspace pages to reduce crowded Master screen */
+.workspace-nav{
+  margin-top:8px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  border-top:1px solid rgba(51,65,85,.7);
+  padding-top:8px;
+}
+.workspace-nav .label{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:900;
+}
+.page-btn{
+  height:34px;
+  border:1px solid var(--line2);
+  background:#0b1220;
+  color:#cbd5e1;
+  border-radius:10px;
+  padding:0 12px;
+  font-weight:900;
+  cursor:pointer;
+}
+.page-btn:hover{filter:brightness(1.15)}
+.page-btn.on{
+  background:#0369a1;
+  border-color:#38bdf8;
+  color:#e0f2fe;
+}
+.page-btn.gold.on{
+  background:var(--gold);
+  border-color:var(--gold);
+  color:#111827;
+}
+body.page-dashboard .main{
+  grid-template-columns:310px 1fr 430px;
+}
+body.page-slips .main{
+  grid-template-columns:310px minmax(0,1fr);
+}
+body.page-slips .right-panel{
+  display:none;
+}
+body.page-numbers .main,
+body.page-draft .main,
+body.page-outbound .main,
+body.page-rates .main{
+  grid-template-columns:minmax(0,1fr);
+}
+body.page-numbers .agent-panel,
+body.page-numbers .center-panel,
+body.page-numbers .work-panel,
+body.page-draft .agent-panel,
+body.page-draft .center-panel,
+body.page-draft .number-panel,
+body.page-outbound .agent-panel,
+body.page-outbound .center-panel,
+body.page-outbound .number-panel,
+body.page-rates .agent-panel,
+body.page-rates .center-panel,
+body.page-rates .number-panel{
+  display:none!important;
+}
+body.page-numbers .right-panel,
+body.page-draft .right-panel,
+body.page-outbound .right-panel,
+body.page-rates .right-panel{
+  display:grid;
+  grid-template-rows:minmax(0,1fr);
+  min-height:0;
+}
+body.page-numbers .number-panel,
+body.page-draft .work-panel,
+body.page-outbound .work-panel,
+body.page-rates .work-panel{
+  min-height:0;
+}
+body.page-rates .rate-table-wrap{
+  max-height:calc(100vh - 330px);
+}
+body.page-rates .rate-input{width:100px}
+body.page-rates .rate-label-input{min-width:170px}
+body.page-outbound .outbound-history,
+body.page-draft #draftList{
+  max-height:calc(100vh - 360px);
+  overflow:auto;
+}
+body.page-numbers #view-over,
+body.page-numbers #view-totals{
+  height:100%;
+}
+body.page-numbers .panel-body{
+  overflow:auto;
+}
+.page-hint{
+  color:#94a3b8;
+  font-size:12px;
+  font-weight:900;
+  margin-left:auto;
+}
+@media(max-width:1350px){
+  body.page-dashboard .main,
+  body.page-slips .main{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* STEP 5D-SLIP: printable paper slip */
+.slip-actions.three{
+  grid-template-columns:1fr 1fr 1fr;
+}
+@media(max-width:900px){
+  .slip-actions.three{grid-template-columns:1fr}
+}
+
+</style>
 </head>
-<body>
-  <header>
-    <div>
-      <h1>T999 LAN USB - MASTER</h1>
-      <div class="status"><span id="dot" class="dot"></span><span id="conn">กำลังเชื่อมต่อ...</span></div>
-      <div id="runtime" class="runtime">USB Runtime / LAN Server</div>
+<body class="page-dashboard">
+<div class="app">
+  <header class="top">
+    <div class="top-row">
+      <div>
+        <div class="logo">T999 LAN USB - MASTER AGENT FILE <span style="font-size:13px;color:#bae6fd">Step 4H แยกไทย/ลาว</span></div>
+        <div class="sub">แฟ้มเอเยนต์ / ใบโพย / เลขเกิน / Draft / ส่งนอก / ใบส่ง / เรท Step 5I</div>
+      </div>
+      <div class="conn"><span id="dot" class="dot"></span><span id="conn">กำลังเชื่อมต่อ...</span></div>
     </div>
-    <button class="btn" onclick="resetDemo()">ล้างข้อมูลทดลอง</button>
+
+    <div class="top-actions">
+      <div class="info-box">
+        <div class="info-label">ตำแหน่งโปรแกรม / USB Runtime</div>
+        <div class="info-value" id="runtimeRoot">-</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">Master URL</div>
+        <div class="info-value" id="masterUrl">-</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">Subkey URL</div>
+        <div class="info-value" id="subkeyUrl">-</div>
+      </div>
+      <button class="btn blue" onclick="openSubkey()">เปิด Subkey</button>
+      <button class="btn red" onclick="resetDemo()">ล้างทดลอง</button>
+    </div>
+
+    <div class="market-filter">
+      <span class="label">มุมมองตลาด:</span>
+      <button id="marketBtnALL" class="market-btn on" onclick="setMarketFilter('ALL')">ทั้งหมด</button>
+      <button id="marketBtnthai" class="market-btn" onclick="setMarketFilter('thai')">ไทย</button>
+      <button id="marketBtnlao" class="market-btn" onclick="setMarketFilter('lao')">ลาว</button>
+      <span class="market-note" id="marketFilterNote">กำลังดูข้อมูลรวมทั้งหมด</span>
+    </div>
+
+    <div class="workspace-nav">
+      <span class="label">หน้าทำงาน:</span>
+      <button id="pageBtnDashboard" class="page-btn gold on" onclick="setMasterPage('dashboard')">Dashboard</button>
+      <button id="pageBtnSlips" class="page-btn" onclick="setMasterPage('slips')">ใบโพย</button>
+      <button id="pageBtnNumbers" class="page-btn" onclick="setMasterPage('numbers')">เลขเกิน/ยอดเลข</button>
+      <button id="pageBtnOutbound" class="page-btn" onclick="setMasterPage('outbound')">ส่งนอก</button>
+      <button id="pageBtnDraft" class="page-btn" onclick="setMasterPage('draft')">Draft</button>
+      <button id="pageBtnRates" class="page-btn" onclick="setMasterPage('rates')">เรท</button>
+      <span class="page-hint" id="pageHint">ดูภาพรวมทั้งหมด</span>
+    </div>
   </header>
 
-  <main class="wrap">
-    <section class="cards">
-      <div class="card">
-        <div class="label">บัญชียอดรวมทั้งหมด</div>
-        <div id="mainTotal" class="value">0</div>
-        <div id="mainSlip" class="muted small">0 ใบ</div>
+  <main class="main" id="masterMain">
+    <section class="panel agent-panel">
+      <div class="panel-head">
+        <div class="panel-title">แฟ้มเอเยนต์</div>
+        <span class="tag" id="agentCountTag">0 เอเยนต์</span>
       </div>
-      <div class="card">
-        <div class="label">บัญชียอดส่งออก / ส่งนอก</div>
-        <div id="outTotal" class="value">0</div>
-        <div class="muted small">แยกบัญชี ไม่หักยอดรวมหลัก</div>
+      <div class="agent-search">
+        <input id="agentSearch" placeholder="ค้นหาเอเยนต์..." oninput="renderAgentsList()">
       </div>
-      <div class="card">
-        <div class="label">เลขเกิน Limit</div>
-        <div id="overCount" class="value">0</div>
-        <div class="muted small">Step 1 ใช้ limit ทดลอง 1,000</div>
-      </div>
-      <div class="card">
-        <div class="label">จำนวนเอเยนต์ที่มีโพย</div>
-        <div id="agentCount" class="value">0</div>
-        <div class="muted small">รับจาก Subkey real-time</div>
+      <div class="panel-body">
+        <div class="agent-list" id="agentCards"></div>
       </div>
     </section>
 
-    <section class="grid">
-      <div class="panel">
-        <h2>ยอดรวมแยกเลขแบบ Real-time <span class="tag">บัญชีที่ 1</span></h2>
-        <div class="scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>ตลาด</th>
-                <th>ประเภท</th>
-                <th>เลข</th>
-                <th>ยอดรับ</th>
-                <th>ส่งออกแล้ว</th>
-                <th>เกินใหม่</th>
-              </tr>
-            </thead>
-            <tbody id="totalsRows"></tbody>
-          </table>
+    <section class="center center-panel">
+      <section class="cards">
+        <div class="card gold">
+          <div class="label" id="selectedAgentLabel">ยอดรวมทั้งหมด</div>
+          <div class="value" id="mainTotal">0</div>
         </div>
-      </div>
+        <div class="card blue">
+          <div class="label">จำนวนใบ</div>
+          <div class="value" id="mainSlip">0</div>
+        </div>
+        <div class="card red">
+          <div class="label">เลขเกิน Limit / มุมมอง</div>
+          <div class="value" id="overCount">0</div>
+        </div>
+        <div class="card green">
+          <div class="label">บัญชีส่งนอก / มุมมอง</div>
+          <div class="value" id="outTotal">0</div>
+        </div>
+        <div class="card purple">
+          <div class="label">Draft ค้าง / มุมมอง</div>
+          <div class="value" id="draftCount">0</div>
+        </div>
+      </section>
 
-      <div class="panel">
-        <h2>เลขเกิน / ต้องพิจารณาส่งออก <span class="tag">Real-time</span></h2>
-        <div class="scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>เลข</th>
-                <th>ประเภท</th>
-                <th>ยอดรับ</th>
-                <th>เกิน</th>
-              </tr>
-            </thead>
-            <tbody id="overRows"></tbody>
-          </table>
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title" id="slipPanelTitle">ใบโพยทั้งหมด</div>
+          <span class="tag">หลังเก็บใบ Subkey แก้ไม่ได้</span>
         </div>
-      </div>
+        <div class="slip-toolbar">
+          <input id="slipSearch" placeholder="ค้นหาใบ / เลข / เครื่อง..." oninput="renderSelectedSlips()">
+          <div>
+            <button class="btn" onclick="selectAgent('ALL')">ดูทั้งหมด</button>
+            <button class="btn gold" onclick="alert('Step ถัดไป: เพิ่มแก้ใบ / เปลี่ยนเลขที่ใบ / จัดเรียงใบ')">จัดการใบ</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="slip-list" id="slipCards"></div>
+        </div>
+      </section>
     </section>
 
-    <section class="grid">
-      <div class="panel">
-        <h2>ใบโพยเข้าใหม่จาก Subkey <span class="tag">หลังเก็บใบ Subkey แก้ไม่ได้</span></h2>
-        <div class="scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>เวลา</th>
-                <th>เอเยนต์</th>
-                <th>เลขที่ใบ</th>
-                <th>เครื่อง</th>
-                <th>รายการ</th>
-              </tr>
-            </thead>
-            <tbody id="slipRows"></tbody>
-          </table>
+    <aside class="right right-panel">
+      <section class="panel number-panel">
+        <div class="panel-head">
+          <div class="panel-title">เลขเกิน / ยอดแยกเลข</div>
+          <div class="tabs">
+            <button class="tab on" onclick="switchView('over', this)">เลขเกิน</button>
+            <button class="tab" onclick="switchView('totals', this)">ยอดเลข</button>
+          </div>
         </div>
-      </div>
+        <div class="panel-body">
+          <div id="view-over" class="view on">
+            <table>
+              <thead>
+                <tr>
+                  <th>ตลาด</th>
+                  <th>ประเภท</th>
+                  <th>เลข</th>
+                  <th class="num">ตั้งรับ</th>
+                  <th class="num">เกิน</th>
+                  <th class="center">ส่ง</th>
+                </tr>
+              </thead>
+              <tbody id="overRows"></tbody>
+            </table>
+          </div>
 
-      <div class="panel">
-        <h2>สรุปเอเยนต์ <span class="tag">จากยอดรับทั้งหมด</span></h2>
-        <div class="scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>เอเยนต์</th>
-                <th>จำนวนใบ</th>
-                <th>ยอดรวม</th>
-              </tr>
-            </thead>
-            <tbody id="agentRows"></tbody>
-          </table>
+          <div id="view-totals" class="view">
+            <table>
+              <thead>
+                <tr>
+                  <th>ตลาด</th>
+                  <th>ประเภท</th>
+                  <th>เลข</th>
+                  <th class="num">ยอดรับ</th>
+                  <th class="num">ส่งนอก</th>
+                  <th class="num">เกิน</th>
+                </tr>
+              </thead>
+              <tbody id="totalsRows"></tbody>
+            </table>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <section class="panel work-panel">
+        <div class="panel-head">
+          <div class="panel-title">Draft / ส่งนอก / เรท</div>
+          <div class="tabs">
+            <button class="tab on" onclick="switchView('draft', this)">Draft</button>
+            <button class="tab" onclick="switchView('outbound', this)">ส่งนอก</button>
+            <button class="tab" onclick="switchView('rates', this)">เรท</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="view-draft" class="view on">
+            <div id="draftList"></div>
+          </div>
+
+          <div id="view-outbound" class="view">
+            <div class="queue-card">
+              <div class="queue-title">บัญชีส่งนอก / ใบส่ง</div>
+              <div class="queue-meta">
+                ยอดส่งนอกเป็นบัญชีที่ 2 แยกจากยอดรวมหลัก<br>
+                ระบบจะนำยอดส่งนอกไปช่วยคำนวณ “ยอดเกินคงเหลือ” แต่ไม่หักยอดรวมหลักอัตโนมัติ<br>
+                เอกสารพิมพ์ใช้คำว่า “ใบส่ง / ส่งนอก / ส่งเจ้า A”
+              </div>
+              <div class="outbound-form">
+                <input id="outboundTargetName" placeholder="ชื่อเจ้าที่ส่ง / ส่งเจ้า A" value="ส่งเจ้า A">
+                <input id="outboundNote" placeholder="หมายเหตุใบส่ง">
+              </div>
+
+              <div style="border:1px solid var(--line);background:#020617;border-radius:10px;padding:8px;margin-top:8px">
+                <div class="queue-title" style="margin-bottom:8px">เพิ่มรายการใบส่งเอง</div>
+                <div class="outbound-form" style="grid-template-columns:.8fr .8fr 1fr .9fr">
+                  <select id="manualOutMarket">
+                    <option value="thai">ไทย</option>
+                    <option value="lao">ลาว</option>
+                  </select>
+                  <select id="manualOutType">
+                    <option value="บน">บน</option>
+                    <option value="โต๊ด">โต๊ด</option>
+                    <option value="ล่าง">ล่าง</option>
+                    <option value="หน้า">หน้า</option>
+                  </select>
+                  <input id="manualOutNumber" placeholder="เลข">
+                  <input id="manualOutAmount" placeholder="ยอดส่ง" inputmode="numeric">
+                </div>
+                <div class="queue-actions" style="margin-top:8px">
+                  <button class="btn blue" onclick="addManualOutboundItem()">+ เพิ่มเข้ารายการใบส่ง</button>
+                  <button class="btn red" onclick="clearPendingOutbound()">ล้างรายการใบส่ง</button>
+                </div>
+                <div id="pendingOutboundBox" class="queue-meta" style="margin-top:8px">ยังไม่มีรายการใบส่งที่เตรียมไว้</div>
+              </div>
+
+              <div class="queue-actions">
+                <button class="btn gold" onclick="createPendingOutbound()">สร้างใบส่งจากรายการที่เตรียมไว้</button>
+                <button class="btn" onclick="createOutboundFromAllOver()">สร้างจากเลขเกินทั้งหมด</button>
+              </div>
+              <div class="queue-actions" style="margin-top:6px">
+                <button class="btn blue" onclick="addAllOverToPending()">ดึงเลขเกินมาเตรียมรายการ</button>
+                <button class="btn" onclick="renderOutbound(getFilteredOutboundRows())">รีเฟรชประวัติ</button>
+              </div>
+            </div>
+            <div id="outboundHistory" class="outbound-history"></div>
+          </div>
+
+          <div id="view-rates" class="view">
+            <div class="queue-card">
+              <div class="queue-title">ตั้งค่าเรทละเอียด / % ลด / อัตราจ่าย</div>
+              <div class="rate-note">
+                ค่านี้เป็น “เรทกลางแบบละเอียด” ของระบบ แยกประเภทตามอัตราจ่ายจริง และบันทึกลง USB/Master ผ่าน <code>/api/rates</code><br>
+                ขั้นนี้ยังไม่หักยอดอัตโนมัติในบัญชีทั้งหมด แต่เตรียมฐานให้ใช้กับสรุปเอเยนต์ ตรวจรางวัล และเลขอั้นใน Step ถัดไป
+              </div>
+              <div class="rate-toolbar">
+                <button class="btn blue" onclick="renderRates(latestData?.rates)">รีเฟรชเรท</button>
+                <button class="btn green" onclick="saveRates()">บันทึกเรท</button>
+              </div>
+              <div id="ratesBox" class="queue-meta">กำลังโหลดเรท...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </aside>
   </main>
+</div>
+
+
+<div id="draftModal" class="modal-mask">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="draftModalTitle">Draft</div>
+      <button class="btn" onclick="closeDraftModal()">ปิด</button>
+    </div>
+    <div class="modal-body" id="draftModalBody"></div>
+    <div class="modal-foot" id="draftModalFoot">
+      <button class="btn" onclick="closeDraftModal()">ปิด</button>
+    </div>
+  </div>
+</div>
 
 <script>
-  const fmt = new Intl.NumberFormat("th-TH");
-  const dot = document.getElementById("dot");
-  const conn = document.getElementById("conn");
-  const runtime = document.getElementById("runtime");
+const fmt = new Intl.NumberFormat("th-TH");
+let latestData = null;
+let selectedAgentId = "ALL";
+let currentMarket = "ALL";
 
-  function money(n){
-    return fmt.format(Number(n || 0));
+const dot = document.getElementById("dot");
+const conn = document.getElementById("conn");
+
+
+function normalizeMarket(m){
+  const v = String(m || "thai").toLowerCase();
+  return (v === "lao" || v === "laos") ? "lao" : "thai";
+}
+function marketLabel(){
+  if(currentMarket === "thai") return "ไทย";
+  if(currentMarket === "lao") return "ลาว";
+  return "ทั้งหมด";
+}
+function matchMarketValue(m){
+  return currentMarket === "ALL" || normalizeMarket(m) === currentMarket;
+}
+function itemMatchesMarket(i){ return matchMarketValue(i?.market); }
+function slipMatchesMarket(s){
+  if(currentMarket === "ALL") return true;
+  return (s.items || []).some(itemMatchesMarket) || matchMarketValue(s.market);
+}
+function filterItemsByMarket(items){
+  if(currentMarket === "ALL") return items || [];
+  return (items || []).filter(itemMatchesMarket);
+}
+function slipWithFilteredItems(s){
+  return {...s, items: filterItemsByMarket(s.items || [])};
+}
+function getMarketSlips(){
+  return (latestData?.slips || [])
+    .filter(slipMatchesMarket)
+    .map(slipWithFilteredItems)
+    .filter(s => currentMarket === "ALL" || (s.items || []).length > 0);
+}
+function rowMatchesMarket(r){ return matchMarketValue(r?.market); }
+function outMatchesMarket(out){
+  if(currentMarket === "ALL") return true;
+  return (out.items || []).some(rowMatchesMarket);
+}
+function outWithFilteredItems(out){
+  return {...out, items: currentMarket === "ALL" ? (out.items || []) : (out.items || []).filter(rowMatchesMarket)};
+}
+function draftMatchesMarket(d){
+  if(currentMarket === "ALL") return true;
+  return (d.items || []).some(rowMatchesMarket) || matchMarketValue(d.market);
+}
+function draftWithFilteredItems(d){
+  return {...d, items: currentMarket === "ALL" ? (d.items || []) : (d.items || []).filter(rowMatchesMarket)};
+}
+function getFilteredOverRows(){
+  return (latestData?.overLimit || []).filter(rowMatchesMarket);
+}
+function getFilteredTotalRows(){
+  return (latestData?.totalsByNumber || []).filter(rowMatchesMarket);
+}
+function getFilteredOutboundRows(){
+  return (latestData?.outbound || []).filter(outMatchesMarket).map(outWithFilteredItems);
+}
+function getFilteredDraftRows(){
+  return (latestData?.drafts || []).filter(draftMatchesMarket).map(draftWithFilteredItems);
+}
+function setMarketFilter(market){
+  currentMarket = market;
+  selectedAgentId = "ALL";
+  const manualMarket = document.getElementById("manualOutMarket");
+  if(manualMarket && currentMarket !== "ALL") manualMarket.value = currentMarket;
+  renderMarketButtons();
+  renderAgentsList();
+  renderSelectedSummary();
+  renderSelectedSlips();
+  renderOver(getFilteredOverRows());
+  renderTotals(getFilteredTotalRows());
+  renderDrafts(getFilteredDraftRows());
+  renderOutbound(getFilteredOutboundRows());
+  renderRates(data.rates);
+}
+function renderMarketButtons(){
+  ["ALL","thai","lao"].forEach(m=>{
+    const btn = document.getElementById("marketBtn" + m);
+    if(btn) btn.classList.toggle("on", currentMarket === m);
+  });
+  const note = document.getElementById("marketFilterNote");
+  if(note){
+    note.textContent = currentMarket === "ALL"
+      ? "กำลังดูข้อมูลรวมทั้งหมด"
+      : "กำลังดูเฉพาะตลาด" + marketLabel();
+  }
+}
+
+function money(n){ return fmt.format(Number(n || 0)); }
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function js(s){ return String(s ?? "").replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n').replace(/\r/g,''); }
+function marketName(m){ return m === 'lao' || m === 'laos' ? 'ลาว' : 'ไทย'; }
+function rowTotal(items){ return (items || []).reduce((sum,i)=>sum+Number(i.amount || 0),0); }
+function shortTime(iso){ return iso ? new Date(iso).toLocaleString("th-TH") : "-"; }
+
+function itemLines(items){
+  return (items || []).map(i=>`<div>${esc(i.number)} <span class="blue">${esc(i.type)}</span> <b>${money(i.amount)}</b></div>`).join("");
+}
+
+
+function slipIdOf(s){ return String(s?.id || s?.slipId || ""); }
+function slipMarketOf(s){
+  return (s?.items && s.items[0]?.market) || s?.market || "thai";
+}
+function slipSummaryGroupLabel(item){
+  const type = String(item?.type || "");
+  const num = String(item?.number || "").replace(/\D/g,"");
+  const len = num.length;
+
+  if(type.includes("โต๊ด")) return "โต๊ด";
+  if(type.includes("ล่าง")) return "ล่าง";
+  if(len === 3) return "3ตัว";
+  if(len === 2) return "2ตัว";
+  if(len === 1) return "1ตัว";
+
+  return type || "อื่นๆ";
+}
+
+function slipTypeSummary(items){
+  const order = ["3ตัว","2ตัว","1ตัว","โต๊ด","ล่าง"];
+  const map = {};
+  for(const k of order) map[k] = 0;
+
+  for(const i of (items || [])){
+    const key = slipSummaryGroupLabel(i);
+    if(map[key] === undefined) map[key] = 0;
+    map[key] += Number(i.amount || 0);
   }
 
-  function esc(s){
-    return String(s ?? "").replace(/[&<>"']/g, m => ({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#39;'
-    }[m]));
+  return map;
+}
+
+function slipTypeSummaryKeys(map){
+  const order = ["3ตัว","2ตัว","1ตัว","โต๊ด","ล่าง"];
+  const ordered = order.filter(k => Number(map[k] || 0) > 0);
+  const others = Object.keys(map).filter(k => !order.includes(k) && Number(map[k] || 0) > 0);
+  return ordered.concat(others);
+}
+
+function slipTypeSummaryText(items){
+  const map = slipTypeSummary(items);
+  const keys = slipTypeSummaryKeys(map);
+  if(!keys.length) return "-";
+  return keys.map(k => `${esc(k)} ${money(map[k])}`).join("<br>");
+}
+
+function slipTypeSummaryBoxes(items){
+  const map = slipTypeSummary(items);
+  const keys = slipTypeSummaryKeys(map);
+  if(!keys.length) return `<div class="box"><span class="muted">ยังไม่มีรายการ</span><b>0</b></div>`;
+  return keys.map(k=>`
+    <div class="box">
+      <span class="muted">${esc(k)}</span>
+      <b>${money(map[k])}</b>
+    </div>
+  `).join("");
+}
+function slipPreviewLines(items, limit = 5){
+  const rows = (items || []).slice(0, limit).map(i=>`
+    <div class="slip-preview-row">
+      <div><b>${esc(i.number)}</b></div>
+      <div class="blue">${esc(i.type)}</div>
+      <div style="text-align:right"><b>${money(i.amount)}</b></div>
+    </div>
+  `).join("");
+  const more = (items || []).length > limit
+    ? `<div class="slip-more">... และอีก ${money((items || []).length - limit)} รายการ</div>`
+    : "";
+  return rows || `<div class="muted">ไม่มีรายการ</div>` + more;
+}
+function findSlipById(id){
+  return (latestData?.slips || []).find(s => slipIdOf(s) === String(id));
+}
+
+function slipPaperRows(items){
+  return (items || []).map((i,idx)=>`
+    <tr>
+      <td class="c">${idx + 1}</td>
+      <td class="num">${esc(i.number)}</td>
+      <td>${esc(i.type)}</td>
+      <td class="r">${money(i.amount)}</td>
+      <td>${esc(i.note || "")}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="5" class="empty">ไม่มีรายการ</td></tr>`;
+}
+
+
+function typeShort(type){
+  const t = String(type || "");
+  if(t.includes("โต๊ด")) return "ต";
+  if(t.includes("ล่าง")) return "ล";
+  if(t.includes("หน้า")) return "น";
+  if(t.includes("วิ่งบน")) return "วบ";
+  if(t.includes("วิ่งล่าง")) return "วล";
+  if(t.includes("ปักบน")) return "ปบ";
+  if(t.includes("ปักล่าง")) return "ปล";
+  if(t.includes("บน")) return "บ";
+  return t || "-";
+}
+
+function isCutOutItem(item){
+  const text = `${item?.type || ""} ${item?.note || ""} ${item?.status || ""}`.toLowerCase();
+  return text.includes("ตีออก") || text.includes("ตัดออก") || text.includes("ยกเลิก") || text.includes("void") || text.includes("cancel");
+}
+
+function normalSlipItems(items){
+  return (items || []).filter(i => !isCutOutItem(i));
+}
+
+function cutOutSlipItems(items){
+  return (items || []).filter(i => isCutOutItem(i));
+}
+
+function compactBetText(item){
+  const n = esc(item?.number || "-");
+  const t = esc(typeShort(item?.type));
+  const amount = money(item?.amount || 0);
+  const note = item?.note ? ` <span class="muted-mini">${esc(item.note)}</span>` : "";
+  return `<span class="bet-no">${n}</span><span class="bet-eq">=</span><span class="bet-detail">${t}${amount}${note}</span>`;
+}
+
+function paperCompactLines(items){
+  const rows = (items || []).map((item,idx)=>`
+    <div class="bet-line">
+      ${compactBetText(item)}
+    </div>
+  `).join("");
+  return rows || `<div class="paper-empty">-</div>`;
+}
+
+function paperCutOutLines(items){
+  const rows = (items || []).map((item,idx)=>`
+    <div class="cut-line">
+      ${compactBetText(item)}
+    </div>
+  `).join("");
+  return rows || `<div class="paper-empty">-</div>`;
+}
+
+function splitItemsIntoColumns(items, colCount = 3){
+  const list = Array.isArray(items) ? items.slice() : [];
+  const cols = Array.from({length: colCount}, ()=>[]);
+  if(!list.length) return cols;
+  const base = Math.floor(list.length / colCount);
+  const extra = list.length % colCount;
+  let start = 0;
+  for(let i=0;i<colCount;i++){
+    const size = base + (i < extra ? 1 : 0);
+    cols[i] = list.slice(start, start + size);
+    start += size;
+  }
+  return cols;
+}
+
+function paperThreeColumnGrid(items, lineClass = "bet-line"){
+  const cols = splitItemsIntoColumns(items || [], 3);
+  return `
+    <div class="triple-columns">
+      ${cols.map(col=>`
+        <div class="triple-col">
+          ${col.length ? col.map(item=>`
+            <div class="${lineClass}">${compactBetText(item)}</div>
+          `).join("") : `<div class="paper-empty">-</div>`}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function paperSummaryRow(items, market){
+  const map = slipTypeSummary(items || []);
+  const keys = slipTypeSummaryKeys(map);
+  const cols = keys.map(k=>`
+    <td>${esc(k)}</td>
+  `).join("");
+  const vals = keys.map(k=>`
+    <td class="r">${money(map[k])}</td>
+  `).join("");
+  return `
+    <table class="sum-table">
+      <thead>
+        <tr>${cols}<td>รวม</td></tr>
+      </thead>
+      <tbody>
+        <tr>${vals}<td class="r"><b>${money(rowTotal(items || []))}</b></td></tr>
+      </tbody>
+    </table>
+  `;
+}
+
+function printSlip(id){
+  const s = findSlipById(id);
+  if(!s){
+    alert("ไม่พบใบโพยนี้");
+    return;
   }
 
-  function render(data){
-    document.getElementById("mainTotal").textContent = money(data.accountMain?.totalAmount);
-    document.getElementById("mainSlip").textContent = `${money(data.accountMain?.slipCount)} ใบ`;
-    document.getElementById("outTotal").textContent = money(data.accountOutbound?.totalAmount);
-    document.getElementById("overCount").textContent = money(data.overLimit?.length);
-    document.getElementById("agentCount").textContent = money(data.agentTotals?.length);
+  const allItems = s.items || [];
+  const items = normalSlipItems(allItems);
+  const cutItems = cutOutSlipItems(allItems);
+  const total = rowTotal(items);
+  const cutTotal = rowTotal(cutItems);
+  const market = slipMarketOf(s);
+  const slipIdText = slipIdOf(s) || "-";
 
-    if(data.runtime){
-      const ips = data.runtime.ips || [];
-      runtime.innerHTML = `
-        รันจาก: <code>${esc(data.runtime.root || "")}</code><br>
-        Master/Subkey LAN: ${ips.length ? ips.map(ip => `<code>http://${ip}:${data.runtime.port}</code>`).join(" ") : "ยังไม่พบ IP LAN"}
-      `;
+  const htmlText = `<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>ใบโพย ${esc(s.agentName || s.agentId || "")}</title>
+<style>
+*{box-sizing:border-box}
+@page{size:A4 portrait;margin:7mm}
+body{
+  margin:0;
+  background:#111;
+  font-family:Tahoma,Arial,"Sarabun",sans-serif;
+  color:#000;
+}
+.sheet{
+  width:210mm;
+  min-height:297mm;
+  margin:0 auto;
+  background:#fff;
+  padding:7mm;
+}
+.head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+  border-bottom:2px solid #111;
+  padding-bottom:4px;
+}
+.brand{
+  font-size:16px;
+  font-weight:900;
+}
+.meta{
+  font-size:10px;
+  line-height:1.45;
+  color:#222;
+}
+.right{
+  text-align:right;
+  font-size:10px;
+  line-height:1.45;
+}
+.id{
+  font-weight:900;
+  color:#1f2937;
+}
+.bet-wrap{
+  margin-top:5px;
+  column-count:3;
+  column-gap:11px;
+  column-rule:1px dashed #c7c7c7;
+  min-height:145mm;
+}
+.bet-line{
+  break-inside:avoid;
+  display:grid;
+  grid-template-columns:34px 8px 1fr;
+  gap:3px;
+  align-items:baseline;
+  font-size:11px;
+  line-height:1.35;
+  border-bottom:1px dashed #d4d4d4;
+  padding:1px 0;
+}
+.bet-no{
+  font-weight:900;
+  font-size:12px;
+}
+.bet-eq{
+  color:#444;
+}
+.bet-detail{
+  font-weight:700;
+}
+.muted-mini{
+  color:#666;
+  font-size:9px;
+  font-weight:700;
+}
+.cut-section{
+  margin-top:5px;
+  border:1px solid #111;
+}
+.cut-title{
+  background:#111;
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  padding:3px 5px;
+  display:flex;
+  justify-content:space-between;
+}
+.cut-body{
+  padding:4px 5px;
+  column-count:3;
+  column-gap:10px;
+  min-height:18mm;
+}
+.cut-line{
+  break-inside:avoid;
+  display:grid;
+  grid-template-columns:34px 8px 1fr;
+  gap:3px;
+  align-items:baseline;
+  font-size:10.5px;
+  line-height:1.35;
+  border-bottom:1px dashed #ddd;
+  padding:1px 0;
+}
+.paper-empty{
+  color:#777;
+  font-size:11px;
+  padding:4px 0;
+}
+.sum-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:5px;
+  font-size:10.5px;
+}
+.sum-table th,.sum-table td{
+  border:1px solid #111;
+  padding:3px 4px;
+  text-align:center;
+}
+.sum-table thead td{
+  background:#f1f1f1;
+  font-weight:900;
+}
+.sum-table .r{text-align:right}
+.final-total{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-top:2px solid #111;
+  margin-top:5px;
+  padding-top:5px;
+  font-weight:900;
+}
+.final-total .label{
+  font-size:12px;
+}
+.final-total .money{
+  font-size:20px;
+}
+.footer{
+  margin-top:5px;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:6px;
+  font-size:9px;
+  color:#555;
+}
+.sign{
+  border-top:1px dashed #999;
+  padding-top:3px;
+  text-align:center;
+  margin-top:10px;
+}
+.no-print{
+  position:fixed;
+  top:10px;
+  right:10px;
+}
+.no-print button{
+  height:38px;
+  border:0;
+  border-radius:8px;
+  padding:0 14px;
+  font-weight:900;
+  background:#f5c518;
+  color:#111;
+  cursor:pointer;
+}
+@media print{
+  body{background:white}
+  .sheet{width:auto;min-height:auto;margin:0;padding:0}
+  .no-print{display:none}
+}
+</style>
+</head>
+<body>
+<div class="no-print"><button onclick="window.print()">พิมพ์ใบโพย</button></div>
+
+<div class="sheet">
+  <div class="head">
+    <div>
+      <div class="brand">🐯 TIGER 999</div>
+      <div class="meta">
+        ${shortTime(s.createdAt)} &nbsp; ลูกค้า/เอเยนต์: <b>${esc(s.agentName || s.agentId || "-")}</b>
+        &nbsp; ตลาด: <b>${marketName(market)}</b>
+        &nbsp; ใบ: <b>${esc(s.paperNo || "-")}</b>
+      </div>
+    </div>
+    <div class="right">
+      หน้า 1/1<br>
+      ID: <span class="id">${esc(slipIdText)}</span><br>
+      เครื่อง: ${esc(s.machineName || "-")}
+    </div>
+  </div>
+
+  <div class="bet-wrap">
+    ${paperCompactLines(items)}
+  </div>
+
+  <div class="cut-section">
+    <div class="cut-title">
+      <span>เลขตีออก</span>
+      <span>รวม ${money(cutTotal)}</span>
+    </div>
+    <div class="cut-body">
+      ${paperCutOutLines(cutItems)}
+    </div>
+  </div>
+
+  ${paperSummaryRow(items, market)}
+
+  <div class="final-total">
+    <div class="label">ยอดรวมแผ่นนี้</div>
+    <div class="money">฿${money(total)}</div>
+  </div>
+
+  <div class="footer">
+    <div class="sign">ผู้คีย์ / Subkey</div>
+    <div class="sign">ผู้ตรวจ / Master</div>
+    <div class="sign">ผู้รับโพย</div>
+  </div>
+</div>
+</body>
+</html>`;
+
+  const w = window.open("", "_blank");
+  if(!w){
+    alert("Browser บล็อก popup กรุณาอนุญาต popup แล้วลองใหม่");
+    return;
+  }
+  w.document.open();
+  w.document.write(htmlText);
+  w.document.close();
+  w.focus();
+}
+
+
+function printOutboundSlip(id){
+  const out = (latestData?.outbound || []).find(o => String(o?.id || "") === String(id || ""));
+  if(!out){
+    alert("ไม่พบใบส่งนอกนี้");
+    return;
+  }
+
+  const items = Array.isArray(out.items) ? out.items.slice() : [];
+  if(!items.length){
+    alert("ใบส่งนี้ยังไม่มีรายการ");
+    return;
+  }
+
+  const market = out.market || items[0]?.market || "thai";
+  const total = rowTotal(items);
+  const htmlText = `<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>ใบส่งโพยออกนอก ${esc(out.targetName || "ส่งนอก")}</title>
+<style>
+*{box-sizing:border-box}
+@page{size:A4 portrait;margin:7mm}
+body{
+  margin:0;
+  background:#111;
+  font-family:Tahoma,Arial,"Sarabun",sans-serif;
+  color:#000;
+}
+.sheet{
+  width:210mm;
+  min-height:297mm;
+  margin:0 auto;
+  background:#fff;
+  padding:7mm;
+}
+.head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:8px;
+  border-bottom:2px solid #111;
+  padding-bottom:4px;
+}
+.brand{font-size:16px;font-weight:900}
+.doc-title{font-size:12px;font-weight:900;margin-top:1px}
+.meta{font-size:10px;line-height:1.45;color:#222}
+.right{text-align:right;font-size:10px;line-height:1.45}
+.id{font-weight:900;color:#1f2937}
+.bet-wrap{margin-top:6px;min-height:180mm}
+.triple-columns{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:0;
+  border-left:1px dashed #c7c7c7;
+  border-right:1px dashed #c7c7c7;
+}
+.triple-col{
+  min-height:170mm;
+  padding:0 6px;
+  border-right:1px dashed #c7c7c7;
+}
+.triple-col:last-child{border-right:0}
+.bet-line{
+  break-inside:avoid;
+  display:grid;
+  grid-template-columns:34px 8px 1fr;
+  gap:3px;
+  align-items:baseline;
+  font-size:11px;
+  line-height:1.35;
+  border-bottom:1px dashed #d4d4d4;
+  padding:1px 0;
+}
+.bet-no{font-weight:900;font-size:12px}
+.bet-eq{color:#444}
+.bet-detail{font-weight:700}
+.muted-mini{color:#666;font-size:9px;font-weight:700}
+.paper-empty{color:#999;font-size:11px;padding:4px 0}
+.sum-table{width:100%;border-collapse:collapse;margin-top:6px;font-size:10.5px}
+.sum-table th,.sum-table td{border:1px solid #111;padding:3px 4px;text-align:center}
+.sum-table thead td{background:#f1f1f1;font-weight:900}
+.sum-table .r{text-align:right}
+.final-total{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-top:2px solid #111;
+  margin-top:6px;
+  padding-top:5px;
+  font-weight:900;
+}
+.final-total .label{font-size:12px}
+.final-total .money{font-size:20px}
+.footer{margin-top:6px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:9px;color:#555}
+.sign{border-top:1px dashed #999;padding-top:3px;text-align:center;margin-top:10px}
+.notice{
+  margin-top:4px;
+  font-size:10px;
+  color:#444;
+}
+.no-print{position:fixed;top:10px;right:10px}
+.no-print button{height:38px;border:0;border-radius:8px;padding:0 14px;font-weight:900;background:#f5c518;color:#111;cursor:pointer}
+@media print{
+  body{background:white}
+  .sheet{width:auto;min-height:auto;margin:0;padding:0}
+  .no-print{display:none}
+}
+</style>
+</head>
+<body>
+<div class="no-print"><button onclick="window.print()">พิมพ์ใบส่ง</button></div>
+
+<div class="sheet">
+  <div class="head">
+    <div>
+      <div class="brand">🐯 TIGER 999</div>
+      <div class="doc-title">ใบส่งโพยออกนอก</div>
+      <div class="meta">
+        ${shortTime(out.createdAt)} &nbsp; ส่งไป: <b>${esc(out.targetName || "ส่งนอก")}</b>
+        &nbsp; ตลาด: <b>${marketName(market)}</b>
+        &nbsp; ผู้ทำรายการ: <b>${esc(out.operatorName || "Master")}</b>
+      </div>
+      ${out.note ? `<div class="notice">หมายเหตุ: ${esc(out.note)}</div>` : ``}
+    </div>
+    <div class="right">
+      หน้า 1/1<br>
+      ID: <span class="id">${esc(out.id || "-")}</span><br>
+      เอกสาร: ใบส่ง / ส่งนอก
+    </div>
+  </div>
+
+  <div class="bet-wrap">
+    ${paperThreeColumnGrid(items, "bet-line")}
+  </div>
+
+  ${paperSummaryRow(items, market)}
+
+  <div class="final-total">
+    <div class="label">ยอดรวมใบส่งนี้</div>
+    <div class="money">฿${money(total)}</div>
+  </div>
+
+  <div class="footer">
+    <div class="sign">ผู้จัดทำ / Master</div>
+    <div class="sign">ผู้ตรวจ</div>
+    <div class="sign">ผู้รับใบส่ง</div>
+  </div>
+</div>
+</body>
+</html>`;
+
+  const w = window.open("", "_blank");
+  if(!w){
+    alert("Browser บล็อก popup กรุณาอนุญาต popup แล้วลองใหม่");
+    return;
+  }
+  w.document.open();
+  w.document.write(htmlText);
+  w.document.close();
+  w.focus();
+}
+
+function viewSlip(id){
+  const s = findSlipById(id);
+  if(!s){
+    alert("ไม่พบใบโพยนี้ อาจถูกลบหรือข้อมูลถูกรีเฟรชแล้ว");
+    return;
+  }
+
+  const items = s.items || [];
+  const total = rowTotal(items);
+  const itemRows = items.map((i,idx)=>`
+    <tr>
+      <td class="center">${idx + 1}</td>
+      <td><b>${esc(i.number)}</b></td>
+      <td>${esc(i.type)}</td>
+      <td class="num">${money(i.amount)}</td>
+      <td>${esc(i.note || "")}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="5" class="draft-empty">ไม่มีรายการในใบนี้</td></tr>`;
+
+  document.getElementById("draftModalTitle").textContent =
+    "ดูใบโพย — " + (s.agentName || s.agentId || "-");
+
+  document.getElementById("draftModalBody").innerHTML = `
+    <div class="slip-detail-head">
+      <div class="slip-detail-box"><div class="k">เอเยนต์</div><div class="v">${esc(s.agentName || s.agentId || "-")}</div></div>
+      <div class="slip-detail-box"><div class="k">ตลาด</div><div class="v">${marketName(slipMarketOf(s))}</div></div>
+      <div class="slip-detail-box"><div class="k">เลขที่ใบ</div><div class="v">${esc(s.paperNo || "-")}</div></div>
+      <div class="slip-detail-box"><div class="k">เครื่อง</div><div class="v">${esc(s.machineName || "-")}</div></div>
+      <div class="slip-detail-box"><div class="k">เวลา</div><div class="v">${shortTime(s.createdAt)}</div></div>
+      <div class="slip-detail-box"><div class="k">จำนวนรายการ</div><div class="v">${money(items.length)}</div></div>
+      <div class="slip-detail-box"><div class="k">ยอดรวมใบนี้</div><div class="v gold">${money(total)}</div></div>
+      <div class="slip-detail-box"><div class="k">Slip ID</div><div class="v"><code>${esc(slipIdOf(s) || "-")}</code></div></div>
+    </div>
+
+    <div class="draft-warning">
+      ใบนี้เป็น Slip จริงที่เก็บเข้า Master แล้ว ถ้าจะแก้ย้อนหลังให้ใช้ปุ่ม “แก้” ในขั้นถัดไป
+    </div>
+
+    <div class="slip-type-sum">
+      ${slipTypeSummaryBoxes(items)}
+    </div>
+
+    <div class="slip-items-table">
+      <table>
+        <thead>
+          <tr>
+            <th class="center">#</th>
+            <th>เลข</th>
+            <th>ประเภท</th>
+            <th class="num">ยอด</th>
+            <th>หมายเหตุ</th>
+          </tr>
+        </thead>
+        <tbody>${itemRows}</tbody>
+      </table>
+    </div>
+  `;
+
+  document.getElementById("draftModalFoot").innerHTML = `
+    <button class="btn green" onclick="printSlip('${js(slipIdOf(s))}')">พิมพ์ใบโพย</button>
+    <button class="btn gold" onclick="alert('Step ถัดไป: Master แก้ใบ / เปลี่ยนเลขที่ใบ')">แก้ใบนี้</button>
+    <button class="btn" onclick="closeDraftModal()">ปิด</button>
+  `;
+
+  document.getElementById("draftModal").classList.add("show");
+}
+
+
+function fallbackRates(){
+  return {
+    "version": "5I",
+    "updatedAt": "2026-05-09T00:00:00.000Z",
+    "note": "Detailed central rates. Discount groups may be same, but payout rows are separated by real bet type.",
+    "markets": {
+        "thai": {
+            "name": "ไทย",
+            "rows": [
+                {
+                    "id": "thai_3top",
+                    "label": "3ตัวบน",
+                    "group": "3ตัวบน/3หน้า",
+                    "discountPercent": 35,
+                    "payout": 0,
+                    "note": "ลด 35% / รอใส่อัตราจ่าย"
+                },
+                {
+                    "id": "thai_3front",
+                    "label": "3หน้า",
+                    "group": "3ตัวบน/3หน้า",
+                    "discountPercent": 35,
+                    "payout": 0,
+                    "note": "ลด 35% / รอใส่อัตราจ่าย"
+                },
+                {
+                    "id": "thai_3lower",
+                    "label": "3ล่าง",
+                    "group": "3ล่าง",
+                    "discountPercent": 20,
+                    "payout": 0,
+                    "note": "ลด 20% / รอใส่อัตราจ่าย"
+                },
+                {
+                    "id": "thai_2top",
+                    "label": "2ตัวบน",
+                    "group": "2ตัว",
+                    "discountPercent": 25,
+                    "payout": 0,
+                    "note": "ลด 25% / รอใส่อัตราจ่าย"
+                },
+                {
+                    "id": "thai_2lower",
+                    "label": "2ตัวล่าง",
+                    "group": "2ตัว",
+                    "discountPercent": 25,
+                    "payout": 0,
+                    "note": "ลด 25% / รอใส่อัตราจ่าย"
+                },
+                {
+                    "id": "thai_2front",
+                    "label": "2หน้า",
+                    "group": "2ตัว",
+                    "discountPercent": 25,
+                    "payout": 0,
+                    "note": "ลด 25% / รอใส่อัตราจ่าย"
+                },
+                {
+                    "id": "thai_run_top",
+                    "label": "วิ่งบน",
+                    "group": "วิ่ง/ปัก",
+                    "discountPercent": 12,
+                    "payout": 0,
+                    "note": "ลด 12% / จ่ายไม่เท่ากับวิ่งล่าง-ปัก"
+                },
+                {
+                    "id": "thai_run_lower",
+                    "label": "วิ่งล่าง",
+                    "group": "วิ่ง/ปัก",
+                    "discountPercent": 12,
+                    "payout": 0,
+                    "note": "ลด 12% / จ่ายไม่เท่ากับวิ่งบน-ปัก"
+                },
+                {
+                    "id": "thai_pin_top",
+                    "label": "ปักบน",
+                    "group": "วิ่ง/ปัก",
+                    "discountPercent": 12,
+                    "payout": 0,
+                    "note": "ลด 12% / แยกอัตราจ่าย"
+                },
+                {
+                    "id": "thai_pin_lower",
+                    "label": "ปักล่าง",
+                    "group": "วิ่ง/ปัก",
+                    "discountPercent": 12,
+                    "payout": 0,
+                    "note": "ลด 12% / แยกอัตราจ่าย"
+                },
+                {
+                    "id": "thai_tod2",
+                    "label": "2โต๊ด",
+                    "group": "โต๊ด",
+                    "discountPercent": 25,
+                    "payout": 0,
+                    "note": "ลด 25% / รอใส่อัตราจ่าย"
+                },
+                {
+                    "id": "thai_tod3",
+                    "label": "3โต๊ด",
+                    "group": "โต๊ด",
+                    "discountPercent": 25,
+                    "payout": 0,
+                    "note": "ลด 25% / ตรวจคลุม 3ตัวบน"
+                },
+                {
+                    "id": "thai_tod4",
+                    "label": "4โต๊ด",
+                    "group": "โต๊ด",
+                    "discountPercent": 25,
+                    "payout": 0,
+                    "note": "ลด 25% / ตรวจคลุม 3ตัวบน"
+                },
+                {
+                    "id": "thai_tod5",
+                    "label": "5โต๊ด",
+                    "group": "โต๊ด",
+                    "discountPercent": 25,
+                    "payout": 0,
+                    "note": "ลด 25% / ตรวจคลุม 3ตัวบน"
+                }
+            ]
+        },
+        "lao": {
+            "name": "ลาว",
+            "rows": [
+                {
+                    "id": "lao_4",
+                    "label": "4ตัว",
+                    "group": "4ตัว",
+                    "discountPercent": 25,
+                    "payout": 4500,
+                    "note": "ลด 25% จ่าย 4500"
+                },
+                {
+                    "id": "lao_4_set",
+                    "label": "4ตัวชุด",
+                    "group": "4ตัว",
+                    "discountPercent": 25,
+                    "payout": 170,
+                    "note": "ชุด 10 จ่าย 170 / ตรวจทุกประตู"
+                },
+                {
+                    "id": "lao_4_reverse",
+                    "label": "4ตัวกลับ",
+                    "group": "4ตัว",
+                    "discountPercent": 25,
+                    "payout": 4500,
+                    "note": "คิดทุกกลับ / ถ้าถูกจ่ายบาทละ 4500"
+                },
+                {
+                    "id": "lao_3",
+                    "label": "3ตัว",
+                    "group": "3ตัว",
+                    "discountPercent": 20,
+                    "payout": 550,
+                    "note": "ลด 20% จ่าย 550"
+                },
+                {
+                    "id": "lao_3_reverse",
+                    "label": "3ตัวกลับ",
+                    "group": "3ตัว",
+                    "discountPercent": 20,
+                    "payout": 550,
+                    "note": "ลด 20% จ่าย 550 / 3ตัวกลับ"
+                },
+                {
+                    "id": "lao_3_set",
+                    "label": "3ตัวชุด",
+                    "group": "3ตัว",
+                    "discountPercent": 20,
+                    "payout": 0,
+                    "note": "ลด 20% / อัตราจ่ายชุดให้กรอกเอง"
+                },
+                {
+                    "id": "lao_2",
+                    "label": "2ตัว",
+                    "group": "2ตัว",
+                    "discountPercent": 25,
+                    "payout": 70,
+                    "note": "ลด 25% จ่าย 70"
+                },
+                {
+                    "id": "lao_1_top",
+                    "label": "1ตัวบน",
+                    "group": "1ตัว/ปัก",
+                    "discountPercent": 12,
+                    "payout": 0,
+                    "note": "ลด 12% / รอใส่อัตราจ่าย"
+                },
+                {
+                    "id": "lao_1_lower",
+                    "label": "1ตัวล่าง",
+                    "group": "1ตัว/ปัก",
+                    "discountPercent": 12,
+                    "payout": 0,
+                    "note": "ลด 12% / รอใส่อัตราจ่าย"
+                },
+                {
+                    "id": "lao_run_top",
+                    "label": "วิ่งบน",
+                    "group": "1ตัว/ปัก",
+                    "discountPercent": 12,
+                    "payout": 0,
+                    "note": "ลด 12% / แยกอัตราจ่าย"
+                },
+                {
+                    "id": "lao_run_lower",
+                    "label": "วิ่งล่าง",
+                    "group": "1ตัว/ปัก",
+                    "discountPercent": 12,
+                    "payout": 0,
+                    "note": "ลด 12% / แยกอัตราจ่าย"
+                },
+                {
+                    "id": "lao_pin_top",
+                    "label": "ปักบน",
+                    "group": "1ตัว/ปัก",
+                    "discountPercent": 12,
+                    "payout": 0,
+                    "note": "ลด 12% / แยกอัตราจ่าย"
+                },
+                {
+                    "id": "lao_pin_lower",
+                    "label": "ปักล่าง",
+                    "group": "1ตัว/ปัก",
+                    "discountPercent": 12,
+                    "payout": 0,
+                    "note": "ลด 12% / แยกอัตราจ่าย"
+                },
+                {
+                    "id": "lao_tod2",
+                    "label": "2โต๊ด",
+                    "group": "โต๊ด",
+                    "discountPercent": 25,
+                    "payout": 10,
+                    "note": "ลด 25% จ่าย 10"
+                },
+                {
+                    "id": "lao_tod3",
+                    "label": "3โต๊ด",
+                    "group": "โต๊ด",
+                    "discountPercent": 25,
+                    "payout": 100,
+                    "note": "ลด 25% จ่าย 100 / ตรวจท้าย 3 หลัก"
+                },
+                {
+                    "id": "lao_tod4",
+                    "label": "4โต๊ด",
+                    "group": "โต๊ด",
+                    "discountPercent": 25,
+                    "payout": 20,
+                    "note": "ลด 25% จ่าย 20 / ตรวจท้าย 4 หลัก"
+                },
+                {
+                    "id": "lao_tod5",
+                    "label": "5โต๊ด",
+                    "group": "โต๊ด",
+                    "discountPercent": 25,
+                    "payout": 10,
+                    "note": "ลด 25% จ่าย 10 / ตรวจท้าย 5 หลัก"
+                }
+            ]
+        }
     }
+};
+}
 
-    document.getElementById("totalsRows").innerHTML = (data.totalsByNumber || []).map(r => `
-      <tr>
-        <td>${esc(r.market)}</td>
-        <td>${esc(r.type)}</td>
-        <td><b>${esc(r.number)}</b></td>
-        <td>${money(r.amount)}</td>
-        <td>${money(r.outboundAmount)}</td>
-        <td class="${r.overAmount > 0 ? 'warn' : 'muted'}">${money(r.overAmount)}</td>
-      </tr>
-    `).join("") || `<tr><td colspan="6" class="muted">ยังไม่มีข้อมูล</td></tr>`;
+function normalizeRatesClient(rates){
+  const fb = fallbackRates();
+  const incoming = rates && rates.markets ? rates : {};
+  const out = {version:"5I", updatedAt: incoming.updatedAt || new Date().toISOString(), note: incoming.note || fb.note, markets:{}};
 
-    document.getElementById("overRows").innerHTML = (data.overLimit || []).map(r => `
-      <tr>
-        <td><b>${esc(r.number)}</b></td>
-        <td>${esc(r.type)}</td>
-        <td>${money(r.amount)}</td>
-        <td class="danger">${money(r.overAmount)}</td>
-      </tr>
-    `).join("") || `<tr><td colspan="4" class="muted">ยังไม่มีเลขเกิน</td></tr>`;
+  for(const m of ["thai","lao"]){
+    const fbMarket = fb.markets[m];
+    const inMarket = incoming.markets && incoming.markets[m] ? incoming.markets[m] : {};
+    const existingRows = Array.isArray(inMarket.rows) ? inMarket.rows : [];
+    const existingById = {};
+    existingRows.forEach(row => existingById[String(row.id || "")] = row);
 
-    document.getElementById("slipRows").innerHTML = (data.slips || []).slice(0,80).map(s => `
-      <tr>
-        <td class="small">${new Date(s.createdAt).toLocaleString("th-TH")}</td>
-        <td>${esc(s.agentName || s.agentId)}</td>
-        <td>${esc(s.paperNo || "-")}</td>
-        <td>${esc(s.machineName || "-")}</td>
-        <td>${(s.items || []).map(i => `${esc(i.number)} ${esc(i.type)} ${money(i.amount)}`).join("<br>")}</td>
-      </tr>
-    `).join("") || `<tr><td colspan="5" class="muted">ยังไม่มีใบโพยเข้า</td></tr>`;
+    const rows = fbMarket.rows.map(fbRow => {
+      const row = existingById[String(fbRow.id)] || {};
+      return {
+        id: String(fbRow.id),
+        label: String(row.label || fbRow.label || ""),
+        group: String(row.group || fbRow.group || row.label || fbRow.label || ""),
+        discountPercent: Number(row.discountPercent ?? fbRow.discountPercent ?? 0),
+        payout: Number(row.payout ?? fbRow.payout ?? 0),
+        note: String(row.note || fbRow.note || "")
+      };
+    });
 
-    document.getElementById("agentRows").innerHTML = (data.agentTotals || []).map(a => `
-      <tr>
-        <td>${esc(a.agentName)}</td>
-        <td>${money(a.slipCount)}</td>
-        <td>${money(a.amount)}</td>
-      </tr>
-    `).join("") || `<tr><td colspan="3" class="muted">ยังไม่มีข้อมูลเอเยนต์</td></tr>`;
+    existingRows.forEach(row => {
+      const id = String(row.id || "");
+      if(!id || fbMarket.rows.some(fbRow => fbRow.id === id)) return;
+      rows.push({
+        id,
+        label: String(row.label || row.group || ""),
+        group: String(row.group || row.label || ""),
+        discountPercent: Number(row.discountPercent || 0),
+        payout: Number(row.payout || 0),
+        note: String(row.note || "")
+      });
+    });
+
+    out.markets[m] = {name: inMarket.name || fbMarket.name || m, rows};
   }
 
-  function connect(){
-    const es = new EventSource("/api/events");
+  return out;
+}
 
-    es.onopen = () => {
-      dot.classList.add("on");
-      conn.textContent = "เชื่อมต่อ Master Server แล้ว";
-    };
+function renderRates(rates){
+  const box = document.getElementById("ratesBox");
+  if(!box) return;
+  const r = normalizeRatesClient(rates || latestData?.rates);
+  const parts = [];
+  for(const marketKey of ["thai","lao"]){
+    const market = r.markets[marketKey];
+    parts.push(`<div class="rate-market-title">${esc(market.name || marketKey)}</div>`);
+    parts.push(`<div class="rate-table-wrap"><table><thead><tr><th>ประเภท</th><th>กลุ่มลด</th><th class="num">% ลด</th><th class="num">อัตราจ่าย</th><th>หมายเหตุ</th></tr></thead><tbody>`);
+    parts.push((market.rows || []).map(row=>`
+      <tr data-rate-row="${esc(row.id)}" data-market="${marketKey}">
+        <td><input class="rate-label-input" data-field="label" value="${esc(row.label || "")}"></td>
+        <td><input class="rate-label-input" data-field="group" value="${esc(row.group || "")}"></td>
+        <td class="num"><input class="rate-input" data-field="discountPercent" type="number" step="0.01" value="${Number(row.discountPercent || 0)}"></td>
+        <td class="num"><input class="rate-input" data-field="payout" type="number" step="0.01" value="${Number(row.payout || 0)}"></td>
+        <td><input class="rate-label-input" data-field="note" value="${esc(row.note || "")}"></td>
+      </tr>`).join(""));
+    parts.push(`</tbody></table></div>`);
+  }
+  parts.push(`<div class="rate-save-row"><button class="btn green" onclick="saveRates()">บันทึกเรทลง Master USB</button><button class="btn" onclick="renderRates(fallbackRates())">คืนค่าเริ่มต้น Step 5B</button></div>`);
+  box.innerHTML = parts.join("");
+}
+function collectRatesFromUI(){
+  const current = normalizeRatesClient(latestData?.rates);
+  const rows = document.querySelectorAll("tr[data-rate-row]");
+  const byMarket = {thai:[], lao:[]};
+  rows.forEach(tr=>{
+    const market = tr.getAttribute("data-market") || "thai";
+    const id = tr.getAttribute("data-rate-row") || `${market}_${byMarket[market].length+1}`;
+    const obj = {id};
+    tr.querySelectorAll("[data-field]").forEach(input=>{
+      const field = input.getAttribute("data-field");
+      if(field === "discountPercent" || field === "payout") obj[field] = Number(input.value || 0);
+      else obj[field] = input.value || "";
+    });
+    byMarket[market].push(obj);
+  });
+  return {version:"5I",updatedAt:new Date().toISOString(),note: current.note || "Detailed central rate settings from Master",markets:{thai:{name:"ไทย",rows:byMarket.thai},lao:{name:"ลาว",rows:byMarket.lao}}};
+}
+async function saveRates(){
+  try{
+    const payload = collectRatesFromUI();
+    const res = await fetch("/api/rates",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok || data.ok === false) throw new Error(data.error || "บันทึกเรทไม่สำเร็จ");
+    latestData.rates = data.rates || payload;
+    renderRates(latestData.rates);
+    alert("บันทึกเรทแล้ว");
+  }catch(err){ alert(err.message); }
+}
 
-    es.onmessage = ev => {
-      render(JSON.parse(ev.data));
-    };
+function render(data){
+  latestData = data;
 
-    es.onerror = () => {
-      dot.classList.remove("on");
-      conn.textContent = "หลุดการเชื่อมต่อ กำลังรอเชื่อมใหม่...";
-    };
+  if(data.runtime){
+    const ips = data.runtime.ips || [];
+    document.getElementById("runtimeRoot").textContent = data.runtime.root || "-";
+    document.getElementById("masterUrl").textContent = ips.length ? `http://${ips[0]}:${data.runtime.port}/master` : `http://localhost:${data.runtime.port}/master`;
+    document.getElementById("subkeyUrl").textContent = ips.length ? `http://${ips[0]}:${data.runtime.port}/subkey` : `http://localhost:${data.runtime.port}/subkey`;
   }
 
-  async function resetDemo(){
-    if(!confirm("ล้างข้อมูลทดลองทั้งหมดใน slips/outbound ใช่ไหม?")) return;
-    await fetch("/api/reset-demo", { method:"POST" });
+  renderMarketButtons();
+  renderAgentsList();
+  renderSelectedSummary();
+  renderSelectedSlips();
+  renderOver(getFilteredOverRows());
+  renderTotals(getFilteredTotalRows());
+  renderDrafts(getFilteredDraftRows());
+  renderOutbound(getFilteredOutboundRows());
+  renderRates(data.rates);
+}
+
+function selectAgent(agentId){
+  selectedAgentId = agentId;
+  renderAgentsList();
+  renderSelectedSummary();
+  renderSelectedSlips();
+}
+
+function getAgentTotals(){
+  const map = {};
+  for(const slip of getMarketSlips()){
+    const id = slip.agentId || "UNKNOWN";
+    if(!map[id]){
+      map[id] = {
+        agentId: id,
+        agentName: slip.agentName || id,
+        amount: 0,
+        slipCount: 0
+      };
+    }
+    map[id].slipCount += 1;
+    map[id].amount += rowTotal(slip.items);
+  }
+  return Object.values(map).sort((a,b)=>String(a.agentName).localeCompare(String(b.agentName), "th"));
+}
+
+function getSelectedAgentName(){
+  if(selectedAgentId === "ALL") return "ทั้งหมด";
+  const agent = getAgentTotals().find(a => a.agentId === selectedAgentId)
+    || (latestData?.agents || []).find(a => a.id === selectedAgentId || a.agentId === selectedAgentId);
+  return agent ? (agent.agentName || agent.name || agent.id) : selectedAgentId;
+}
+
+function getFilteredSlips(){
+  const all = getMarketSlips();
+  let rows = selectedAgentId === "ALL" ? all : all.filter(s => s.agentId === selectedAgentId);
+  const q = document.getElementById("slipSearch")?.value?.trim()?.toLowerCase() || "";
+  if(q){
+    rows = rows.filter(s => {
+      const text = [
+        s.agentName, s.agentId, s.paperNo, s.machineName,
+        ...(s.items || []).flatMap(i => [i.number, i.type, i.amount])
+      ].join(" ").toLowerCase();
+      return text.includes(q);
+    });
+  }
+  return rows;
+}
+
+function renderAgentsList(){
+  const el = document.getElementById("agentCards");
+  if(!latestData){
+    el.innerHTML = `<div class="placeholder">กำลังโหลดข้อมูล...</div>`;
+    return;
   }
 
-  connect();
+  const q = document.getElementById("agentSearch")?.value?.trim()?.toLowerCase() || "";
+  let agents = getAgentTotals();
+  if(q){
+    agents = agents.filter(a => String(a.agentName || a.agentId).toLowerCase().includes(q));
+  }
+
+  document.getElementById("agentCountTag").textContent = `${money(getAgentTotals().length)} เอเยนต์`;
+
+  const marketSlips = getMarketSlips();
+  const allAmount = marketSlips.reduce((sum,s)=>sum+rowTotal(s.items),0);
+  const allSlips = marketSlips.length;
+
+  const allCard = `
+    <div class="agent-card all-agent ${selectedAgentId === 'ALL' ? 'active' : ''}" onclick="selectAgent('ALL')">
+      <div class="agent-name"><span>ทั้งหมด</span><span class="gold">${money(allAmount)}</span></div>
+      <div class="agent-meta">
+        <div class="meta-pill"><div class="meta-label">จำนวนใบ</div><div class="meta-value">${money(allSlips)}</div></div>
+        <div class="meta-pill"><div class="meta-label">ยอดรวม</div><div class="meta-value">${money(allAmount)}</div></div>
+      </div>
+    </div>
+  `;
+
+  const cards = agents.map(a=>`
+    <div class="agent-card ${selectedAgentId === a.agentId ? 'active' : ''}" onclick="selectAgent('${esc(a.agentId)}')">
+      <div class="agent-name"><span>${esc(a.agentName)}</span><span class="gold">${money(a.amount)}</span></div>
+      <div class="agent-meta">
+        <div class="meta-pill"><div class="meta-label">จำนวนใบ</div><div class="meta-value">${money(a.slipCount)}</div></div>
+        <div class="meta-pill"><div class="meta-label">ยอดรวม</div><div class="meta-value">${money(a.amount)}</div></div>
+      </div>
+    </div>
+  `).join("");
+
+  el.innerHTML = allCard + (cards || `<div class="placeholder">ไม่พบเอเยนต์</div>`);
+}
+
+function renderSelectedSummary(){
+  if(!latestData) return;
+
+  const rows = getFilteredSlips();
+  const total = rows.reduce((sum,s)=>sum+rowTotal(s.items),0);
+
+  document.getElementById("selectedAgentLabel").textContent =
+    (selectedAgentId === "ALL" ? "ยอดรวม" : "ยอดรวม " + getSelectedAgentName()) + " / " + marketLabel();
+
+  document.getElementById("mainTotal").textContent = money(total);
+  document.getElementById("mainSlip").textContent = money(rows.length);
+  const outboundRows = getFilteredOutboundRows();
+  const outTotal = outboundRows.reduce((sum,out)=>sum+rowTotal(out.items || []),0);
+  document.getElementById("overCount").textContent = money(getFilteredOverRows().length);
+  document.getElementById("outTotal").textContent = money(outTotal);
+  document.getElementById("draftCount").textContent = money(getFilteredDraftRows().length);
+
+  document.getElementById("slipPanelTitle").textContent =
+    (selectedAgentId === "ALL" ? "ใบโพย" : "ใบโพยของ " + getSelectedAgentName()) + " / " + marketLabel();
+}
+
+function renderSelectedSlips(){
+  const el = document.getElementById("slipCards");
+  if(!latestData){
+    el.innerHTML = `<div class="placeholder">กำลังโหลดข้อมูล...</div>`;
+    return;
+  }
+
+  const slips = getFilteredSlips();
+
+  if(!slips.length){
+    el.innerHTML = `<div class="placeholder">ยังไม่มีใบโพยในมุมมองนี้</div>`;
+    return;
+  }
+
+  el.innerHTML = slips.slice(0,160).map((s,idx)=>{
+    const items = s.items || [];
+    const total = rowTotal(items);
+    const slipId = slipIdOf(s);
+    const market = slipMarketOf(s);
+    return `
+      <div class="slip-card compact">
+        <div class="slip-head">
+          <div>
+            <div class="slip-title">${esc(s.agentName || s.agentId)} · ${marketName(market)} · ใบ ${esc(s.paperNo || "-")}</div>
+            <div class="slip-time">${shortTime(s.createdAt)} · ${esc(s.machineName || "-")}</div>
+          </div>
+          <span class="tag">${money(items.length)} รายการ</span>
+        </div>
+        <div class="slip-body">
+          <div>
+            <div class="slip-summary-grid">
+              <div class="slip-mini"><div class="k">จำนวนรายการ</div><div class="v">${money(items.length)}</div></div>
+              <div class="slip-mini"><div class="k">ตลาด</div><div class="v">${marketName(market)}</div></div>
+              <div class="slip-mini"><div class="k">เลขที่ใบ</div><div class="v">${esc(s.paperNo || "-")}</div></div>
+              <div class="slip-mini"><div class="k">เครื่อง</div><div class="v">${esc(s.machineName || "-")}</div></div>
+            </div>
+            <div class="slip-preview">
+              ${slipPreviewLines(items, 5)}
+            </div>
+          </div>
+          <div class="slip-side">
+            <div class="side-small">ยอดใบนี้</div>
+            <div class="total-amount">${money(total)}</div>
+            <div class="side-small">สรุปประเภท</div>
+            <div class="slip-kind-list">${slipTypeSummaryText(items)}</div>
+            <div class="slip-actions three">
+              <button class="btn blue" onclick="viewSlip('${js(slipId)}')">ดู</button>
+              <button class="btn green" onclick="printSlip('${js(slipId)}')">พิมพ์</button>
+              <button class="btn gold" onclick="alert('Step ถัดไป: Master แก้ใบ / เปลี่ยนเลขที่ใบ')">แก้</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function acceptLimit(row){
+  const amount = Number(row?.amount || 0);
+  const outbound = Number(row?.outboundAmount || 0);
+  const over = Number(row?.overAmount || 0);
+  const limit = amount - outbound - over;
+  return Math.max(0, limit);
+}
+
+function renderOver(rows){
+  const el = document.getElementById("overRows");
+  el.innerHTML = rows.map((r, idx)=>`
+    <tr>
+      <td>${esc(r.market)}</td>
+      <td>${esc(r.type)}</td>
+      <td><b>${esc(r.number)}</b></td>
+      <td class="num">${money(acceptLimit(r))}</td>
+      <td class="num bad">${money(r.overAmount)}</td>
+      <td class="center"><button class="btn gold" onclick="createOutboundFromOverIndex(${idx})">ส่ง</button></td>
+    </tr>
+  `).join("") || `<tr><td colspan="6" class="muted center">ยังไม่มีเลขเกิน</td></tr>`;
+}
+
+function renderTotals(rows){
+  const el = document.getElementById("totalsRows");
+  el.innerHTML = rows.map(r=>`
+    <tr>
+      <td>${esc(r.market)}</td>
+      <td>${esc(r.type)}</td>
+      <td><b>${esc(r.number)}</b></td>
+      <td class="num">${money(r.amount)}</td>
+      <td class="num">${money(r.outboundAmount)}</td>
+      <td class="num ${r.overAmount > 0 ? 'bad' : 'muted'}">${money(r.overAmount)}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="6" class="muted center">ยังไม่มีข้อมูลยอดเลข</td></tr>`;
+}
+
+function renderDrafts(drafts){
+  const el = document.getElementById("draftList");
+  if(!drafts.length){
+    el.innerHTML = `<div class="placeholder">ยังไม่มี Draft ค้าง<br>Draft จะยังไม่เข้ายอดรวม / เลขเกิน / ส่งนอก จนกว่า Subkey จะกดเก็บใบ</div>`;
+    return;
+  }
+
+  el.innerHTML = drafts.map(d=>{
+    const total = rowTotal(d.items);
+    const count = (d.items || []).length;
+    return `
+      <div class="queue-card">
+        <div class="queue-title">${esc(d.machineName || "Subkey")} — ${esc(d.agentName || d.agentId || "-")}</div>
+        <div class="queue-meta">
+          Draft Key: <code>${esc(d.draftKey || "-")}</code><br>
+          ใบ: ${esc(d.paperNo || "-")} / ตลาด: ${marketName(d.market)}<br>
+          รายการ: <b>${money(count)}</b> / ยอด Draft: <b class="gold">${money(total)}</b><br>
+          ล่าสุด: ${d.updatedAt ? shortTime(d.updatedAt) : "-"}<br>
+          <span class="bad">ยังไม่เข้ายอดรวมจริง</span>
+        </div>
+        <div class="queue-actions">
+          <button class="btn blue" onclick="viewDraft('${js(d.draftKey)}')">ดู Draft</button>
+          <button class="btn red" onclick="clearDraft('${js(d.draftKey)}')">ล้าง Draft</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function findDraft(draftKey){
+  return (latestData?.drafts || []).find(d => String(d.draftKey) === String(draftKey));
+}
+
+function viewDraft(draftKey){
+  const d = findDraft(draftKey);
+  if(!d){
+    alert("ไม่พบ Draft นี้ อาจถูกล้างหรือเก็บใบไปแล้ว");
+    return;
+  }
+
+  const items = d.items || [];
+  const itemRows = items.map((i,idx)=>`
+    <tr>
+      <td class="center">${idx + 1}</td>
+      <td><b>${esc(i.number)}</b></td>
+      <td>${esc(i.type)}</td>
+      <td class="num">${money(i.amount)}</td>
+      <td>${esc(i.note || "")}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="5" class="draft-empty">ยังไม่มีรายการใน Draft นี้</td></tr>`;
+
+  document.getElementById("draftModalTitle").textContent = "ดู Draft — " + (d.machineName || "Subkey");
+  document.getElementById("draftModalBody").innerHTML = `
+    <div class="draft-grid">
+      <div class="draft-info"><div class="k">เครื่อง</div><div class="v">${esc(d.machineName || "-")}</div></div>
+      <div class="draft-info"><div class="k">เอเยนต์</div><div class="v">${esc(d.agentName || d.agentId || "-")}</div></div>
+      <div class="draft-info"><div class="k">เลขที่ใบ</div><div class="v">${esc(d.paperNo || "-")}</div></div>
+      <div class="draft-info"><div class="k">ตลาด</div><div class="v">${marketName(d.market)}</div></div>
+      <div class="draft-info"><div class="k">จำนวนรายการ</div><div class="v">${money(items.length)}</div></div>
+      <div class="draft-info"><div class="k">ยอด Draft</div><div class="v gold">${money(rowTotal(items))}</div></div>
+      <div class="draft-info"><div class="k">แก้ล่าสุด</div><div class="v">${d.updatedAt ? shortTime(d.updatedAt) : "-"}</div></div>
+      <div class="draft-info"><div class="k">Draft Key</div><div class="v"><code>${esc(d.draftKey || "-")}</code></div></div>
+    </div>
+
+    <div class="draft-warning">
+      Draft นี้ยังไม่ใช่ Slip จริง ยังไม่เข้ายอดรวม ยังไม่คิดเลขเกิน และยังไม่ใช้ส่งนอก จนกว่า Subkey จะกด “เก็บใบ ส่งเข้า Master”
+    </div>
+
+    <div class="draft-items">
+      <table>
+        <thead>
+          <tr>
+            <th class="center">#</th>
+            <th>เลข</th>
+            <th>ประเภท</th>
+            <th class="num">ยอด</th>
+            <th>หมายเหตุ</th>
+          </tr>
+        </thead>
+        <tbody>${itemRows}</tbody>
+      </table>
+    </div>
+  `;
+  document.getElementById("draftModalFoot").innerHTML = `
+    <button class="btn red" onclick="clearDraft('${js(d.draftKey)}')">ล้าง Draft นี้</button>
+    <button class="btn" onclick="closeDraftModal()">ปิด</button>
+  `;
+  document.getElementById("draftModal").classList.add("show");
+}
+
+function closeDraftModal(){
+  document.getElementById("draftModal").classList.remove("show");
+}
+
+async function clearDraft(draftKey){
+  const d = findDraft(draftKey);
+  const label = d ? `${d.machineName || "Subkey"} / ${d.agentName || d.agentId || "-"}` : draftKey;
+
+  if(!confirm(`ล้าง Draft ของ ${label} ใช่ไหม?\n\nการล้าง Draft ไม่กระทบ Slip จริงที่เก็บเข้า Master แล้ว`)) return;
+
+  try{
+    const res = await fetch(`/api/drafts/${encodeURIComponent(draftKey)}`, { method:"DELETE" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    closeDraftModal();
+  }catch(err){
+    alert("ล้าง Draft ไม่สำเร็จ: " + err.message);
+  }
+}
+
+
+
+const pendingOutbound = [];
+
+function renderPendingOutbound(){
+  const el = document.getElementById("pendingOutboundBox");
+  if(!el) return;
+
+  if(!pendingOutbound.length){
+    el.innerHTML = "ยังไม่มีรายการใบส่งที่เตรียมไว้";
+    return;
+  }
+
+  const total = pendingOutbound.reduce((sum,i)=>sum+Number(i.amount || 0),0);
+  const rows = pendingOutbound.map((i,idx)=>`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 42px;gap:6px;align-items:center;border-bottom:1px solid rgba(51,65,85,.7);padding:5px 0">
+      <div>${esc(i.market)}</div>
+      <div class="blue">${esc(i.type)}</div>
+      <div><b>${esc(i.number)}</b></div>
+      <div class="gold" style="text-align:right">${money(i.amount)}</div>
+      <button class="btn red" style="height:28px;padding:0" onclick="removePendingOutbound(${idx})">ลบ</button>
+    </div>
+  `).join("");
+
+  el.innerHTML = `${rows}<div style="text-align:right;margin-top:8px;color:var(--gold);font-weight:900">รวม ${money(total)}</div>`;
+}
+
+function pendingKey(item){
+  return [item.market || "thai", item.type || "บน", String(item.number || "").trim()].join("|");
+}
+
+function addPendingOutboundItem(item, options = {}){
+  const clean = {
+    market: item.market || "thai",
+    type: item.type || "บน",
+    number: String(item.number || "").trim(),
+    amount: Number(item.amount || 0),
+    note: item.note || "ใบส่ง"
+  };
+  if(!clean.number || !Number.isFinite(clean.amount) || clean.amount <= 0) return false;
+
+  const key = pendingKey(clean);
+  const existing = pendingOutbound.find(x => pendingKey(x) === key);
+
+  if(existing){
+    if(options.replaceAmount){
+      existing.amount = clean.amount;
+    }else{
+      existing.amount = Number(existing.amount || 0) + clean.amount;
+    }
+    existing.note = clean.note || existing.note;
+    renderPendingOutbound();
+    return "updated";
+  }
+
+  pendingOutbound.push(clean);
+  renderPendingOutbound();
+  return "added";
+}
+
+function addManualOutboundItem(){
+  const market = currentMarket === "ALL" ? (document.getElementById("manualOutMarket")?.value || "thai") : currentMarket;
+  const type = document.getElementById("manualOutType")?.value || "บน";
+  const numberEl = document.getElementById("manualOutNumber");
+  const amountEl = document.getElementById("manualOutAmount");
+  const number = numberEl?.value?.trim() || "";
+  const amount = Number(String(amountEl?.value || "").replace(/,/g,""));
+
+  if(!number){ alert("กรุณาใส่เลข"); numberEl?.focus(); return; }
+  if(!Number.isFinite(amount) || amount <= 0){ alert("กรุณาใส่ยอดส่งให้ถูกต้อง"); amountEl?.focus(); return; }
+
+  const result = addPendingOutboundItem({market,type,number,amount,note:"เพิ่มเองจาก Master"});
+  if(result === "updated") alert("มีเลขนี้อยู่แล้ว ระบบรวมยอดเข้าแถวเดิมให้แล้ว");
+  if(numberEl) numberEl.value = "";
+  if(amountEl) amountEl.value = "";
+  numberEl?.focus();
+}
+
+function removePendingOutbound(idx){
+  pendingOutbound.splice(idx,1);
+  renderPendingOutbound();
+}
+
+function clearPendingOutbound(){
+  if(!pendingOutbound.length) return;
+  if(!confirm("ล้างรายการใบส่งที่เตรียมไว้ใช่ไหม?")) return;
+  pendingOutbound.splice(0,pendingOutbound.length);
+  renderPendingOutbound();
+}
+
+function addAllOverToPending(){
+  const rows = getFilteredOverRows();
+  if(!rows.length){ alert("ยังไม่มีเลขเกินให้ดึงมาเตรียมรายการ"); return; }
+
+  let added = 0;
+  let updated = 0;
+  rows.forEach(r => {
+    const result = addPendingOutboundItem(makeOutboundItem(r, r.overAmount), { replaceAmount:true });
+    if(result === "added") added += 1;
+    if(result === "updated") updated += 1;
+  });
+
+  alert(`ดึงเลขเกินมาเตรียมรายการแล้ว\nเพิ่มใหม่ ${added} รายการ / อัปเดตรายการเดิม ${updated} รายการ`);
+}
+
+async function createPendingOutbound(){
+  if(!pendingOutbound.length){ alert("ยังไม่มีรายการใบส่งที่เตรียมไว้"); return; }
+  const total = pendingOutbound.reduce((sum,i)=>sum+Number(i.amount || 0),0);
+  if(!confirm(`สร้างใบส่ง ${pendingOutbound.length} รายการ รวม ${money(total)} ใช่ไหม?`)) return;
+
+  try{
+    await postOutbound(pendingOutbound.map(i=>({...i})));
+    pendingOutbound.splice(0,pendingOutbound.length);
+    renderPendingOutbound();
+    alert("สร้างใบส่งเรียบร้อย");
+  }catch(err){
+    alert(err.message);
+  }
+}
+
+function outboundTargetName(){
+  return document.getElementById("outboundTargetName")?.value?.trim() || "ส่งนอก";
+}
+
+function outboundNote(){
+  return document.getElementById("outboundNote")?.value?.trim() || "";
+}
+
+function makeOutboundItem(row, amount){
+  return {
+    market: row.market || "thai",
+    type: row.type || "บน",
+    number: row.number,
+    amount: Number(amount || row.overAmount || 0),
+    note: "จากเลขเกิน"
+  };
+}
+
+async function postOutbound(items, extra = {}){
+  const clean = (items || []).filter(i => i.number && Number(i.amount || 0) > 0);
+  if(!clean.length){
+    alert("ไม่มีรายการส่งนอกที่ถูกต้อง");
+    return;
+  }
+
+  const body = {
+    source: "master",
+    targetName: extra.targetName || outboundTargetName(),
+    operatorName: "Master",
+    note: extra.note ?? outboundNote(),
+    items: clean
+  };
+
+  const res = await fetch("/api/outbound", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify(body)
+  });
+
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok || data.ok === false){
+    throw new Error(data.error || "สร้างใบส่งไม่สำเร็จ");
+  }
+  return data.outbound;
+}
+
+async function createOutboundFromOverIndex(idx){
+  const row = getFilteredOverRows()?.[idx];
+  if(!row){
+    alert("ไม่พบเลขเกินรายการนี้");
+    return;
+  }
+
+  const defaultAmount = Number(row.overAmount || 0);
+  const amountText = prompt(`ส่งนอกเลข ${row.number} ${row.type}\nยอดเกิน ${money(defaultAmount)}\nใส่ยอดที่ต้องการส่ง`, String(defaultAmount));
+  if(amountText === null) return;
+
+  const amount = Number(String(amountText).replace(/,/g,""));
+  if(!Number.isFinite(amount) || amount <= 0){
+    alert("ยอดส่งไม่ถูกต้อง");
+    return;
+  }
+
+  try{
+    await postOutbound([makeOutboundItem(row, amount)]);
+    alert("สร้างใบส่งเรียบร้อย");
+  }catch(err){
+    alert(err.message);
+  }
+}
+
+async function createOutboundFromAllOver(){
+  const rows = getFilteredOverRows();
+  if(!rows.length){
+    alert("ยังไม่มีเลขเกินสำหรับสร้างใบส่ง");
+    return;
+  }
+
+  const total = rows.reduce((sum,r)=>sum+Number(r.overAmount || 0),0);
+  if(!confirm(`สร้างใบส่งจากเลขเกินทั้งหมด ${rows.length} รายการ\nยอดส่งรวม ${money(total)} ใช่ไหม?`)) return;
+
+  try{
+    await postOutbound(rows.map(r => makeOutboundItem(r, r.overAmount)));
+    alert("สร้างใบส่งจากเลขเกินทั้งหมดเรียบร้อย");
+  }catch(err){
+    alert(err.message);
+  }
+}
+
+function renderOutbound(rows){
+  const el = document.getElementById("outboundHistory");
+  if(!el) return;
+
+  if(!rows || !rows.length){
+    el.innerHTML = `<div class="placeholder">ยังไม่มีประวัติใบส่งนอก</div>`;
+    return;
+  }
+
+  el.innerHTML = rows.slice(0,80).map(out=>{
+    const total = rowTotal(out.items || []);
+    const items = (out.items || []).map(i=>`<div>${esc(i.number)} <span class="blue">${esc(i.type)}</span> <b>${money(i.amount)}</b></div>`).join("");
+    return `
+      <div class="outbound-card">
+        <div class="outbound-head">
+          <div>
+            <div class="outbound-title">${esc(out.targetName || "ส่งนอก")}</div>
+            <div class="slip-time">${shortTime(out.createdAt)} · ${esc(out.id || "-")}</div>
+          </div>
+          <span class="tag">${money((out.items || []).length)} รายการ</span>
+        </div>
+        <div class="outbound-body">
+          <div class="outbound-items">${items || "-"}</div>
+          <div class="outbound-total">รวม ${money(total)}</div>
+          ${out.note ? `<div class="queue-meta">หมายเหตุ: ${esc(out.note)}</div>` : ""}
+          <div class="queue-actions">
+            <button class="btn blue" onclick="printOutboundSlip('${js(out.id)}')">พิมพ์ใบส่ง</button>
+            <button class="btn red" onclick="deleteOutbound('${js(out.id)}')">ลบใบส่ง</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function deleteOutbound(id){
+  if(!id) return;
+  if(!confirm("ลบใบส่งนี้ใช่ไหม?\n\nการลบจะไม่กระทบยอดรวมหลัก แต่จะทำให้ยอดเกินคงเหลือกลับมา")) return;
+  try{
+    const res = await fetch(`/api/outbound/${encodeURIComponent(id)}`, { method:"DELETE" });
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok || data.ok === false) throw new Error(data.error || "ลบใบส่งไม่สำเร็จ");
+  }catch(err){
+    alert(err.message);
+  }
+}
+
+function switchView(name, btn){
+  const groups = {over:["over","totals"],totals:["over","totals"],draft:["draft","outbound","rates"],outbound:["draft","outbound","rates"],rates:["draft","outbound","rates"]};
+  const group = groups[name] || [];
+  for(const v of group){
+    const el = document.getElementById("view-" + v);
+    if(el) el.classList.toggle("on", v === name);
+  }
+  const buttons = btn?.parentElement?.querySelectorAll(".tab") || [];
+  buttons.forEach(b => b.classList.remove("on"));
+  if(btn) btn.classList.add("on");
+}
+
+
+let currentMasterPage = "dashboard";
+
+function setMasterPage(page){
+  currentMasterPage = page || "dashboard";
+  document.body.classList.remove("page-dashboard","page-slips","page-numbers","page-outbound","page-draft","page-rates");
+  document.body.classList.add("page-" + currentMasterPage);
+
+  const labels = {
+    dashboard:"ดูภาพรวมทั้งหมด",
+    slips:"จัดการใบโพยและแฟ้มเอเยนต์",
+    numbers:"ดูเลขเกินและยอดแยกเลขเต็มจอ",
+    outbound:"ทำใบส่งนอกเต็มจอ",
+    draft:"ดู Draft ค้างเต็มจอ",
+    rates:"ตั้งค่าเรทเต็มจอ"
+  };
+
+  document.querySelectorAll(".page-btn").forEach(b=>b.classList.remove("on"));
+  const btnId = "pageBtn" + currentMasterPage.charAt(0).toUpperCase() + currentMasterPage.slice(1);
+  const btn = document.getElementById(btnId);
+  if(btn) btn.classList.add("on");
+  const hint = document.getElementById("pageHint");
+  if(hint) hint.textContent = labels[currentMasterPage] || "";
+
+  if(currentMasterPage === "numbers"){
+    activateViewGroup("over", ["over","totals"]);
+  }
+  if(currentMasterPage === "draft"){
+    activateViewGroup("draft", ["draft","outbound","rates"]);
+  }
+  if(currentMasterPage === "outbound"){
+    activateViewGroup("outbound", ["draft","outbound","rates"]);
+  }
+  if(currentMasterPage === "rates"){
+    activateViewGroup("rates", ["draft","outbound","rates"]);
+    renderRates(latestData?.rates);
+  }
+
+  setTimeout(()=>{
+    if(latestData) render(latestData);
+  }, 0);
+}
+
+function activateViewGroup(name, group){
+  for(const v of group){
+    const el = document.getElementById("view-" + v);
+    if(el) el.classList.toggle("on", v === name);
+  }
+
+  document.querySelectorAll(".tab").forEach(tab=>{
+    const txt = (tab.textContent || "").trim();
+    const isOn =
+      (name === "over" && txt === "เลขเกิน") ||
+      (name === "totals" && txt === "ยอดเลข") ||
+      (name === "draft" && txt === "Draft") ||
+      (name === "outbound" && txt === "ส่งนอก") ||
+      (name === "rates" && txt === "เรท");
+    if(isOn && tab.closest(".panel")) tab.classList.add("on");
+    else if(group.includes(name)){
+      if((group.includes("over") && (txt === "เลขเกิน" || txt === "ยอดเลข")) ||
+         (group.includes("draft") && (txt === "Draft" || txt === "ส่งนอก" || txt === "เรท"))){
+        tab.classList.remove("on");
+      }
+    }
+  });
+}
+
+function connect(){
+  const es = new EventSource("/api/events");
+  es.onopen = () => { dot.classList.add("on"); conn.textContent = "เชื่อมต่อ Master Server แล้ว"; };
+  es.onmessage = ev => render(JSON.parse(ev.data));
+  es.onerror = () => { dot.classList.remove("on"); conn.textContent = "หลุดการเชื่อมต่อ กำลังรอเชื่อมใหม่..."; };
+}
+
+function openSubkey(){ window.open("/subkey", "_blank"); }
+async function resetDemo(){
+  if(!confirm("ล้างข้อมูลทดลองทั้งหมดใน slips/outbound ใช่ไหม?")) return;
+  await fetch("/api/reset-demo", { method:"POST" });
+}
+setMasterPage('dashboard');
+connect();
 </script>
 </body>
 </html>
