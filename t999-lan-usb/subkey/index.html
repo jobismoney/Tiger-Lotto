@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>T999 LAN USB - Subkey Real Layout V2</title>
+<title>T999 LAN USB - Subkey Step 5H12 Special Field</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -78,6 +78,7 @@ body.lao-mode #slot-na{display:none!important}
   margin-right:6px;
 }
 .dot.on{background:var(--ok)}
+.draft-status{color:var(--gold);font-size:11px;font-weight:900;margin-top:2px;text-align:right}
 .top-grid{
   display:grid;
   grid-template-columns:1.1fr .65fr .65fr .65fr .75fr .85fr;
@@ -212,7 +213,7 @@ select,input{
 }
 .tbl-head,.row{
   display:grid;
-  grid-template-columns:74px 1fr 1fr 1fr var(--na-col) 72px 34px;
+  grid-template-columns:74px 1fr 1fr 1fr var(--na-col) 72px 116px;
   gap:1px;
   align-items:center;
   text-align:center;
@@ -291,6 +292,32 @@ select,input{
   color:#ef4444;
   font-size:22px;
   cursor:pointer;
+}
+.row-actions{
+  display:flex!important;
+  gap:4px;
+  justify-content:center!important;
+  align-items:center!important;
+  padding:0 4px;
+}
+.mini-act{
+  width:25px;
+  height:30px;
+  border-radius:7px;
+  border:1px solid #3b4560;
+  background:#171c27;
+  color:#dbe7ff;
+  font-size:13px;
+  font-weight:900;
+  cursor:pointer;
+}
+.mini-act:hover{filter:brightness(1.18)}
+.mini-act.edit{color:#93c5fd;border-color:#2563eb;background:rgba(37,99,235,.12)}
+.mini-act.del{color:#fca5a5;border-color:#7f1d1d;background:rgba(127,29,29,.22)}
+.mini-act:disabled{
+  opacity:.25;
+  cursor:not-allowed;
+  filter:none;
 }
 .total-bar{
   height:45px;
@@ -436,6 +463,225 @@ select,input{
 .action.save{background:#15803d;border-color:#22c55e}
 .action.clear{background:#2b0f19;border-color:#7f1d1d;color:#ff8a8a}
 
+
+/* STEP 5H: pre-entry strip + collapsible keyboard */
+.main{
+  transition:grid-template-columns .18s ease;
+}
+body.keyboard-collapsed .main{
+  grid-template-columns:minmax(360px, .95fr) minmax(560px, 1.45fr) 58px;
+}
+body.keyboard-collapsed .key-panel{
+  min-width:58px;
+}
+.key-toggle{
+  border:1px solid var(--line2);
+  background:#0b1220;
+  color:#dbe7ff;
+  border-radius:8px;
+  height:30px;
+  padding:0 9px;
+  font-weight:900;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.key-toggle:hover{filter:brightness(1.15)}
+body.keyboard-collapsed .key-toggle{
+  width:38px;
+  padding:0;
+}
+body.keyboard-collapsed .key-toggle .txt,
+body.keyboard-collapsed .key-panel .panel-title,
+body.keyboard-collapsed .key-panel .fk,
+body.keyboard-collapsed .key-body{
+  display:none!important;
+}
+body.keyboard-collapsed .key-panel .panel-head{
+  height:100%;
+  min-height:380px;
+  padding:8px 0;
+  justify-content:center;
+  align-items:center;
+  writing-mode:vertical-rl;
+}
+body.keyboard-collapsed .key-toggle{
+  writing-mode:horizontal-tb;
+  transform:rotate(180deg);
+}
+.pre-entry{
+  flex-shrink:0;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,#121827,#0e1420);
+  padding:9px 10px 10px;
+}
+.pre-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-bottom:7px;
+}
+.pre-title{
+  color:#dbe7ff;
+  font-size:15px;
+  font-weight:900;
+}
+.pre-tip{
+  color:#8f9bb2;
+  font-size:11px;
+  font-weight:900;
+}
+.pre-grid{
+  display:grid;
+  grid-template-columns:46px minmax(240px,1fr) 82px repeat(4,74px);
+  gap:5px;
+  align-items:stretch;
+}
+.pre-cell{
+  min-height:42px;
+  border:1px solid #2f3a52;
+  background:#070a12;
+  border-radius:8px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-width:0;
+}
+.pre-cell .k{
+  color:#738197;
+  font-size:10px;
+  font-weight:900;
+  padding:3px 7px 0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.pre-cell .v{
+  color:#cbd5e1;
+  font-size:15px;
+  font-weight:900;
+  padding:1px 7px 4px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.pre-order{
+  border-color:#2563eb;
+  background:rgba(37,99,235,.18);
+}
+.pre-order .v{
+  color:#bfdbfe;
+  text-align:center;
+  font-size:20px;
+}
+.pre-number{
+  border:2px solid #2563eb;
+  background:linear-gradient(180deg,#0b1b3a,#07101f);
+  box-shadow:0 0 0 1px rgba(96,165,250,.15), inset 0 0 16px rgba(37,99,235,.16);
+}
+.pre-number.active{
+  border-color:#60a5fa;
+  box-shadow:0 0 0 1px rgba(96,165,250,.45),0 0 16px rgba(37,99,235,.28), inset 0 0 18px rgba(37,99,235,.20);
+}
+.pre-number .v{
+  color:#86efac;
+  font-size:25px;
+  letter-spacing:.5px;
+  line-height:1.12;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+  word-break:break-all;
+  max-height:58px;
+}
+.pre-price.active{
+  border-color:var(--gold);
+  box-shadow:0 0 0 1px rgba(245,197,24,.28);
+}
+.pre-price.active .v{color:var(--gold)}
+.pre-mode{
+  border-color:#475569;
+  background:#0b1220;
+}
+.pre-mode .v{color:#cbd5e1}
+.pre-mode.active{
+  border-color:var(--gold);
+  box-shadow:0 0 0 1px rgba(245,197,24,.28);
+}
+.pre-mode.active .v{color:var(--gold)}
+.pre-mode.rev{
+  border-color:#92400e;
+  background:rgba(146,64,14,.14);
+}
+.pre-mode.rev .v{color:#fed7aa}
+.pre-mode.set{
+  border-color:#5b21b6;
+  background:rgba(91,33,182,.13);
+}
+.pre-mode.set .v{color:#ddd6fe}
+.pre-set{
+  border-color:#5b21b6;
+  background:rgba(91,33,182,.13);
+}
+.pre-rev{
+  border-color:#92400e;
+  background:rgba(146,64,14,.14);
+}
+.pre-set .v{color:#ddd6fe}
+.pre-rev .v{color:#fed7aa}
+.pre-help{
+  margin-top:7px;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+  color:#8f9bb2;
+  font-size:11px;
+  line-height:1.45;
+}
+.pre-help b{color:#dbe7ff}
+.pre-clear{
+  border:1px solid #7f1d1d;
+  background:#2b0f19;
+  color:#ff9b9b;
+  height:30px;
+  border-radius:8px;
+  padding:0 10px;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.short-help b.plus{color:#86efac}
+.short-help b.star{color:#fbcfe8}
+@media(max-width:1350px){
+  body.keyboard-collapsed .main{
+    grid-template-columns:minmax(300px, .9fr) minmax(500px, 1.35fr) 58px;
+  }
+  .pre-grid{
+    grid-template-columns:42px minmax(200px,1fr) 76px repeat(4,68px);
+  }
+}
+@media(max-width:980px){
+  body.keyboard-collapsed .main{
+    grid-template-columns:1fr;
+  }
+  body.keyboard-collapsed .key-panel .panel-head{
+    min-height:48px;
+    writing-mode:horizontal-tb;
+  }
+  body.keyboard-collapsed .key-toggle{
+    transform:none;
+  }
+  .pre-grid{
+    grid-template-columns:42px minmax(180px,1fr) 70px 70px;
+  }
+  .pre-grid .pre-cell:nth-child(n+6){
+    display:none;
+  }
+}
+
 /* PIN modal */
 .modal{
   position:fixed;inset:0;background:rgba(0,0,0,.62);
@@ -467,6 +713,11 @@ select,input{
 .seg button.on{
   color:var(--gold);border-color:var(--gold);
   background:rgba(245,197,24,.13);
+}
+.seg button.focus{
+  outline:2px solid var(--blue);
+  outline-offset:2px;
+  box-shadow:0 0 0 1px rgba(96,165,250,.25);
 }
 .seg small{display:block;font-size:10px;color:#788094;margin-top:2px}
 .pin-price{
@@ -515,8 +766,8 @@ select,input{
 <div class="app">
   <header class="top">
     <div class="title-row">
-      <div class="logo">T999 LAN USB - SUBKEY</div>
-      <div class="conn"><span id="dot" class="dot"></span><span id="conn">กำลังเชื่อมต่อ...</span></div>
+      <div class="logo">T999 LAN USB - SUBKEY <span style="font-size:12px;color:#9aa6bb">Step 5H12 Special Field</span></div>
+      <div class="conn"><span id="dot" class="dot"></span><span id="conn">กำลังเชื่อมต่อ...</span><div id="draftStatus" class="draft-status">Draft: ยังไม่บันทึก</div></div>
     </div>
     <div class="top-grid">
       <div>
@@ -574,6 +825,49 @@ select,input{
         <div class="panel-title">📋 รายการ — <span id="agentNameTop">เอ</span></div>
         <span class="list-note" id="setText">ชุดที่ 1 — กำลังคีย์</span>
       </div>
+
+      <div class="pre-entry">
+        <div class="pre-head">
+          <div class="pre-title">ช่องเตรียมคีย์ก่อนเข้ารายการ</div>
+          <div class="pre-tip">คีย์เลขก่อน → Enter → ใส่ราคา → + เก็บ</div>
+        </div>
+        <div class="pre-grid">
+          <div class="pre-cell pre-order">
+            <div class="k">ลำดับ</div>
+            <div id="preOrder" class="v">1</div>
+          </div>
+          <div id="preLekBox" class="pre-cell pre-number active">
+            <div class="k">เลข / พิมพ์หลายเลขด้วย /</div>
+            <div id="preLek" class="v">—</div>
+          </div>
+          <div id="preModeBox" class="pre-cell pre-mode">
+            <div class="k">กลับ/ชุด</div>
+            <div id="preMode" class="v">ปกติ</div>
+          </div>
+          <div id="preBonBox" class="pre-cell pre-price">
+            <div class="k">บน</div>
+            <div id="preBon" class="v">—</div>
+          </div>
+          <div id="preTodBox" class="pre-cell pre-price">
+            <div class="k">โต๊ด</div>
+            <div id="preTod" class="v">—</div>
+          </div>
+          <div id="preLangBox" class="pre-cell pre-price">
+            <div class="k">ล่าง</div>
+            <div id="preLang" class="v">—</div>
+          </div>
+          <div id="preNaBox" class="pre-cell pre-price na-col">
+            <div class="k">หน้า</div>
+            <div id="preNa" class="v">—</div>
+          </div>
+
+        </div>
+        <div class="pre-help">
+          <div><b>Enter/↓</b> ราคาปกติ · <b>→</b> 2กลับ / 3ชุด / 4ชุดลาว · <b>Enter</b> ต่อช่องราคา · <b>/</b> หลายเลข</div>
+          <button class="pre-clear" onclick="clearBuffer()">ล้างช่องคีย์</button>
+        </div>
+      </div>
+
       <div class="tbl-head">
         <span>เลข</span>
         <span>บน</span>
@@ -581,7 +875,7 @@ select,input{
         <span>ล่าง</span>
         <span class="na-col">หน้า</span>
         <span>รวม</span>
-        <span></span>
+        <span>จัดการ</span>
       </div>
       <div id="list" class="list"><div class="empty">ยังไม่มีรายการ</div></div>
       <div class="total-bar">
@@ -593,7 +887,10 @@ select,input{
     <section class="panel key-panel">
       <div class="panel-head">
         <div class="panel-title">⌨️ คีย์เลข — <span id="agentNameKey">เอ</span></div>
-        <span class="fk">⚡ FK✓</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="fk">⚡ FK✓</span>
+          <button id="keyboardToggle" class="key-toggle" onclick="toggleKeyboard()"><span class="txt">พับคีย์บอร์ด</span> ⟩</button>
+        </div>
       </div>
       <div class="key-body">
         <div class="ticket-title" id="ticketTitle">คีย์เลขของ เอ - ชุดที่ 1</div>
@@ -604,8 +901,8 @@ select,input{
         </div>
 
         <div class="short-help">
-          ข้ามประเภท · กลับ/ชุด = <b>.</b> · ปัก = <b>*</b> · เพิ่มรายการ = <b>+</b><br>
-          ตัวอย่าง: <b>21 Enter 100 +</b> = 21 บน 100
+          <b class="plus">+</b> เก็บ · <b>→</b> กลับ/ชุด · <b class="star">*</b> ปักหลัก · <b>/</b> หลายเลข<br>
+          ตัวอย่าง: <b>12 Enter 100 +</b> = 12 บน 100
         </div>
 
         <div id="typeRow" class="type-row">
@@ -617,7 +914,7 @@ select,input{
 
         <div class="keypad">
           <button class="key top" onclick="pressSlash()">/</button>
-          <button class="key pin" onclick="openPin()">📌</button>
+          <button class="key pin" onclick="openPin()">*</button>
           <button class="key minus" onclick="pressMinus()">−</button>
           <button class="key del" onclick="backspace()">⌫</button>
 
@@ -710,29 +1007,46 @@ const modeEl = document.getElementById("mode");
 const machineEl = document.getElementById("machineName");
 const dot = document.getElementById("dot");
 const conn = document.getElementById("conn");
+const draftStatus = document.getElementById("draftStatus");
+const DRAFT_SAVE_DELAY = 450;
 
 let market = localStorage.getItem("t999_market") || "thai";
 let rules = MARKET_RULES[market];
 
 let leksText = '';
 let phase = 'lek';
+let entryMode = 'normal'; // normal | rev | set
+let modeIndex = 0;
+let specialPrice = ''; // price in กลับ/ชุด field; used only for 3ชุด / 4ชุดลาว
 let slots = [];
 let slotIndex = 0;
 let priceBuf = '';
 let items = [];
+let draftTimer = null;
+let restoringDraft = false;
+let lastDraftSavedAt = null;
 window._renderGroups = [];
 
 let pin = {
   type:'bon',
   positions:{hundred:true,ten:true,unit:true}
 };
+let pinFocusIndex = 0;
 
 marketEl.value = market;
 document.body.classList.toggle('lao-mode', market === 'lao');
 machineEl.value = localStorage.getItem("t999_subkey_machine") || "Subkey-01";
 
-machineEl.addEventListener("input", () => localStorage.setItem("t999_subkey_machine", machineEl.value));
-agentEl.addEventListener("change", updateAgentLabels);
+machineEl.addEventListener("input", () => {
+  localStorage.setItem("t999_subkey_machine", machineEl.value);
+  scheduleDraftSave("machine");
+});
+agentEl.addEventListener("change", () => {
+  updateAgentLabels();
+  scheduleDraftSave("agent");
+});
+paperNoEl.addEventListener("input", () => scheduleDraftSave("paperNo"));
+modeEl.addEventListener("change", () => scheduleDraftSave("mode"));
 
 marketEl.addEventListener("change", () => {
   market = marketEl.value;
@@ -742,6 +1056,7 @@ marketEl.addEventListener("change", () => {
   clearBuffer();
   render();
   renderList();
+  scheduleDraftSave("market");
 });
 
 function getBaseLen(){
@@ -762,12 +1077,48 @@ function normalizeLeksText(){
     const c = rest.slice(i,i+len);
     if(c.length) chunks.push(c);
   }
-  return chunks.join('/');
+  return chunks.join('/') + (leksText.endsWith('/') ? '/' : '');
+}
+
+function parseLeksTextDetailed(){
+  const raw = String(leksText || '');
+  if(!raw) return {baseLen:0, complete:[], incomplete:[], normalized:''};
+
+  if(!raw.includes('/')){
+    const only = raw.replace(/\D/g,'');
+    return {
+      baseLen: only.length,
+      complete: only ? [only] : [],
+      incomplete: [],
+      normalized: only
+    };
+  }
+
+  const parts = raw.split('/');
+  const first = (parts[0] || '').replace(/\D/g,'');
+  const baseLen = first.length;
+  if(!baseLen) return {baseLen:0, complete:[], incomplete:[], normalized:raw};
+
+  const rest = parts.slice(1).join('').replace(/\D/g,'');
+  const complete = first ? [first] : [];
+  const incomplete = [];
+
+  for(let i=0;i<rest.length;i+=baseLen){
+    const chunk = rest.slice(i,i+baseLen);
+    if(!chunk) continue;
+    if(chunk.length === baseLen) complete.push(chunk);
+    else incomplete.push(chunk);
+  }
+
+  // If the user has just pressed "/" at the end, keep it visible,
+  // but do not create an incomplete number from it.
+  const normalized = complete.concat(incomplete).join('/') + (raw.endsWith('/') ? '/' : '');
+
+  return {baseLen, complete, incomplete, normalized};
 }
 
 function getLeks(){
-  const txt = normalizeLeksText();
-  return txt.split('/').map(x=>x.replace(/\D/g,'')).filter(Boolean);
+  return parseLeksTextDetailed().complete;
 }
 
 function currentDigits(){
@@ -777,14 +1128,88 @@ function currentDigits(){
 }
 
 function buildSlots(){
-  const d = currentDigits();
-  const order = (rules.slotOrder[d] || []).slice();
-  slots = order.map(t => ({type:t, price:'', rev:false}));
-  slotIndex = 0;
+  buildSlotsForCurrentMode();
 }
 
 function currentSlot(){
   return slots[slotIndex] || null;
+}
+
+function entryModeLabel(mode = entryMode){
+  if(mode === 'rev') return 'กลับ';
+  if(mode === 'set') return 'ชุด';
+  return 'ปกติ';
+}
+
+function allowedEntryModes(){
+  const d = currentDigits();
+
+  // Latest rule:
+  // 2 digits Thai/Lao = กลับ only, no ชุด
+  // 3 digits Thai/Lao = ชุด only, no กลับ
+  // 4 digits Lao = ชุด only
+  // 4 digits Thai = no กลับ/ชุด, use โต๊ด
+  if(d === 2) return ['rev'];
+  if(d === 3) return ['set'];
+  if(d === 4 && market === 'lao') return ['set'];
+  return [];
+}
+
+function setEntryMode(mode){
+  const allowed = allowedEntryModes();
+  if(!allowed.includes(mode)) return false;
+  entryMode = mode;
+  modeIndex = allowed.indexOf(mode);
+  return true;
+}
+
+function enterModeSelect(){
+  if(!getLeks().length) return;
+  leksText = normalizeLeksText();
+
+  const allowed = allowedEntryModes();
+  if(!allowed.length){
+    const d = currentDigits();
+    if(market === 'thai' && (d === 4 || d === 5)){
+      alert('ไทย ' + d + ' หลัก ไม่มี กลับ/ชุด ให้ใช้ช่องโต๊ด');
+    }else{
+      alert(d + ' หลัก ไม่มีโหมด กลับ/ชุด');
+    }
+    return;
+  }
+
+  entryMode = allowed[0];
+  modeIndex = 0;
+  specialPrice = '';
+  priceBuf = '';
+
+  // 2ตัว: ศรขวาแค่ทำเครื่องหมาย "กลับ" แล้วข้ามไปช่องราคาปกติทันที
+  if(currentDigits() === 2 && entryMode === 'rev'){
+    buildSlots();
+    phase = 'price';
+    slotIndex = 0;
+    render();
+    return;
+  }
+
+  // 3ตัวชุด / 4ตัวชุดลาว: เข้าช่อง กลับ/ชุด เพื่อใส่ราคา "ชุด" ก่อน
+  phase = 'mode';
+  render();
+}
+
+function buildSlotsForCurrentMode(){
+  const d = currentDigits();
+  let order = (rules.slotOrder[d] || []).slice();
+  slots = order.map(t => ({type:t, price:'', rev:false}));
+  slotIndex = 0;
+}
+
+function saveCurrentSpecialPrice(){
+  if(phase !== 'mode') return;
+  if(priceBuf !== ''){
+    specialPrice = priceBuf;
+    priceBuf = '';
+  }
 }
 
 function saveCurrentPrice(){
@@ -808,7 +1233,18 @@ function moveNextOrCommit(){
 function enterKey(){
   if(phase === 'lek'){
     if(!getLeks().length) return;
+    entryMode = 'normal';
+    specialPrice = '';
     leksText = normalizeLeksText();
+    buildSlots();
+    phase = 'price';
+    priceBuf = '';
+    render();
+    return;
+  }
+
+  if(phase === 'mode'){
+    saveCurrentSpecialPrice();
     buildSlots();
     phase = 'price';
     priceBuf = '';
@@ -822,26 +1258,12 @@ function enterKey(){
 }
 
 function dotKey(){
+  // จุดไม่ใช้เป็น shortcut หลักแล้ว: ให้ทำงานเหมือนลูกศรขวาเพื่อเข้า กลับ/ชุด
   if(phase === 'lek'){
-    enterKey();
+    enterModeSelect();
     return;
   }
-
-  const slot = currentSlot();
-  if(!slot) return;
-
-  if(priceBuf !== ''){
-    slot.price = priceBuf;
-    priceBuf = '';
-  }
-
-  slot.rev = true;
-
-  if(slotIndex < slots.length - 1){
-    slotIndex++;
-  }
-
-  render();
+  handleArrowKey('ArrowRight');
 }
 
 function pressDigit(n){
@@ -858,7 +1280,14 @@ function pressDigit(n){
 function pressSlash(){
   if(phase !== 'lek') return;
   if(!leksText) return;
-  if(leksText.includes('/')) return;
+  if(leksText.endsWith('/')) return;
+
+  // If a slash group already exists, normalize before adding the next slash.
+  // This prevents the display from becoming one long unreadable string.
+  if(leksText.includes('/')){
+    leksText = normalizeLeksText();
+  }
+
   leksText += '/';
   render();
 }
@@ -870,6 +1299,17 @@ function pressMinus(){
 function backspace(){
   if(phase === 'lek'){
     leksText = leksText.slice(0,-1);
+  }else if(phase === 'mode'){
+    if(priceBuf.length){
+      priceBuf = priceBuf.slice(0,-1);
+    }else if(specialPrice){
+      priceBuf = specialPrice;
+      specialPrice = '';
+    }else{
+      phase = 'lek';
+      entryMode = 'normal';
+      specialPrice = '';
+    }
   }else{
     if(priceBuf.length){
       priceBuf = priceBuf.slice(0,-1);
@@ -879,9 +1319,18 @@ function backspace(){
       slots[slotIndex].price = '';
       slots[slotIndex].rev = false;
     }else{
-      phase = 'lek';
-      slots = [];
-      priceBuf = '';
+      if(entryMode === 'set' && specialPrice){
+        phase = 'mode';
+        slots = [];
+        priceBuf = specialPrice;
+        specialPrice = '';
+      }else{
+        phase = 'lek';
+        entryMode = 'normal';
+        specialPrice = '';
+        slots = [];
+        priceBuf = '';
+      }
     }
   }
   render();
@@ -890,6 +1339,9 @@ function backspace(){
 function clearBuffer(){
   leksText = '';
   phase = 'lek';
+  entryMode = 'normal';
+  modeIndex = 0;
+  specialPrice = '';
   slots = [];
   slotIndex = 0;
   priceBuf = '';
@@ -901,6 +1353,7 @@ function clearAllCurrent(){
   items = [];
   clearBuffer();
   renderList();
+  scheduleDraftSave("clear-current");
 }
 
 function expandReverseWithRole(num){
@@ -942,34 +1395,77 @@ function uniquePermutations(str){
   return Array.from(out);
 }
 
+function newEntryId(){
+  return 'K' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,7).toUpperCase();
+}
+
 function commit(){
+  if(phase === 'mode'){
+    saveCurrentSpecialPrice();
+  }
   if(phase === 'price'){
     saveCurrentPrice();
   }
 
-  const leks = getLeks();
+  const parsed = parseLeksTextDetailed();
+  const leks = parsed.complete;
+  const leftover = parsed.incomplete.join('');
+
   if(!leks.length) return alert('ยังไม่มีเลข');
 
-  if(!slots.length){
+  if(!slots.length && phase !== 'mode'){
     buildSlots();
   }
 
   const active = slots.filter(s => Number(s.price) > 0);
-  if(!active.length) return alert('ยังไม่มีราคา');
+  const spAmount = Number(specialPrice || 0);
+
+  if(phase === 'mode'){
+    if(!spAmount) return alert('ยังไม่มีราคาชุด');
+  }else if(!active.length && !spAmount){
+    return alert('ยังไม่มีราคา');
+  }
+
+  const commitEntryId = newEntryId();
+  const revSeen = new Set();
 
   leks.forEach(lek => {
+    // Special field:
+    // - 3 digits / 4 Lao set price
+    // - ชุด = กระจายทุกประตูเหมือนกลับ แต่ note เป็น "ชุด"
+    // - Example: 124 ชุด 100 = 124/142/214/241/412/421 อย่างละ 100 รวม 600
+    // - 2 digits rev never uses specialPrice; it uses normal price slots
+    if(entryMode === 'set' && spAmount > 0){
+      const setTargets = expandReverseWithRole(lek);
+      setTargets.forEach(obj => {
+        items.push({
+          lek:obj.lek,
+          type:'bon',
+          amount:spAmount,
+          role:obj.role,
+          note:'ชุด',
+          entryId:commitEntryId
+        });
+      });
+    }
+
     active.forEach(s => {
       const amount = Number(s.price);
 
-      if(s.rev){
+      if(entryMode === 'rev'){
         const targets = expandReverseWithRole(lek);
         targets.forEach(obj => {
+          const revKey = obj.lek + '|' + s.type + '|' + amount;
+          if(revSeen.has(revKey)) return;
+          revSeen.add(revKey);
+
           items.push({
             lek:obj.lek,
             type:s.type,
             amount,
             role:obj.role,
-            note:lek.length === 2 ? 'กลับ' : 'ชุด'
+            note:'กลับ',
+            entryId:commitEntryId
           });
         });
       }else{
@@ -978,39 +1474,235 @@ function commit(){
           type:s.type,
           amount,
           role:'main',
-          note:''
+          note:'',
+          entryId:commitEntryId
         });
       }
     });
   });
 
+  if(leftover){
+    leksText = leftover;
+    phase = 'lek';
+    entryMode = 'normal';
+    modeIndex = 0;
+    specialPrice = '';
+    slots = [];
+    slotIndex = 0;
+    priceBuf = '';
+    render();
+    renderList();
+    scheduleDraftSave("commit-partial");
+    alert('เก็บเลขครบหลักแล้ว เหลือเลขค้าง: ' + leftover + ' กรุณาคีย์ต่อให้ครบ');
+    return;
+  }
+
   clearBuffer();
   renderList();
+  scheduleDraftSave("commit");
 }
+
+function toggleKeyboard(){
+  document.body.classList.toggle('keyboard-collapsed');
+  const collapsed = document.body.classList.contains('keyboard-collapsed');
+  localStorage.setItem('t999_keyboard_collapsed', collapsed ? '1' : '0');
+  const btn = document.getElementById('keyboardToggle');
+  if(btn){
+    btn.innerHTML = collapsed ? '<span class="txt">เปิดคีย์บอร์ด</span> ⟨' : '<span class="txt">พับคีย์บอร์ด</span> ⟩';
+  }
+}
+
+function restoreKeyboardLayout(){
+  const collapsed = localStorage.getItem('t999_keyboard_collapsed') === '1';
+  document.body.classList.toggle('keyboard-collapsed', collapsed);
+  const btn = document.getElementById('keyboardToggle');
+  if(btn){
+    btn.innerHTML = collapsed ? '<span class="txt">เปิดคีย์บอร์ด</span> ⟨' : '<span class="txt">พับคีย์บอร์ด</span> ⟩';
+  }
+}
+
+
+function displayLeksForEntry(){
+  if(!leksText) return '';
+
+  // STEP 5H3: show "/" immediately, but auto-group after it.
+  // Example: 653/5487458569 => 653/548/745/856/9
+  // Example right after pressing slash: 653/ => 653/
+  if(phase === 'lek'){
+    if(leksText.endsWith('/')) return leksText;
+    if(leksText.includes('/')) return normalizeLeksText();
+    return leksText;
+  }
+
+  return normalizeLeksText();
+}
+
+function enterModeFromPrice(){
+  // Back from normal price slot to กลับ/ชุด field.
+  saveCurrentPrice();
+
+  if(entryMode === 'set'){
+    phase = 'mode';
+    priceBuf = specialPrice || '';
+    specialPrice = '';
+    render();
+    return;
+  }
+
+  // For 2กลับ there is no price in กลับ/ชุด field, so just show status field.
+  if(entryMode === 'rev'){
+    phase = 'lek';
+    render();
+    enterModeSelect();
+    return;
+  }
+}
+
+function applyModeToExistingSlots(){
+  if(!slots.length){
+    buildSlots();
+  }
+}
+
+function movePriceSlot(delta){
+  if(phase === 'lek'){
+    if(delta > 0){
+      enterKey();
+    }
+    return;
+  }
+
+  if(phase === 'mode'){
+    // Only 3ชุด / 4ชุดลาว reach this phase; no alternate mode exists.
+    return;
+  }
+
+  if(!slots.length) return;
+  saveCurrentPrice();
+  const next = Math.max(0, Math.min(slots.length - 1, slotIndex + delta));
+  slotIndex = next;
+  priceBuf = '';
+  render();
+}
+
+function handleArrowKey(key){
+  if(phase === 'lek'){
+    if(key === 'ArrowRight'){
+      enterModeSelect();
+      return true;
+    }
+    if(key === 'ArrowDown'){
+      enterKey();
+      return true;
+    }
+    return true;
+  }
+
+  if(phase === 'mode'){
+    if(key === 'ArrowDown' || key === 'Enter'){
+      enterKey();
+      return true;
+    }
+    if(key === 'ArrowLeft' || key === 'ArrowUp'){
+      backspace();
+      return true;
+    }
+    return true;
+  }
+
+  if(phase === 'price'){
+    if((key === 'ArrowLeft' || key === 'ArrowUp') && slotIndex === 0){
+      enterModeFromPrice();
+      return true;
+    }
+    if(key === 'ArrowDown' || key === 'ArrowRight'){
+      movePriceSlot(1);
+      return true;
+    }
+    if(key === 'ArrowUp' || key === 'ArrowLeft'){
+      movePriceSlot(-1);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function renderPreEntry(){
+  const shownLek = displayLeksForEntry();
+
+  const preLek = document.getElementById('preLek');
+  if(preLek) preLek.textContent = shownLek || '—';
+
+  const preOrder = document.getElementById('preOrder');
+  if(preOrder) preOrder.textContent = String((window._renderGroups?.length || 0) + 1);
+
+  const boxByType = {bon:'preBonBox',tod:'preTodBox',lang:'preLangBox',na:'preNaBox'};
+  const valByType = {bon:'preBon',tod:'preTod',lang:'preLang',na:'preNa'};
+
+  ['bon','tod','lang','na'].forEach(t=>{
+    const box = document.getElementById(boxByType[t]);
+    const val = document.getElementById(valByType[t]);
+    const idx = slots.findIndex(s=>s.type === t);
+    const active = phase === 'price' && idx === slotIndex;
+    const slot = idx >= 0 ? slots[idx] : null;
+    const displayValue = active ? (priceBuf || slot?.price || '—') : (slot?.price || '—');
+
+    if(val) val.textContent = displayValue;
+    if(box) box.classList.toggle('active', active);
+  });
+
+  const lekBox = document.getElementById('preLekBox');
+  if(lekBox) lekBox.classList.toggle('active', phase === 'lek');
+
+  const modeBox = document.getElementById('preModeBox');
+  const modeText = document.getElementById('preMode');
+  if(modeText){
+    if(entryMode === 'set'){
+      modeText.textContent = phase === 'mode' ? (priceBuf || specialPrice || 'ชุด') : (specialPrice || 'ชุด');
+    }else if(entryMode === 'rev'){
+      modeText.textContent = 'กลับ';
+    }else{
+      modeText.textContent = 'ปกติ';
+    }
+  }
+  if(modeBox){
+    modeBox.classList.toggle('active', phase === 'mode' || entryMode === 'rev');
+    modeBox.classList.toggle('rev', entryMode === 'rev');
+    modeBox.classList.toggle('set', entryMode === 'set');
+  }
+}
+
 
 function render(){
   const screen = document.getElementById('screen');
   const hint = document.getElementById('hint');
 
   if(phase === 'lek'){
-    const shown = leksText.includes('/') ? normalizeLeksText() : leksText;
+    const shown = displayLeksForEntry();
     screen.textContent = shown || '—';
     const d = getBaseLen() || '-';
     hint.innerHTML = 'กดเลข<br>แล้ว ↵<br>หลัก: ' + d;
+  }else if(phase === 'mode'){
+    screen.textContent = normalizeLeksText() + '→ชุด' + (priceBuf || specialPrice || '');
+    hint.innerHTML = 'ใส่ราคาชุด<br>Enter = ต่อราคา<br>+ = เก็บชุด';
   }else{
     const slot = currentSlot();
-    const left = normalizeLeksText() + '=';
+    const prefix = entryMode === 'set'
+      ? normalizeLeksText() + '→ชุด' + (specialPrice || '') + '='
+      : normalizeLeksText() + (entryMode === 'rev' ? '→กลับ=' : '=');
     const priceParts = slots.map((s,i)=>{
       if(i === slotIndex) return priceBuf || s.price || '';
       return s.price || '';
     });
-    screen.textContent = left + priceParts.join('×');
+    screen.textContent = prefix + priceParts.join('×');
 
     hint.innerHTML = slot
-      ? 'ราคา: ' + LABEL[slot.type] + '<br>' + (slot.rev ? 'กลับ/ชุด ON' : 'กด . = กลับ/ชุด')
+      ? 'ราคา: ' + LABEL[slot.type] + '<br>' + (slotIndex === 0 ? '← = แก้กลับ/ชุด' : '←/→ เลื่อนช่อง')
       : 'ไม่มี slot';
   }
 
+  renderPreEntry();
   renderSlots();
   renderStatus();
 }
@@ -1047,11 +1739,13 @@ function renderStatus(){
 
   if(phase === 'lek'){
     el.textContent = 'คีย์เลขของ ' + getAgentNameShort() + ' - ชุดที่ 1 - กำลังคีย์';
+  }else if(phase === 'mode'){
+    el.textContent = 'ใส่ราคาชุดในช่อง กลับ/ชุด | Enter ต่อช่องราคา | + เก็บชุด';
   }else{
     const slot = currentSlot();
     const d = currentDigits();
     el.textContent = slot
-      ? 'ใส่ราคา: ' + LABEL[slot.type] + ' | ' + d + ' หลัก | ' + rules.name
+      ? 'ใส่ราคา: ' + LABEL[slot.type] + ' | ' + d + ' หลัก | ' + rules.name + (entryMode !== 'normal' ? ' | ' + entryModeLabel() : '')
       : 'กำลังใส่ราคา';
   }
 }
@@ -1063,25 +1757,43 @@ function renderList(){
     list.innerHTML = '<div class="empty">ยังไม่มีรายการ</div>';
     window._renderGroups = [];
   }else{
+    // STEP 5H8:
+    // 1) Latest saved entries show at the top.
+    // 2) Same number + same note/role can share one row with Bon/Tod/Lang/Na in the same line.
+    // 3) We still keep the real items array separate, so duplicate keying remains valid.
     const grouped = [];
 
-    items.forEach((it, originalIndex) => {
-      let found = grouped.find(g => g.lek === it.lek && g.role === it.role && g.note === it.note);
+    for(let originalIndex = items.length - 1; originalIndex >= 0; originalIndex--){
+      const it = items[originalIndex];
+      const t = ['bon','tod','lang','na'].includes(it.type) ? it.type : 'bon';
 
-      if(!found){
-        found = {
-          lek: it.lek,
-          role: it.role,
-          note: it.note,
-          amounts: {bon:null,tod:null,lang:null,na:null},
-          indexes: []
+      // STEP 5H11:
+      // - "ขยับมาอยู่บรรทัดเดียวกัน" = same lek/note/role but different price columns can share one row.
+      // - "เข้าเลขซ้ำอีกครั้ง" = if the same price column already exists, create a new row. Do NOT add/sum.
+      let g = grouped.find(x =>
+        x.lek === it.lek &&
+        (x.role || 'main') === (it.role || 'main') &&
+        (x.note || '') === (it.note || '') &&
+        !x.amounts[t]
+      );
+
+      if(!g){
+        g = {
+          key:'G' + grouped.length + '-' + originalIndex,
+          lek:it.lek,
+          role:it.role || 'main',
+          note:it.note || '',
+          amounts:{bon:null,tod:null,lang:null,na:null},
+          indexes:[],
+          itemRefs:[]
         };
-        grouped.push(found);
+        grouped.push(g);
       }
 
-      found.amounts[it.type] = (found.amounts[it.type] || 0) + Number(it.amount || 0);
-      found.indexes.push(originalIndex);
-    });
+      g.amounts[t] = Number(it.amount || 0);
+      g.indexes.push(originalIndex);
+      g.itemRefs.unshift({index:originalIndex,item:{...it}});
+    }
 
     list.innerHTML = grouped.map((g,gi)=>{
       const isPin = g.note === 'ปัก';
@@ -1101,15 +1813,22 @@ function renderList(){
         Number(g.amounts.lang || 0) +
         Number(g.amounts.na || 0);
 
+      const noteMark = g.note ? `<small style="color:#f5c518;margin-left:4px">${escapeHtml(g.note)}</small>` : '';
+
       return `
         <div class="row">
-          <div class="lek ${lekClass}">${escapeHtml(g.lek)}</div>
+          <div class="lek ${lekClass}">${escapeHtml(g.lek)}${noteMark}</div>
           <div class="cell bon ${has('bon')}">${money('bon')}</div>
           <div class="cell tod ${has('tod')}">${money('tod')}</div>
           <div class="cell lang ${has('lang')}">${money('lang')}</div>
           <div class="cell na na-col ${has('na')}">${money('na')}</div>
           <div class="sum-cell">${rowSum.toLocaleString()}</div>
-          <button class="del-btn" onclick="removeGroup(${gi})">×</button>
+          <div class="row-actions">
+            <button class="mini-act" onclick="moveGroup(${gi},-1)" ${gi===0?'disabled':''}>↑</button>
+            <button class="mini-act" onclick="moveGroup(${gi},1)" ${gi===grouped.length-1?'disabled':''}>↓</button>
+            <button class="mini-act edit" onclick="editGroup(${gi})">✏️</button>
+            <button class="mini-act del" onclick="removeGroup(${gi})">🗑</button>
+          </div>
         </div>
       `;
     }).join('');
@@ -1121,14 +1840,147 @@ function renderList(){
   document.getElementById('totalText').textContent = '฿' + total.toLocaleString();
   document.getElementById('countText').textContent = items.length + ' รายการ';
   document.getElementById('setText').textContent = 'ชุดที่ 1 — กำลังคีย์';
+  renderPreEntry();
+}
+
+function removeItem(index){
+  if(index < 0 || index >= items.length) return;
+  if(!confirm('ลบรายการบรรทัดนี้ใช่ไหม?')) return;
+  items.splice(index,1);
+  renderList();
+  scheduleDraftSave("remove-item");
+}
+
+function moveItem(index, dir){
+  const next = index + dir;
+  if(index < 0 || index >= items.length || next < 0 || next >= items.length) return;
+  const tmp = items[index];
+  items[index] = items[next];
+  items[next] = tmp;
+  renderList();
+  scheduleDraftSave("move-item");
 }
 
 function removeGroup(groupIndex){
   const g = window._renderGroups && window._renderGroups[groupIndex];
   if(!g) return;
+  if(!confirm('ลบรายการกลุ่มนี้ใช่ไหม?')) return;
 
-  items = items.filter((_,idx) => !g.indexes.includes(idx));
+  const removeSet = new Set(g.indexes);
+  items = items.filter((_,idx)=>!removeSet.has(idx));
+
   renderList();
+  scheduleDraftSave("remove-group");
+}
+
+function rebuildItemsFromDisplayGroups(groups){
+  const next = [];
+  // items array is chronological; display is newest first.
+  // Rebuild by appending bottom display group first, top display group last.
+  groups.slice().reverse().forEach(g=>{
+    g.itemRefs.forEach(ref=>next.push({...ref.item}));
+  });
+  items = next;
+}
+
+function moveGroup(groupIndex, dir){
+  const groups = (window._renderGroups || []).map(g=>({
+    ...g,
+    itemRefs:(g.itemRefs || []).map(ref=>({index:ref.index,item:{...ref.item}}))
+  }));
+
+  const nextIndex = groupIndex + dir;
+  if(groupIndex < 0 || groupIndex >= groups.length || nextIndex < 0 || nextIndex >= groups.length) return;
+
+  const tmp = groups[groupIndex];
+  groups[groupIndex] = groups[nextIndex];
+  groups[nextIndex] = tmp;
+
+  rebuildItemsFromDisplayGroups(groups);
+  renderList();
+  scheduleDraftSave("move-group");
+}
+
+function editGroup(groupIndex){
+  const g = window._renderGroups && window._renderGroups[groupIndex];
+  if(!g) return;
+
+  const newLek = prompt('แก้เลข', g.lek);
+  if(newLek === null) return;
+  const cleanLek = String(newLek).trim();
+  if(!cleanLek) return alert('เลขว่างไม่ได้');
+
+  const currentMode = g.note === 'กลับ' ? 'กลับ' : (g.note === 'ชุด' ? 'ชุด' : 'ปกติ');
+  const modeText = prompt('สถานะรายการ: ปกติ / กลับ / ชุด', currentMode);
+  if(modeText === null) return;
+
+  let mode = String(modeText).trim();
+  if(!mode) mode = 'ปกติ';
+  if(!['ปกติ','กลับ','ชุด'].includes(mode)){
+    return alert('สถานะต้องเป็น ปกติ / กลับ / ชุด');
+  }
+
+  const digitLen = cleanLek.replace(/\D/g,'').length;
+  if(mode === 'ชุด' && digitLen === 2){
+    return alert('เลข 2 ตัวไม่มีชุด');
+  }
+  if(mode === 'ชุด' && market === 'thai' && digitLen >= 4){
+    return alert('ไทยไม่มี 4/5 ตัวชุด ให้ใช้โต๊ด');
+  }
+  if(mode === 'กลับ' && market === 'thai' && digitLen >= 4){
+    return alert('ไทยไม่มี 4/5 ตัวกลับ ให้ใช้โต๊ด');
+  }
+
+  const amounts = {...g.amounts};
+  const labels = {bon:'บน',tod:'โต๊ด',lang:'ล่าง',na:'หน้า'};
+  const newAmounts = {};
+
+  const editableTypes = mode === 'ชุด' ? ['bon'] : ['bon','tod','lang','na'];
+  for(const t of editableTypes){
+    const current = amounts[t] ? String(amounts[t]) : '';
+    const ans = prompt('แก้ราคา ' + labels[t] + ' (เว้นว่าง = ไม่มี)', current);
+    if(ans === null) return;
+    const val = String(ans).trim();
+    if(!val){
+      newAmounts[t] = 0;
+    }else{
+      const n = Number(val.replace(/,/g,''));
+      if(!Number.isFinite(n) || n < 0) return alert('ราคา ' + labels[t] + ' ไม่ถูกต้อง');
+      newAmounts[t] = n;
+    }
+  }
+
+  const removeSet = new Set(g.indexes);
+  items = items.filter((_,idx)=>!removeSet.has(idx));
+
+  const editedEntryId = newEntryId();
+
+  function pushEdited(lek, type, amount, role, note){
+    if(Number(amount || 0) > 0){
+      items.push({lek, type, amount:Number(amount), role:role || 'main', note:note || '', entryId:editedEntryId});
+    }
+  }
+
+  if(mode === 'กลับ'){
+    const targets = expandReverseWithRole(cleanLek);
+    targets.forEach(obj=>{
+      ['bon','tod','lang','na'].forEach(t=>{
+        pushEdited(obj.lek, t, newAmounts[t], obj.role, 'กลับ');
+      });
+    });
+  }else if(mode === 'ชุด'){
+    const setTargets = expandReverseWithRole(cleanLek);
+    setTargets.forEach(obj => {
+      pushEdited(obj.lek, 'bon', newAmounts.bon, obj.role, 'ชุด');
+    });
+  }else{
+    ['bon','tod','lang','na'].forEach(t=>{
+      pushEdited(cleanLek, t, newAmounts[t], 'main', '');
+    });
+  }
+
+  renderList();
+  scheduleDraftSave("edit-group");
 }
 
 function openPin(){
@@ -1146,6 +1998,7 @@ function openPin(){
 
   pin.type = 'bon';
   pin.positions = {hundred:true,ten:true,unit:true};
+  pinFocusIndex = 0;
 
   renderPin();
   document.getElementById('pinModal').classList.add('show');
@@ -1163,6 +2016,7 @@ function setPinType(t){
   }else{
     pin.positions = {ten:true,unit:true};
   }
+  pinFocusIndex = 0;
   renderPin();
 }
 
@@ -1171,6 +2025,78 @@ function togglePinPos(p){
   const hasAny = Object.keys(pin.positions).some(k => pin.positions[k]);
   if(!hasAny) pin.positions[p] = true;
   renderPin();
+}
+
+
+function pinPositionKeys(){
+  return pin.type === 'bon' ? ['hundred','ten','unit'] : ['ten','unit'];
+}
+
+function pinPositionLabel(pos){
+  if(pos === 'hundred') return 'ร้อย';
+  if(pos === 'ten') return 'สิบ';
+  return 'หน่วย';
+}
+
+function movePinFocus(delta){
+  const keys = pinPositionKeys();
+  pinFocusIndex = (pinFocusIndex + delta + keys.length) % keys.length;
+  renderPin();
+}
+
+function toggleFocusedPinPosition(){
+  const keys = pinPositionKeys();
+  const pos = keys[pinFocusIndex] || keys[0];
+  togglePinPos(pos);
+}
+
+function handlePinModalKey(e){
+  const modal = document.getElementById('pinModal');
+  if(!modal || !modal.classList.contains('show')) return false;
+
+  if(e.key === 'Escape'){
+    e.preventDefault();
+    closePin();
+    return true;
+  }
+
+  if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    setPinType('bon');
+    return true;
+  }
+
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    setPinType('lang');
+    return true;
+  }
+
+  if(e.key === 'ArrowLeft'){
+    e.preventDefault();
+    movePinFocus(-1);
+    return true;
+  }
+
+  if(e.key === 'ArrowRight'){
+    e.preventDefault();
+    movePinFocus(1);
+    return true;
+  }
+
+  if(e.key === ' '){
+    e.preventDefault();
+    toggleFocusedPinPosition();
+    return true;
+  }
+
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    addPin();
+    return true;
+  }
+
+  return false;
 }
 
 function renderPin(){
@@ -1183,15 +2109,15 @@ function renderPin(){
   if(pin.type === 'bon'){
     wrap.className = 'seg pos3';
     wrap.innerHTML = `
-      <button class="${pin.positions.hundred?'on':''}" onclick="togglePinPos('hundred')">ร้อย<small>${digit}XX</small></button>
-      <button class="${pin.positions.ten?'on':''}" onclick="togglePinPos('ten')">สิบ<small>X${digit}X</small></button>
-      <button class="${pin.positions.unit?'on':''}" onclick="togglePinPos('unit')">หน่วย<small>XX${digit}</small></button>
+      <button class="${pin.positions.hundred?'on':''} ${pinFocusIndex===0?'focus':''}" onclick="pinFocusIndex=0;togglePinPos('hundred')">ร้อย<small>${digit}XX</small></button>
+      <button class="${pin.positions.ten?'on':''} ${pinFocusIndex===1?'focus':''}" onclick="pinFocusIndex=1;togglePinPos('ten')">สิบ<small>X${digit}X</small></button>
+      <button class="${pin.positions.unit?'on':''} ${pinFocusIndex===2?'focus':''}" onclick="pinFocusIndex=2;togglePinPos('unit')">หน่วย<small>XX${digit}</small></button>
     `;
   }else{
     wrap.className = 'seg pos2';
     wrap.innerHTML = `
-      <button class="${pin.positions.ten?'on':''}" onclick="togglePinPos('ten')">สิบ<small>${digit}X</small></button>
-      <button class="${pin.positions.unit?'on':''}" onclick="togglePinPos('unit')">หน่วย<small>X${digit}</small></button>
+      <button class="${pin.positions.ten?'on':''} ${pinFocusIndex===0?'focus':''}" onclick="pinFocusIndex=0;togglePinPos('ten')">สิบ<small>${digit}X</small></button>
+      <button class="${pin.positions.unit?'on':''} ${pinFocusIndex===1?'focus':''}" onclick="pinFocusIndex=1;togglePinPos('unit')">หน่วย<small>X${digit}</small></button>
     `;
   }
 }
@@ -1203,6 +2129,8 @@ function addPin(){
 
   const selectedPositions = Object.keys(pin.positions).filter(k => pin.positions[k]);
   if(!selectedPositions.length) return alert('เลือกตำแหน่งปักก่อน');
+
+  const pinEntryId = newEntryId();
 
   selectedPositions.forEach(pos => {
     let lek = '';
@@ -1220,13 +2148,173 @@ function addPin(){
       type: pin.type,
       amount: price,
       role:'main',
-      note:'ปัก'
+      note:'ปัก',
+      entryId:pinEntryId
     });
   });
 
   closePin();
   clearBuffer();
   renderList();
+  scheduleDraftSave("pin");
+}
+
+function getDraftKey(){
+  const machine = (machineEl.value || 'Subkey-01').trim() || 'Subkey-01';
+  return machine + '::current';
+}
+
+function getAgentNameFull(){
+  const opt = agentEl.options[agentEl.selectedIndex];
+  return opt ? opt.textContent : '';
+}
+
+function setDraftStatus(text, cls){
+  if(!draftStatus) return;
+  draftStatus.textContent = text;
+  draftStatus.style.color = cls === 'bad' ? 'var(--red)' : (cls === 'ok' ? 'var(--ok)' : 'var(--gold)');
+}
+
+function toRawDraftItems(){
+  return items.map(it => ({...it}));
+}
+
+function fromServerItems(serverItems){
+  const reverseType = {'บน':'bon','โต๊ด':'tod','ล่าง':'lang','หน้า':'na'};
+  return (serverItems || []).map((it,idx) => ({
+    lek:String(it.number || ''),
+    type:reverseType[it.type] || it.type || 'bon',
+    amount:Number(it.amount || 0),
+    role:it.role || 'main',
+    note:it.note || '',
+    entryId:it.entryId || ('server-' + idx + '-' + Date.now().toString(36))
+  })).filter(it => it.lek && it.amount > 0);
+}
+
+function buildDraftPayload(){
+  return {
+    draftKey:getDraftKey(),
+    source:'subkey',
+    status:'draft',
+    mode:modeEl.value,
+    machineName:(machineEl.value || '').trim() || 'Subkey-01',
+    operatorName:'',
+    agentId:agentEl.value || '',
+    agentName:getAgentNameFull(),
+    paperNo:paperNoEl.value.trim(),
+    market,
+    items:toServerItems(),
+    rawItems:toRawDraftItems(),
+    entryState:{
+      leksText, phase, entryMode, modeIndex, specialPrice, slots, slotIndex, priceBuf, pin
+    },
+    updatedAt:new Date().toISOString()
+  };
+}
+
+function hasDraftContent(){
+  return !!(items.length || leksText || priceBuf || paperNoEl.value.trim());
+}
+
+function scheduleDraftSave(reason){
+  if(restoringDraft) return;
+  clearTimeout(draftTimer);
+  setDraftStatus('Draft: รอบันทึก...', 'wait');
+  draftTimer = setTimeout(() => saveDraft(reason), DRAFT_SAVE_DELAY);
+}
+
+async function saveDraft(reason){
+  const payload = buildDraftPayload();
+  localStorage.setItem('t999_subkey_current_draft', JSON.stringify(payload));
+
+  try{
+    const res = await fetch('/api/drafts',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok || data.ok === false) throw new Error(data.error || 'Draft save failed');
+    lastDraftSavedAt = new Date();
+    setDraftStatus('Draft: บันทึกแล้ว ' + lastDraftSavedAt.toLocaleTimeString('th-TH'), 'ok');
+  }catch(err){
+    setDraftStatus('Draft: สำรองในเครื่อง / รอ Master', 'bad');
+  }
+}
+
+async function loadDraft(){
+  restoringDraft = true;
+  try{
+    let draft = null;
+    try{
+      const res = await fetch('/api/drafts/' + encodeURIComponent(getDraftKey()), {cache:'no-store'});
+      if(res.ok){
+        const data = await res.json();
+        draft = data.draft || data;
+      }
+    }catch(err){}
+
+    if(!draft){
+      try{
+        const raw = localStorage.getItem('t999_subkey_current_draft');
+        const localDraft = raw ? JSON.parse(raw) : null;
+        if(localDraft && localDraft.draftKey === getDraftKey()) draft = localDraft;
+      }catch(err){}
+    }
+
+    if(draft){
+      if(draft.agentId && Array.from(agentEl.options).some(o => o.value === draft.agentId)) agentEl.value = draft.agentId;
+      if(draft.paperNo) paperNoEl.value = draft.paperNo;
+      if(draft.mode) modeEl.value = draft.mode;
+      if(draft.market && MARKET_RULES[draft.market]){
+        market = draft.market;
+        rules = MARKET_RULES[market];
+        marketEl.value = market;
+        localStorage.setItem('t999_market', market);
+        document.body.classList.toggle('lao-mode', market === 'lao');
+      }
+      if(Array.isArray(draft.rawItems) && draft.rawItems.length){
+        items = draft.rawItems;
+      }else{
+        items = fromServerItems(draft.items || []);
+      }
+      if(draft.entryState){
+        leksText = draft.entryState.leksText || '';
+        phase = draft.entryState.phase || 'lek';
+        entryMode = draft.entryState.entryMode || 'normal';
+        modeIndex = Number(draft.entryState.modeIndex || 0);
+        specialPrice = draft.entryState.specialPrice || '';
+        slots = Array.isArray(draft.entryState.slots) ? draft.entryState.slots : [];
+        slotIndex = Number(draft.entryState.slotIndex || 0);
+        priceBuf = draft.entryState.priceBuf || '';
+        if(draft.entryState.pin) pin = draft.entryState.pin;
+      }
+      setDraftStatus('Draft: โหลดคืนแล้ว', 'ok');
+    }else{
+      setDraftStatus('Draft: ว่าง', 'wait');
+    }
+  }finally{
+    restoringDraft = false;
+    updateAgentLabels();
+    render();
+    renderList();
+  }
+}
+
+async function clearDraftOnServer(){
+  const key = getDraftKey();
+  localStorage.removeItem('t999_subkey_current_draft');
+  try{
+    await fetch('/api/drafts/' + encodeURIComponent(key), {method:'DELETE'});
+  }catch(err){
+    try{
+      await fetch('/api/drafts/clear',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({draftKey:key,machineName:machineEl.value})
+      });
+    }catch(e){}
+  }
 }
 
 function toServerItems(){
@@ -1236,7 +2324,8 @@ function toServerItems(){
     number:it.lek,
     type:TYPE_TO_SERVER[it.type] || it.type,
     amount:Number(it.amount || 0),
-    note:it.note || ''
+    note:it.note || '',
+    entryId:it.entryId || ''
   }));
 }
 
@@ -1249,6 +2338,8 @@ async function saveSlip(){
     mode:modeEl.value,
     machineName:machineEl.value,
     operatorName:"",
+    draftKey:getDraftKey(),
+    sourceDraftKey:getDraftKey(),
     agentId:agentEl.value,
     paperNo:paperNoEl.value.trim(),
     market,
@@ -1264,11 +2355,13 @@ async function saveSlip(){
   const data = await res.json();
   if(!data.ok) return alert(data.error || "บันทึกไม่สำเร็จ");
 
+  await clearDraftOnServer();
   alert("เก็บใบแล้ว ส่งเข้า Master เรียบร้อย");
   paperNoEl.value = "";
   items = [];
   clearBuffer();
   renderList();
+  setDraftStatus('Draft: ล้างแล้ว หลังเก็บใบ', 'ok');
 }
 
 async function loadAgents(){
@@ -1308,11 +2401,15 @@ function escapeHtml(s){
 }
 
 document.addEventListener('keydown', e=>{
+  if(handlePinModalKey(e)) return;
   if(e.target && ['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
 
   if(e.key >= '0' && e.key <= '9'){
     e.preventDefault();
     pressDigit(e.key);
+  }else if(['ArrowDown','ArrowRight','ArrowUp','ArrowLeft'].includes(e.key)){
+    e.preventDefault();
+    handleArrowKey(e.key);
   }else if(e.key === 'Enter'){
     e.preventDefault();
     enterKey();
@@ -1340,10 +2437,14 @@ document.addEventListener('keydown', e=>{
   }
 });
 
-loadAgents();
-connect();
-render();
-renderList();
+(async function start(){
+  restoreKeyboardLayout();
+  await loadAgents();
+  await loadDraft();
+  connect();
+  render();
+  renderList();
+})();
 </script>
 </body>
 </html>
