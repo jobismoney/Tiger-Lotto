@@ -1,1 +1,4246 @@
-[]
+[
+  {
+    "id": "SLIP-1778334716084-79F113",
+    "createdAt": "2026-05-09T13:51:56.084Z",
+    "source": "subkey",
+    "mode": "image",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "124",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "บน",
+        "number": "124",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 3,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 10,
+        "note": "กลับ"
+      },
+      {
+        "row": 4,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 10,
+        "note": "กลับ"
+      },
+      {
+        "row": 5,
+        "market": "thai",
+        "type": "บน",
+        "number": "23",
+        "amount": 10,
+        "note": "กลับ"
+      },
+      {
+        "row": 6,
+        "market": "thai",
+        "type": "บน",
+        "number": "32",
+        "amount": 10,
+        "note": "กลับ"
+      },
+      {
+        "row": 7,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "23",
+        "amount": 10,
+        "note": "กลับ"
+      },
+      {
+        "row": 8,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "32",
+        "amount": 10,
+        "note": "กลับ"
+      },
+      {
+        "row": 9,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "1245",
+        "amount": 1000,
+        "note": ""
+      },
+      {
+        "row": 10,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "12456",
+        "amount": 1000,
+        "note": ""
+      },
+      {
+        "row": 11,
+        "market": "thai",
+        "type": "บน",
+        "number": "1",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 12,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "1",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 13,
+        "market": "thai",
+        "type": "บน",
+        "number": "1ร้อย",
+        "amount": 100,
+        "note": "ปัก"
+      },
+      {
+        "row": 14,
+        "market": "thai",
+        "type": "บน",
+        "number": "1สิบ",
+        "amount": 100,
+        "note": "ปัก"
+      },
+      {
+        "row": 15,
+        "market": "thai",
+        "type": "บน",
+        "number": "1หน่วย",
+        "amount": 100,
+        "note": "ปัก"
+      },
+      {
+        "row": 16,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "8สิบ",
+        "amount": 1000,
+        "note": "ปัก"
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778334457085-6A799C",
+    "createdAt": "2026-05-09T13:47:37.085Z",
+    "source": "subkey",
+    "mode": "image",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 3,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 4,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 5,
+        "market": "thai",
+        "type": "บน",
+        "number": "32",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 6,
+        "market": "thai",
+        "type": "บน",
+        "number": "23",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 7,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "32",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 8,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "23",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 9,
+        "market": "thai",
+        "type": "บน",
+        "number": "65",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 10,
+        "market": "thai",
+        "type": "บน",
+        "number": "56",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 11,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "65",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 12,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "56",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 13,
+        "market": "thai",
+        "type": "บน",
+        "number": "98",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 14,
+        "market": "thai",
+        "type": "บน",
+        "number": "89",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 15,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "98",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 16,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "89",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 17,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 18,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 19,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 20,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 21,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 22,
+        "market": "thai",
+        "type": "บน",
+        "number": "45",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 23,
+        "market": "thai",
+        "type": "บน",
+        "number": "69",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 24,
+        "market": "thai",
+        "type": "บน",
+        "number": "96",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 25,
+        "market": "thai",
+        "type": "บน",
+        "number": "87",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 26,
+        "market": "thai",
+        "type": "บน",
+        "number": "78",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 27,
+        "market": "thai",
+        "type": "บน",
+        "number": "125",
+        "amount": 200,
+        "note": "ชุด"
+      },
+      {
+        "row": 28,
+        "market": "thai",
+        "type": "บน",
+        "number": "125",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 29,
+        "market": "thai",
+        "type": "บน",
+        "number": "546",
+        "amount": 200,
+        "note": "ชุด"
+      },
+      {
+        "row": 30,
+        "market": "thai",
+        "type": "บน",
+        "number": "546",
+        "amount": 10,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778332479990-380311",
+    "createdAt": "2026-05-09T13:14:39.991Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 3,
+        "market": "thai",
+        "type": "บน",
+        "number": "87",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 4,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "87",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 5,
+        "market": "thai",
+        "type": "บน",
+        "number": "65",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 6,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "65",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 7,
+        "market": "thai",
+        "type": "บน",
+        "number": "98",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 8,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "98",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 9,
+        "market": "thai",
+        "type": "บน",
+        "number": "20",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 10,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "20",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 11,
+        "market": "thai",
+        "type": "บน",
+        "number": "02",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 12,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "02",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 13,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 14,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 15,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 16,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "4585",
+        "amount": 1000,
+        "note": ""
+      },
+      {
+        "row": 17,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "5214",
+        "amount": 1000,
+        "note": ""
+      },
+      {
+        "row": 18,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "6598",
+        "amount": 1000,
+        "note": ""
+      },
+      {
+        "row": 19,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "4552",
+        "amount": 1000,
+        "note": ""
+      },
+      {
+        "row": 20,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "5444",
+        "amount": 1000,
+        "note": ""
+      },
+      {
+        "row": 21,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "1366",
+        "amount": 1000,
+        "note": ""
+      },
+      {
+        "row": 22,
+        "market": "thai",
+        "type": "บน",
+        "number": "23",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 23,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "23",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 24,
+        "market": "thai",
+        "type": "บน",
+        "number": "32",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 25,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "32",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 26,
+        "market": "thai",
+        "type": "บน",
+        "number": "125",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 27,
+        "market": "thai",
+        "type": "บน",
+        "number": "152",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 28,
+        "market": "thai",
+        "type": "บน",
+        "number": "215",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 29,
+        "market": "thai",
+        "type": "บน",
+        "number": "251",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 30,
+        "market": "thai",
+        "type": "บน",
+        "number": "512",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 31,
+        "market": "thai",
+        "type": "บน",
+        "number": "521",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 32,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "125",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 33,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "152",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 34,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "215",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 35,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "251",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 36,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "512",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 37,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "521",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 38,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "125",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 39,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "152",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 40,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "215",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 41,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "251",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 42,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "512",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 43,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "521",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 44,
+        "market": "thai",
+        "type": "หน้า",
+        "number": "125",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 45,
+        "market": "thai",
+        "type": "หน้า",
+        "number": "152",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 46,
+        "market": "thai",
+        "type": "หน้า",
+        "number": "215",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 47,
+        "market": "thai",
+        "type": "หน้า",
+        "number": "251",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 48,
+        "market": "thai",
+        "type": "หน้า",
+        "number": "512",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 49,
+        "market": "thai",
+        "type": "หน้า",
+        "number": "521",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 50,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 150,
+        "note": "กลับ"
+      },
+      {
+        "row": 51,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 150,
+        "note": "กลับ"
+      },
+      {
+        "row": 52,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 53,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 54,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 55,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 56,
+        "market": "thai",
+        "type": "บน",
+        "number": "32",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 57,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "32",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 58,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 59,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 60,
+        "market": "thai",
+        "type": "บน",
+        "number": "56",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 61,
+        "market": "thai",
+        "type": "บน",
+        "number": "65",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 62,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "56",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 63,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "65",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 64,
+        "market": "thai",
+        "type": "บน",
+        "number": "56",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 65,
+        "market": "thai",
+        "type": "บน",
+        "number": "65",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 66,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "56",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 67,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "65",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 68,
+        "market": "thai",
+        "type": "บน",
+        "number": "123",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 69,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "123",
+        "amount": 20,
+        "note": ""
+      },
+      {
+        "row": 70,
+        "market": "thai",
+        "type": "บน",
+        "number": "456",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 71,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "456",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 72,
+        "market": "thai",
+        "type": "บน",
+        "number": "123",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 73,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "123",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 74,
+        "market": "thai",
+        "type": "บน",
+        "number": "556",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 75,
+        "market": "thai",
+        "type": "บน",
+        "number": "123",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 76,
+        "market": "thai",
+        "type": "บน",
+        "number": "132",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 77,
+        "market": "thai",
+        "type": "บน",
+        "number": "213",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 78,
+        "market": "thai",
+        "type": "บน",
+        "number": "231",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 79,
+        "market": "thai",
+        "type": "บน",
+        "number": "312",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 80,
+        "market": "thai",
+        "type": "บน",
+        "number": "321",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 81,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "123",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 82,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "132",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 83,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "213",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 84,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "231",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 85,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "312",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 86,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "321",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 87,
+        "market": "thai",
+        "type": "บน",
+        "number": "445",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 88,
+        "market": "thai",
+        "type": "บน",
+        "number": "154",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 89,
+        "market": "thai",
+        "type": "บน",
+        "number": "145",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 90,
+        "market": "thai",
+        "type": "บน",
+        "number": "514",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 91,
+        "market": "thai",
+        "type": "บน",
+        "number": "541",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 92,
+        "market": "thai",
+        "type": "บน",
+        "number": "415",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 93,
+        "market": "thai",
+        "type": "บน",
+        "number": "451",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 94,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "154",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 95,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "145",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 96,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "514",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 97,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "541",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 98,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "415",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 99,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "451",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 100,
+        "market": "thai",
+        "type": "บน",
+        "number": "445",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 101,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "445",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 102,
+        "market": "thai",
+        "type": "บน",
+        "number": "123",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 103,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "123",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 104,
+        "market": "thai",
+        "type": "บน",
+        "number": "112",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 105,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "112",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 106,
+        "market": "thai",
+        "type": "บน",
+        "number": "123",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 107,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 108,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 109,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 110,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "21",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 111,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 112,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 113,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 114,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 115,
+        "market": "thai",
+        "type": "บน",
+        "number": "23",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 116,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "23",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 117,
+        "market": "thai",
+        "type": "บน",
+        "number": "35",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 118,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "35",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 119,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 120,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 121,
+        "market": "thai",
+        "type": "บน",
+        "number": "52",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 122,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "52",
+        "amount": 100,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778327935992-94DABB",
+    "createdAt": "2026-05-09T11:58:55.994Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "11",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 3,
+        "market": "thai",
+        "type": "บน",
+        "number": "55",
+        "amount": 200,
+        "note": ""
+      },
+      {
+        "row": 4,
+        "market": "thai",
+        "type": "บน",
+        "number": "13",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 5,
+        "market": "thai",
+        "type": "บน",
+        "number": "14",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 6,
+        "market": "thai",
+        "type": "บน",
+        "number": "11",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 7,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 8,
+        "market": "thai",
+        "type": "บน",
+        "number": "13",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 9,
+        "market": "thai",
+        "type": "บน",
+        "number": "14",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 10,
+        "market": "thai",
+        "type": "บน",
+        "number": "15",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 11,
+        "market": "thai",
+        "type": "บน",
+        "number": "16",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 12,
+        "market": "thai",
+        "type": "บน",
+        "number": "14",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 13,
+        "market": "thai",
+        "type": "บน",
+        "number": "15",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 14,
+        "market": "thai",
+        "type": "บน",
+        "number": "45",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 15,
+        "market": "thai",
+        "type": "บน",
+        "number": "87",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 16,
+        "market": "thai",
+        "type": "บน",
+        "number": "59",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 17,
+        "market": "thai",
+        "type": "บน",
+        "number": "65",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 18,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 19,
+        "market": "thai",
+        "type": "บน",
+        "number": "65",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 20,
+        "market": "thai",
+        "type": "บน",
+        "number": "98",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 21,
+        "market": "thai",
+        "type": "บน",
+        "number": "63",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 22,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 23,
+        "market": "thai",
+        "type": "บน",
+        "number": "11",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 24,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 25,
+        "market": "thai",
+        "type": "บน",
+        "number": "13",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 26,
+        "market": "thai",
+        "type": "บน",
+        "number": "14",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 27,
+        "market": "thai",
+        "type": "บน",
+        "number": "15",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 28,
+        "market": "thai",
+        "type": "บน",
+        "number": "11",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 29,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 30,
+        "market": "thai",
+        "type": "บน",
+        "number": "13",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 31,
+        "market": "thai",
+        "type": "บน",
+        "number": "14",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 32,
+        "market": "thai",
+        "type": "บน",
+        "number": "15",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 33,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 34,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 35,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 36,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 37,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 38,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 39,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 40,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 41,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 42,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 43,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 44,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 45,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 46,
+        "market": "thai",
+        "type": "บน",
+        "number": "123",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 47,
+        "market": "thai",
+        "type": "บน",
+        "number": "123",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 48,
+        "market": "thai",
+        "type": "บน",
+        "number": "132",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 49,
+        "market": "thai",
+        "type": "บน",
+        "number": "213",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 50,
+        "market": "thai",
+        "type": "บน",
+        "number": "231",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 51,
+        "market": "thai",
+        "type": "บน",
+        "number": "312",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 52,
+        "market": "thai",
+        "type": "บน",
+        "number": "321",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 53,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "123",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 54,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "132",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 55,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "213",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 56,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "231",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 57,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "312",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 58,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "321",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 59,
+        "market": "thai",
+        "type": "บน",
+        "number": "32",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 60,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 61,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 62,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 63,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 64,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 65,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "21",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 66,
+        "market": "thai",
+        "type": "บน",
+        "number": "32",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 67,
+        "market": "thai",
+        "type": "บน",
+        "number": "23",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 68,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "32",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 69,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "23",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 70,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 71,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 72,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 73,
+        "market": "thai",
+        "type": "บน",
+        "number": "123",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 74,
+        "market": "thai",
+        "type": "บน",
+        "number": "132",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 75,
+        "market": "thai",
+        "type": "บน",
+        "number": "213",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 76,
+        "market": "thai",
+        "type": "บน",
+        "number": "231",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 77,
+        "market": "thai",
+        "type": "บน",
+        "number": "312",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 78,
+        "market": "thai",
+        "type": "บน",
+        "number": "321",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 79,
+        "market": "thai",
+        "type": "บน",
+        "number": "234",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 80,
+        "market": "thai",
+        "type": "บน",
+        "number": "1234",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 81,
+        "market": "thai",
+        "type": "บน",
+        "number": "1243",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 82,
+        "market": "thai",
+        "type": "บน",
+        "number": "1324",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 83,
+        "market": "thai",
+        "type": "บน",
+        "number": "1342",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 84,
+        "market": "thai",
+        "type": "บน",
+        "number": "1423",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 85,
+        "market": "thai",
+        "type": "บน",
+        "number": "1432",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 86,
+        "market": "thai",
+        "type": "บน",
+        "number": "2134",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 87,
+        "market": "thai",
+        "type": "บน",
+        "number": "2143",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 88,
+        "market": "thai",
+        "type": "บน",
+        "number": "2314",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 89,
+        "market": "thai",
+        "type": "บน",
+        "number": "2341",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 90,
+        "market": "thai",
+        "type": "บน",
+        "number": "2413",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 91,
+        "market": "thai",
+        "type": "บน",
+        "number": "2431",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 92,
+        "market": "thai",
+        "type": "บน",
+        "number": "3124",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 93,
+        "market": "thai",
+        "type": "บน",
+        "number": "3142",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 94,
+        "market": "thai",
+        "type": "บน",
+        "number": "3214",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 95,
+        "market": "thai",
+        "type": "บน",
+        "number": "3241",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 96,
+        "market": "thai",
+        "type": "บน",
+        "number": "3412",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 97,
+        "market": "thai",
+        "type": "บน",
+        "number": "3421",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 98,
+        "market": "thai",
+        "type": "บน",
+        "number": "4123",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 99,
+        "market": "thai",
+        "type": "บน",
+        "number": "4132",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 100,
+        "market": "thai",
+        "type": "บน",
+        "number": "4213",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 101,
+        "market": "thai",
+        "type": "บน",
+        "number": "4231",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 102,
+        "market": "thai",
+        "type": "บน",
+        "number": "4312",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 103,
+        "market": "thai",
+        "type": "บน",
+        "number": "4321",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 104,
+        "market": "thai",
+        "type": "หน้า",
+        "number": "456",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 105,
+        "market": "thai",
+        "type": "บน",
+        "number": "125",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 106,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 107,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 108,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 109,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 110,
+        "market": "thai",
+        "type": "บน",
+        "number": "214",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 111,
+        "market": "thai",
+        "type": "บน",
+        "number": "241",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 112,
+        "market": "thai",
+        "type": "บน",
+        "number": "124",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 113,
+        "market": "thai",
+        "type": "บน",
+        "number": "142",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 114,
+        "market": "thai",
+        "type": "บน",
+        "number": "421",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 115,
+        "market": "thai",
+        "type": "บน",
+        "number": "412",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 116,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "214",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 117,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "241",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 118,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "124",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 119,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "142",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 120,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "421",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 121,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "412",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 122,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "214",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 123,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "241",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 124,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "124",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 125,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "142",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 126,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "421",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 127,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "412",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 128,
+        "market": "thai",
+        "type": "หน้า",
+        "number": "214",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 129,
+        "market": "thai",
+        "type": "หน้า",
+        "number": "241",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 130,
+        "market": "thai",
+        "type": "หน้า",
+        "number": "124",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 131,
+        "market": "thai",
+        "type": "หน้า",
+        "number": "142",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 132,
+        "market": "thai",
+        "type": "หน้า",
+        "number": "421",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 133,
+        "market": "thai",
+        "type": "หน้า",
+        "number": "412",
+        "amount": 100,
+        "note": "กลับ"
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778270905533-67050C",
+    "createdAt": "2026-05-08T20:08:25.534Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A002",
+    "agentName": "เอเยนต์ B",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "บน",
+        "number": "45",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 3,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 4,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "45",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 5,
+        "market": "thai",
+        "type": "บน",
+        "number": "8ร้อย",
+        "amount": 1000,
+        "note": "ปัก"
+      },
+      {
+        "row": 6,
+        "market": "thai",
+        "type": "บน",
+        "number": "8สิบ",
+        "amount": 1000,
+        "note": "ปัก"
+      },
+      {
+        "row": 7,
+        "market": "thai",
+        "type": "บน",
+        "number": "8หน่วย",
+        "amount": 1000,
+        "note": "ปัก"
+      },
+      {
+        "row": 8,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 9,
+        "market": "thai",
+        "type": "บน",
+        "number": "52",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 10,
+        "market": "thai",
+        "type": "บน",
+        "number": "45",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 11,
+        "market": "thai",
+        "type": "บน",
+        "number": "98",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 12,
+        "market": "thai",
+        "type": "บน",
+        "number": "65",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 13,
+        "market": "thai",
+        "type": "บน",
+        "number": "32",
+        "amount": 100,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778266554989-C489F6",
+    "createdAt": "2026-05-08T18:55:54.989Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "22",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "22",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 3,
+        "market": "thai",
+        "type": "บน",
+        "number": "236",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 4,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "236",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 5,
+        "market": "thai",
+        "type": "บน",
+        "number": "542",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 6,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "542",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 7,
+        "market": "thai",
+        "type": "บน",
+        "number": "154",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 8,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "154",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 9,
+        "market": "thai",
+        "type": "บน",
+        "number": "878",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 10,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "878",
+        "amount": 100,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778265883408-EEFB27",
+    "createdAt": "2026-05-08T18:44:43.408Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "lao",
+    "items": [
+      {
+        "row": 1,
+        "market": "lao",
+        "type": "บน",
+        "number": "653",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 2,
+        "market": "lao",
+        "type": "บน",
+        "number": "635",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 3,
+        "market": "lao",
+        "type": "บน",
+        "number": "563",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 4,
+        "market": "lao",
+        "type": "บน",
+        "number": "536",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 5,
+        "market": "lao",
+        "type": "บน",
+        "number": "365",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 6,
+        "market": "lao",
+        "type": "บน",
+        "number": "356",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 7,
+        "market": "lao",
+        "type": "โต๊ด",
+        "number": "653",
+        "amount": 100,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778264448293-F4550C",
+    "createdAt": "2026-05-08T18:20:48.293Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "lao",
+    "items": [
+      {
+        "row": 1,
+        "market": "lao",
+        "type": "บน",
+        "number": "54",
+        "amount": 1000,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778263735905-8B3E2A",
+    "createdAt": "2026-05-08T18:08:55.905Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "lao",
+    "items": [
+      {
+        "row": 1,
+        "market": "lao",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 2,
+        "market": "lao",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 3,
+        "market": "lao",
+        "type": "บน",
+        "number": "65",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 4,
+        "market": "lao",
+        "type": "บน",
+        "number": "56",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 5,
+        "market": "lao",
+        "type": "ล่าง",
+        "number": "65",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 6,
+        "market": "lao",
+        "type": "ล่าง",
+        "number": "56",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 7,
+        "market": "lao",
+        "type": "บน",
+        "number": "74",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 8,
+        "market": "lao",
+        "type": "บน",
+        "number": "47",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 9,
+        "market": "lao",
+        "type": "ล่าง",
+        "number": "74",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 10,
+        "market": "lao",
+        "type": "ล่าง",
+        "number": "47",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 11,
+        "market": "lao",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 12,
+        "market": "lao",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 13,
+        "market": "lao",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 14,
+        "market": "lao",
+        "type": "ล่าง",
+        "number": "21",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 15,
+        "market": "lao",
+        "type": "บน",
+        "number": "65",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 16,
+        "market": "lao",
+        "type": "บน",
+        "number": "56",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 17,
+        "market": "lao",
+        "type": "ล่าง",
+        "number": "65",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 18,
+        "market": "lao",
+        "type": "ล่าง",
+        "number": "56",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 19,
+        "market": "lao",
+        "type": "บน",
+        "number": "1254",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 20,
+        "market": "lao",
+        "type": "บน",
+        "number": "1245",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 21,
+        "market": "lao",
+        "type": "บน",
+        "number": "1524",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 22,
+        "market": "lao",
+        "type": "บน",
+        "number": "1542",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 23,
+        "market": "lao",
+        "type": "บน",
+        "number": "1425",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 24,
+        "market": "lao",
+        "type": "บน",
+        "number": "1452",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 25,
+        "market": "lao",
+        "type": "บน",
+        "number": "2154",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 26,
+        "market": "lao",
+        "type": "บน",
+        "number": "2145",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 27,
+        "market": "lao",
+        "type": "บน",
+        "number": "2514",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 28,
+        "market": "lao",
+        "type": "บน",
+        "number": "2541",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 29,
+        "market": "lao",
+        "type": "บน",
+        "number": "2415",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 30,
+        "market": "lao",
+        "type": "บน",
+        "number": "2451",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 31,
+        "market": "lao",
+        "type": "บน",
+        "number": "5124",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 32,
+        "market": "lao",
+        "type": "บน",
+        "number": "5142",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 33,
+        "market": "lao",
+        "type": "บน",
+        "number": "5214",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 34,
+        "market": "lao",
+        "type": "บน",
+        "number": "5241",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 35,
+        "market": "lao",
+        "type": "บน",
+        "number": "5412",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 36,
+        "market": "lao",
+        "type": "บน",
+        "number": "5421",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 37,
+        "market": "lao",
+        "type": "บน",
+        "number": "4125",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 38,
+        "market": "lao",
+        "type": "บน",
+        "number": "4152",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 39,
+        "market": "lao",
+        "type": "บน",
+        "number": "4215",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 40,
+        "market": "lao",
+        "type": "บน",
+        "number": "4251",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 41,
+        "market": "lao",
+        "type": "บน",
+        "number": "4512",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 42,
+        "market": "lao",
+        "type": "บน",
+        "number": "4521",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 43,
+        "market": "lao",
+        "type": "โต๊ด",
+        "number": "95641",
+        "amount": 1000,
+        "note": ""
+      },
+      {
+        "row": 44,
+        "market": "lao",
+        "type": "โต๊ด",
+        "number": "78554",
+        "amount": 1000,
+        "note": ""
+      },
+      {
+        "row": 45,
+        "market": "lao",
+        "type": "โต๊ด",
+        "number": "12236",
+        "amount": 1000,
+        "note": ""
+      },
+      {
+        "row": 46,
+        "market": "lao",
+        "type": "โต๊ด",
+        "number": "56523",
+        "amount": 1000,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778263484001-367D1A",
+    "createdAt": "2026-05-08T18:04:44.001Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "65",
+        "amount": 200,
+        "note": ""
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "65",
+        "amount": 200,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778263419284-7B3E3D",
+    "createdAt": "2026-05-08T18:03:39.284Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "บน",
+        "number": "45",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 3,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 4,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "45",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 5,
+        "market": "thai",
+        "type": "บน",
+        "number": "65",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 6,
+        "market": "thai",
+        "type": "บน",
+        "number": "56",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 7,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "65",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 8,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "56",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 9,
+        "market": "thai",
+        "type": "บน",
+        "number": "98",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 10,
+        "market": "thai",
+        "type": "บน",
+        "number": "89",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 11,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "98",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 12,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "89",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 13,
+        "market": "thai",
+        "type": "บน",
+        "number": "74",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 14,
+        "market": "thai",
+        "type": "บน",
+        "number": "47",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 15,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "74",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 16,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "47",
+        "amount": 100,
+        "note": "กลับ"
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778263027198-2F61A0",
+    "createdAt": "2026-05-08T17:57:07.199Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "546",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "บน",
+        "number": "564",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 3,
+        "market": "thai",
+        "type": "บน",
+        "number": "456",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 4,
+        "market": "thai",
+        "type": "บน",
+        "number": "465",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 5,
+        "market": "thai",
+        "type": "บน",
+        "number": "654",
+        "amount": 100,
+        "note": "ชุด"
+      },
+      {
+        "row": 6,
+        "market": "thai",
+        "type": "บน",
+        "number": "645",
+        "amount": 100,
+        "note": "ชุด"
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778258902125-99E063",
+    "createdAt": "2026-05-08T16:48:22.126Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "65",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "65",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 3,
+        "market": "thai",
+        "type": "บน",
+        "number": "125",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 4,
+        "market": "thai",
+        "type": "บน",
+        "number": "152",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 5,
+        "market": "thai",
+        "type": "บน",
+        "number": "215",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 6,
+        "market": "thai",
+        "type": "บน",
+        "number": "251",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 7,
+        "market": "thai",
+        "type": "บน",
+        "number": "512",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 8,
+        "market": "thai",
+        "type": "บน",
+        "number": "521",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 9,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "125",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 10,
+        "market": "thai",
+        "type": "บน",
+        "number": "658",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 11,
+        "market": "thai",
+        "type": "บน",
+        "number": "685",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 12,
+        "market": "thai",
+        "type": "บน",
+        "number": "568",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 13,
+        "market": "thai",
+        "type": "บน",
+        "number": "586",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 14,
+        "market": "thai",
+        "type": "บน",
+        "number": "865",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 15,
+        "market": "thai",
+        "type": "บน",
+        "number": "856",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 16,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "658",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 17,
+        "market": "thai",
+        "type": "บน",
+        "number": "954",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 18,
+        "market": "thai",
+        "type": "บน",
+        "number": "945",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 19,
+        "market": "thai",
+        "type": "บน",
+        "number": "594",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 20,
+        "market": "thai",
+        "type": "บน",
+        "number": "549",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 21,
+        "market": "thai",
+        "type": "บน",
+        "number": "495",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 22,
+        "market": "thai",
+        "type": "บน",
+        "number": "459",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 23,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "954",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 24,
+        "market": "thai",
+        "type": "บน",
+        "number": "587",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 25,
+        "market": "thai",
+        "type": "บน",
+        "number": "578",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 26,
+        "market": "thai",
+        "type": "บน",
+        "number": "857",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 27,
+        "market": "thai",
+        "type": "บน",
+        "number": "875",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 28,
+        "market": "thai",
+        "type": "บน",
+        "number": "758",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 29,
+        "market": "thai",
+        "type": "บน",
+        "number": "785",
+        "amount": 10,
+        "note": "ชุด"
+      },
+      {
+        "row": 30,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "587",
+        "amount": 10,
+        "note": ""
+      },
+      {
+        "row": 31,
+        "market": "thai",
+        "type": "โต๊ด",
+        "number": "1245",
+        "amount": 1000,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778255944577-D3C752",
+    "createdAt": "2026-05-08T15:59:04.577Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A003",
+    "agentName": "เอเยนต์ C",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 3,
+        "market": "thai",
+        "type": "บน",
+        "number": "65",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 4,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "65",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 5,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 6,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 7,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 8,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 9,
+        "market": "thai",
+        "type": "บน",
+        "number": "78",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 10,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "78",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 11,
+        "market": "thai",
+        "type": "บน",
+        "number": "87",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 12,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "87",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 13,
+        "market": "thai",
+        "type": "บน",
+        "number": "96",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 14,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "96",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 15,
+        "market": "thai",
+        "type": "บน",
+        "number": "56",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 16,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "56",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 17,
+        "market": "thai",
+        "type": "บน",
+        "number": "63",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 18,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "63",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 19,
+        "market": "thai",
+        "type": "บน",
+        "number": "32",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 20,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "32",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 21,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 22,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 23,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 24,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778255779490-B96D2D",
+    "createdAt": "2026-05-08T15:56:19.491Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "75",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "บน",
+        "number": "57",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 3,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "75",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 4,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "57",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 5,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 6,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 7,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 8,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 9,
+        "market": "thai",
+        "type": "บน",
+        "number": "87",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 10,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "87",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 11,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 12,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 13,
+        "market": "thai",
+        "type": "บน",
+        "number": "36",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 14,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "36",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 15,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 16,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 17,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 18,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 19,
+        "market": "thai",
+        "type": "บน",
+        "number": "45",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 20,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "45",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 21,
+        "market": "thai",
+        "type": "บน",
+        "number": "21",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 22,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "21",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 23,
+        "market": "thai",
+        "type": "บน",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 24,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "12",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 25,
+        "market": "thai",
+        "type": "บน",
+        "number": "36",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 26,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "36",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 27,
+        "market": "thai",
+        "type": "บน",
+        "number": "63",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 28,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "63",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 29,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 30,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 31,
+        "market": "thai",
+        "type": "บน",
+        "number": "45",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 32,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "45",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 33,
+        "market": "thai",
+        "type": "บน",
+        "number": "87",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 34,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "87",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 35,
+        "market": "thai",
+        "type": "บน",
+        "number": "78",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 36,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "78",
+        "amount": 100,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778254758804-523EA6",
+    "createdAt": "2026-05-08T15:39:18.805Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "54",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "54",
+        "amount": 100,
+        "note": "กลับ"
+      },
+      {
+        "row": 3,
+        "market": "thai",
+        "type": "ล่าง",
+        "number": "45",
+        "amount": 100,
+        "note": "กลับ"
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778252802358-1DA35D",
+    "createdAt": "2026-05-08T15:06:42.358Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "25",
+        "amount": 100452,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": "SLIP-1778251378049-D7F04B",
+    "createdAt": "2026-05-08T14:42:58.049Z",
+    "source": "subkey",
+    "mode": "paper",
+    "machineName": "Subkey-01",
+    "operatorName": "",
+    "agentId": "A001",
+    "agentName": "เอเยนต์ A",
+    "paperNo": "",
+    "market": "thai",
+    "items": [
+      {
+        "row": 1,
+        "market": "thai",
+        "type": "บน",
+        "number": "25",
+        "amount": 100,
+        "note": ""
+      },
+      {
+        "row": 2,
+        "market": "thai",
+        "type": "บน",
+        "number": "52",
+        "amount": 100,
+        "note": ""
+      }
+    ]
+  }
+]
