@@ -1,111 +1,93 @@
-export default function handler(req, res) {
-  if (req.method !== "POST") {
+import { neon } from '@neondatabase/serverless';
+
+const sql = neon(process.env.DATABASE_URL);
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
     return res.status(405).json({
       ok: false,
-      message: "Method not allowed"
+      message: 'Method not allowed'
     });
   }
 
-  const code = String(req.body?.code || "")
-    .trim()
-    .toUpperCase();
+  try {
+    const { code } = req.body || {};
+    const trialCode = String(code || '').trim().toUpperCase();
 
-  if (!code) {
-    return res.status(400).json({
-      ok: false,
-      message: "กรุณากรอกรหัสทดลองใช้งาน"
+    if (!trialCode) {
+      return res.status(400).json({
+        ok: false,
+        message: 'กรุณากรอกรหัส Trial'
+      });
+    }
+
+    const rows = await sql`
+      select
+        id,
+        trial_code,
+        customer_name,
+        status,
+        starts_at,
+        expires_at,
+        workspace_id
+      from trial_access
+      where upper(trial_code) = ${trialCode}
+      limit 1
+    `;
+
+    if (!rows.length) {
+      return res.status(404).json({
+        ok: false,
+        message: 'ไม่พบรหัส Trial นี้'
+      });
+    }
+
+    const trial = rows[0];
+
+    if (trial.status !== 'ACTIVE') {
+      return res.status(403).json({
+        ok: false,
+        message: 'สิทธิ์ Trial นี้ถูกปิดใช้งาน'
+      });
+    }
+
+    const now = new Date();
+    const startsAt = new Date(trial.starts_at);
+    const expiresAt = new Date(trial.expires_at);
+
+    if (now < startsAt) {
+      return res.status(403).json({
+        ok: false,
+        message: 'สิทธิ์ Trial นี้ยังไม่ถึงเวลาเริ่มใช้งาน'
+      });
+    }
+
+    if (now >= expiresAt) {
+      return res.status(403).json({
+        ok: false,
+        message: 'สิทธิ์ Trial นี้หมดอายุแล้ว'
+      });
+    }
+
+    const remainingMs = expiresAt.getTime() - now.getTime();
+    const remainingDays = Math.ceil(remainingMs / 86400000);
+
+    return res.status(200).json({
+      ok: true,
+      message: 'เข้าสู่ T999 Web Trial สำเร็จ',
+      customerName: trial.customer_name || '',
+      workspaceId: trial.workspace_id || '',
+      startsAt: trial.starts_at,
+      expiresAt: trial.expires_at,
+      remainingDays
     });
-  }
 
-  /*
-    รหัสจริงจะไม่เก็บใน GitHub
-    แต่จะเก็บใน Vercel Environment Variable ชื่อ:
+  } catch (error) {
+    console.error('trial-login error:', error);
 
-    T999_TRIAL_CODES
-
-    รูปแบบตัวอย่าง:
-    TEST001|2026-07-22T00:00:00+07:00|2026-07-29T00:00:00+07:00,
-    TEST002|2026-07-23T00:00:00+07:00|2026-07-30T00:00:00+07:00
-  */
-
-  const rawCodes = process.env.T999_TRIAL_CODES || "";
-
-  const trialCodes = rawCodes
-    .split(",")
-    .map((row) => row.trim())
-    .filter(Boolean)
-    .map((row) => {
-      const [trialCode, startsAt, expiresAt] = row.split("|");
-
-      return {
-        code: String(trialCode || "").trim().toUpperCase(),
-        startsAt: String(startsAt || "").trim(),
-        expiresAt: String(expiresAt || "").trim()
-      };
-    });
-
-  const trial = trialCodes.find(
-    (item) => item.code === code
-  );
-
-  if (!trial) {
-    return res.status(401).json({
-      ok: false,
-      message: "รหัสทดลองใช้งานไม่ถูกต้อง"
-    });
-  }
-
-  const now = Date.now();
-
-  const startsAt = new Date(trial.startsAt).getTime();
-  const expiresAt = new Date(trial.expiresAt).getTime();
-
-  if (
-    !Number.isFinite(startsAt) ||
-    !Number.isFinite(expiresAt)
-  ) {
     return res.status(500).json({
       ok: false,
-      message: "ข้อมูลสิทธิ์ทดลองไม่สมบูรณ์ กรุณาติดต่อผู้ดูแลระบบ"
+      message: 'ระบบไม่สามารถตรวจสอบ Trial ได้ในขณะนี้'
     });
   }
-
-  if (now < startsAt) {
-    return res.status(403).json({
-      ok: false,
-      message: "รหัสนี้ยังไม่ถึงเวลาเริ่มใช้งาน"
-    });
-  }
-
-  if (now >= expiresAt) {
-    return res.status(403).json({
-      ok: false,
-      expired: true,
-      message: "รหัสทดลองใช้งานนี้หมดอายุแล้ว"
-    });
-  }
-
-  const remainingMs = expiresAt - now;
-  const remainingDays = Math.max(
-    1,
-    Math.ceil(remainingMs / (24 * 60 * 60 * 1000))
-  );
-
-  return res.status(200).json({
-    ok: true,
-
-    message:
-      `เข้าสู่ T999 Web Trial สำเร็จ\n` +
-      `เหลือสิทธิ์ทดลองประมาณ ${remainingDays} วัน`,
-
-    trial: {
-      expiresAt: trial.expiresAt,
-
-      limits: {
-        maxAgents: 5,
-        maxSlipsPerAgent: 30,
-        maxTotalSlips: 150
-      }
-    }
-  });
 }
