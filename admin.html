@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>T999 Trial Admin</title>
+
+  <style>
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      background:#070b14;
+      color:#fff;
+      font-family:Arial,sans-serif;
+      padding:24px;
+    }
+
+    .wrap{
+      max-width:980px;
+      margin:auto;
+    }
+
+    .header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      margin-bottom:20px;
+    }
+
+    h1{
+      margin:0;
+      color:#ffd21c;
+    }
+
+    .sub{
+      color:#8fa0bb;
+      margin-top:6px;
+    }
+
+    .card{
+      background:#0d1524;
+      border:1px solid #26344d;
+      border-radius:16px;
+      padding:20px;
+      margin-bottom:18px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:12px;
+    }
+
+    label{
+      display:block;
+      font-size:13px;
+      color:#9fb0cb;
+      margin-bottom:6px;
+    }
+
+    input,
+    select,
+    button{
+      width:100%;
+      padding:12px;
+      border-radius:9px;
+      font-size:16px;
+    }
+
+    input,
+    select{
+      background:#09101d;
+      border:1px solid #42516b;
+      color:#fff;
+    }
+
+    button{
+      border:0;
+      background:#2f6fed;
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    button.secondary{
+      background:#2a3447;
+    }
+
+    button.danger{
+      background:#b83232;
+    }
+
+    button.success{
+      background:#178f55;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      margin-top:16px;
+      flex-wrap:wrap;
+    }
+
+    .actions button{
+      width:auto;
+      min-width:140px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:12px;
+    }
+
+    th,
+    td{
+      border-bottom:1px solid #26344d;
+      padding:12px 10px;
+      text-align:left;
+      vertical-align:middle;
+    }
+
+    th{
+      color:#aebbd0;
+      font-size:13px;
+    }
+
+    .status{
+      display:inline-block;
+      padding:5px 9px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .active{
+      background:#123d2d;
+      color:#71e2ad;
+    }
+
+    .expired{
+      background:#4a2424;
+      color:#ff9a9a;
+    }
+
+    .disabled{
+      background:#3b3b44;
+      color:#c8c8d0;
+    }
+
+    .muted{
+      color:#7f8fa8;
+    }
+
+    .small-btn{
+      width:auto;
+      padding:8px 10px;
+      font-size:13px;
+      margin-right:6px;
+      margin-bottom:4px;
+    }
+
+    @media (max-width:700px){
+      body{
+        padding:14px;
+      }
+
+      table{
+        font-size:13px;
+      }
+
+      th,
+      td{
+        padding:9px 6px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="header">
+      <div>
+        <h1>T999 Trial Admin</h1>
+        <div class="sub">
+          ควบคุมสิทธิ์ทดลองใช้งานตามระยะเวลา
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>สร้าง Trial ใหม่</h2>
+
+      <div class="grid">
+
+        <div>
+          <label>รหัส Trial</label>
+          <input
+            id="code"
+            placeholder="เช่น SHOP001"
+            autocomplete="off"
+          />
+        </div>
+
+        <div>
+          <label>ชื่อลูกค้า / ร้าน</label>
+          <input
+            id="customer"
+            placeholder="เช่น ร้านสมชาย"
+            autocomplete="off"
+          />
+        </div>
+
+        <div>
+          <label>วันเริ่มใช้งาน</label>
+          <input
+            id="startsAt"
+            type="datetime-local"
+          />
+        </div>
+
+        <div>
+          <label>วันหมดอายุ</label>
+          <input
+            id="expiresAt"
+            type="datetime-local"
+          />
+        </div>
+
+      </div>
+
+      <div class="actions">
+        <button
+          id="createBtn"
+          type="button"
+        >
+          สร้างสิทธิ์ Trial
+        </button>
+
+        <button
+          id="quick7Btn"
+          class="secondary"
+          type="button"
+        >
+          ตั้ง 7 วันอัตโนมัติ
+        </button>
+      </div>
+
+      <p class="muted">
+        Trial ใช้งานระบบได้เต็มฟังก์ชัน จำกัดเฉพาะช่วงเวลาที่ Admin กำหนด
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>รายการ Trial</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>รหัส</th>
+            <th>ลูกค้า</th>
+            <th>สถานะ</th>
+            <th>เริ่ม</th>
+            <th>หมดอายุ</th>
+            <th>จัดการ</th>
+          </tr>
+        </thead>
+
+        <tbody id="list">
+          <tr>
+            <td colspan="6" class="muted">
+              ยังไม่มีข้อมูล Trial
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script>
+    const codeInput = document.getElementById("code");
+    const customerInput = document.getElementById("customer");
+    const startsAtInput = document.getElementById("startsAt");
+    const expiresAtInput = document.getElementById("expiresAt");
+
+    const createBtn = document.getElementById("createBtn");
+    const quick7Btn = document.getElementById("quick7Btn");
+    const list = document.getElementById("list");
+
+    const trials = [];
+
+    function toLocalInputValue(date) {
+      const pad = (n) => String(n).padStart(2, "0");
+
+      return (
+        date.getFullYear() +
+        "-" +
+        pad(date.getMonth() + 1) +
+        "-" +
+        pad(date.getDate()) +
+        "T" +
+        pad(date.getHours()) +
+        ":" +
+        pad(date.getMinutes())
+      );
+    }
+
+    function setDefaultDates() {
+      const now = new Date();
+      const expires = new Date(
+        now.getTime() + 7 * 24 * 60 * 60 * 1000
+      );
+
+      startsAtInput.value = toLocalInputValue(now);
+      expiresAtInput.value = toLocalInputValue(expires);
+    }
+
+    function getStatus(trial) {
+      if (trial.disabled) {
+        return {
+          text: "DISABLED",
+          className: "disabled"
+        };
+      }
+
+      const now = Date.now();
+      const starts = new Date(trial.startsAt).getTime();
+      const expires = new Date(trial.expiresAt).getTime();
+
+      if (now < starts) {
+        return {
+          text: "WAITING",
+          className: "disabled"
+        };
+      }
+
+      if (now >= expires) {
+        return {
+          text: "EXPIRED",
+          className: "expired"
+        };
+      }
+
+      return {
+        text: "ACTIVE",
+        className: "active"
+      };
+    }
+
+    function render() {
+      if (!trials.length) {
+        list.innerHTML = `
+          <tr>
+            <td colspan="6" class="muted">
+              ยังไม่มีข้อมูล Trial
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      list.innerHTML = trials
+        .map((trial, index) => {
+          const status = getStatus(trial);
+
+          return `
+            <tr>
+              <td><strong>${trial.code}</strong></td>
+
+              <td>
+                ${trial.customer || "-"}
+              </td>
+
+              <td>
+                <span class="status ${status.className}">
+                  ${status.text}
+                </span>
+              </td>
+
+              <td>
+                ${new Date(trial.startsAt).toLocaleString("th-TH")}
+              </td>
+
+              <td>
+                ${new Date(trial.expiresAt).toLocaleString("th-TH")}
+              </td>
+
+              <td>
+                <button
+                  class="small-btn success"
+                  onclick="extendTrial(${index},7)"
+                >
+                  +7 วัน
+                </button>
+
+                <button
+                  class="small-btn secondary"
+                  onclick="toggleTrial(${index})"
+                >
+                  ${trial.disabled ? "เปิดสิทธิ์" : "ปิดสิทธิ์"}
+                </button>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+
+    window.extendTrial = function(index, days) {
+      const trial = trials[index];
+
+      const currentExpire = new Date(trial.expiresAt);
+
+      const base =
+        currentExpire.getTime() > Date.now()
+          ? currentExpire
+          : new Date();
+
+      const nextExpire = new Date(
+        base.getTime() +
+        days * 24 * 60 * 60 * 1000
+      );
+
+      trial.expiresAt = nextExpire.toISOString();
+
+      render();
+    };
+
+    window.toggleTrial = function(index) {
+      trials[index].disabled =
+        !trials[index].disabled;
+
+      render();
+    };
+
+    quick7Btn.addEventListener("click", () => {
+      setDefaultDates();
+    });
+
+    createBtn.addEventListener("click", () => {
+      const code =
+        codeInput.value.trim().toUpperCase();
+
+      const customer =
+        customerInput.value.trim();
+
+      const startsAt =
+        startsAtInput.value;
+
+      const expiresAt =
+        expiresAtInput.value;
+
+      if (!code) {
+        alert("กรุณาใส่รหัส Trial");
+        codeInput.focus();
+        return;
+      }
+
+      if (!startsAt || !expiresAt) {
+        alert("กรุณากำหนดวันเริ่มและวันหมดอายุ");
+        return;
+      }
+
+      const startsMs =
+        new Date(startsAt).getTime();
+
+      const expiresMs =
+        new Date(expiresAt).getTime();
+
+      if (
+        !Number.isFinite(startsMs) ||
+        !Number.isFinite(expiresMs)
+      ) {
+        alert("วันที่ไม่ถูกต้อง");
+        return;
+      }
+
+      if (expiresMs <= startsMs) {
+        alert("วันหมดอายุต้องอยู่หลังวันเริ่มใช้งาน");
+        return;
+      }
+
+      const duplicate =
+        trials.some(
+          (trial) => trial.code === code
+        );
+
+      if (duplicate) {
+        alert("รหัส Trial นี้มีอยู่แล้ว");
+        return;
+      }
+
+      trials.push({
+        code,
+        customer,
+        startsAt:
+          new Date(startsAt).toISOString(),
+        expiresAt:
+          new Date(expiresAt).toISOString(),
+        disabled:false
+      });
+
+      codeInput.value = "";
+      customerInput.value = "";
+
+      setDefaultDates();
+      render();
+    });
+
+    setDefaultDates();
+    render();
+  </script>
+
+</body>
+</html>
