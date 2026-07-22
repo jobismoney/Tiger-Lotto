@@ -1,2 +1,73 @@
-<h1>T999 Web Trial</h1>
-<p>กำลังเตรียมระบบทดลองใช้งาน</p>
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T999 Web Trial</title>
+  <style>
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      background:#070b14;
+      color:#fff;
+      font-family:Arial,sans-serif
+    }
+    .card{
+      width:min(420px,90vw);
+      background:#0d1524;
+      border:1px solid #26344d;
+      border-radius:18px;
+      padding:28px;
+      box-shadow:0 20px 60px #0008
+    }
+    h1{margin:0 0 8px;color:#ffd21c}
+    p{color:#9fb0cb}
+    input,button{
+      width:100%;
+      box-sizing:border-box;
+      padding:14px;
+      border-radius:10px;
+      font-size:18px
+    }
+    input{
+      border:1px solid #42516b;
+      background:#09101d;
+      color:#fff;
+      margin:16px 0 12px
+    }
+    button{
+      border:0;
+      background:#2f6fed;
+      color:#fff;
+      font-weight:700;
+      cursor:pointer
+    }
+    .note{
+      margin-top:14px;
+      font-size:13px;
+      color:#72839f
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>T999 Web Trial</h1>
+    <p>กรอกรหัสทดลองใช้งานที่ได้รับจากผู้ดูแลระบบ</p>
+
+    <input
+      id="trialCode"
+      type="text"
+      placeholder="รหัสทดลองใช้งาน"
+      autocomplete="off"
+    />
+
+    <button type="button">เข้าใช้งานระบบทดลอง</button>
+
+    <div class="note">
+      สิทธิ์ทดลองใช้งาน 7 วัน • สูงสุด 5 Agent • 30 โพยต่อ Agent
+    </div>
+  </main>
+</body>
+</html>
