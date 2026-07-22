@@ -303,10 +303,7 @@
           <tbody id="trialRows">
 
             <tr>
-              <td
-                colspan="7"
-                class="empty"
-              >
+              <td colspan="7" class="empty">
                 กำลังโหลด...
               </td>
             </tr>
@@ -325,7 +322,6 @@
   <script>
 
     function localInputValue(date) {
-
       const offset =
         date.getTimezoneOffset() * 60000;
 
@@ -334,12 +330,21 @@
       )
       .toISOString()
       .slice(0, 16);
+    }
 
+
+    function toThailandISOString(value) {
+      if (!value) {
+        return '';
+      }
+
+      return new Date(
+        value + ':00+07:00'
+      ).toISOString();
     }
 
 
     function setSevenDays() {
-
       const now =
         new Date();
 
@@ -358,12 +363,10 @@
         'expiresAt'
       ).value =
         localInputValue(end);
-
     }
 
 
     async function createTrial() {
-
       const status =
         document.getElementById(
           'formStatus'
@@ -396,27 +399,21 @@
         )
         .value;
 
-
       if (
         !trialCode ||
         !startsAt ||
         !expiresAt
       ) {
-
         status.textContent =
           'กรุณากรอกรหัส Trial และวันเวลาให้ครบ';
 
         return;
-
       }
-
 
       status.textContent =
         'กำลังสร้างสิทธิ์ Trial...';
 
-
       try {
-
         const response =
           await fetch(
             '/api/trials',
@@ -432,26 +429,27 @@
                 JSON.stringify({
                   trialCode,
                   customerName,
-                  startsAt,
-                  expiresAt
+                  startsAt:
+                    toThailandISOString(
+                      startsAt
+                    ),
+                  expiresAt:
+                    toThailandISOString(
+                      expiresAt
+                    )
                 })
             }
           );
 
-
         const data =
           await response.json();
 
-
         if (!response.ok) {
-
           throw new Error(
             data.message ||
             'สร้าง Trial ไม่สำเร็จ'
           );
-
         }
-
 
         status.textContent =
           'สร้าง Trial สำเร็จ\n' +
@@ -459,7 +457,6 @@
           data.trial.trialCode +
           '\nWorkspace: ' +
           data.trial.workspaceId;
-
 
         document.getElementById(
           'trialCode'
@@ -469,27 +466,20 @@
           'customerName'
         ).value = '';
 
-
         await loadTrials();
-
       }
       catch (error) {
-
         status.textContent =
           error.message;
-
       }
-
     }
 
 
     async function loadTrials() {
-
       const rows =
         document.getElementById(
           'trialRows'
         );
-
 
       rows.innerHTML =
         '<tr>' +
@@ -498,34 +488,26 @@
         '</td>' +
         '</tr>';
 
-
       try {
-
         const response =
           await fetch(
             '/api/trials'
           );
 
-
         const data =
           await response.json();
 
-
         if (!response.ok) {
-
           throw new Error(
             data.message ||
             'โหลดรายการไม่สำเร็จ'
           );
-
         }
-
 
         if (
           !data.trials ||
           !data.trials.length
         ) {
-
           rows.innerHTML =
             '<tr>' +
             '<td colspan="7" class="empty">' +
@@ -534,35 +516,27 @@
             '</tr>';
 
           return;
-
         }
-
 
         rows.innerHTML =
           data.trials
           .map(renderTrialRow)
           .join('');
-
       }
       catch (error) {
-
         rows.innerHTML =
           '<tr>' +
           '<td colspan="7" class="empty">' +
           error.message +
           '</td>' +
           '</tr>';
-
       }
-
     }
 
 
     function renderTrialRow(trial) {
-
       const active =
         trial.status === 'ACTIVE';
-
 
       return `
         <tr>
@@ -660,25 +634,19 @@
 
         </tr>
       `;
-
     }
 
 
     async function extendTrial(id) {
-
       if (
         !confirm(
           'เพิ่มเวลา Trial อีก 7 วัน?'
         )
       ) {
-
         return;
-
       }
 
-
       try {
-
         const response =
           await fetch(
             '/api/trials',
@@ -699,32 +667,23 @@
             }
           );
 
-
         const data =
           await response.json();
 
-
         if (!response.ok) {
-
           throw new Error(
             data.message ||
             'เพิ่มเวลาไม่สำเร็จ'
           );
-
         }
 
-
         await loadTrials();
-
       }
       catch (error) {
-
         alert(
           error.message
         );
-
       }
-
     }
 
 
@@ -732,9 +691,7 @@
       id,
       status
     ) {
-
       try {
-
         const response =
           await fetch(
             '/api/trials',
@@ -756,37 +713,27 @@
             }
           );
 
-
         const data =
           await response.json();
 
-
         if (!response.ok) {
-
           throw new Error(
             data.message ||
             'เปลี่ยนสถานะไม่สำเร็จ'
           );
-
         }
 
-
         await loadTrials();
-
       }
       catch (error) {
-
         alert(
           error.message
         );
-
       }
-
     }
 
 
     function formatDate(value) {
-
       if (!value) {
         return '';
       }
@@ -795,14 +742,16 @@
         value
       )
       .toLocaleString(
-        'th-TH'
+        'th-TH',
+        {
+          timeZone:
+            'Asia/Bangkok'
+        }
       );
-
     }
 
 
     function escapeHtml(value) {
-
       return String(
         value || ''
       )
@@ -826,7 +775,6 @@
         /'/g,
         '&#039;'
       );
-
     }
 
 
