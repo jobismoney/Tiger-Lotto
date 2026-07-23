@@ -18,7 +18,7 @@
     body {
       margin: 0;
       background: #080b0e;
-      color: #ffffff;
+      color: #fff;
       font-family:
         Arial,
         "Noto Sans Thai",
@@ -48,14 +48,13 @@
     .brand {
       font-size: 25px;
       font-weight: 900;
-      letter-spacing: .2px;
     }
 
     .workspace-box {
       text-align: right;
       color: #9cc8ff;
       font-size: 12px;
-      line-height: 1.35;
+      line-height: 1.4;
     }
 
     .panel {
@@ -67,8 +66,7 @@
     }
 
     h1,
-    h2,
-    h3 {
+    h2 {
       margin: 0;
     }
 
@@ -113,11 +111,6 @@
       outline: none;
     }
 
-    input:focus,
-    select:focus {
-      border-color: #8bbdff;
-    }
-
     .small-note {
       color: #6f94b6;
       font-size: 10px;
@@ -126,7 +119,6 @@
 
     .actions {
       display: flex;
-      align-items: center;
       gap: 10px;
       margin-top: 18px;
     }
@@ -140,7 +132,7 @@
     }
 
     .btn-primary {
-      background: #ffffff;
+      background: #fff;
       color: #000;
     }
 
@@ -161,10 +153,18 @@
 
     .status-line {
       margin-top: 14px;
-      min-height: 52px;
+      min-height: 50px;
       color: #dcecff;
       font-size: 13px;
       white-space: pre-line;
+    }
+
+    .success {
+      color: #a6f0b8;
+    }
+
+    .error {
+      color: #ff9c95;
     }
 
     .stats {
@@ -223,16 +223,11 @@
       font-size: 13px;
     }
 
-    .job-row:last-of-type {
-      border-bottom: 0;
-    }
-
     .job-key {
       color: #8ebbe8;
     }
 
     .job-value {
-      color: #fff;
       font-weight: 800;
       overflow-wrap: anywhere;
     }
@@ -243,7 +238,6 @@
       padding: 4px 9px;
       font-size: 10px;
       font-weight: 900;
-      line-height: 1;
     }
 
     .badge-waiting {
@@ -259,36 +253,33 @@
     }
 
     .image-area {
-      min-height: 420px;
+      min-height: 430px;
       border: 1px solid #4a5562;
       border-radius: 11px;
       background: #090c0f;
       padding: 12px;
-      position: relative;
-      overflow: hidden;
     }
 
     .image-toolbar {
       display: flex;
       justify-content: space-between;
-      gap: 10px;
-      align-items: center;
+      gap: 15px;
+      align-items: flex-start;
       margin-bottom: 10px;
+      font-size: 12px;
     }
 
-    .cache-status {
-      font-size: 12px;
+    .path-status {
       color: #a8c9e8;
     }
 
-    .bridge-status {
-      font-size: 12px;
+    .transfer-status {
       color: #b4c1cd;
       text-align: right;
     }
 
     .image-frame {
-      min-height: 360px;
+      min-height: 370px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -308,7 +299,16 @@
       color: #81909d;
       text-align: center;
       padding: 30px;
-      line-height: 1.6;
+      line-height: 1.7;
+    }
+
+    .route-box {
+      margin-top: 10px;
+      border-top: 1px solid #303945;
+      padding-top: 10px;
+      color: #91a7ba;
+      font-size: 11px;
+      line-height: 1.55;
     }
 
     .queue-head {
@@ -339,19 +339,6 @@
 
     th {
       color: #82a9d1;
-      font-weight: 700;
-    }
-
-    td {
-      color: #fff;
-    }
-
-    .error {
-      color: #ff9c95;
-    }
-
-    .success {
-      color: #a6f0b8;
     }
 
     @media (max-width: 900px) {
@@ -364,1616 +351,1908 @@
         grid-template-columns: repeat(2, 1fr);
       }
     }
-
-    @media (max-width: 560px) {
-      .page {
-        width: min(100% - 18px, 1180px);
-      }
-
-      .topbar {
-        flex-direction: column;
-      }
-
-      .workspace-box {
-        text-align: left;
-      }
-
-      .stats {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .job-row {
-        grid-template-columns: 105px 1fr;
-      }
-    }
   </style>
 </head>
 
 <body>
 
-  <main class="page">
+<main class="page">
 
-    <div class="topbar">
+  <div class="topbar">
 
-      <div class="brand">
-        T999 • Subkey Queue
+    <div class="brand">
+      T999 • Subkey Queue
+    </div>
+
+    <div
+      id="workspaceBox"
+      class="workspace-box"
+    >
+      กำลังโหลด...
+    </div>
+
+  </div>
+
+
+  <section class="panel">
+
+    <h1>
+      S รับงานจาก Queue
+    </h1>
+
+    <div class="help">
+      ระบบจะเลือกเส้นทางรูปให้อัตโนมัติ — Local ก่อน และ Remote Relay เมื่อจำเป็น
+    </div>
+
+
+    <div class="form-grid">
+
+      <div>
+
+        <label>
+          งวดที่เปิดใช้งาน
+        </label>
+
+        <select id="drawSelect">
+          <option value="">
+            กำลังโหลด...
+          </option>
+        </select>
+
       </div>
 
-      <div
-        id="workspaceBox"
-        class="workspace-box"
-      >
-        กำลังโหลด...
+
+      <div>
+
+        <label>
+          รหัส Subkey
+        </label>
+
+        <input
+          id="subkeyCode"
+          placeholder="เช่น S01"
+          autocomplete="off"
+        >
+
+        <div class="small-note">
+          รุ่นทดสอบ — Production จะใช้ Server Session/Role
+        </div>
+
       </div>
 
     </div>
 
 
-    <section class="panel">
+    <div class="actions">
 
-      <h1>
-        S รับงานจาก Queue
-      </h1>
+      <button
+        id="claimBtn"
+        class="btn btn-primary"
+      >
+        รับงานถัดไป
+      </button>
 
-      <div class="help">
-        เลือกงวด ACTIVE ก่อน แล้ว S ระบุรหัสและรับเฉพาะโพยของงวดนั้น ตามลำดับเวลาที่ R รับเข้า
+      <button
+        id="refreshBtn"
+        class="btn btn-secondary"
+      >
+        รีเฟรชคิว
+      </button>
+
+    </div>
+
+
+    <div
+      id="statusLine"
+      class="status-line"
+    ></div>
+
+  </section>
+
+
+  <section class="stats">
+
+    <div class="stat">
+      <div class="stat-label">ทั้งหมด</div>
+      <div id="totalCount" class="stat-value">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">WAITING</div>
+      <div id="waitingCount" class="stat-value">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">IN_PROGRESS</div>
+      <div id="progressCount" class="stat-value">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">COMPLETED</div>
+      <div id="completedCount" class="stat-value">0</div>
+    </div>
+
+  </section>
+
+
+  <section class="panel">
+
+    <h2>
+      งานที่ S กำลังถืออยู่
+    </h2>
+
+    <div id="currentJobArea">
+
+      <div class="current-empty">
+        ยังไม่มีงานที่รับ
       </div>
 
+    </div>
 
-      <div class="form-grid">
-
-        <div>
-
-          <label for="drawSelect">
-            งวดที่เปิดใช้งาน
-          </label>
-
-          <select id="drawSelect">
-            <option value="">
-              กำลังโหลดงวด...
-            </option>
-          </select>
-
-          <div class="small-note">
-            แสดงเฉพาะงวด ACTIVE ของ Workspace นี้
-          </div>
-
-        </div>
+  </section>
 
 
-        <div>
+  <section class="panel">
 
-          <label for="subkeyCode">
-            รหัส Subkey
-          </label>
+    <div class="queue-head">
 
-          <input
-            id="subkeyCode"
-            type="text"
-            placeholder="เช่น S01"
-            autocomplete="off"
-          >
-
-          <div class="small-note">
-            ตอนนี้ใช้ช่องรหัสชั่วคราว ภายหลังจะเปลี่ยนเป็นระบบสิทธิ์ที่ M ตั้ง
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="actions">
-
-        <button
-          id="claimBtn"
-          class="btn btn-primary"
-        >
-          รับงานถัดไป
-        </button>
-
-        <button
-          id="refreshBtn"
-          class="btn btn-secondary"
-        >
-          รีเฟรชคิว
-        </button>
-
-      </div>
-
-
-      <div
-        id="statusLine"
-        class="status-line"
-      ></div>
-
-    </section>
-
-
-    <section class="stats">
-
-      <div class="stat">
-        <div class="stat-label">
-          ทั้งหมด
-        </div>
-        <div
-          id="totalCount"
-          class="stat-value"
-        >
-          0
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-label">
-          WAITING
-        </div>
-        <div
-          id="waitingCount"
-          class="stat-value"
-        >
-          0
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-label">
-          IN_PROGRESS
-        </div>
-        <div
-          id="progressCount"
-          class="stat-value"
-        >
-          0
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-label">
-          COMPLETED
-        </div>
-        <div
-          id="completedCount"
-          class="stat-value"
-        >
-          0
-        </div>
-      </div>
-
-    </section>
-
-
-    <section class="panel">
-
-      <h2>
-        งานที่ S กำลังถืออยู่
+      <h2 style="margin:0;">
+        Queue ของงวดที่เลือก
       </h2>
 
-      <div id="currentJobArea">
+      <button
+        id="queueRefreshBtn"
+        class="btn btn-secondary"
+      >
+        รีเฟรช
+      </button>
 
-        <div class="current-empty">
-          ยังไม่มีงานที่รับ
-        </div>
+    </div>
 
-      </div>
+    <div class="table-wrap">
 
-    </section>
+      <table>
 
+        <thead>
+        <tr>
+          <th>ลำดับ</th>
+          <th>งวด</th>
+          <th>A</th>
+          <th>ชื่อไฟล์</th>
+          <th>Slip ID</th>
+          <th>สถานะ</th>
+          <th>Subkey</th>
+          <th>เวลารับ</th>
+        </tr>
+        </thead>
 
-    <section class="panel">
+        <tbody id="queueBody"></tbody>
 
-      <div class="queue-head">
+      </table>
 
-        <h2 style="margin:0;">
-          Queue ของงวดที่เลือก
-        </h2>
+    </div>
 
-        <button
-          id="queueRefreshBtn"
-          class="btn btn-secondary"
-        >
-          รีเฟรช
-        </button>
+  </section>
 
-      </div>
-
-      <div class="table-wrap">
-
-        <table>
-
-          <thead>
-            <tr>
-              <th>ลำดับ</th>
-              <th>งวด</th>
-              <th>A</th>
-              <th>ชื่อไฟล์</th>
-              <th>Slip ID</th>
-              <th>สถานะ</th>
-              <th>Subkey</th>
-              <th>เวลารับ</th>
-            </tr>
-          </thead>
-
-          <tbody id="queueBody">
-
-            <tr>
-              <td colspan="8">
-                กำลังโหลด...
-              </td>
-            </tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </section>
-
-  </main>
+</main>
 
 
-  <script>
+<script>
 
-    // =========================================================
-    // CONFIG
-    // Local Bridge รุ่นทดสอบ
-    // =========================================================
+const LOCAL_BRIDGE_BASE =
+  'http://127.0.0.1:8787';
 
-    const BRIDGE_BASE =
-      'http://127.0.0.1:8787';
+const RELAY_POLL_MS =
+  1500;
+
+const RELAY_MAX_WAIT_MS =
+  5 * 60 * 1000;
 
 
-    // =========================================================
-    // ELEMENTS
-    // =========================================================
+const workspaceBox =
+  document.getElementById(
+    'workspaceBox'
+  );
 
-    const workspaceBox =
-      document.getElementById(
-        'workspaceBox'
+const drawSelect =
+  document.getElementById(
+    'drawSelect'
+  );
+
+const subkeyCode =
+  document.getElementById(
+    'subkeyCode'
+  );
+
+const claimBtn =
+  document.getElementById(
+    'claimBtn'
+  );
+
+const refreshBtn =
+  document.getElementById(
+    'refreshBtn'
+  );
+
+const queueRefreshBtn =
+  document.getElementById(
+    'queueRefreshBtn'
+  );
+
+const statusLine =
+  document.getElementById(
+    'statusLine'
+  );
+
+const currentJobArea =
+  document.getElementById(
+    'currentJobArea'
+  );
+
+const queueBody =
+  document.getElementById(
+    'queueBody'
+  );
+
+
+let sessionData = null;
+let workspaceId = '';
+let currentJob = null;
+let activeRelayRequestId = null;
+let relayPollCancelled = false;
+let currentObjectUrl = null;
+
+
+// =========================================================
+// HELPERS
+// =========================================================
+
+function clean(value) {
+  return String(
+    value || ''
+  ).trim();
+}
+
+
+function upper(value) {
+  return clean(value)
+    .toUpperCase();
+}
+
+
+function escapeHtml(value) {
+
+  return clean(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+
+function formatDate(value) {
+
+  if (!value) {
+    return '-';
+  }
+
+  return new Date(
+    value
+  ).toLocaleString(
+    'th-TH'
+  );
+}
+
+
+function sleep(ms) {
+
+  return new Promise(
+    resolve =>
+      setTimeout(
+        resolve,
+        ms
+      )
+  );
+}
+
+
+function getSession() {
+
+  try {
+
+    const raw =
+      sessionStorage.getItem(
+        't999_trial_workspace'
       );
 
-    const drawSelect =
-      document.getElementById(
-        'drawSelect'
+    return raw
+      ? JSON.parse(raw)
+      : null;
+
+  } catch {
+
+    return null;
+  }
+}
+
+
+function getWorkspaceId(data) {
+
+  return clean(
+    data?.workspaceId ||
+    data?.workspace_id ||
+    data?.workspace?.workspaceId ||
+    data?.workspace?.workspace_id
+  );
+}
+
+
+function selectedDraw() {
+
+  return upper(
+    drawSelect.value
+  );
+}
+
+
+function currentSubkey() {
+
+  return upper(
+    subkeyCode.value
+  );
+}
+
+
+function setStatus(
+  message,
+  type = ''
+) {
+
+  statusLine.textContent =
+    message || '';
+
+  statusLine.className =
+    'status-line';
+
+  if (type) {
+    statusLine.classList.add(
+      type
+    );
+  }
+}
+
+
+function badgeClass(status) {
+
+  if (status === 'WAITING') {
+    return 'badge-waiting';
+  }
+
+  if (status === 'IN_PROGRESS') {
+    return 'badge-progress';
+  }
+
+  return 'badge-completed';
+}
+
+
+function revokeCurrentObjectUrl() {
+
+  if (currentObjectUrl) {
+
+    URL.revokeObjectURL(
+      currentObjectUrl
+    );
+
+    currentObjectUrl =
+      null;
+  }
+}
+
+
+// =========================================================
+// LOAD DRAWS
+// =========================================================
+
+async function loadDraws() {
+
+  const response =
+    await fetch(
+      '/api/draws' +
+      '?workspaceId=' +
+      encodeURIComponent(
+        workspaceId
+      ) +
+      '&status=ACTIVE'
+    );
+
+  const data =
+    await response.json();
+
+  if (
+    !response.ok ||
+    !data.ok
+  ) {
+
+    throw new Error(
+      data.message ||
+      'โหลดงวดไม่สำเร็จ'
+    );
+  }
+
+  const draws =
+    data.draws ||
+    data.items ||
+    [];
+
+  drawSelect.innerHTML = '';
+
+  if (!draws.length) {
+
+    drawSelect.innerHTML =
+      '<option value="">ไม่มีงวด ACTIVE</option>';
+
+    return;
+  }
+
+  for (
+    const draw of draws
+  ) {
+
+    const option =
+      document.createElement(
+        'option'
       );
 
-    const subkeyCode =
-      document.getElementById(
-        'subkeyCode'
-      );
+    option.value =
+      draw.drawCode ||
+      draw.draw_code ||
+      '';
+
+    const market =
+      draw.marketCode ||
+      draw.market_code ||
+      '';
+
+    const name =
+      draw.drawName ||
+      draw.draw_name ||
+      option.value;
+
+    option.textContent =
+      (
+        market === 'TH'
+          ? 'ไทย'
+          : market
+      ) +
+      ' • ' +
+      name;
+
+    drawSelect.appendChild(
+      option
+    );
+  }
+
+  await loadQueue();
+}
+
+
+// =========================================================
+// QUEUE
+// =========================================================
+
+async function loadQueue() {
+
+  const draw =
+    selectedDraw();
+
+  if (!draw) {
+    return;
+  }
+
+  const response =
+    await fetch(
+      '/api/queue' +
+      '?workspaceId=' +
+      encodeURIComponent(
+        workspaceId
+      ) +
+      '&drawCode=' +
+      encodeURIComponent(
+        draw
+      )
+    );
+
+  const data =
+    await response.json();
+
+  if (
+    !response.ok ||
+    !data.ok
+  ) {
+
+    throw new Error(
+      data.message ||
+      'โหลด Queue ไม่สำเร็จ'
+    );
+  }
+
+  const counts =
+    data.counts || {};
+
+  document.getElementById(
+    'totalCount'
+  ).textContent =
+    counts.total || 0;
+
+  document.getElementById(
+    'waitingCount'
+  ).textContent =
+    counts.waiting || 0;
+
+  document.getElementById(
+    'progressCount'
+  ).textContent =
+    counts.inProgress || 0;
+
+  document.getElementById(
+    'completedCount'
+  ).textContent =
+    counts.completed || 0;
+
+  renderQueue(
+    data.queue || []
+  );
+}
+
 
-    const claimBtn =
-      document.getElementById(
-        'claimBtn'
-      );
+function renderQueue(queue) {
 
-    const refreshBtn =
-      document.getElementById(
-        'refreshBtn'
-      );
+  if (!queue.length) {
 
-    const queueRefreshBtn =
-      document.getElementById(
-        'queueRefreshBtn'
-      );
-
-    const statusLine =
-      document.getElementById(
-        'statusLine'
-      );
-
-    const currentJobArea =
-      document.getElementById(
-        'currentJobArea'
-      );
-
-    const queueBody =
-      document.getElementById(
-        'queueBody'
-      );
-
-
-    // =========================================================
-    // STATE
-    // =========================================================
-
-    let sessionData = null;
-    let workspaceId = '';
-    let currentJob = null;
-
-
-    // =========================================================
-    // HELPERS
-    // =========================================================
-
-    function clean(value) {
-      return String(
-        value || ''
-      ).trim();
-    }
-
-
-    function escapeHtml(value) {
-
-      return clean(value)
-        .replaceAll(
-          '&',
-          '&amp;'
-        )
-        .replaceAll(
-          '<',
-          '&lt;'
-        )
-        .replaceAll(
-          '>',
-          '&gt;'
-        )
-        .replaceAll(
-          '"',
-          '&quot;'
-        )
-        .replaceAll(
-          "'",
-          '&#039;'
-        );
-    }
-
-
-    function formatDate(value) {
-
-      if (!value) {
-        return '-';
-      }
-
-      const date =
-        new Date(value);
-
-      if (
-        Number.isNaN(
-          date.getTime()
-        )
-      ) {
-        return value;
-      }
-
-      return date.toLocaleString(
-        'th-TH'
-      );
-    }
-
-
-    function getSession() {
-
-      try {
-
-        const raw =
-          sessionStorage.getItem(
-            't999_trial_workspace'
-          );
-
-        if (!raw) {
-          return null;
-        }
-
-        return JSON.parse(raw);
-
-      } catch (error) {
-
-        console.error(
-          'session parse error',
-          error
-        );
-
-        return null;
-      }
-    }
-
-
-    function getWorkspaceId(
-      data
-    ) {
-
-      return clean(
-        data?.workspaceId ||
-        data?.workspace_id ||
-        data?.workspace?.workspaceId ||
-        data?.workspace?.workspace_id
-      );
-    }
-
-
-    function setStatus(
-      message,
-      type = ''
-    ) {
-
-      statusLine.textContent =
-        message || '';
-
-      statusLine.className =
-        'status-line';
-
-      if (type) {
-        statusLine.classList.add(
-          type
-        );
-      }
-    }
-
-
-    function selectedDraw() {
-
-      return clean(
-        drawSelect.value
-      ).toUpperCase();
-    }
-
-
-    function currentSubkey() {
-
-      return clean(
-        subkeyCode.value
-      ).toUpperCase();
-    }
-
-
-    function badgeClass(
-      status
-    ) {
-
-      if (
-        status ===
-        'WAITING'
-      ) {
-        return 'badge-waiting';
-      }
-
-      if (
-        status ===
-        'IN_PROGRESS'
-      ) {
-        return 'badge-progress';
-      }
-
-      return 'badge-completed';
-    }
-
-
-    // =========================================================
-    // LOAD DRAWS
-    // =========================================================
-
-    async function loadDraws() {
-
-      drawSelect.innerHTML =
-        '<option value="">กำลังโหลดงวด...</option>';
-
-
-      const response =
-        await fetch(
-          '/api/draws' +
-          '?workspaceId=' +
-          encodeURIComponent(
-            workspaceId
-          ) +
-          '&status=ACTIVE'
-        );
-
-
-      const data =
-        await response.json();
-
-
-      if (
-        !response.ok ||
-        !data.ok
-      ) {
-
-        throw new Error(
-          data.message ||
-          'โหลดงวดไม่สำเร็จ'
-        );
-      }
-
-
-      const draws =
-        data.draws ||
-        data.items ||
-        [];
-
-
-      drawSelect.innerHTML = '';
-
-
-      if (!draws.length) {
-
-        drawSelect.innerHTML =
-          '<option value="">ไม่มีงวด ACTIVE</option>';
-
-        return;
-      }
-
-
-      for (
-        const draw of draws
-      ) {
-
-        const option =
-          document.createElement(
-            'option'
-          );
-
-        option.value =
-          draw.drawCode ||
-          draw.draw_code ||
-          '';
-
-        const market =
-          draw.marketCode ||
-          draw.market_code ||
-          '';
-
-        const name =
-          draw.drawName ||
-          draw.draw_name ||
-          option.value;
-
-        option.textContent =
-          (
-            market === 'TH'
-              ? 'ไทย'
-              : market
-          ) +
-          ' • ' +
-          name;
-
-        drawSelect.appendChild(
-          option
-        );
-      }
-
-
-      await loadQueue();
-    }
-
-
-    // =========================================================
-    // LOAD QUEUE
-    // =========================================================
-
-    async function loadQueue() {
-
-      const draw =
-        selectedDraw();
-
-
-      if (!draw) {
-
-        queueBody.innerHTML =
-          '<tr><td colspan="8">กรุณาเลือกงวด</td></tr>';
-
-        return;
-      }
-
-
-      const response =
-        await fetch(
-          '/api/queue' +
-          '?workspaceId=' +
-          encodeURIComponent(
-            workspaceId
-          ) +
-          '&drawCode=' +
-          encodeURIComponent(
-            draw
-          )
-        );
-
-
-      const data =
-        await response.json();
-
-
-      if (
-        !response.ok ||
-        !data.ok
-      ) {
-
-        throw new Error(
-          data.message ||
-          'โหลด Queue ไม่สำเร็จ'
-        );
-      }
-
-
-      const counts =
-        data.counts || {};
-
-
-      document.getElementById(
-        'totalCount'
-      ).textContent =
-        counts.total || 0;
-
-
-      document.getElementById(
-        'waitingCount'
-      ).textContent =
-        counts.waiting || 0;
-
-
-      document.getElementById(
-        'progressCount'
-      ).textContent =
-        counts.inProgress || 0;
-
-
-      document.getElementById(
-        'completedCount'
-      ).textContent =
-        counts.completed || 0;
-
-
-      renderQueue(
-        data.queue || []
-      );
-    }
-
-
-    function renderQueue(
-      queue
-    ) {
-
-      if (!queue.length) {
-
-        queueBody.innerHTML =
-          '<tr><td colspan="8">ไม่มีโพยในงวดนี้</td></tr>';
-
-        return;
-      }
-
-
-      queueBody.innerHTML =
-        queue
-          .map(
-            (
-              slip,
-              index
-            ) => {
-
-              const status =
-                clean(
-                  slip.queueStatus
-                );
-
-              return `
-                <tr>
-
-                  <td>
-                    ${index + 1}
-                  </td>
-
-                  <td>
-                    ${escapeHtml(
-                      slip.drawCode
-                    )}
-                  </td>
-
-                  <td>
-                    ${escapeHtml(
-                      slip.agentCode
-                    )}
-                  </td>
-
-                  <td>
-                    <strong>
-                      ${escapeHtml(
-                        slip.sourceFilename
-                      )}
-                    </strong>
-                  </td>
-
-                  <td>
-                    ${escapeHtml(
-                      slip.slipId
-                    )}
-                  </td>
-
-                  <td>
-
-                    <span
-                      class="badge ${badgeClass(
-                        status
-                      )}"
-                    >
-                      ${escapeHtml(
-                        status
-                      )}
-                    </span>
-
-                  </td>
-
-                  <td>
-                    ${escapeHtml(
-                      slip.assignedSubkey ||
-                      '-'
-                    )}
-                  </td>
-
-                  <td>
-                    ${escapeHtml(
-                      formatDate(
-                        slip.receivedAt
-                      )
-                    )}
-                  </td>
-
-                </tr>
-              `;
-            }
-          )
-          .join('');
-    }
-
-
-    // =========================================================
-    // CLAIM
-    // =========================================================
-
-    async function claimNext() {
-
-      const draw =
-        selectedDraw();
-
-      const subkey =
-        currentSubkey();
-
-
-      if (!draw) {
-
-        setStatus(
-          'กรุณาเลือกงวด',
-          'error'
-        );
-
-        return;
-      }
-
-
-      if (!subkey) {
-
-        setStatus(
-          'กรุณากรอกรหัส Subkey',
-          'error'
-        );
-
-        subkeyCode.focus();
-
-        return;
-      }
-
-
-      claimBtn.disabled =
-        true;
-
-
-      setStatus(
-        'กำลังรับงาน...'
-      );
-
-
-      try {
-
-        const response =
-          await fetch(
-            '/api/queue',
-            {
-              method:
-                'POST',
-
-              headers: {
-                'Content-Type':
-                  'application/json'
-              },
-
-              body:
-                JSON.stringify({
-                  action:
-                    'CLAIM_NEXT',
-
-                  workspaceId,
-
-                  drawCode:
-                    draw,
-
-                  subkeyCode:
-                    subkey
-                })
-            }
-          );
-
-
-        const data =
-          await response.json();
-
-
-        if (
-          !response.ok ||
-          !data.ok
-        ) {
-
-          throw new Error(
-            data.message ||
-            'รับงานไม่สำเร็จ'
-          );
-        }
-
-
-        if (
-          data.empty ||
-          !data.slip
-        ) {
-
-          currentJob =
-            null;
-
-          renderCurrentJob();
-
-          setStatus(
-            data.message ||
-            'ไม่มีโพย WAITING'
-          );
-
-          await loadQueue();
-
-          return;
-        }
-
-
-        currentJob =
-          data.slip;
-
-
-        renderCurrentJob();
-
-
-        setStatus(
-          (
-            data.resumed
-              ? 'กลับสู่งานเดิม'
-              : 'รับงานสำเร็จ'
-          ) +
-          '\nงวด: ' +
-          currentJob.drawCode +
-          '\nA: ' +
-          currentJob.agentCode +
-          '\nSlip ID: ' +
-          currentJob.slipId,
-          'success'
-        );
-
-
-        await loadQueue();
-
-
-        // ---------------------------------------------
-        // หลังรับงาน:
-        // เช็ก cache และแสดงรูปจริงจาก Local Bridge
-        // ---------------------------------------------
-
-        await loadCurrentJobImage();
-
-
-      } catch (error) {
-
-        console.error(error);
-
-        setStatus(
-          error.message ||
-          'เกิดข้อผิดพลาด',
-          'error'
-        );
-
-      } finally {
-
-        claimBtn.disabled =
-          false;
-      }
-    }
-
-
-    // =========================================================
-    // CURRENT JOB UI
-    // =========================================================
-
-    function renderCurrentJob() {
-
-      if (!currentJob) {
-
-        currentJobArea.innerHTML =
-          `
-            <div class="current-empty">
-              ยังไม่มีงานที่รับ
-            </div>
-          `;
-
-        return;
-      }
-
-
-      currentJobArea.innerHTML =
-        `
-
-          <div class="job-layout">
-
-            <div class="job-card">
-
-              ${jobRow(
-                'งวด',
-                currentJob.drawCode
-              )}
-
-              ${jobRow(
-                'Agent',
-                currentJob.agentCode
-              )}
-
-              ${jobRow(
-                'ชื่อไฟล์',
-                currentJob.sourceFilename
-              )}
-
-              ${jobRow(
-                'Slip ID',
-                currentJob.slipId
-              )}
-
-              ${jobRow(
-                'File ID',
-                currentJob.fileId
-              )}
-
-              ${jobRow(
-                'Subkey',
-                currentJob.assignedSubkey
-              )}
-
-              <div class="job-row">
-
-                <div class="job-key">
-                  สถานะ
-                </div>
-
-                <div class="job-value">
-
-                  <span class="badge badge-progress">
-                    IN_PROGRESS
-                  </span>
-
-                </div>
-
-              </div>
-
-
-              <div style="margin-top:14px;">
-
-                <button
-                  id="releaseCurrentBtn"
-                  class="btn btn-danger"
-                >
-                  คืนโพยกลับ Queue
-                </button>
-
-              </div>
-
-            </div>
-
-
-            <div class="image-area">
-
-              <div class="image-toolbar">
-
-                <div
-                  id="cacheStatus"
-                  class="cache-status"
-                >
-                  Cache: กำลังตรวจสอบ...
-                </div>
-
-                <div
-                  id="bridgeStatus"
-                  class="bridge-status"
-                >
-                  Bridge: -
-                </div>
-
-              </div>
-
-
-              <div
-                id="imageFrame"
-                class="image-frame"
-              >
-
-                <div class="image-message">
-                  กำลังเตรียมรูป...
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        `;
-
-
-      const releaseBtn =
-        document.getElementById(
-          'releaseCurrentBtn'
-        );
-
-
-      releaseBtn.addEventListener(
-        'click',
-        releaseCurrentJob
-      );
-    }
-
-
-    function jobRow(
-      key,
-      value
-    ) {
-
-      return `
-
-        <div class="job-row">
-
-          <div class="job-key">
-            ${escapeHtml(key)}
-          </div>
-
-          <div class="job-value">
-            ${escapeHtml(
-              value || '-'
-            )}
-          </div>
-
-        </div>
-
+    queueBody.innerHTML =
+      `
+        <tr>
+          <td colspan="8">
+            ไม่มีโพยในงวดนี้
+          </td>
+        </tr>
       `;
+
+    return;
+  }
+
+  queueBody.innerHTML =
+    queue.map(
+      (
+        slip,
+        index
+      ) => {
+
+        const status =
+          clean(
+            slip.queueStatus
+          );
+
+        return `
+          <tr>
+
+            <td>
+              ${index + 1}
+            </td>
+
+            <td>
+              ${escapeHtml(
+                slip.drawCode
+              )}
+            </td>
+
+            <td>
+              ${escapeHtml(
+                slip.agentCode
+              )}
+            </td>
+
+            <td>
+              <strong>
+                ${escapeHtml(
+                  slip.sourceFilename
+                )}
+              </strong>
+            </td>
+
+            <td>
+              ${escapeHtml(
+                slip.slipId
+              )}
+            </td>
+
+            <td>
+
+              <span
+                class="badge ${badgeClass(
+                  status
+                )}"
+              >
+                ${escapeHtml(
+                  status
+                )}
+              </span>
+
+            </td>
+
+            <td>
+              ${escapeHtml(
+                slip.assignedSubkey ||
+                '-'
+              )}
+            </td>
+
+            <td>
+              ${escapeHtml(
+                formatDate(
+                  slip.receivedAt
+                )
+              )}
+            </td>
+
+          </tr>
+        `;
+      }
+    ).join('');
+}
+
+
+// =========================================================
+// CLAIM JOB
+// =========================================================
+
+async function claimNext() {
+
+  const draw =
+    selectedDraw();
+
+  const subkey =
+    currentSubkey();
+
+  if (!draw) {
+
+    setStatus(
+      'กรุณาเลือกงวด',
+      'error'
+    );
+
+    return;
+  }
+
+  if (!subkey) {
+
+    setStatus(
+      'กรุณากรอกรหัส Subkey',
+      'error'
+    );
+
+    return;
+  }
+
+  claimBtn.disabled =
+    true;
+
+  relayPollCancelled =
+    true;
+
+  revokeCurrentObjectUrl();
+
+  setStatus(
+    'กำลังรับงาน...'
+  );
+
+  try {
+
+    const response =
+      await fetch(
+        '/api/queue',
+        {
+          method:
+            'POST',
+
+          headers: {
+            'Content-Type':
+              'application/json'
+          },
+
+          body:
+            JSON.stringify({
+              action:
+                'CLAIM_NEXT',
+
+              workspaceId,
+
+              drawCode:
+                draw,
+
+              subkeyCode:
+                subkey
+            })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.ok
+    ) {
+
+      throw new Error(
+        data.message ||
+        'รับงานไม่สำเร็จ'
+      );
     }
 
-
-    // =========================================================
-    // CACHE + BRIDGE IMAGE
-    // =========================================================
-
-    async function loadCurrentJobImage() {
-
-      if (
-        !currentJob ||
-        !currentJob.fileId
-      ) {
-        return;
-      }
-
-
-      const cacheStatus =
-        document.getElementById(
-          'cacheStatus'
-        );
-
-      const bridgeStatus =
-        document.getElementById(
-          'bridgeStatus'
-        );
-
-      const imageFrame =
-        document.getElementById(
-          'imageFrame'
-        );
-
-
-      if (
-        !cacheStatus ||
-        !bridgeStatus ||
-        !imageFrame
-      ) {
-        return;
-      }
-
-
-      const holderCode =
-        currentSubkey() ||
-        currentJob.assignedSubkey;
-
-
-      try {
-
-        // ---------------------------------------------
-        // 1. เช็ก Cache Registry
-        // ---------------------------------------------
-
-        const cacheUrl =
-          '/api/file-cache' +
-          '?workspaceId=' +
-          encodeURIComponent(
-            workspaceId
-          ) +
-          '&drawCode=' +
-          encodeURIComponent(
-            currentJob.drawCode
-          ) +
-          '&fileId=' +
-          encodeURIComponent(
-            currentJob.fileId
-          ) +
-          '&holderType=S' +
-          '&holderCode=' +
-          encodeURIComponent(
-            holderCode
-          );
-
-
-        const cacheResponse =
-          await fetch(
-            cacheUrl
-          );
-
-
-        const cacheData =
-          await cacheResponse.json();
-
-
-        if (
-          cacheResponse.ok &&
-          cacheData.ok
-        ) {
-
-          cacheStatus.textContent =
-            'Cache Registry: ' +
-            cacheData.cacheState;
-
-        } else {
-
-          cacheStatus.textContent =
-            'Cache Registry: ตรวจไม่สำเร็จ';
-        }
-
-
-        // ---------------------------------------------
-        // 2. ขอรูปจริงจาก Local Bridge
-        //
-        // ตอนนี้ถึงแม้ Registry เป็น CACHE_HIT
-        // เรายังเปิดจาก Bridge ก่อน
-        //
-        // เพราะ cacheLocation รุ่นทดสอบยังไม่ได้เป็น
-        // ไฟล์จริงบน Flash
-        // ---------------------------------------------
-
-        bridgeStatus.textContent =
-          'Bridge: กำลังเชื่อมต่อ...';
-
-
-        const bridgeHealth =
-          await fetch(
-            BRIDGE_BASE +
-            '/health',
-            {
-              cache:
-                'no-store'
-            }
-          );
-
-
-        const healthData =
-          await bridgeHealth.json();
-
-
-        if (
-          !bridgeHealth.ok ||
-          !healthData.ok
-        ) {
-
-          throw new Error(
-            'Local Bridge ไม่พร้อม'
-          );
-        }
-
-
-        bridgeStatus.textContent =
-          'Bridge: READY';
-
-
-        // ---------------------------------------------
-        // 3. แสดงรูปด้วย file_id
-        // ---------------------------------------------
-
-        const imageUrl =
-          BRIDGE_BASE +
-          '/file?fileId=' +
-          encodeURIComponent(
-            currentJob.fileId
-          ) +
-          '&t=' +
-          Date.now();
-
-
-        imageFrame.innerHTML =
-          '';
-
-
-        const img =
-          document.createElement(
-            'img'
-          );
-
-
-        img.alt =
-          currentJob.sourceFilename ||
-          'T999 slip image';
-
-
-        img.onload =
-          () => {
-
-            bridgeStatus.textContent =
-              'Bridge: รูปพร้อมใช้งาน';
-
-          };
-
-
-        img.onerror =
-          () => {
-
-            bridgeStatus.textContent =
-              'Bridge: เปิดรูปไม่สำเร็จ';
-
-            imageFrame.innerHTML =
-              `
-                <div class="image-message error">
-
-                  เปิดรูปจาก Local Bridge ไม่สำเร็จ
-
-                  <br><br>
-
-                  ตรวจว่า Bridge ยังเปิดอยู่
-
-                  <br>
-
-                  และไฟล์ต้นฉบับยังอยู่ที่เครื่อง R
-
-                </div>
-              `;
-          };
-
-
-        img.src =
-          imageUrl;
-
-
-        imageFrame.appendChild(
-          img
-        );
-
-
-      } catch (error) {
-
-        console.error(
-          'bridge/cache error',
-          error
-        );
-
-
-        bridgeStatus.textContent =
-          'Bridge: ไม่พร้อม';
-
-
-        imageFrame.innerHTML =
-          `
-            <div class="image-message error">
-
-              ไม่สามารถเชื่อมต่อ T999 Local Bridge
-
-              <br><br>
-
-              ตรวจว่า Command Prompt ที่รัน
-
-              <br>
-
-              <strong>node bridge.js</strong>
-
-              <br>
-
-              ยังเปิดอยู่
-
-            </div>
-          `;
-      }
-    }
-
-
-    // =========================================================
-    // RELEASE
-    // =========================================================
-
-    async function releaseCurrentJob() {
-
-      if (!currentJob) {
-        return;
-      }
-
-
-      const confirmed =
-        confirm(
-          'คืนโพยนี้กลับ Queue ใช่หรือไม่?'
-        );
-
-
-      if (!confirmed) {
-        return;
-      }
-
-
-      const response =
-        await fetch(
-          '/api/queue',
-          {
-
-            method:
-              'POST',
-
-            headers: {
-              'Content-Type':
-                'application/json'
-            },
-
-            body:
-              JSON.stringify({
-
-                action:
-                  'RELEASE',
-
-                workspaceId,
-
-                drawCode:
-                  currentJob.drawCode,
-
-                subkeyCode:
-                  currentJob.assignedSubkey,
-
-                slipId:
-                  currentJob.slipId
-
-              })
-          }
-        );
-
-
-      const data =
-        await response.json();
-
-
-      if (
-        !response.ok ||
-        !data.ok
-      ) {
-
-        alert(
-          data.message ||
-          'คืนโพยไม่สำเร็จ'
-        );
-
-        return;
-      }
-
+    if (
+      data.empty ||
+      !data.slip
+    ) {
 
       currentJob =
         null;
 
-
       renderCurrentJob();
 
-
       setStatus(
-        'คืนโพยกลับ Queue แล้ว',
-        'success'
+        data.message ||
+        'ไม่มีงาน'
+      );
+
+      await loadQueue();
+
+      return;
+    }
+
+    currentJob =
+      data.slip;
+
+    renderCurrentJob();
+
+    await loadQueue();
+
+    setStatus(
+      (
+        data.resumed
+          ? 'กลับสู่งานเดิม'
+          : 'รับงานสำเร็จ'
+      ) +
+      '\n' +
+      currentJob.sourceFilename,
+      'success'
+    );
+
+    await smartLoadImage();
+
+  } catch (error) {
+
+    console.error(error);
+
+    setStatus(
+      error.message ||
+      'เกิดข้อผิดพลาด',
+      'error'
+    );
+
+  } finally {
+
+    claimBtn.disabled =
+      false;
+  }
+}
+
+
+// =========================================================
+// CURRENT JOB UI
+// =========================================================
+
+function jobRow(
+  key,
+  value
+) {
+
+  return `
+    <div class="job-row">
+
+      <div class="job-key">
+        ${escapeHtml(key)}
+      </div>
+
+      <div class="job-value">
+        ${escapeHtml(
+          value || '-'
+        )}
+      </div>
+
+    </div>
+  `;
+}
+
+
+function renderCurrentJob() {
+
+  if (!currentJob) {
+
+    currentJobArea.innerHTML =
+      `
+        <div class="current-empty">
+          ยังไม่มีงานที่รับ
+        </div>
+      `;
+
+    return;
+  }
+
+  currentJobArea.innerHTML =
+    `
+
+      <div class="job-layout">
+
+        <div class="job-card">
+
+          ${jobRow(
+            'งวด',
+            currentJob.drawCode
+          )}
+
+          ${jobRow(
+            'Agent',
+            currentJob.agentCode
+          )}
+
+          ${jobRow(
+            'ชื่อไฟล์',
+            currentJob.sourceFilename
+          )}
+
+          ${jobRow(
+            'Slip ID',
+            currentJob.slipId
+          )}
+
+          ${jobRow(
+            'File ID',
+            currentJob.fileId
+          )}
+
+          ${jobRow(
+            'Subkey',
+            currentJob.assignedSubkey
+          )}
+
+          <div class="job-row">
+
+            <div class="job-key">
+              สถานะ
+            </div>
+
+            <div class="job-value">
+
+              <span class="badge badge-progress">
+                IN_PROGRESS
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div style="margin-top:14px;">
+
+            <button
+              id="releaseCurrentBtn"
+              class="btn btn-danger"
+            >
+              คืนโพยกลับ Queue
+            </button>
+
+          </div>
+
+          <div
+            id="routeBox"
+            class="route-box"
+          >
+            Smart Path: กำลังตรวจสอบ
+          </div>
+
+        </div>
+
+
+        <div class="image-area">
+
+          <div class="image-toolbar">
+
+            <div
+              id="pathStatus"
+              class="path-status"
+            >
+              Path: กำลังเลือกเส้นทาง...
+            </div>
+
+            <div
+              id="transferStatus"
+              class="transfer-status"
+            >
+              -
+            </div>
+
+          </div>
+
+
+          <div
+            id="imageFrame"
+            class="image-frame"
+          >
+
+            <div class="image-message">
+              กำลังเตรียมรูป...
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    `;
+
+  document
+    .getElementById(
+      'releaseCurrentBtn'
+    )
+    .addEventListener(
+      'click',
+      releaseCurrentJob
+    );
+}
+
+
+// =========================================================
+// SMART PATH
+// =========================================================
+
+async function smartLoadImage() {
+
+  if (
+    !currentJob ||
+    !currentJob.fileId
+  ) {
+    return;
+  }
+
+  relayPollCancelled =
+    false;
+
+  const pathStatus =
+    document.getElementById(
+      'pathStatus'
+    );
+
+  const transferStatus =
+    document.getElementById(
+      'transferStatus'
+    );
+
+  const imageFrame =
+    document.getElementById(
+      'imageFrame'
+    );
+
+  const routeBox =
+    document.getElementById(
+      'routeBox'
+    );
+
+
+  // ---------------------------------------------------------
+  // 1. ASK SMART PATH CONTROLLER
+  // ---------------------------------------------------------
+
+  let pathPlan = null;
+
+  try {
+
+    const response =
+      await fetch(
+        '/api/bridge-route',
+        {
+          method:
+            'POST',
+
+          headers: {
+            'Content-Type':
+              'application/json'
+          },
+
+          body:
+            JSON.stringify({
+              workspaceId,
+
+              drawCode:
+                currentJob.drawCode,
+
+              fileId:
+                currentJob.fileId,
+
+              holderType:
+                'S',
+
+              holderCode:
+                currentSubkey() ||
+                currentJob.assignedSubkey
+            })
+        }
+      );
+
+    pathPlan =
+      await response.json();
+
+    if (
+      response.ok &&
+      pathPlan.ok
+    ) {
+
+      routeBox.textContent =
+        'Smart Path: ' +
+        pathPlan.routes
+          .map(
+            item =>
+              item.id
+          )
+          .join(' → ');
+    }
+
+  } catch {
+
+    // Controller fail ไม่ควรทำให้หยุดทั้งหมด
+  }
+
+
+  // ---------------------------------------------------------
+  // 2. TRY LOCAL FIRST
+  // ---------------------------------------------------------
+
+  pathStatus.textContent =
+    'Path: กำลังตรวจ Local Bridge';
+
+  transferStatus.textContent =
+    'ตรวจเส้นทางเร็วที่สุด...';
+
+  const localResult =
+    await tryLocalBridge();
+
+  if (
+    localResult.ok
+  ) {
+
+    pathStatus.textContent =
+      'Path: LOCAL_BRIDGE';
+
+    transferStatus.textContent =
+      'รูปพร้อมใช้งาน';
+
+    return;
+  }
+
+
+  // ---------------------------------------------------------
+  // 3. LOCAL FAILED -> REMOTE RELAY 443
+  // ---------------------------------------------------------
+
+  pathStatus.textContent =
+    'Path: PRIMARY_RELAY 443';
+
+  transferStatus.textContent =
+    'กำลังขอรูปจาก R...';
+
+  imageFrame.innerHTML =
+    `
+      <div class="image-message">
+
+        เครื่องนี้เข้า Local Bridge ไม่ได้
+
+        <br><br>
+
+        กำลังเปลี่ยนไปใช้
+
+        <br>
+
+        <strong>
+          T999 Secure Relay • HTTPS 443
+        </strong>
+
+        <br><br>
+
+        รอ Bridge ฝั่ง R ส่งรูป...
+
+      </div>
+    `;
+
+  await loadViaRelay();
+}
+
+
+// =========================================================
+// LOCAL BRIDGE
+// =========================================================
+
+async function tryLocalBridge() {
+
+  const imageFrame =
+    document.getElementById(
+      'imageFrame'
+    );
+
+  try {
+
+    const controller =
+      new AbortController();
+
+    const timer =
+      setTimeout(
+        () =>
+          controller.abort(),
+        1500
+      );
+
+    const health =
+      await fetch(
+        LOCAL_BRIDGE_BASE +
+        '/health',
+        {
+          cache:
+            'no-store',
+
+          signal:
+            controller.signal
+        }
+      );
+
+    clearTimeout(
+      timer
+    );
+
+    const healthData =
+      await health.json();
+
+    if (
+      !health.ok ||
+      !healthData.ok
+    ) {
+
+      return {
+        ok: false
+      };
+    }
+
+
+    // Secure Bridge รุ่น Ticket Protection
+    // ต้องออก ticket ก่อนเปิด /file
+    const ticketResponse =
+      await fetch(
+        '/api/bridge-ticket',
+        {
+          method:
+            'POST',
+
+          headers: {
+            'Content-Type':
+              'application/json'
+          },
+
+          body:
+            JSON.stringify({
+              workspaceId,
+
+              drawCode:
+                currentJob.drawCode,
+
+              fileId:
+                currentJob.fileId,
+
+              holderType:
+                'S',
+
+              holderCode:
+                currentSubkey() ||
+                currentJob.assignedSubkey
+            })
+        }
+      );
+
+    const ticketData =
+      await ticketResponse.json();
+
+    if (
+      !ticketResponse.ok ||
+      !ticketData.ok ||
+      !ticketData.ticket
+    ) {
+
+      return {
+        ok: false
+      };
+    }
+
+
+    const imageUrl =
+      LOCAL_BRIDGE_BASE +
+      '/file?ticket=' +
+      encodeURIComponent(
+        ticketData.ticket
       );
 
 
-      await loadQueue();
+    const img =
+      document.createElement(
+        'img'
+      );
+
+    const loaded =
+      await new Promise(
+        resolve => {
+
+          img.onload =
+            () =>
+              resolve(true);
+
+          img.onerror =
+            () =>
+              resolve(false);
+
+          img.src =
+            imageUrl;
+        }
+      );
+
+
+    if (!loaded) {
+
+      return {
+        ok: false
+      };
+    }
+
+    imageFrame.innerHTML =
+      '';
+
+    imageFrame.appendChild(
+      img
+    );
+
+    return {
+      ok: true,
+      route:
+        'LOCAL_BRIDGE'
+    };
+
+  } catch {
+
+    return {
+      ok: false
+    };
+  }
+}
+
+
+// =========================================================
+// RELAY CREATE
+// =========================================================
+
+async function createRelayRequest() {
+
+  const response =
+    await fetch(
+      '/api/relay',
+      {
+        method:
+          'POST',
+
+        headers: {
+          'Content-Type':
+            'application/json'
+        },
+
+        body:
+          JSON.stringify({
+            action:
+              'CREATE_REQUEST',
+
+            workspaceId,
+
+            drawCode:
+              currentJob.drawCode,
+
+            fileId:
+              currentJob.fileId,
+
+            requesterType:
+              'S',
+
+            requesterCode:
+              currentSubkey() ||
+              currentJob.assignedSubkey
+          })
+      }
+    );
+
+  const data =
+    await response.json();
+
+  if (
+    !response.ok ||
+    !data.ok ||
+    !data.request
+  ) {
+
+    throw new Error(
+      data.message ||
+      'สร้าง Relay Request ไม่สำเร็จ'
+    );
+  }
+
+  return data.request;
+}
+
+
+// =========================================================
+// RELAY STATUS
+// =========================================================
+
+async function getRelayStatus(
+  requestId
+) {
+
+  const url =
+    '/api/relay' +
+    '?action=STATUS' +
+    '&workspaceId=' +
+    encodeURIComponent(
+      workspaceId
+    ) +
+    '&requestId=' +
+    encodeURIComponent(
+      requestId
+    );
+
+  const response =
+    await fetch(
+      url,
+      {
+        cache:
+          'no-store'
+      }
+    );
+
+  const data =
+    await response.json();
+
+  if (
+    !response.ok ||
+    !data.ok
+  ) {
+
+    throw new Error(
+      data.message ||
+      'ตรวจ Relay Status ไม่สำเร็จ'
+    );
+  }
+
+  return data.request;
+}
+
+
+// =========================================================
+// RELAY DOWNLOAD
+// =========================================================
+
+async function downloadRelayImage(
+  requestId
+) {
+
+  const url =
+    '/api/relay' +
+    '?action=DOWNLOAD' +
+    '&workspaceId=' +
+    encodeURIComponent(
+      workspaceId
+    ) +
+    '&requestId=' +
+    encodeURIComponent(
+      requestId
+    ) +
+    '&requesterType=S' +
+    '&requesterCode=' +
+    encodeURIComponent(
+      currentSubkey() ||
+      currentJob.assignedSubkey
+    );
+
+  const response =
+    await fetch(
+      url,
+      {
+        cache:
+          'no-store'
+      }
+    );
+
+  if (!response.ok) {
+
+    const text =
+      await response.text();
+
+    throw new Error(
+      'Download Relay ไม่สำเร็จ (' +
+      response.status +
+      ') ' +
+      text
+    );
+  }
+
+  const blob =
+    await response.blob();
+
+  if (!blob.size) {
+
+    throw new Error(
+      'ไฟล์ Relay ว่าง'
+    );
+  }
+
+  revokeCurrentObjectUrl();
+
+  currentObjectUrl =
+    URL.createObjectURL(
+      blob
+    );
+
+  const imageFrame =
+    document.getElementById(
+      'imageFrame'
+    );
+
+  imageFrame.innerHTML =
+    '';
+
+  const img =
+    document.createElement(
+      'img'
+    );
+
+  img.src =
+    currentObjectUrl;
+
+  img.alt =
+    currentJob.sourceFilename ||
+    'T999 Relay Image';
+
+  imageFrame.appendChild(
+    img
+  );
+
+  return blob;
+}
+
+
+// =========================================================
+// RELAY FULL S FLOW
+// =========================================================
+
+async function loadViaRelay() {
+
+  const transferStatus =
+    document.getElementById(
+      'transferStatus'
+    );
+
+  const pathStatus =
+    document.getElementById(
+      'pathStatus'
+    );
+
+  const imageFrame =
+    document.getElementById(
+      'imageFrame'
+    );
+
+  try {
+
+    const relayRequest =
+      await createRelayRequest();
+
+    activeRelayRequestId =
+      relayRequest.requestId;
+
+    pathStatus.textContent =
+      'Path: PRIMARY_RELAY 443';
+
+    transferStatus.textContent =
+      'Relay: ' +
+      relayRequest.status;
+
+    const startedAt =
+      Date.now();
+
+    while (
+      !relayPollCancelled &&
+      Date.now() -
+      startedAt <
+      RELAY_MAX_WAIT_MS
+    ) {
+
+      const request =
+        await getRelayStatus(
+          activeRelayRequestId
+        );
+
+      transferStatus.textContent =
+        'Relay: ' +
+        request.status;
+
+
+      if (
+        request.status ===
+        'READY'
+      ) {
+
+        transferStatus.textContent =
+          'Relay: กำลังดาวน์โหลด...';
+
+        const blob =
+          await downloadRelayImage(
+            activeRelayRequestId
+          );
+
+        transferStatus.textContent =
+          'Relay: รูปพร้อมใช้งาน';
+
+        pathStatus.textContent =
+          'Path: PRIMARY_RELAY 443';
+
+        const routeBox =
+          document.getElementById(
+            'routeBox'
+          );
+
+        if (routeBox) {
+
+          routeBox.textContent =
+            'Smart Path: PRIMARY_RELAY • ' +
+            blob.size +
+            ' bytes';
+        }
+
+        return;
+      }
+
+
+      if (
+        [
+          'FAILED',
+          'CANCELLED'
+        ].includes(
+          request.status
+        )
+      ) {
+
+        throw new Error(
+          'Relay Request ' +
+          request.status
+        );
+      }
+
+
+      await sleep(
+        RELAY_POLL_MS
+      );
     }
 
 
-    // =========================================================
-    // EVENTS
-    // =========================================================
+    if (
+      relayPollCancelled
+    ) {
+      return;
+    }
 
-    claimBtn.addEventListener(
-      'click',
-      claimNext
+
+    throw new Error(
+      'รอ Remote Bridge นานเกินกำหนด'
     );
 
 
-    refreshBtn.addEventListener(
-      'click',
-      async () => {
+  } catch (error) {
 
-        try {
-
-          await loadQueue();
-
-          setStatus(
-            'รีเฟรช Queue แล้ว',
-            'success'
-          );
-
-        } catch (error) {
-
-          setStatus(
-            error.message,
-            'error'
-          );
-        }
-      }
+    console.error(
+      'relay flow error',
+      error
     );
 
+    transferStatus.textContent =
+      'Relay: ยังไม่สำเร็จ';
 
-    queueRefreshBtn.addEventListener(
-      'click',
-      async () => {
+    pathStatus.textContent =
+      'Path: STORE_AND_FORWARD';
 
-        try {
+    imageFrame.innerHTML =
+      `
+        <div class="image-message error">
 
-          await loadQueue();
+          ยังไม่สามารถรับรูปได้ในขณะนี้
 
-        } catch (error) {
+          <br><br>
 
-          alert(
-            error.message
-          );
-        }
-      }
-    );
+          ระบบจะเก็บคำขอไว้และลองเส้นทางใหม่อีกครั้ง
 
-
-    drawSelect.addEventListener(
-      'change',
-      async () => {
-
-        currentJob =
-          null;
-
-        renderCurrentJob();
-
-        try {
-
-          await loadQueue();
-
-        } catch (error) {
-
-          setStatus(
-            error.message,
-            'error'
-          );
-        }
-      }
-    );
-
-
-    subkeyCode.addEventListener(
-      'keydown',
-      event => {
-
-        if (
-          event.key ===
-          'Enter'
-        ) {
-
-          claimNext();
-        }
-      }
-    );
-
-
-    // =========================================================
-    // INIT
-    // =========================================================
-
-    async function init() {
-
-      sessionData =
-        getSession();
-
-
-      if (!sessionData) {
-
-        workspaceBox.textContent =
-          'ไม่พบ Session';
-
-        setStatus(
-          'ไม่พบข้อมูล Workspace กรุณาเข้าผ่านหน้า Trial Login ก่อน',
-          'error'
-        );
-
-        claimBtn.disabled =
-          true;
-
-        return;
-      }
-
-
-      workspaceId =
-        getWorkspaceId(
-          sessionData
-        );
-
-
-      if (!workspaceId) {
-
-        workspaceBox.textContent =
-          'Workspace ไม่ถูกต้อง';
-
-        setStatus(
-          'ไม่พบ Workspace ID',
-          'error'
-        );
-
-        claimBtn.disabled =
-          true;
-
-        return;
-      }
-
-
-      const customerName =
-        clean(
-          sessionData.customerName ||
-          sessionData.customer_name ||
-          ''
-        );
-
-
-      workspaceBox.innerHTML =
-        `
-          ${
-            customerName
-              ? escapeHtml(
-                  customerName
-                ) +
-                '<br>'
-              : ''
-          }
+          <br><br>
 
           ${escapeHtml(
-            workspaceId
+            error.message
           )}
-        `;
+
+        </div>
+      `;
+  }
+}
 
 
-      try {
+// =========================================================
+// RELEASE JOB
+// =========================================================
 
-        await loadDraws();
+async function releaseCurrentJob() {
 
-      } catch (error) {
+  if (!currentJob) {
+    return;
+  }
 
-        console.error(error);
+  if (
+    !confirm(
+      'คืนโพยนี้กลับ Queue ใช่หรือไม่?'
+    )
+  ) {
+    return;
+  }
 
-        setStatus(
-          error.message ||
-          'เริ่มระบบไม่สำเร็จ',
-          'error'
-        );
+  relayPollCancelled =
+    true;
+
+  revokeCurrentObjectUrl();
+
+  const response =
+    await fetch(
+      '/api/queue',
+      {
+        method:
+          'POST',
+
+        headers: {
+          'Content-Type':
+            'application/json'
+        },
+
+        body:
+          JSON.stringify({
+            action:
+              'RELEASE',
+
+            workspaceId,
+
+            drawCode:
+              currentJob.drawCode,
+
+            subkeyCode:
+              currentJob.assignedSubkey,
+
+            slipId:
+              currentJob.slipId
+          })
       }
+    );
+
+  const data =
+    await response.json();
+
+  if (
+    !response.ok ||
+    !data.ok
+  ) {
+
+    alert(
+      data.message ||
+      'คืนโพยไม่สำเร็จ'
+    );
+
+    return;
+  }
+
+  currentJob =
+    null;
+
+  activeRelayRequestId =
+    null;
+
+  renderCurrentJob();
+
+  setStatus(
+    'คืนโพยกลับ Queue แล้ว',
+    'success'
+  );
+
+  await loadQueue();
+}
+
+
+// =========================================================
+// EVENTS
+// =========================================================
+
+claimBtn.addEventListener(
+  'click',
+  claimNext
+);
+
+
+refreshBtn.addEventListener(
+  'click',
+  async () => {
+
+    try {
+
+      await loadQueue();
+
+      setStatus(
+        'รีเฟรช Queue แล้ว',
+        'success'
+      );
+
+    } catch (error) {
+
+      setStatus(
+        error.message,
+        'error'
+      );
     }
+  }
+);
 
 
-    init();
+queueRefreshBtn.addEventListener(
+  'click',
+  loadQueue
+);
 
-  </script>
+
+drawSelect.addEventListener(
+  'change',
+  async () => {
+
+    relayPollCancelled =
+      true;
+
+    revokeCurrentObjectUrl();
+
+    currentJob =
+      null;
+
+    renderCurrentJob();
+
+    await loadQueue();
+  }
+);
+
+
+subkeyCode.addEventListener(
+  'keydown',
+  event => {
+
+    if (
+      event.key ===
+      'Enter'
+    ) {
+
+      claimNext();
+    }
+  }
+);
+
+
+// =========================================================
+// INIT
+// =========================================================
+
+async function init() {
+
+  sessionData =
+    getSession();
+
+  if (!sessionData) {
+
+    workspaceBox.textContent =
+      'ไม่พบ Session';
+
+    setStatus(
+      'กรุณาเข้าผ่าน Trial Login ก่อน',
+      'error'
+    );
+
+    claimBtn.disabled =
+      true;
+
+    return;
+  }
+
+  workspaceId =
+    getWorkspaceId(
+      sessionData
+    );
+
+  if (!workspaceId) {
+
+    setStatus(
+      'ไม่พบ Workspace ID',
+      'error'
+    );
+
+    return;
+  }
+
+  const customerName =
+    clean(
+      sessionData.customerName ||
+      sessionData.customer_name
+    );
+
+  workspaceBox.innerHTML =
+    (
+      customerName
+        ? escapeHtml(
+            customerName
+          ) +
+          '<br>'
+        : ''
+    ) +
+    escapeHtml(
+      workspaceId
+    );
+
+  try {
+
+    await loadDraws();
+
+  } catch (error) {
+
+    setStatus(
+      error.message ||
+      'เริ่มระบบไม่สำเร็จ',
+      'error'
+    );
+  }
+}
+
+
+window.addEventListener(
+  'beforeunload',
+  () => {
+
+    relayPollCancelled =
+      true;
+
+    revokeCurrentObjectUrl();
+  }
+);
+
+
+init();
+
+</script>
 
 </body>
 </html>
