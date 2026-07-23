@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>T999 • M Draws</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, "Noto Sans Thai", sans-serif;
+      background: #090b0e;
+      color: #ffffff;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .workspace {
+      color: #9aa3ad;
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .card {
+      background: #14181e;
+      border: 1px solid #2a3038;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    h1,
+    h2 {
+      margin-top: 0;
+    }
+
+    .subtitle {
+      color: #9ba4af;
+      margin-bottom: 22px;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: #b9c1ca;
+      font-size: 14px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      height: 48px;
+      border-radius: 9px;
+      border: 1px solid #353c45;
+      background: #0e1115;
+      color: #ffffff;
+      padding: 0 12px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 11px 16px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: #ffffff;
+      color: #111111;
+    }
+
+    .secondary {
+      background: #2a3038;
+      color: #ffffff;
+    }
+
+    .danger {
+      background: #572a2a;
+      color: #ffffff;
+    }
+
+    .success {
+      background: #24472b;
+      color: #ffffff;
+    }
+
+    .actions {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .status {
+      margin-top: 14px;
+      min-height: 22px;
+      color: #aeb7c1;
+      white-space: pre-wrap;
+    }
+
+    .status.error {
+      color: #ff8f8f;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 950px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 11px 10px;
+      border-bottom: 1px solid #2a3038;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 13px;
+      color: #929ba6;
+    }
+
+    td {
+      font-size: 14px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .badge.active {
+      background: #24472b;
+    }
+
+    .badge.closed {
+      background: #4a3d23;
+    }
+
+    .badge.disabled {
+      background: #4f2929;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 28px;
+      color: #7f8893;
+    }
+
+    .small {
+      color: #7f8994;
+      font-size: 12px;
+      margin-top: 7px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 800px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .wrap {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrap">
+
+    <div class="topbar">
+
+      <div class="brand">
+        T999 • M Draws
+      </div>
+
+      <div class="workspace">
+        <div id="customerName">-</div>
+        <strong id="workspaceId">-</strong>
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h1>
+        M จัดการงวด
+      </h1>
+
+      <div class="subtitle">
+        สร้างและควบคุมงวดของแต่ละตลาด
+        เมื่อ M เปิดงวดแล้ว R และ S จะใช้ draw code เดียวกันตลอดสายงาน
+      </div>
+
+      <div class="grid">
+
+        <div>
+          <label>
+            ตลาด
+          </label>
+
+          <select id="marketCode">
+            <option value="TH">
+              ไทย
+            </option>
+
+            <option value="LA">
+              ลาว
+            </option>
+          </select>
+        </div>
+
+
+        <div>
+          <label>
+            รหัสงวด
+          </label>
+
+          <input
+            id="drawCode"
+            type="text"
+            placeholder="เช่น TH-2026-08-01"
+          />
+
+          <div class="small">
+            รหัสนี้ต้องไม่ซ้ำในตลาดเดียวกัน
+          </div>
+        </div>
+
+
+        <div>
+          <label>
+            ชื่องวด
+          </label>
+
+          <input
+            id="drawName"
+            type="text"
+            placeholder="เช่น ไทย งวด 1 สิงหาคม 2569"
+          />
+        </div>
+
+
+        <div>
+          <label>
+            เวลาเปิดงวด
+          </label>
+
+          <input
+            id="opensAt"
+            type="datetime-local"
+          />
+        </div>
+
+
+        <div>
+          <label>
+            เวลาปิดงวด
+          </label>
+
+          <input
+            id="closesAt"
+            type="datetime-local"
+          />
+
+          <div class="small">
+            ไม่จำเป็นต้องกรอกตอนสร้างก็ได้
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="createDraw()"
+        >
+          สร้างงวด
+        </button>
+
+        <button
+          class="secondary"
+          onclick="loadDraws()"
+        >
+          รีเฟรชรายการ
+        </button>
+
+      </div>
+
+      <div
+        id="createStatus"
+        class="status"
+      ></div>
+
+    </div>
+
+
+    <div class="card">
+
+      <div
+        style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:10px;
+          margin-bottom:14px;
+        "
+      >
+
+        <h2 style="margin:0;">
+          รายการงวดทั้งหมด
+        </h2>
+
+        <button
+          class="secondary"
+          onclick="loadDraws()"
+        >
+          รีเฟรช
+        </button>
+
+      </div>
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>ตลาด</th>
+              <th>รหัสงวด</th>
+              <th>ชื่องวด</th>
+              <th>สถานะ</th>
+              <th>เปิด</th>
+              <th>ปิด</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+
+          <tbody id="drawRows">
+
+            <tr>
+              <td
+                colspan="7"
+                class="empty"
+              >
+                กำลังโหลด...
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    const SESSION_KEY =
+      't999_trial_workspace';
+
+    let sessionData = null;
+
+
+    function getSession() {
+
+      try {
+
+        const raw =
+          sessionStorage.getItem(
+            SESSION_KEY
+          );
+
+        if (!raw) {
+          return null;
+        }
+
+        return JSON.parse(raw);
+
+      }
+      catch (error) {
+
+        return null;
+
+      }
+
+    }
+
+
+    function setStatus(
+      id,
+      message,
+      isError = false
+    ) {
+
+      const el =
+        document.getElementById(id);
+
+      el.textContent =
+        message || '';
+
+      el.className =
+        isError
+          ? 'status error'
+          : 'status';
+
+    }
+
+
+    function escapeHtml(value) {
+
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+    }
+
+
+    function formatDate(value) {
+
+      if (!value) {
+        return '-';
+      }
+
+      return new Date(value)
+        .toLocaleString(
+          'th-TH',
+          {
+            timeZone:
+              'Asia/Bangkok'
+          }
+        );
+
+    }
+
+
+    function toThailandISOString(value) {
+
+      if (!value) {
+        return '';
+      }
+
+      return new Date(
+        value + ':00+07:00'
+      ).toISOString();
+
+    }
+
+
+    function statusBadge(status) {
+
+      const value =
+        String(status || '')
+          .toUpperCase();
+
+      let className =
+        'disabled';
+
+      if (value === 'ACTIVE') {
+        className = 'active';
+      }
+
+      if (value === 'CLOSED') {
+        className = 'closed';
+      }
+
+      return `
+        <span class="badge ${className}">
+          ${escapeHtml(value)}
+        </span>
+      `;
+
+    }
+
+
+    async function createDraw() {
+
+      const marketCode =
+        document.getElementById(
+          'marketCode'
+        ).value;
+
+
+      const drawCode =
+        document.getElementById(
+          'drawCode'
+        )
+        .value
+        .trim()
+        .toUpperCase();
+
+
+      const drawName =
+        document.getElementById(
+          'drawName'
+        )
+        .value
+        .trim();
+
+
+      const opensAt =
+        document.getElementById(
+          'opensAt'
+        ).value;
+
+
+      const closesAt =
+        document.getElementById(
+          'closesAt'
+        ).value;
+
+
+      if (!drawCode) {
+
+        setStatus(
+          'createStatus',
+          'กรุณากรอกรหัสงวด',
+          true
+        );
+
+        return;
+
+      }
+
+
+      setStatus(
+        'createStatus',
+        'กำลังสร้างงวด...'
+      );
+
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/draws',
+            {
+              method: 'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body:
+                JSON.stringify({
+                  workspaceId:
+                    sessionData.workspaceId,
+
+                  marketCode,
+
+                  drawCode,
+
+                  drawName,
+
+                  opensAt:
+                    opensAt
+                      ? toThailandISOString(
+                          opensAt
+                        )
+                      : '',
+
+                  closesAt:
+                    closesAt
+                      ? toThailandISOString(
+                          closesAt
+                        )
+                      : ''
+                })
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'สร้างงวดไม่สำเร็จ'
+          );
+
+        }
+
+
+        setStatus(
+          'createStatus',
+          'สร้างงวดสำเร็จ'
+        );
+
+
+        document.getElementById(
+          'drawCode'
+        ).value = '';
+
+
+        document.getElementById(
+          'drawName'
+        ).value = '';
+
+
+        document.getElementById(
+          'closesAt'
+        ).value = '';
+
+
+        await loadDraws();
+
+      }
+      catch (error) {
+
+        setStatus(
+          'createStatus',
+          error.message,
+          true
+        );
+
+      }
+
+    }
+
+
+    async function setDrawStatus(
+      id,
+      status
+    ) {
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/draws',
+            {
+              method: 'PATCH',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body:
+                JSON.stringify({
+                  action:
+                    'SET_STATUS',
+
+                  workspaceId:
+                    sessionData.workspaceId,
+
+                  id,
+
+                  status
+                })
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'อัปเดตงวดไม่สำเร็จ'
+          );
+
+        }
+
+
+        await loadDraws();
+
+      }
+      catch (error) {
+
+        alert(
+          error.message
+        );
+
+      }
+
+    }
+
+
+    async function loadDraws() {
+
+      const rows =
+        document.getElementById(
+          'drawRows'
+        );
+
+
+      rows.innerHTML =
+        '<tr>' +
+        '<td colspan="7" class="empty">' +
+        'กำลังโหลด...' +
+        '</td>' +
+        '</tr>';
+
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/draws?workspaceId=' +
+            encodeURIComponent(
+              sessionData.workspaceId
+            )
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'โหลดรายการงวดไม่สำเร็จ'
+          );
+
+        }
+
+
+        if (
+          !data.draws ||
+          !data.draws.length
+        ) {
+
+          rows.innerHTML =
+            '<tr>' +
+            '<td colspan="7" class="empty">' +
+            'ยังไม่มีงวด' +
+            '</td>' +
+            '</tr>';
+
+          return;
+
+        }
+
+
+        rows.innerHTML =
+          data.draws
+          .map(
+            (draw) => {
+
+              const market =
+                draw.marketCode === 'TH'
+                  ? 'ไทย'
+                  : draw.marketCode === 'LA'
+                    ? 'ลาว'
+                    : draw.marketCode;
+
+
+              return `
+                <tr>
+
+                  <td>
+                    <strong>
+                      ${escapeHtml(market)}
+                    </strong>
+                  </td>
+
+                  <td>
+                    ${escapeHtml(
+                      draw.drawCode
+                    )}
+                  </td>
+
+                  <td>
+                    ${escapeHtml(
+                      draw.drawName || '-'
+                    )}
+                  </td>
+
+                  <td>
+                    ${statusBadge(
+                      draw.status
+                    )}
+                  </td>
+
+                  <td>
+                    ${formatDate(
+                      draw.opensAt
+                    )}
+                  </td>
+
+                  <td>
+                    ${formatDate(
+                      draw.closesAt
+                    )}
+                  </td>
+
+                  <td>
+
+                    <div class="actions"
+                      style="margin-top:0;"
+                    >
+
+                      <button
+                        class="success"
+                        onclick="setDrawStatus(
+                          ${Number(draw.id)},
+                          'ACTIVE'
+                        )"
+                      >
+                        เปิด
+                      </button>
+
+                      <button
+                        class="secondary"
+                        onclick="setDrawStatus(
+                          ${Number(draw.id)},
+                          'CLOSED'
+                        )"
+                      >
+                        ปิด
+                      </button>
+
+                      <button
+                        class="danger"
+                        onclick="setDrawStatus(
+                          ${Number(draw.id)},
+                          'DISABLED'
+                        )"
+                      >
+                        ปิดใช้งาน
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+              `;
+
+            }
+          )
+          .join('');
+
+      }
+      catch (error) {
+
+        rows.innerHTML =
+          '<tr>' +
+          '<td colspan="7" class="empty">' +
+          escapeHtml(
+            error.message
+          ) +
+          '</td>' +
+          '</tr>';
+
+      }
+
+    }
+
+
+    function setDefaultOpenTime() {
+
+      const now =
+        new Date();
+
+
+      const offset =
+        now.getTimezoneOffset();
+
+
+      const local =
+        new Date(
+          now.getTime() -
+          offset * 60000
+        );
+
+
+      const value =
+        local
+          .toISOString()
+          .slice(0, 16);
+
+
+      document.getElementById(
+        'opensAt'
+      ).value =
+        value;
+
+    }
+
+
+    function init() {
+
+      sessionData =
+        getSession();
+
+
+      if (
+        !sessionData ||
+        !sessionData.workspaceId
+      ) {
+
+        location.href =
+          '/trial-placeholder.html';
+
+        return;
+
+      }
+
+
+      document.getElementById(
+        'workspaceId'
+      ).textContent =
+        sessionData.workspaceId;
+
+
+      document.getElementById(
+        'customerName'
+      ).textContent =
+        sessionData.customerName ||
+        sessionData.trialCode ||
+        '';
+
+
+      setDefaultOpenTime();
+
+      loadDraws();
+
+    }
+
+
+    init();
+
+  </script>
+
+</body>
+</html>
