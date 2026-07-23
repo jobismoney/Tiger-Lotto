@@ -110,6 +110,11 @@
       cursor: pointer;
     }
 
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
     .primary {
       background: #ffffff;
       color: #111111;
@@ -121,8 +126,24 @@
     }
 
     .danger {
-      background: #572a2a;
+      background: #9f3737;
       color: #ffffff;
+    }
+
+    .danger:hover {
+      background: #b94242;
+    }
+
+    .danger-small {
+      background: #8f3030;
+      color: #ffffff;
+      padding: 7px 12px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .danger-small:hover {
+      background: #ad3a3a;
     }
 
     .actions {
@@ -143,13 +164,17 @@
       color: #ff8f8f;
     }
 
+    .status.success {
+      color: #8fffab;
+    }
+
     .table-wrap {
       overflow-x: auto;
     }
 
     table {
       width: 100%;
-      min-width: 980px;
+      min-width: 1080px;
       border-collapse: collapse;
     }
 
@@ -179,6 +204,26 @@
       background: #243126;
     }
 
+    .badge.waiting {
+      background: #3b4725;
+      color: #f0ffc7;
+    }
+
+    .badge.in-progress {
+      background: #43582e;
+      color: #efffcf;
+    }
+
+    .badge.completed {
+      background: #244536;
+      color: #c9ffe5;
+    }
+
+    .badge.cancelled {
+      background: #4c2d2d;
+      color: #ffcaca;
+    }
+
     .empty {
       text-align: center;
       padding: 28px;
@@ -198,6 +243,11 @@
       font-size: 12px;
       margin-top: 7px;
       line-height: 1.5;
+    }
+
+    .muted {
+      color: #727b86;
+      font-size: 12px;
     }
 
     @media (max-width: 800px) {
@@ -418,6 +468,10 @@
             6. เข้าคิว WAITING ทันที
           </div>
 
+          <div>
+            7. R ลบได้เฉพาะโพยที่ยัง WAITING
+          </div>
+
         </div>
 
       </div>
@@ -465,6 +519,7 @@
               <th>File ID</th>
               <th>สถานะ</th>
               <th>เวลารับ</th>
+              <th>จัดการ</th>
             </tr>
           </thead>
 
@@ -472,7 +527,7 @@
 
             <tr>
               <td
-                colspan="8"
+                colspan="9"
                 class="empty"
               >
                 กำลังโหลด...
@@ -497,6 +552,9 @@
 
     let sessionData =
       null;
+
+    let deletingSlipIds =
+      new Set();
 
 
     function getSession() {
@@ -527,7 +585,8 @@
     function setStatus(
       id,
       message,
-      isError = false
+      isError = false,
+      isSuccess = false
     ) {
 
       const el =
@@ -536,10 +595,26 @@
       el.textContent =
         message || '';
 
+      if (isError) {
+
+        el.className =
+          'status error';
+
+        return;
+
+      }
+
+      if (isSuccess) {
+
+        el.className =
+          'status success';
+
+        return;
+
+      }
+
       el.className =
-        isError
-          ? 'status error'
-          : 'status';
+        'status';
 
     }
 
@@ -807,7 +882,9 @@
 
         setStatus(
           'agentStatus',
-          'เพิ่ม Agent สำเร็จ'
+          'เพิ่ม Agent สำเร็จ',
+          false,
+          true
         );
 
         document.getElementById(
@@ -957,7 +1034,10 @@
           '\n' +
 
           'File ID: ' +
-          data.slip.fileId
+          data.slip.fileId,
+
+          false,
+          true
         );
 
 
@@ -982,6 +1062,125 @@
     }
 
 
+    async function deleteWaitingSlip(
+      slipId,
+      sourceFilename
+    ) {
+
+      if (
+        !slipId ||
+        deletingSlipIds.has(
+          slipId
+        )
+      ) {
+        return;
+      }
+
+
+      const confirmed =
+        window.confirm(
+          'ยืนยันลบโพยนี้ออกจาก Queue?\n\n' +
+          'ไฟล์: ' +
+          sourceFilename +
+          '\n\n' +
+          'ลบได้เฉพาะโพยที่ยังอยู่สถานะ WAITING เท่านั้น'
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
+
+
+      deletingSlipIds.add(
+        slipId
+      );
+
+
+      setStatus(
+        'intakeStatus',
+        'กำลังลบโพยออกจาก Queue...\n' +
+        sourceFilename
+      );
+
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/intake',
+            {
+              method: 'DELETE',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body:
+                JSON.stringify({
+                  workspaceId:
+                    sessionData.workspaceId,
+
+                  slipId
+                })
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'ลบโพยไม่สำเร็จ'
+          );
+
+        }
+
+
+        setStatus(
+          'intakeStatus',
+
+          'ลบโพยออกจาก Queue แล้ว\n' +
+          'ไฟล์: ' +
+          (
+            data.slip
+              ?.sourceFilename ||
+            sourceFilename
+          ),
+
+          false,
+          true
+        );
+
+
+        await loadSlips();
+
+      }
+      catch (error) {
+
+        setStatus(
+          'intakeStatus',
+          error.message,
+          true
+        );
+
+      }
+      finally {
+
+        deletingSlipIds.delete(
+          slipId
+        );
+
+      }
+
+    }
+
+
     async function loadSlips() {
 
       const rows =
@@ -992,7 +1191,7 @@
 
       rows.innerHTML =
         '<tr>' +
-        '<td colspan="8" class="empty">' +
+        '<td colspan="9" class="empty">' +
         'กำลังโหลด...' +
         '</td>' +
         '</tr>';
@@ -1049,7 +1248,7 @@
 
           rows.innerHTML =
             '<tr>' +
-            '<td colspan="8" class="empty">' +
+            '<td colspan="9" class="empty">' +
             'ยังไม่มีโพยที่รับเข้า' +
             '</td>' +
             '</tr>';
@@ -1063,6 +1262,49 @@
           data.slips
           .map(
             (slip, index) => {
+
+              const status =
+                String(
+                  slip.queueStatus || ''
+                )
+                .toUpperCase();
+
+
+              const badgeClass =
+                status === 'WAITING'
+                  ? 'waiting'
+                  : status === 'IN_PROGRESS'
+                    ? 'in-progress'
+                    : status === 'COMPLETED'
+                      ? 'completed'
+                      : status === 'CANCELLED'
+                        ? 'cancelled'
+                        : '';
+
+
+              const manageHtml =
+                status === 'WAITING'
+                  ? `
+                    <button
+                      class="danger-small"
+                      onclick="deleteWaitingSlip(
+                        '${escapeJs(
+                          slip.slipId
+                        )}',
+                        '${escapeJs(
+                          slip.sourceFilename
+                        )}'
+                      )"
+                    >
+                      ลบ
+                    </button>
+                  `
+                  : `
+                    <span class="muted">
+                      -
+                    </span>
+                  `;
+
 
               return `
                 <tr>
@@ -1104,9 +1346,11 @@
                   </td>
 
                   <td>
-                    <span class="badge">
+                    <span
+                      class="badge ${badgeClass}"
+                    >
                       ${escapeHtml(
-                        slip.queueStatus
+                        status
                       )}
                     </span>
                   </td>
@@ -1115,6 +1359,10 @@
                     ${formatDate(
                       slip.receivedAt
                     )}
+                  </td>
+
+                  <td>
+                    ${manageHtml}
                   </td>
 
                 </tr>
@@ -1129,7 +1377,7 @@
 
         rows.innerHTML =
           '<tr>' +
-          '<td colspan="8" class="empty">' +
+          '<td colspan="9" class="empty">' +
           escapeHtml(
             error.message
           ) +
@@ -1183,6 +1431,39 @@
       .replace(
         /'/g,
         '&#039;'
+      );
+
+    }
+
+
+    function escapeJs(value) {
+
+      return String(
+        value || ''
+      )
+      .replace(
+        /\\/g,
+        '\\\\'
+      )
+      .replace(
+        /'/g,
+        "\\'"
+      )
+      .replace(
+        /\r/g,
+        '\\r'
+      )
+      .replace(
+        /\n/g,
+        '\\n'
+      )
+      .replace(
+        /</g,
+        '\\x3C'
+      )
+      .replace(
+        />/g,
+        '\\x3E'
       );
 
     }
