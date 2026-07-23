@@ -6,16 +6,24 @@ function clean(value) {
   return String(value || '').trim();
 }
 
+function upper(value) {
+  return clean(value).toUpperCase();
+}
+
 export default async function handler(req, res) {
   try {
 
     // =========================================================
-    // GET : ดูสถานะคิวของ Workspace
+    // GET : ดู Queue ของ Workspace
+    // รองรับ filter ตาม drawCode
     // =========================================================
     if (req.method === 'GET') {
 
       const workspaceId =
         clean(req.query?.workspaceId);
+
+      const drawCode =
+        upper(req.query?.drawCode);
 
       if (!workspaceId) {
         return res.status(400).json({
@@ -24,24 +32,63 @@ export default async function handler(req, res) {
         });
       }
 
-      const rows = await sql`
-        select
-          id,
-          workspace_id,
-          slip_id,
-          file_id,
-          source_filename,
-          agent_code,
-          queue_status,
-          assigned_subkey,
-          received_at,
-          claimed_at,
-          completed_at
-        from intake_slips
-        where workspace_id = ${workspaceId}
-        order by received_at asc, id asc
-        limit 500
-      `;
+      let rows;
+
+      if (drawCode) {
+
+        rows = await sql`
+          select
+            id,
+            workspace_id,
+            slip_id,
+            file_id,
+            source_filename,
+            agent_code,
+            draw_code,
+            queue_status,
+            assigned_subkey,
+            received_at,
+            claimed_at,
+            completed_at
+          from intake_slips
+          where workspace_id = ${workspaceId}
+            and upper(
+              coalesce(
+                draw_code,
+                ''
+              )
+            ) = ${drawCode}
+          order by
+            received_at asc,
+            id asc
+          limit 500
+        `;
+
+      } else {
+
+        rows = await sql`
+          select
+            id,
+            workspace_id,
+            slip_id,
+            file_id,
+            source_filename,
+            agent_code,
+            draw_code,
+            queue_status,
+            assigned_subkey,
+            received_at,
+            claimed_at,
+            completed_at
+          from intake_slips
+          where workspace_id = ${workspaceId}
+          order by
+            received_at asc,
+            id asc
+          limit 500
+        `;
+      }
+
 
       const waiting =
         rows.filter(
@@ -61,6 +108,7 @@ export default async function handler(req, res) {
             row.queue_status === 'COMPLETED'
         );
 
+
       return res.status(200).json({
         ok: true,
 
@@ -72,45 +120,76 @@ export default async function handler(req, res) {
         },
 
         queue: rows.map(row => ({
-          id: row.id,
-          workspaceId: row.workspace_id,
-          slipId: row.slip_id,
-          fileId: row.file_id,
-          sourceFilename: row.source_filename,
-          agentCode: row.agent_code,
-          queueStatus: row.queue_status,
+          id:
+            row.id,
+
+          workspaceId:
+            row.workspace_id,
+
+          slipId:
+            row.slip_id,
+
+          fileId:
+            row.file_id,
+
+          sourceFilename:
+            row.source_filename,
+
+          agentCode:
+            row.agent_code,
+
+          drawCode:
+            row.draw_code || '',
+
+          queueStatus:
+            row.queue_status,
+
           assignedSubkey:
             row.assigned_subkey || '',
-          receivedAt: row.received_at,
-          claimedAt: row.claimed_at,
-          completedAt: row.completed_at
+
+          receivedAt:
+            row.received_at,
+
+          claimedAt:
+            row.claimed_at,
+
+          completedAt:
+            row.completed_at
         }))
       });
     }
 
 
     // =========================================================
-    // POST : S ขอรับงานถัดไปจากกองกลาง
+    // POST
+    // CLAIM_NEXT = S รับงานใบถัดไปในงวดที่เลือก
+    // RELEASE = คืนงานกลับ Queue
     // =========================================================
     if (req.method === 'POST') {
 
       const {
         action,
         workspaceId,
+        drawCode,
         subkeyCode,
         slipId
       } = req.body || {};
 
+
+      const command =
+        upper(action);
+
       const workspace =
         clean(workspaceId);
 
-      const subkey =
-        clean(subkeyCode)
-          .toUpperCase();
+      const draw =
+        upper(drawCode);
 
-      const command =
-        clean(action)
-          .toUpperCase();
+      const subkey =
+        upper(subkeyCode);
+
+      const targetSlipId =
+        clean(slipId);
 
 
       if (!workspace) {
@@ -121,12 +200,17 @@ export default async function handler(req, res) {
       }
 
 
-      // ---------------------------------------------------------
+      // =======================================================
       // CLAIM_NEXT
-      // S ขอรับโพย WAITING ตัวแรกตามเวลาที่ R รับเข้า
-      // ใช้ FOR UPDATE SKIP LOCKED ป้องกันสอง S หยิบใบเดียวกัน
-      // ---------------------------------------------------------
+      // =======================================================
       if (command === 'CLAIM_NEXT') {
+
+        if (!draw) {
+          return res.status(400).json({
+            ok: false,
+            message: 'กรุณาเลือกงวด'
+          });
+        }
 
         if (!subkey) {
           return res.status(400).json({
@@ -135,6 +219,10 @@ export default async function handler(req, res) {
           });
         }
 
+
+        // -----------------------------------------------------
+        // ตรวจ Workspace
+        // -----------------------------------------------------
         const workspaceRows = await sql`
           select
             id,
@@ -146,6 +234,7 @@ export default async function handler(req, res) {
           limit 1
         `;
 
+
         if (!workspaceRows.length) {
           return res.status(404).json({
             ok: false,
@@ -153,11 +242,13 @@ export default async function handler(req, res) {
           });
         }
 
+
         const trial =
           workspaceRows[0];
 
         const now =
           new Date();
+
 
         if (trial.status !== 'ACTIVE') {
           return res.status(403).json({
@@ -166,6 +257,7 @@ export default async function handler(req, res) {
               'Workspace นี้ถูกปิดใช้งาน'
           });
         }
+
 
         if (
           now <
@@ -177,6 +269,7 @@ export default async function handler(req, res) {
               'Workspace นี้ยังไม่ถึงเวลาเริ่มใช้งาน'
           });
         }
+
 
         if (
           now >=
@@ -190,6 +283,77 @@ export default async function handler(req, res) {
         }
 
 
+        // -----------------------------------------------------
+        // ตรวจงวด
+        // -----------------------------------------------------
+        const drawRows = await sql`
+          select
+            id,
+            market_code,
+            draw_code,
+            draw_name,
+            status,
+            opens_at,
+            closes_at
+          from workspace_draws
+          where workspace_id = ${workspace}
+            and upper(draw_code) = ${draw}
+          limit 1
+        `;
+
+
+        if (!drawRows.length) {
+          return res.status(404).json({
+            ok: false,
+            message:
+              'ไม่พบงวดนี้'
+          });
+        }
+
+
+        const drawRow =
+          drawRows[0];
+
+
+        if (drawRow.status !== 'ACTIVE') {
+          return res.status(403).json({
+            ok: false,
+            message:
+              'งวดนี้ไม่ได้อยู่ในสถานะ ACTIVE'
+          });
+        }
+
+
+        if (
+          drawRow.opens_at &&
+          now <
+          new Date(drawRow.opens_at)
+        ) {
+          return res.status(403).json({
+            ok: false,
+            message:
+              'งวดนี้ยังไม่ถึงเวลาเปิด'
+          });
+        }
+
+
+        if (
+          drawRow.closes_at &&
+          now >=
+          new Date(drawRow.closes_at)
+        ) {
+          return res.status(403).json({
+            ok: false,
+            message:
+              'งวดนี้ถึงเวลาปิดแล้ว'
+          });
+        }
+
+
+        // -----------------------------------------------------
+        // รับ WAITING ใบแรกเฉพาะงวดนี้
+        // FOR UPDATE SKIP LOCKED กัน S สองคนหยิบใบเดียวกัน
+        // -----------------------------------------------------
         const claimed = await sql`
           with next_slip as (
 
@@ -198,6 +362,13 @@ export default async function handler(req, res) {
             from intake_slips
 
             where workspace_id = ${workspace}
+
+              and upper(
+                coalesce(
+                  draw_code,
+                  ''
+                )
+              ) = ${draw}
 
               and queue_status = 'WAITING'
 
@@ -232,6 +403,7 @@ export default async function handler(req, res) {
             file_id,
             source_filename,
             agent_code,
+            draw_code,
             queue_status,
             assigned_subkey,
             received_at,
@@ -244,13 +416,14 @@ export default async function handler(req, res) {
             ok: true,
             empty: true,
             message:
-              'ไม่มีโพย WAITING ในคิว'
+              'ไม่มีโพย WAITING ในงวดนี้'
           });
         }
 
 
         const row =
           claimed[0];
+
 
         return res.status(200).json({
           ok: true,
@@ -259,23 +432,36 @@ export default async function handler(req, res) {
             'รับงานจาก Queue สำเร็จ',
 
           slip: {
-            id: row.id,
+            id:
+              row.id,
+
             workspaceId:
               row.workspace_id,
+
             slipId:
               row.slip_id,
+
             fileId:
               row.file_id,
+
             sourceFilename:
               row.source_filename,
+
             agentCode:
               row.agent_code,
+
+            drawCode:
+              row.draw_code,
+
             queueStatus:
               row.queue_status,
+
             assignedSubkey:
               row.assigned_subkey,
+
             receivedAt:
               row.received_at,
+
             claimedAt:
               row.claimed_at
           }
@@ -283,20 +469,23 @@ export default async function handler(req, res) {
       }
 
 
-      // ---------------------------------------------------------
+      // =======================================================
       // RELEASE
-      // คืนโพยกลับกองกลาง
-      // ใช้กรณี S กดคืนงานก่อนคีย์เสร็จ
-      // ---------------------------------------------------------
+      // คืนโพยกลับ Queue
+      // =======================================================
       if (command === 'RELEASE') {
-
-        const targetSlipId =
-          clean(slipId);
 
         if (!targetSlipId) {
           return res.status(400).json({
             ok: false,
             message: 'ไม่พบ Slip ID'
+          });
+        }
+
+        if (!draw) {
+          return res.status(400).json({
+            ok: false,
+            message: 'ไม่พบงวด'
           });
         }
 
@@ -321,6 +510,13 @@ export default async function handler(req, res) {
 
             and slip_id = ${targetSlipId}
 
+            and upper(
+              coalesce(
+                draw_code,
+                ''
+              )
+            ) = ${draw}
+
             and queue_status = 'IN_PROGRESS'
 
             and upper(
@@ -333,6 +529,7 @@ export default async function handler(req, res) {
           returning
             id,
             slip_id,
+            draw_code,
             queue_status
         `;
 
@@ -341,7 +538,7 @@ export default async function handler(req, res) {
           return res.status(409).json({
             ok: false,
             message:
-              'ไม่สามารถคืนโพยนี้ได้ หรือโพยไม่ได้อยู่กับ Subkey นี้'
+              'ไม่สามารถคืนโพยนี้ได้ หรือโพยไม่ได้อยู่กับ Subkey/งวดนี้'
           });
         }
 
@@ -350,8 +547,13 @@ export default async function handler(req, res) {
           ok: true,
           message:
             'คืนโพยกลับ Queue แล้ว',
+
           slipId:
             released[0].slip_id,
+
+          drawCode:
+            released[0].draw_code,
+
           queueStatus:
             released[0].queue_status
         });
@@ -371,8 +573,7 @@ export default async function handler(req, res) {
       message: 'Method not allowed'
     });
 
-  }
-  catch (error) {
+  } catch (error) {
 
     console.error(
       'queue api error:',
