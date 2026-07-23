@@ -121,6 +121,7 @@
       display: flex;
       gap: 10px;
       margin-top: 18px;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -143,6 +144,11 @@
 
     .btn-danger {
       background: #82352f;
+      color: #fff;
+    }
+
+    .btn-complete {
+      background: #2f7a4d;
       color: #fff;
     }
 
@@ -1245,7 +1251,21 @@ function renderCurrentJob() {
           </div>
 
 
-          <div style="margin-top:14px;">
+          <div
+            style="
+              margin-top:14px;
+              display:flex;
+              gap:10px;
+              flex-wrap:wrap;
+            "
+          >
+
+            <button
+              id="completeCurrentBtn"
+              class="btn btn-complete"
+            >
+              จบใบ
+            </button>
 
             <button
               id="releaseCurrentBtn"
@@ -1305,6 +1325,15 @@ function renderCurrentJob() {
 
   document
     .getElementById(
+      'completeCurrentBtn'
+    )
+    .addEventListener(
+      'click',
+      completeCurrentJob
+    );
+
+  document
+    .getElementById(
       'releaseCurrentBtn'
     )
     .addEventListener(
@@ -1350,10 +1379,6 @@ async function smartLoadImage() {
       'routeBox'
     );
 
-
-  // ---------------------------------------------------------
-  // 1. ASK SMART PATH CONTROLLER
-  // ---------------------------------------------------------
 
   let pathPlan = null;
 
@@ -1410,14 +1435,8 @@ async function smartLoadImage() {
     }
 
   } catch {
-
-    // Controller fail ไม่ควรทำให้หยุดทั้งหมด
   }
 
-
-  // ---------------------------------------------------------
-  // 2. TRY LOCAL FIRST
-  // ---------------------------------------------------------
 
   pathStatus.textContent =
     'Path: กำลังตรวจ Local Bridge';
@@ -1441,10 +1460,6 @@ async function smartLoadImage() {
     return;
   }
 
-
-  // ---------------------------------------------------------
-  // 3. LOCAL FAILED -> REMOTE RELAY 443
-  // ---------------------------------------------------------
 
   pathStatus.textContent =
     'Path: PRIMARY_RELAY 443';
@@ -1533,8 +1548,6 @@ async function tryLocalBridge() {
     }
 
 
-    // Secure Bridge รุ่น Ticket Protection
-    // ต้องออก ticket ก่อนเปิด /file
     const ticketResponse =
       await fetch(
         '/api/bridge-ticket',
@@ -1999,6 +2012,139 @@ async function loadViaRelay() {
 
         </div>
       `;
+  }
+}
+
+
+// =========================================================
+// COMPLETE JOB
+// =========================================================
+
+async function completeCurrentJob() {
+
+  if (!currentJob) {
+    return;
+  }
+
+  const filename =
+    currentJob.sourceFilename;
+
+  if (
+    !confirm(
+      'จบใบนี้ใช่หรือไม่?\n\n' +
+      filename
+    )
+  ) {
+    return;
+  }
+
+  const completeBtn =
+    document.getElementById(
+      'completeCurrentBtn'
+    );
+
+  const releaseBtn =
+    document.getElementById(
+      'releaseCurrentBtn'
+    );
+
+  if (completeBtn) {
+    completeBtn.disabled =
+      true;
+  }
+
+  if (releaseBtn) {
+    releaseBtn.disabled =
+      true;
+  }
+
+  relayPollCancelled =
+    true;
+
+  revokeCurrentObjectUrl();
+
+  try {
+
+    const response =
+      await fetch(
+        '/api/queue',
+        {
+          method:
+            'POST',
+
+          headers: {
+            'Content-Type':
+              'application/json'
+          },
+
+          body:
+            JSON.stringify({
+              action:
+                'COMPLETE',
+
+              workspaceId,
+
+              drawCode:
+                currentJob.drawCode,
+
+              subkeyCode:
+                currentJob.assignedSubkey ||
+                currentSubkey(),
+
+              slipId:
+                currentJob.slipId
+            })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.ok
+    ) {
+
+      throw new Error(
+        data.message ||
+        'จบใบไม่สำเร็จ'
+      );
+    }
+
+    currentJob =
+      null;
+
+    activeRelayRequestId =
+      null;
+
+    renderCurrentJob();
+
+    setStatus(
+      'จบใบสำเร็จ\n' +
+      filename +
+      '\nพร้อมรับงานถัดไป',
+      'success'
+    );
+
+    await loadQueue();
+
+  } catch (error) {
+
+    setStatus(
+      error.message ||
+      'จบใบไม่สำเร็จ',
+      'error'
+    );
+
+    if (completeBtn) {
+      completeBtn.disabled =
+        false;
+    }
+
+    if (releaseBtn) {
+      releaseBtn.disabled =
+        false;
+    }
   }
 }
 
