@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>T999 • Subkey Queue</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, "Noto Sans Thai", sans-serif;
+      background: #090b0e;
+      color: #ffffff;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .workspace {
+      color: #9aa3ad;
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .card {
+      background: #14181e;
+      border: 1px solid #2a3038;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    h1,
+    h2 {
+      margin-top: 0;
+    }
+
+    .subtitle {
+      color: #9ba4af;
+      margin-bottom: 22px;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: #b9c1ca;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      height: 48px;
+      border-radius: 9px;
+      border: 1px solid #353c45;
+      background: #0e1115;
+      color: #ffffff;
+      padding: 0 12px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 11px 16px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: #ffffff;
+      color: #111111;
+    }
+
+    .secondary {
+      background: #2a3038;
+      color: #ffffff;
+    }
+
+    .danger {
+      background: #572a2a;
+      color: #ffffff;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .status {
+      margin-top: 14px;
+      min-height: 22px;
+      color: #aeb7c1;
+      white-space: pre-wrap;
+    }
+
+    .status.error {
+      color: #ff8f8f;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      background: #101419;
+      border: 1px solid #2a3038;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .stat .label {
+      color: #8f98a3;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .stat .value {
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .job-box {
+      display: none;
+      border: 1px solid #3c4652;
+      border-radius: 12px;
+      padding: 18px;
+      background: #0e1217;
+    }
+
+    .job-box.show {
+      display: block;
+    }
+
+    .job-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid #242b33;
+    }
+
+    .job-row:last-child {
+      border-bottom: 0;
+    }
+
+    .job-key {
+      color: #8f98a3;
+    }
+
+    .job-value {
+      font-weight: 800;
+      word-break: break-word;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #28362b;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 900px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 11px 10px;
+      border-bottom: 1px solid #2a3038;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 13px;
+      color: #929ba6;
+    }
+
+    td {
+      font-size: 14px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 28px;
+      color: #7f8893;
+    }
+
+    @media (max-width: 800px) {
+      .grid,
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .job-row {
+        grid-template-columns: 1fr;
+      }
+
+      .wrap {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrap">
+
+    <div class="topbar">
+      <div class="brand">
+        T999 • Subkey Queue
+      </div>
+
+      <div class="workspace">
+        <div id="customerName">-</div>
+        <strong id="workspaceId">-</strong>
+      </div>
+    </div>
+
+
+    <div class="card">
+
+      <h1>S รับงานจาก Queue</h1>
+
+      <div class="subtitle">
+        S รับโพยจากกองกลางตามลำดับเวลาที่ R รับเข้า
+        ระบบจะกันไม่ให้ Subkey สองคนหยิบโพยใบเดียวกัน
+      </div>
+
+      <div class="grid">
+
+        <div>
+          <label>รหัส Subkey</label>
+
+          <input
+            id="subkeyCode"
+            type="text"
+            placeholder="เช่น S01"
+          />
+        </div>
+
+        <div>
+          <label>หลักการรับงาน</label>
+
+          <div
+            style="
+              height:48px;
+              display:flex;
+              align-items:center;
+              padding:0 12px;
+              border:1px solid #353c45;
+              border-radius:9px;
+              background:#0e1115;
+              color:#aab3bd;
+            "
+          >
+            WAITING ใบแรก → IN_PROGRESS
+          </div>
+        </div>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="claimNext()"
+        >
+          รับงานถัดไป
+        </button>
+
+        <button
+          class="secondary"
+          onclick="loadQueue()"
+        >
+          รีเฟรชคิว
+        </button>
+
+      </div>
+
+      <div
+        id="claimStatus"
+        class="status"
+      ></div>
+
+    </div>
+
+
+    <div class="stats">
+
+      <div class="stat">
+        <div class="label">ทั้งหมด</div>
+        <div id="countTotal" class="value">0</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">WAITING</div>
+        <div id="countWaiting" class="value">0</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">IN_PROGRESS</div>
+        <div id="countInProgress" class="value">0</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">COMPLETED</div>
+        <div id="countCompleted" class="value">0</div>
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h2>งานที่ S กำลังถืออยู่</h2>
+
+      <div
+        id="currentJobEmpty"
+        class="empty"
+      >
+        ยังไม่มีงานที่รับ
+      </div>
+
+      <div
+        id="currentJob"
+        class="job-box"
+      >
+
+        <div class="job-row">
+          <div class="job-key">Agent</div>
+          <div id="jobAgent" class="job-value">-</div>
+        </div>
+
+        <div class="job-row">
+          <div class="job-key">ชื่อไฟล์</div>
+          <div id="jobFilename" class="job-value">-</div>
+        </div>
+
+        <div class="job-row">
+          <div class="job-key">Slip ID</div>
+          <div id="jobSlipId" class="job-value">-</div>
+        </div>
+
+        <div class="job-row">
+          <div class="job-key">File ID</div>
+          <div id="jobFileId" class="job-value">-</div>
+        </div>
+
+        <div class="job-row">
+          <div class="job-key">Subkey</div>
+          <div id="jobSubkey" class="job-value">-</div>
+        </div>
+
+        <div class="job-row">
+          <div class="job-key">สถานะ</div>
+          <div class="job-value">
+            <span
+              id="jobStatus"
+              class="badge"
+            >
+              -
+            </span>
+          </div>
+        </div>
+
+        <div class="actions">
+
+          <button
+            class="danger"
+            onclick="releaseCurrent()"
+          >
+            คืนโพยกลับ Queue
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <div
+        style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:10px;
+          margin-bottom:14px;
+        "
+      >
+        <h2 style="margin:0;">
+          Queue ทั้ง Workspace
+        </h2>
+
+        <button
+          class="secondary"
+          onclick="loadQueue()"
+        >
+          รีเฟรช
+        </button>
+      </div>
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>ลำดับ</th>
+              <th>A</th>
+              <th>ชื่อไฟล์</th>
+              <th>Slip ID</th>
+              <th>สถานะ</th>
+              <th>Subkey</th>
+              <th>เวลารับ</th>
+            </tr>
+          </thead>
+
+          <tbody id="queueRows">
+
+            <tr>
+              <td
+                colspan="7"
+                class="empty"
+              >
+                กำลังโหลด...
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    const SESSION_KEY =
+      't999_trial_workspace';
+
+    let sessionData = null;
+    let currentJob = null;
+
+
+    function getSession() {
+      try {
+        const raw =
+          sessionStorage.getItem(
+            SESSION_KEY
+          );
+
+        if (!raw) {
+          return null;
+        }
+
+        return JSON.parse(raw);
+      }
+      catch (error) {
+        return null;
+      }
+    }
+
+
+    function setStatus(
+      id,
+      message,
+      isError = false
+    ) {
+      const el =
+        document.getElementById(id);
+
+      el.textContent =
+        message || '';
+
+      el.className =
+        isError
+          ? 'status error'
+          : 'status';
+    }
+
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+
+    function formatDate(value) {
+      if (!value) {
+        return '';
+      }
+
+      return new Date(value)
+        .toLocaleString(
+          'th-TH',
+          {
+            timeZone:
+              'Asia/Bangkok'
+          }
+        );
+    }
+
+
+    function renderCurrentJob() {
+
+      const empty =
+        document.getElementById(
+          'currentJobEmpty'
+        );
+
+      const box =
+        document.getElementById(
+          'currentJob'
+        );
+
+      if (!currentJob) {
+
+        empty.style.display =
+          'block';
+
+        box.classList.remove(
+          'show'
+        );
+
+        return;
+      }
+
+
+      empty.style.display =
+        'none';
+
+      box.classList.add(
+        'show'
+      );
+
+
+      document.getElementById(
+        'jobAgent'
+      ).textContent =
+        currentJob.agentCode || '-';
+
+
+      document.getElementById(
+        'jobFilename'
+      ).textContent =
+        currentJob.sourceFilename || '-';
+
+
+      document.getElementById(
+        'jobSlipId'
+      ).textContent =
+        currentJob.slipId || '-';
+
+
+      document.getElementById(
+        'jobFileId'
+      ).textContent =
+        currentJob.fileId || '-';
+
+
+      document.getElementById(
+        'jobSubkey'
+      ).textContent =
+        currentJob.assignedSubkey || '-';
+
+
+      document.getElementById(
+        'jobStatus'
+      ).textContent =
+        currentJob.queueStatus || '-';
+    }
+
+
+    async function claimNext() {
+
+      const subkeyCode =
+        document.getElementById(
+          'subkeyCode'
+        )
+        .value
+        .trim()
+        .toUpperCase();
+
+      if (!subkeyCode) {
+
+        setStatus(
+          'claimStatus',
+          'กรุณากรอกรหัส Subkey',
+          true
+        );
+
+        return;
+      }
+
+
+      if (currentJob) {
+
+        setStatus(
+          'claimStatus',
+          'Subkey นี้มีงานที่กำลังถืออยู่แล้ว กรุณาคืนหรือทำงานเดิมให้เสร็จก่อน',
+          true
+        );
+
+        return;
+      }
+
+
+      setStatus(
+        'claimStatus',
+        'กำลังรับงานจาก Queue...'
+      );
+
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/queue',
+            {
+              method: 'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body:
+                JSON.stringify({
+                  action:
+                    'CLAIM_NEXT',
+
+                  workspaceId:
+                    sessionData.workspaceId,
+
+                  subkeyCode
+                })
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'รับงานไม่สำเร็จ'
+          );
+        }
+
+
+        if (data.empty) {
+
+          setStatus(
+            'claimStatus',
+            'ไม่มีโพย WAITING ใน Queue'
+          );
+
+          await loadQueue();
+
+          return;
+        }
+
+
+        currentJob =
+          data.slip;
+
+
+        setStatus(
+          'claimStatus',
+
+          'รับงานสำเร็จ\n' +
+
+          'A: ' +
+          currentJob.agentCode +
+          '\n' +
+
+          'Slip ID: ' +
+          currentJob.slipId
+        );
+
+
+        renderCurrentJob();
+
+        await loadQueue();
+
+      }
+      catch (error) {
+
+        setStatus(
+          'claimStatus',
+          error.message,
+          true
+        );
+
+      }
+
+    }
+
+
+    async function releaseCurrent() {
+
+      if (!currentJob) {
+        return;
+      }
+
+
+      const subkeyCode =
+        document.getElementById(
+          'subkeyCode'
+        )
+        .value
+        .trim()
+        .toUpperCase();
+
+
+      if (!subkeyCode) {
+
+        setStatus(
+          'claimStatus',
+          'ไม่พบรหัส Subkey',
+          true
+        );
+
+        return;
+      }
+
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/queue',
+            {
+              method: 'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body:
+                JSON.stringify({
+                  action:
+                    'RELEASE',
+
+                  workspaceId:
+                    sessionData.workspaceId,
+
+                  subkeyCode,
+
+                  slipId:
+                    currentJob.slipId
+                })
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'คืนโพยไม่สำเร็จ'
+          );
+        }
+
+
+        currentJob =
+          null;
+
+
+        renderCurrentJob();
+
+
+        setStatus(
+          'claimStatus',
+          'คืนโพยกลับ Queue แล้ว'
+        );
+
+
+        await loadQueue();
+
+      }
+      catch (error) {
+
+        setStatus(
+          'claimStatus',
+          error.message,
+          true
+        );
+
+      }
+
+    }
+
+
+    async function loadQueue() {
+
+      const rows =
+        document.getElementById(
+          'queueRows'
+        );
+
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/queue?workspaceId=' +
+            encodeURIComponent(
+              sessionData.workspaceId
+            )
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'โหลด Queue ไม่สำเร็จ'
+          );
+        }
+
+
+        const counts =
+          data.counts || {};
+
+
+        document.getElementById(
+          'countTotal'
+        ).textContent =
+          counts.total || 0;
+
+
+        document.getElementById(
+          'countWaiting'
+        ).textContent =
+          counts.waiting || 0;
+
+
+        document.getElementById(
+          'countInProgress'
+        ).textContent =
+          counts.inProgress || 0;
+
+
+        document.getElementById(
+          'countCompleted'
+        ).textContent =
+          counts.completed || 0;
+
+
+        if (
+          !data.queue ||
+          !data.queue.length
+        ) {
+
+          rows.innerHTML =
+            '<tr>' +
+            '<td colspan="7" class="empty">' +
+            'ยังไม่มีงานใน Queue' +
+            '</td>' +
+            '</tr>';
+
+          return;
+        }
+
+
+        rows.innerHTML =
+          data.queue
+          .map(
+            (job, index) => `
+              <tr>
+
+                <td>
+                  ${index + 1}
+                </td>
+
+                <td>
+                  <strong>
+                    ${escapeHtml(
+                      job.agentCode
+                    )}
+                  </strong>
+                </td>
+
+                <td>
+                  ${escapeHtml(
+                    job.sourceFilename
+                  )}
+                </td>
+
+                <td>
+                  ${escapeHtml(
+                    job.slipId
+                  )}
+                </td>
+
+                <td>
+                  <span class="badge">
+                    ${escapeHtml(
+                      job.queueStatus
+                    )}
+                  </span>
+                </td>
+
+                <td>
+                  ${escapeHtml(
+                    job.assignedSubkey || '-'
+                  )}
+                </td>
+
+                <td>
+                  ${formatDate(
+                    job.receivedAt
+                  )}
+                </td>
+
+              </tr>
+            `
+          )
+          .join('');
+
+      }
+      catch (error) {
+
+        rows.innerHTML =
+          '<tr>' +
+          '<td colspan="7" class="empty">' +
+          escapeHtml(
+            error.message
+          ) +
+          '</td>' +
+          '</tr>';
+
+      }
+
+    }
+
+
+    function init() {
+
+      sessionData =
+        getSession();
+
+
+      if (
+        !sessionData ||
+        !sessionData.workspaceId
+      ) {
+
+        location.href =
+          '/trial-placeholder.html';
+
+        return;
+      }
+
+
+      document.getElementById(
+        'workspaceId'
+      ).textContent =
+        sessionData.workspaceId;
+
+
+      document.getElementById(
+        'customerName'
+      ).textContent =
+        sessionData.customerName ||
+        sessionData.trialCode ||
+        '';
+
+
+      loadQueue();
+
+    }
+
+
+    init();
+
+  </script>
+
+</body>
+</html>
