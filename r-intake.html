@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>T999 R Intake</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family:
+        Arial,
+        "Noto Sans Thai",
+        sans-serif;
+      background: #090b0e;
+      color: #ffffff;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .workspace {
+      color: #9aa3ad;
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .card {
+      background: #14181e;
+      border: 1px solid #2a3038;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+    }
+
+    .subtitle {
+      color: #9ba4af;
+      margin-bottom: 22px;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: #b9c1ca;
+      font-size: 14px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      height: 48px;
+      border-radius: 9px;
+      border: 1px solid #353c45;
+      background: #0e1115;
+      color: #ffffff;
+      padding: 0 12px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #7f8996;
+    }
+
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 11px 16px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: #ffffff;
+      color: #111111;
+    }
+
+    .secondary {
+      background: #2a3038;
+      color: #ffffff;
+    }
+
+    .danger {
+      background: #572a2a;
+      color: #ffffff;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .status {
+      margin-top: 14px;
+      min-height: 22px;
+      color: #aeb7c1;
+      white-space: pre-wrap;
+    }
+
+    .status.error {
+      color: #ff8f8f;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 850px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 11px 10px;
+      border-bottom: 1px solid #2a3038;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 13px;
+      color: #929ba6;
+    }
+
+    td {
+      font-size: 14px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #243126;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 28px;
+      color: #7f8893;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .small {
+      color: #7f8994;
+      font-size: 12px;
+      margin-top: 7px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 800px) {
+      .grid,
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      .wrap {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrap">
+
+    <div class="topbar">
+
+      <div class="brand">
+        T999 • R Intake
+      </div>
+
+      <div class="workspace">
+        <div id="customerName">
+          -
+        </div>
+
+        <strong id="workspaceId">
+          -
+        </strong>
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h1>
+        R รับรูปเข้า A
+      </h1>
+
+      <div class="subtitle">
+        จุดเริ่มต้นของงานทั้งหมด
+        — เลือก Agent ก่อน แล้วรับรูปเข้าแฟ้ม A
+        จากนั้นระบบจะสร้าง Slip ID และ File ID ให้ทันที
+      </div>
+
+      <div class="grid">
+
+        <div>
+          <label>
+            Agent
+          </label>
+
+          <select id="agentSelect">
+            <option value="">
+              กำลังโหลด...
+            </option>
+          </select>
+        </div>
+
+
+        <div>
+          <label>
+            ชื่อไฟล์รูป
+          </label>
+
+          <input
+            id="sourceFilename"
+            type="text"
+            placeholder="เช่น IMG_00123.jpg"
+          />
+
+          <div class="small">
+            ตอนนี้ทดสอบด้วยชื่อไฟล์ก่อน
+            รูปจริงยังไม่อัปโหลดขึ้น Cloud
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="receiveSlip()"
+        >
+          รับรูปเข้า A
+        </button>
+
+        <button
+          class="secondary"
+          onclick="loadSlips()"
+        >
+          รีเฟรชรายการ
+        </button>
+
+      </div>
+
+      <div
+        id="intakeStatus"
+        class="status"
+      ></div>
+
+    </div>
+
+
+    <div class="split">
+
+      <div class="card">
+
+        <h2>
+          เพิ่ม Agent
+        </h2>
+
+        <div>
+
+          <label>
+            รหัส Agent
+          </label>
+
+          <input
+            id="newAgentCode"
+            type="text"
+            placeholder="เช่น A01"
+          />
+
+        </div>
+
+        <div style="margin-top:12px;">
+
+          <label>
+            ชื่อ Agent
+          </label>
+
+          <input
+            id="newAgentName"
+            type="text"
+            placeholder="เช่น ร้านสมชาย"
+          />
+
+        </div>
+
+        <div class="actions">
+
+          <button
+            class="secondary"
+            onclick="addAgent()"
+          >
+            เพิ่ม Agent
+          </button>
+
+        </div>
+
+        <div
+          id="agentStatus"
+          class="status"
+        ></div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h2>
+          สถานะระบบ
+        </h2>
+
+        <div
+          style="
+            color:#a8b1bb;
+            line-height:1.9;
+          "
+        >
+          <div>
+            1. R เลือก A
+          </div>
+
+          <div>
+            2. รับชื่อไฟล์รูป
+          </div>
+
+          <div>
+            3. ระบบสร้าง Slip ID + File ID
+          </div>
+
+          <div>
+            4. เข้าคิว WAITING ทันที
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <div
+        style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:10px;
+          margin-bottom:14px;
+        "
+      >
+
+        <h2 style="margin:0;">
+          โพยที่ R รับเข้าแล้ว
+        </h2>
+
+        <button
+          class="secondary"
+          onclick="loadSlips()"
+        >
+          รีเฟรช
+        </button>
+
+      </div>
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>ลำดับ</th>
+              <th>A</th>
+              <th>ชื่อไฟล์</th>
+              <th>Slip ID</th>
+              <th>File ID</th>
+              <th>สถานะ</th>
+              <th>เวลารับ</th>
+            </tr>
+          </thead>
+
+          <tbody id="slipRows">
+
+            <tr>
+              <td
+                colspan="7"
+                class="empty"
+              >
+                กำลังโหลด...
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    const SESSION_KEY =
+      't999_trial_workspace';
+
+    let sessionData =
+      null;
+
+
+    function getSession() {
+
+      try {
+
+        const raw =
+          sessionStorage.getItem(
+            SESSION_KEY
+          );
+
+        if (!raw) {
+          return null;
+        }
+
+        return JSON.parse(raw);
+
+      }
+      catch (error) {
+
+        return null;
+
+      }
+
+    }
+
+
+    function setStatus(
+      id,
+      message,
+      isError = false
+    ) {
+
+      const el =
+        document.getElementById(id);
+
+      el.textContent =
+        message || '';
+
+      el.className =
+        isError
+          ? 'status error'
+          : 'status';
+
+    }
+
+
+    async function loadAgents() {
+
+      const select =
+        document.getElementById(
+          'agentSelect'
+        );
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/agents?workspaceId=' +
+            encodeURIComponent(
+              sessionData.workspaceId
+            )
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+            'โหลด Agent ไม่สำเร็จ'
+          );
+        }
+
+        const enabledAgents =
+          (data.agents || [])
+          .filter(
+            (agent) =>
+              agent.enabled
+          );
+
+        if (!enabledAgents.length) {
+
+          select.innerHTML =
+            '<option value="">' +
+            'ยังไม่มี Agent' +
+            '</option>';
+
+          return;
+
+        }
+
+        select.innerHTML =
+          '<option value="">' +
+          'เลือก Agent' +
+          '</option>' +
+
+          enabledAgents
+          .map(
+            (agent) => {
+
+              const label =
+                agent.agentName
+                  ? `${agent.agentCode} • ${agent.agentName}`
+                  : agent.agentCode;
+
+              return `
+                <option
+                  value="${escapeHtml(
+                    agent.agentCode
+                  )}"
+                >
+                  ${escapeHtml(label)}
+                </option>
+              `;
+
+            }
+          )
+          .join('');
+
+      }
+      catch (error) {
+
+        select.innerHTML =
+          '<option value="">' +
+          'โหลด Agent ไม่สำเร็จ' +
+          '</option>';
+
+      }
+
+    }
+
+
+    async function addAgent() {
+
+      const code =
+        document.getElementById(
+          'newAgentCode'
+        )
+        .value
+        .trim()
+        .toUpperCase();
+
+      const name =
+        document.getElementById(
+          'newAgentName'
+        )
+        .value
+        .trim();
+
+      if (!code) {
+
+        setStatus(
+          'agentStatus',
+          'กรุณากรอกรหัส Agent',
+          true
+        );
+
+        return;
+
+      }
+
+      setStatus(
+        'agentStatus',
+        'กำลังเพิ่ม Agent...'
+      );
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/agents',
+            {
+              method: 'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body:
+                JSON.stringify({
+                  workspaceId:
+                    sessionData.workspaceId,
+
+                  agentCode:
+                    code,
+
+                  agentName:
+                    name
+                })
+            }
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'เพิ่ม Agent ไม่สำเร็จ'
+          );
+
+        }
+
+        setStatus(
+          'agentStatus',
+          'เพิ่ม Agent สำเร็จ'
+        );
+
+        document.getElementById(
+          'newAgentCode'
+        ).value = '';
+
+        document.getElementById(
+          'newAgentName'
+        ).value = '';
+
+        await loadAgents();
+
+      }
+      catch (error) {
+
+        setStatus(
+          'agentStatus',
+          error.message,
+          true
+        );
+
+      }
+
+    }
+
+
+    async function receiveSlip() {
+
+      const agentCode =
+        document.getElementById(
+          'agentSelect'
+        ).value;
+
+      const sourceFilename =
+        document.getElementById(
+          'sourceFilename'
+        )
+        .value
+        .trim();
+
+      if (!agentCode) {
+
+        setStatus(
+          'intakeStatus',
+          'กรุณาเลือก Agent',
+          true
+        );
+
+        return;
+
+      }
+
+      if (!sourceFilename) {
+
+        setStatus(
+          'intakeStatus',
+          'กรุณากรอกชื่อไฟล์รูป',
+          true
+        );
+
+        return;
+
+      }
+
+      setStatus(
+        'intakeStatus',
+        'กำลังรับรูปเข้า A...'
+      );
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/intake',
+            {
+              method: 'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body:
+                JSON.stringify({
+                  workspaceId:
+                    sessionData.workspaceId,
+
+                  agentCode,
+
+                  sourceFilename
+                })
+            }
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'รับรูปไม่สำเร็จ'
+          );
+
+        }
+
+        setStatus(
+          'intakeStatus',
+
+          'รับรูปเข้า A สำเร็จ\n' +
+
+          'Slip ID: ' +
+          data.slip.slipId +
+          '\n' +
+
+          'File ID: ' +
+          data.slip.fileId
+        );
+
+        document.getElementById(
+          'sourceFilename'
+        ).value = '';
+
+        await loadSlips();
+
+      }
+      catch (error) {
+
+        setStatus(
+          'intakeStatus',
+          error.message,
+          true
+        );
+
+      }
+
+    }
+
+
+    async function loadSlips() {
+
+      const rows =
+        document.getElementById(
+          'slipRows'
+        );
+
+      rows.innerHTML =
+        '<tr>' +
+        '<td colspan="7" class="empty">' +
+        'กำลังโหลด...' +
+        '</td>' +
+        '</tr>';
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/intake?workspaceId=' +
+            encodeURIComponent(
+              sessionData.workspaceId
+            )
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'โหลดรายการไม่สำเร็จ'
+          );
+
+        }
+
+        if (
+          !data.slips ||
+          !data.slips.length
+        ) {
+
+          rows.innerHTML =
+            '<tr>' +
+            '<td colspan="7" class="empty">' +
+            'ยังไม่มีโพยที่รับเข้า' +
+            '</td>' +
+            '</tr>';
+
+          return;
+
+        }
+
+        rows.innerHTML =
+          data.slips
+          .map(
+            (slip, index) => {
+
+              return `
+                <tr>
+
+                  <td>
+                    ${index + 1}
+                  </td>
+
+                  <td>
+                    <strong>
+                      ${escapeHtml(
+                        slip.agentCode
+                      )}
+                    </strong>
+                  </td>
+
+                  <td>
+                    ${escapeHtml(
+                      slip.sourceFilename
+                    )}
+                  </td>
+
+                  <td>
+                    ${escapeHtml(
+                      slip.slipId
+                    )}
+                  </td>
+
+                  <td>
+                    ${escapeHtml(
+                      slip.fileId
+                    )}
+                  </td>
+
+                  <td>
+                    <span class="badge">
+                      ${escapeHtml(
+                        slip.queueStatus
+                      )}
+                    </span>
+                  </td>
+
+                  <td>
+                    ${formatDate(
+                      slip.receivedAt
+                    )}
+                  </td>
+
+                </tr>
+              `;
+
+            }
+          )
+          .join('');
+
+      }
+      catch (error) {
+
+        rows.innerHTML =
+          '<tr>' +
+          '<td colspan="7" class="empty">' +
+          escapeHtml(
+            error.message
+          ) +
+          '</td>' +
+          '</tr>';
+
+      }
+
+    }
+
+
+    function formatDate(value) {
+
+      if (!value) {
+        return '';
+      }
+
+      return new Date(value)
+        .toLocaleString(
+          'th-TH',
+          {
+            timeZone:
+              'Asia/Bangkok'
+          }
+        );
+
+    }
+
+
+    function escapeHtml(value) {
+
+      return String(
+        value || ''
+      )
+      .replace(
+        /&/g,
+        '&amp;'
+      )
+      .replace(
+        /</g,
+        '&lt;'
+      )
+      .replace(
+        />/g,
+        '&gt;'
+      )
+      .replace(
+        /"/g,
+        '&quot;'
+      )
+      .replace(
+        /'/g,
+        '&#039;'
+      );
+
+    }
+
+
+    function init() {
+
+      sessionData =
+        getSession();
+
+      if (
+        !sessionData ||
+        !sessionData.workspaceId
+      ) {
+
+        location.href =
+          '/trial-placeholder.html';
+
+        return;
+
+      }
+
+      document.getElementById(
+        'workspaceId'
+      ).textContent =
+        sessionData.workspaceId;
+
+      document.getElementById(
+        'customerName'
+      ).textContent =
+        sessionData.customerName ||
+        sessionData.trialCode ||
+        '';
+
+      loadAgents();
+
+      loadSlips();
+
+    }
+
+
+    init();
+
+  </script>
+
+</body>
+</html>
