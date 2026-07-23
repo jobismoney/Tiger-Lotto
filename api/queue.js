@@ -345,13 +345,6 @@ export default async function handler(req, res) {
 
         // =====================================================
         // ATOMIC CLAIM
-        //
-        // 1. ล็อกตาม Workspace + Draw + Subkey
-        // 2. เช็กงานเดิมของ S
-        // 3. ถ้ามี คืนงานเดิม
-        // 4. ถ้าไม่มี ค่อยหยิบ WAITING
-        //
-        // ทั้งหมดอยู่ใน SQL statement เดียว
         // =====================================================
         const result = await sql`
 
@@ -534,9 +527,6 @@ export default async function handler(req, res) {
         `;
 
 
-        // -----------------------------------------------------
-        // ไม่มีงานเดิม และไม่มี WAITING
-        // -----------------------------------------------------
         if (!result.length) {
 
           return res.status(200).json({
@@ -575,6 +565,124 @@ export default async function handler(req, res) {
 
           slip:
             mapSlip(row)
+        });
+      }
+
+
+      // =======================================================
+      // COMPLETE
+      // S จบใบ
+      //
+      // IN_PROGRESS -> COMPLETED
+      //
+      // สำคัญ:
+      // - เก็บ assigned_subkey ไว้เป็นประวัติว่าใครคีย์
+      // - เก็บ claimed_at เดิม
+      // - บันทึก completed_at
+      // - S จะไม่มี IN_PROGRESS แล้ว จึงรับใบถัดไปได้
+      // =======================================================
+      if (command === 'COMPLETE') {
+
+        if (!targetSlipId) {
+          return res.status(400).json({
+            ok: false,
+            message:
+              'ไม่พบ Slip ID'
+          });
+        }
+
+
+        if (!draw) {
+          return res.status(400).json({
+            ok: false,
+            message:
+              'ไม่พบงวด'
+          });
+        }
+
+
+        if (!subkey) {
+          return res.status(400).json({
+            ok: false,
+            message:
+              'ไม่พบรหัส Subkey'
+          });
+        }
+
+
+        const completed = await sql`
+          update intake_slips
+
+          set
+            queue_status =
+              'COMPLETED',
+
+            completed_at =
+              now(),
+
+            updated_at =
+              now()
+
+          where workspace_id =
+            ${workspace}
+
+            and slip_id =
+              ${targetSlipId}
+
+            and upper(
+              coalesce(
+                draw_code,
+                ''
+              )
+            ) = ${draw}
+
+            and queue_status =
+              'IN_PROGRESS'
+
+            and upper(
+              coalesce(
+                assigned_subkey,
+                ''
+              )
+            ) = ${subkey}
+
+          returning
+            id,
+            workspace_id,
+            slip_id,
+            file_id,
+            source_filename,
+            agent_code,
+            draw_code,
+            queue_status,
+            assigned_subkey,
+            received_at,
+            claimed_at,
+            completed_at
+        `;
+
+
+        if (!completed.length) {
+
+          return res.status(409).json({
+            ok: false,
+
+            message:
+              'ไม่สามารถจบใบนี้ได้ หรือโพยไม่ได้อยู่กับ Subkey/งวดนี้'
+          });
+        }
+
+
+        return res.status(200).json({
+          ok: true,
+
+          message:
+            'จบใบสำเร็จ',
+
+          slip:
+            mapSlip(
+              completed[0]
+            )
         });
       }
 
@@ -705,7 +813,6 @@ export default async function handler(req, res) {
     );
 
 
-    // Unique Guard ฝั่งฐานข้อมูล
     if (error?.code === '23505') {
 
       return res.status(409).json({
