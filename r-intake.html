@@ -59,6 +59,10 @@
       font-size: 26px;
     }
 
+    h2 {
+      margin-top: 0;
+    }
+
     .subtitle {
       color: #9ba4af;
       margin-bottom: 22px;
@@ -145,7 +149,7 @@
 
     table {
       width: 100%;
-      min-width: 850px;
+      min-width: 980px;
       border-collapse: collapse;
     }
 
@@ -240,11 +244,29 @@
 
       <div class="subtitle">
         จุดเริ่มต้นของงานทั้งหมด
-        — เลือก Agent ก่อน แล้วรับรูปเข้าแฟ้ม A
+        — เลือกงวด ACTIVE ที่ M เปิดไว้
+        เลือก Agent แล้วรับรูปเข้าแฟ้ม A
         จากนั้นระบบจะสร้าง Slip ID และ File ID ให้ทันที
       </div>
 
       <div class="grid">
+
+        <div>
+          <label>
+            งวดที่เปิดใช้งาน
+          </label>
+
+          <select id="drawSelect">
+            <option value="">
+              กำลังโหลด...
+            </option>
+          </select>
+
+          <div class="small">
+            แสดงเฉพาะงวดสถานะ ACTIVE ของ Workspace นี้
+          </div>
+        </div>
+
 
         <div>
           <label>
@@ -373,19 +395,27 @@
           "
         >
           <div>
-            1. R เลือก A
+            1. M เปิดงวด
           </div>
 
           <div>
-            2. รับชื่อไฟล์รูป
+            2. R เลือกงวด
           </div>
 
           <div>
-            3. ระบบสร้าง Slip ID + File ID
+            3. R เลือก A
           </div>
 
           <div>
-            4. เข้าคิว WAITING ทันที
+            4. รับชื่อไฟล์รูป
+          </div>
+
+          <div>
+            5. ระบบสร้าง Slip ID + File ID
+          </div>
+
+          <div>
+            6. เข้าคิว WAITING ทันที
           </div>
 
         </div>
@@ -428,6 +458,7 @@
           <thead>
             <tr>
               <th>ลำดับ</th>
+              <th>งวด</th>
               <th>A</th>
               <th>ชื่อไฟล์</th>
               <th>Slip ID</th>
@@ -441,7 +472,7 @@
 
             <tr>
               <td
-                colspan="7"
+                colspan="8"
                 class="empty"
               >
                 กำลังโหลด...
@@ -509,6 +540,108 @@
         isError
           ? 'status error'
           : 'status';
+
+    }
+
+
+    async function loadDraws() {
+
+      const select =
+        document.getElementById(
+          'drawSelect'
+        );
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/draws?workspaceId=' +
+            encodeURIComponent(
+              sessionData.workspaceId
+            ) +
+            '&status=ACTIVE'
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'โหลดงวดไม่สำเร็จ'
+          );
+
+        }
+
+        const draws =
+          data.draws || [];
+
+
+        if (!draws.length) {
+
+          select.innerHTML =
+            '<option value="">' +
+            'ยังไม่มีงวด ACTIVE' +
+            '</option>';
+
+          return;
+
+        }
+
+
+        select.innerHTML =
+          '<option value="">' +
+          'เลือกงวด' +
+          '</option>' +
+
+          draws
+          .map(
+            (draw) => {
+
+              const market =
+                draw.marketCode === 'TH'
+                  ? 'ไทย'
+                  : draw.marketCode === 'LA'
+                    ? 'ลาว'
+                    : draw.marketCode;
+
+              const label =
+                draw.drawName
+                  ? `${market} • ${draw.drawName}`
+                  : `${market} • ${draw.drawCode}`;
+
+              return `
+                <option
+                  value="${escapeHtml(
+                    draw.drawCode
+                  )}"
+                >
+                  ${escapeHtml(label)}
+                </option>
+              `;
+
+            }
+          )
+          .join('');
+
+
+        if (draws.length === 1) {
+
+          select.value =
+            draws[0].drawCode;
+
+        }
+
+      }
+      catch (error) {
+
+        select.innerHTML =
+          '<option value="">' +
+          'โหลดงวดไม่สำเร็จ' +
+          '</option>';
+
+      }
 
     }
 
@@ -703,10 +836,17 @@
 
     async function receiveSlip() {
 
+      const drawCode =
+        document.getElementById(
+          'drawSelect'
+        ).value;
+
+
       const agentCode =
         document.getElementById(
           'agentSelect'
         ).value;
+
 
       const sourceFilename =
         document.getElementById(
@@ -714,6 +854,20 @@
         )
         .value
         .trim();
+
+
+      if (!drawCode) {
+
+        setStatus(
+          'intakeStatus',
+          'กรุณาเลือกงวด',
+          true
+        );
+
+        return;
+
+      }
+
 
       if (!agentCode) {
 
@@ -727,6 +881,7 @@
 
       }
 
+
       if (!sourceFilename) {
 
         setStatus(
@@ -739,10 +894,12 @@
 
       }
 
+
       setStatus(
         'intakeStatus',
         'กำลังรับรูปเข้า A...'
       );
+
 
       try {
 
@@ -762,6 +919,8 @@
                   workspaceId:
                     sessionData.workspaceId,
 
+                  drawCode,
+
                   agentCode,
 
                   sourceFilename
@@ -769,8 +928,10 @@
             }
           );
 
+
         const data =
           await response.json();
+
 
         if (!response.ok) {
 
@@ -781,10 +942,15 @@
 
         }
 
+
         setStatus(
           'intakeStatus',
 
           'รับรูปเข้า A สำเร็จ\n' +
+
+          'งวด: ' +
+          data.slip.drawCode +
+          '\n' +
 
           'Slip ID: ' +
           data.slip.slipId +
@@ -794,9 +960,11 @@
           data.slip.fileId
         );
 
+
         document.getElementById(
           'sourceFilename'
         ).value = '';
+
 
         await loadSlips();
 
@@ -821,25 +989,48 @@
           'slipRows'
         );
 
+
       rows.innerHTML =
         '<tr>' +
-        '<td colspan="7" class="empty">' +
+        '<td colspan="8" class="empty">' +
         'กำลังโหลด...' +
         '</td>' +
         '</tr>';
 
+
       try {
 
-        const response =
-          await fetch(
-            '/api/intake?workspaceId=' +
-            encodeURIComponent(
-              sessionData.workspaceId
-            )
+        const drawCode =
+          document.getElementById(
+            'drawSelect'
+          ).value;
+
+
+        let url =
+          '/api/intake?workspaceId=' +
+          encodeURIComponent(
+            sessionData.workspaceId
           );
+
+
+        if (drawCode) {
+
+          url +=
+            '&drawCode=' +
+            encodeURIComponent(
+              drawCode
+            );
+
+        }
+
+
+        const response =
+          await fetch(url);
+
 
         const data =
           await response.json();
+
 
         if (!response.ok) {
 
@@ -850,6 +1041,7 @@
 
         }
 
+
         if (
           !data.slips ||
           !data.slips.length
@@ -857,7 +1049,7 @@
 
           rows.innerHTML =
             '<tr>' +
-            '<td colspan="7" class="empty">' +
+            '<td colspan="8" class="empty">' +
             'ยังไม่มีโพยที่รับเข้า' +
             '</td>' +
             '</tr>';
@@ -865,6 +1057,7 @@
           return;
 
         }
+
 
         rows.innerHTML =
           data.slips
@@ -876,6 +1069,12 @@
 
                   <td>
                     ${index + 1}
+                  </td>
+
+                  <td>
+                    ${escapeHtml(
+                      slip.drawCode || '-'
+                    )}
                   </td>
 
                   <td>
@@ -930,7 +1129,7 @@
 
         rows.innerHTML =
           '<tr>' +
-          '<td colspan="7" class="empty">' +
+          '<td colspan="8" class="empty">' +
           escapeHtml(
             error.message
           ) +
@@ -994,6 +1193,7 @@
       sessionData =
         getSession();
 
+
       if (
         !sessionData ||
         !sessionData.workspaceId
@@ -1006,10 +1206,12 @@
 
       }
 
+
       document.getElementById(
         'workspaceId'
       ).textContent =
         sessionData.workspaceId;
+
 
       document.getElementById(
         'customerName'
@@ -1018,11 +1220,24 @@
         sessionData.trialCode ||
         '';
 
+
+      loadDraws()
+        .then(
+          () => loadSlips()
+        );
+
+
       loadAgents();
 
-      loadSlips();
-
     }
+
+
+    document.getElementById(
+      'drawSelect'
+    ).addEventListener(
+      'change',
+      loadSlips
+    );
 
 
     init();
