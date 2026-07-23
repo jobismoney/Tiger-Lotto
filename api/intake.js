@@ -29,12 +29,6 @@ export default async function handler(req, res) {
     // =========================================================
     // POST
     // R รับรูปเข้า A ภายใต้งวดที่เลือก
-    //
-    // สร้างพร้อมกัน:
-    // 1. file_assets
-    // 2. intake_slips
-    //
-    // ใช้ file_id เดียวกันตลอดสายงาน
     // =========================================================
     if (req.method === 'POST') {
 
@@ -43,14 +37,11 @@ export default async function handler(req, res) {
         agentCode,
         sourceFilename,
         drawCode,
-
-        // ข้อมูลไฟล์จริงจะถูกส่งมาภายหลังจาก Bridge
         originLocation,
         mimeType,
         fileSizeBytes,
         checksumSha256
       } = req.body || {};
-
 
       const workspace =
         clean(workspaceId);
@@ -80,7 +71,6 @@ export default async function handler(req, res) {
         fileSizeBytes === ''
           ? null
           : Number(fileSizeBytes);
-
 
       if (!workspace) {
         return res.status(400).json({
@@ -123,7 +113,6 @@ export default async function handler(req, res) {
         });
       }
 
-
       // =======================================================
       // ตรวจ Workspace
       // =======================================================
@@ -138,7 +127,6 @@ export default async function handler(req, res) {
         limit 1
       `;
 
-
       if (!trialRows.length) {
         return res.status(404).json({
           ok: false,
@@ -146,13 +134,11 @@ export default async function handler(req, res) {
         });
       }
 
-
       const trial =
         trialRows[0];
 
       const now =
         new Date();
-
 
       if (trial.status !== 'ACTIVE') {
         return res.status(403).json({
@@ -160,7 +146,6 @@ export default async function handler(req, res) {
           message: 'Workspace นี้ถูกปิดใช้งาน'
         });
       }
-
 
       if (
         now <
@@ -173,7 +158,6 @@ export default async function handler(req, res) {
         });
       }
 
-
       if (
         now >=
         new Date(trial.expires_at)
@@ -184,7 +168,6 @@ export default async function handler(req, res) {
             'Workspace นี้หมดอายุแล้ว'
         });
       }
-
 
       // =======================================================
       // ตรวจงวด
@@ -204,7 +187,6 @@ export default async function handler(req, res) {
         limit 1
       `;
 
-
       if (!drawRows.length) {
         return res.status(404).json({
           ok: false,
@@ -212,10 +194,8 @@ export default async function handler(req, res) {
         });
       }
 
-
       const drawRow =
         drawRows[0];
-
 
       if (drawRow.status !== 'ACTIVE') {
         return res.status(403).json({
@@ -224,7 +204,6 @@ export default async function handler(req, res) {
             'งวดนี้ไม่ได้อยู่ในสถานะ ACTIVE'
         });
       }
-
 
       if (
         drawRow.opens_at &&
@@ -238,7 +217,6 @@ export default async function handler(req, res) {
         });
       }
 
-
       if (
         drawRow.closes_at &&
         now >=
@@ -250,7 +228,6 @@ export default async function handler(req, res) {
             'งวดนี้ถึงเวลาปิดแล้ว'
         });
       }
-
 
       // =======================================================
       // ตรวจ Agent
@@ -267,7 +244,6 @@ export default async function handler(req, res) {
         limit 1
       `;
 
-
       if (!agentRows.length) {
         return res.status(404).json({
           ok: false,
@@ -275,7 +251,6 @@ export default async function handler(req, res) {
             'ไม่พบ Agent นี้ใน Workspace'
         });
       }
-
 
       if (!agentRows[0].enabled) {
         return res.status(403).json({
@@ -285,9 +260,8 @@ export default async function handler(req, res) {
         });
       }
 
-
       // =======================================================
-      // สร้าง Slip ID + File ID ที่ไม่ซ้ำ
+      // สร้าง Slip ID + File ID
       // =======================================================
       let slipId =
         makeId('SLIP');
@@ -295,11 +269,9 @@ export default async function handler(req, res) {
       let fileId =
         makeId('FILE');
 
-
       let duplicate =
         await sql`
-          select
-            1
+          select 1
           from intake_slips
           where workspace_id = ${workspace}
             and (
@@ -309,15 +281,13 @@ export default async function handler(req, res) {
 
           union all
 
-          select
-            1
+          select 1
           from file_assets
           where workspace_id = ${workspace}
             and file_id = ${fileId}
 
           limit 1
         `;
-
 
       while (duplicate.length) {
 
@@ -327,11 +297,9 @@ export default async function handler(req, res) {
         fileId =
           makeId('FILE');
 
-
         duplicate =
           await sql`
-            select
-              1
+            select 1
             from intake_slips
             where workspace_id = ${workspace}
               and (
@@ -341,8 +309,7 @@ export default async function handler(req, res) {
 
             union all
 
-            select
-              1
+            select 1
             from file_assets
             where workspace_id = ${workspace}
               and file_id = ${fileId}
@@ -351,12 +318,8 @@ export default async function handler(req, res) {
           `;
       }
 
-
       // =======================================================
-      // บันทึก file_assets และ intake_slips แบบ Atomic
-      //
-      // หาก insert ส่วนใดล้มเหลว
-      // คำสั่งทั้งหมดจะไม่ถูกบันทึก
+      // บันทึก Asset + Slip แบบ Atomic
       // =======================================================
       const inserted = await sql`
         with new_asset as (
@@ -391,8 +354,7 @@ export default async function handler(req, res) {
             now()
           )
 
-          returning
-            file_id
+          returning file_id
         ),
 
         new_slip as (
@@ -436,20 +398,9 @@ export default async function handler(req, res) {
             received_at
         )
 
-        select
-          id,
-          workspace_id,
-          slip_id,
-          file_id,
-          source_filename,
-          agent_code,
-          draw_code,
-          queue_status,
-          received_at
-
+        select *
         from new_slip
       `;
-
 
       if (!inserted.length) {
         throw new Error(
@@ -457,16 +408,191 @@ export default async function handler(req, res) {
         );
       }
 
-
       const row =
         inserted[0];
-
 
       return res.status(201).json({
         ok: true,
 
         message:
           'รับรูปเข้า Agent สำเร็จ',
+
+        slip: {
+          id: row.id,
+          workspaceId: row.workspace_id,
+          slipId: row.slip_id,
+          fileId: row.file_id,
+          sourceFilename: row.source_filename,
+          agentCode: row.agent_code,
+          drawCode: row.draw_code,
+          queueStatus: row.queue_status,
+          receivedAt: row.received_at
+        },
+
+        asset: {
+          workspaceId:
+            row.workspace_id,
+
+          drawCode:
+            row.draw_code,
+
+          fileId:
+            row.file_id,
+
+          sourceFilename:
+            row.source_filename,
+
+          originRole: 'R',
+          status: 'AVAILABLE'
+        }
+      });
+    }
+
+
+    // =========================================================
+    // DELETE
+    // R ลบโพยที่ยัง WAITING เท่านั้น
+    //
+    // IMPORTANT:
+    // - ไม่ physical delete
+    // - เปลี่ยนเป็น CANCELLED
+    // - ถ้า S รับไปแล้วจะลบไม่ได้
+    // =========================================================
+    if (req.method === 'DELETE') {
+
+      const {
+        workspaceId,
+        slipId
+      } = req.body || {};
+
+      const workspace =
+        clean(workspaceId);
+
+      const slip =
+        clean(slipId);
+
+      if (!workspace) {
+        return res.status(400).json({
+          ok: false,
+          message: 'ไม่พบ Workspace'
+        });
+      }
+
+      if (!slip) {
+        return res.status(400).json({
+          ok: false,
+          message: 'ไม่พบ Slip ID'
+        });
+      }
+
+      // -------------------------------------------------------
+      // ตรวจรายการก่อน
+      // -------------------------------------------------------
+      const existingRows = await sql`
+        select
+          id,
+          slip_id,
+          file_id,
+          source_filename,
+          queue_status,
+          assigned_subkey
+        from intake_slips
+        where workspace_id = ${workspace}
+          and slip_id = ${slip}
+        limit 1
+      `;
+
+      if (!existingRows.length) {
+        return res.status(404).json({
+          ok: false,
+          message: 'ไม่พบโพยนี้'
+        });
+      }
+
+      const existing =
+        existingRows[0];
+
+      if (
+        existing.queue_status !== 'WAITING' ||
+        existing.assigned_subkey
+      ) {
+        return res.status(409).json({
+          ok: false,
+          message:
+            'ลบไม่ได้ เพราะโพยนี้ถูก S รับงานแล้วหรือไม่ได้อยู่ในสถานะ WAITING'
+        });
+      }
+
+      // -------------------------------------------------------
+      // Soft Cancel Slip + Asset แบบ Atomic
+      // -------------------------------------------------------
+      const cancelled = await sql`
+        with cancelled_slip as (
+
+          update intake_slips
+
+          set
+            queue_status = 'CANCELLED',
+            updated_at = now()
+
+          where workspace_id = ${workspace}
+            and slip_id = ${slip}
+            and queue_status = 'WAITING'
+            and assigned_subkey is null
+
+          returning
+            id,
+            workspace_id,
+            slip_id,
+            file_id,
+            source_filename,
+            queue_status
+        ),
+
+        cancelled_asset as (
+
+          update file_assets a
+
+          set
+            status = 'CANCELLED',
+            updated_at = now()
+
+          from cancelled_slip s
+
+          where a.workspace_id = s.workspace_id
+            and a.file_id = s.file_id
+
+          returning
+            a.file_id
+        )
+
+        select
+          id,
+          workspace_id,
+          slip_id,
+          file_id,
+          source_filename,
+          queue_status
+
+        from cancelled_slip
+      `;
+
+      if (!cancelled.length) {
+        return res.status(409).json({
+          ok: false,
+          message:
+            'ไม่สามารถลบโพยได้ สถานะอาจถูกเปลี่ยนโดยผู้ใช้อื่นแล้ว'
+        });
+      }
+
+      const row =
+        cancelled[0];
+
+      return res.status(200).json({
+        ok: true,
+
+        message:
+          'ลบโพยออกจาก Queue แล้ว',
 
         slip: {
           id:
@@ -484,37 +610,8 @@ export default async function handler(req, res) {
           sourceFilename:
             row.source_filename,
 
-          agentCode:
-            row.agent_code,
-
-          drawCode:
-            row.draw_code,
-
           queueStatus:
-            row.queue_status,
-
-          receivedAt:
-            row.received_at
-        },
-
-        asset: {
-          workspaceId:
-            row.workspace_id,
-
-          drawCode:
-            row.draw_code,
-
-          fileId:
-            row.file_id,
-
-          sourceFilename:
-            row.source_filename,
-
-          originRole:
-            'R',
-
-          status:
-            'AVAILABLE'
+            row.queue_status
         }
       });
     }
@@ -523,7 +620,6 @@ export default async function handler(req, res) {
     // =========================================================
     // GET
     // ดูโพยที่ R รับเข้า
-    // filter ตาม Workspace และ drawCode
     // =========================================================
     if (req.method === 'GET') {
 
@@ -533,7 +629,6 @@ export default async function handler(req, res) {
       const drawCode =
         upper(req.query?.drawCode);
 
-
       if (!workspaceId) {
         return res.status(400).json({
           ok: false,
@@ -541,9 +636,7 @@ export default async function handler(req, res) {
         });
       }
 
-
       let rows;
-
 
       if (drawCode) {
 
@@ -627,7 +720,6 @@ export default async function handler(req, res) {
         `;
       }
 
-
       return res.status(200).json({
         ok: true,
 
@@ -678,7 +770,9 @@ export default async function handler(req, res) {
             fileSizeBytes:
               row.file_size_bytes === null
                 ? null
-                : Number(row.file_size_bytes),
+                : Number(
+                    row.file_size_bytes
+                  ),
 
             checksumSha256:
               row.checksum_sha256 || ''
@@ -699,7 +793,6 @@ export default async function handler(req, res) {
       error
     );
 
-
     if (
       error?.code === '23505'
     ) {
@@ -709,7 +802,6 @@ export default async function handler(req, res) {
           'Slip ID หรือ File ID ซ้ำ กรุณาลองรับรูปอีกครั้ง'
       });
     }
-
 
     return res.status(500).json({
       ok: false,
