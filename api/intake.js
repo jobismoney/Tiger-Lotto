@@ -2,6 +2,14 @@ import { neon } from '@neondatabase/serverless';
 
 const sql = neon(process.env.DATABASE_URL);
 
+function clean(value) {
+  return String(value || '').trim();
+}
+
+function upper(value) {
+  return clean(value).toUpperCase();
+}
+
 function makeId(prefix) {
   const timePart = Date.now()
     .toString(36)
@@ -19,7 +27,14 @@ export default async function handler(req, res) {
   try {
 
     // =========================================================
-    // POST : R รับรูปเข้า A ภายใต้งวดที่เลือก
+    // POST
+    // R รับรูปเข้า A ภายใต้งวดที่เลือก
+    //
+    // สร้างพร้อมกัน:
+    // 1. file_assets
+    // 2. intake_slips
+    //
+    // ใช้ file_id เดียวกันตลอดสายงาน
     // =========================================================
     if (req.method === 'POST') {
 
@@ -27,30 +42,57 @@ export default async function handler(req, res) {
         workspaceId,
         agentCode,
         sourceFilename,
-        drawCode
+        drawCode,
+
+        // ข้อมูลไฟล์จริงจะถูกส่งมาภายหลังจาก Bridge
+        originLocation,
+        mimeType,
+        fileSizeBytes,
+        checksumSha256
       } = req.body || {};
 
+
       const workspace =
-        String(workspaceId || '').trim();
+        clean(workspaceId);
 
       const agent =
-        String(agentCode || '')
-          .trim()
-          .toUpperCase();
+        upper(agentCode);
 
       const filename =
-        String(sourceFilename || '').trim();
+        clean(sourceFilename);
 
       const draw =
-        String(drawCode || '')
-          .trim()
-          .toUpperCase();
+        upper(drawCode);
+
+      const origin =
+        clean(originLocation);
+
+      const mime =
+        clean(mimeType);
+
+      const checksum =
+        clean(checksumSha256)
+          .toLowerCase();
+
+      const size =
+        fileSizeBytes === undefined ||
+        fileSizeBytes === null ||
+        fileSizeBytes === ''
+          ? null
+          : Number(fileSizeBytes);
 
 
       if (!workspace) {
         return res.status(400).json({
           ok: false,
           message: 'ไม่พบ Workspace'
+        });
+      }
+
+      if (!draw) {
+        return res.status(400).json({
+          ok: false,
+          message: 'กรุณาเลือกงวด'
         });
       }
 
@@ -68,10 +110,16 @@ export default async function handler(req, res) {
         });
       }
 
-      if (!draw) {
+      if (
+        size !== null &&
+        (
+          !Number.isSafeInteger(size) ||
+          size < 0
+        )
+      ) {
         return res.status(400).json({
           ok: false,
-          message: 'กรุณาเลือกงวด'
+          message: 'ขนาดไฟล์ไม่ถูกต้อง'
         });
       }
 
@@ -90,12 +138,14 @@ export default async function handler(req, res) {
         limit 1
       `;
 
+
       if (!trialRows.length) {
         return res.status(404).json({
           ok: false,
           message: 'ไม่พบ Workspace นี้'
         });
       }
+
 
       const trial =
         trialRows[0];
@@ -111,6 +161,7 @@ export default async function handler(req, res) {
         });
       }
 
+
       if (
         now <
         new Date(trial.starts_at)
@@ -121,6 +172,7 @@ export default async function handler(req, res) {
             'Workspace นี้ยังไม่ถึงเวลาเริ่มใช้งาน'
         });
       }
+
 
       if (
         now >=
@@ -136,8 +188,6 @@ export default async function handler(req, res) {
 
       // =======================================================
       // ตรวจงวด
-      // ต้องอยู่ใน Workspace เดียวกัน
-      // และต้อง ACTIVE
       // =======================================================
       const drawRows = await sql`
         select
@@ -237,7 +287,7 @@ export default async function handler(req, res) {
 
 
       // =======================================================
-      // สร้าง Slip ID + File ID
+      // สร้าง Slip ID + File ID ที่ไม่ซ้ำ
       // =======================================================
       let slipId =
         makeId('SLIP');
@@ -246,16 +296,27 @@ export default async function handler(req, res) {
         makeId('FILE');
 
 
-      let duplicate = await sql`
-        select id
-        from intake_slips
-        where workspace_id = ${workspace}
-          and (
-            slip_id = ${slipId}
-            or file_id = ${fileId}
-          )
-        limit 1
-      `;
+      let duplicate =
+        await sql`
+          select
+            1
+          from intake_slips
+          where workspace_id = ${workspace}
+            and (
+              slip_id = ${slipId}
+              or file_id = ${fileId}
+            )
+
+          union all
+
+          select
+            1
+          from file_assets
+          where workspace_id = ${workspace}
+            and file_id = ${fileId}
+
+          limit 1
+        `;
 
 
       while (duplicate.length) {
@@ -267,48 +328,115 @@ export default async function handler(req, res) {
           makeId('FILE');
 
 
-        duplicate = await sql`
-          select id
-          from intake_slips
-          where workspace_id = ${workspace}
-            and (
-              slip_id = ${slipId}
-              or file_id = ${fileId}
-            )
-          limit 1
-        `;
+        duplicate =
+          await sql`
+            select
+              1
+            from intake_slips
+            where workspace_id = ${workspace}
+              and (
+                slip_id = ${slipId}
+                or file_id = ${fileId}
+              )
+
+            union all
+
+            select
+              1
+            from file_assets
+            where workspace_id = ${workspace}
+              and file_id = ${fileId}
+
+            limit 1
+          `;
       }
 
 
       // =======================================================
-      // บันทึกเข้า Intake + Queue
+      // บันทึก file_assets และ intake_slips แบบ Atomic
+      //
+      // หาก insert ส่วนใดล้มเหลว
+      // คำสั่งทั้งหมดจะไม่ถูกบันทึก
       // =======================================================
       const inserted = await sql`
-        insert into intake_slips (
-          workspace_id,
-          slip_id,
-          file_id,
-          source_filename,
-          agent_code,
-          draw_code,
-          queue_status,
-          received_at,
-          created_at,
-          updated_at
+        with new_asset as (
+
+          insert into file_assets (
+            workspace_id,
+            draw_code,
+            file_id,
+            source_filename,
+            origin_role,
+            origin_location,
+            mime_type,
+            file_size_bytes,
+            checksum_sha256,
+            status,
+            created_at,
+            updated_at
+          )
+
+          values (
+            ${workspace},
+            ${draw},
+            ${fileId},
+            ${filename},
+            'R',
+            ${origin || null},
+            ${mime || null},
+            ${size},
+            ${checksum || null},
+            'AVAILABLE',
+            now(),
+            now()
+          )
+
+          returning
+            file_id
+        ),
+
+        new_slip as (
+
+          insert into intake_slips (
+            workspace_id,
+            slip_id,
+            file_id,
+            source_filename,
+            agent_code,
+            draw_code,
+            queue_status,
+            received_at,
+            created_at,
+            updated_at
+          )
+
+          select
+            ${workspace},
+            ${slipId},
+            new_asset.file_id,
+            ${filename},
+            ${agent},
+            ${draw},
+            'WAITING',
+            now(),
+            now(),
+            now()
+
+          from new_asset
+
+          returning
+            id,
+            workspace_id,
+            slip_id,
+            file_id,
+            source_filename,
+            agent_code,
+            draw_code,
+            queue_status,
+            received_at
         )
-        values (
-          ${workspace},
-          ${slipId},
-          ${fileId},
-          ${filename},
-          ${agent},
-          ${draw},
-          'WAITING',
-          now(),
-          now(),
-          now()
-        )
-        returning
+
+        select
           id,
           workspace_id,
           slip_id,
@@ -318,7 +446,16 @@ export default async function handler(req, res) {
           draw_code,
           queue_status,
           received_at
+
+        from new_slip
       `;
+
+
+      if (!inserted.length) {
+        throw new Error(
+          'ไม่สามารถสร้างทะเบียนรูปและโพยได้'
+        );
+      }
 
 
       const row =
@@ -327,6 +464,7 @@ export default async function handler(req, res) {
 
       return res.status(201).json({
         ok: true,
+
         message:
           'รับรูปเข้า Agent สำเร็จ',
 
@@ -357,28 +495,43 @@ export default async function handler(req, res) {
 
           receivedAt:
             row.received_at
+        },
+
+        asset: {
+          workspaceId:
+            row.workspace_id,
+
+          drawCode:
+            row.draw_code,
+
+          fileId:
+            row.file_id,
+
+          sourceFilename:
+            row.source_filename,
+
+          originRole:
+            'R',
+
+          status:
+            'AVAILABLE'
         }
       });
     }
 
 
     // =========================================================
-    // GET : ดูโพยที่ R รับเข้า
-    // filter ตาม Workspace และ drawCode ได้
+    // GET
+    // ดูโพยที่ R รับเข้า
+    // filter ตาม Workspace และ drawCode
     // =========================================================
     if (req.method === 'GET') {
 
       const workspaceId =
-        String(
-          req.query?.workspaceId || ''
-        ).trim();
+        clean(req.query?.workspaceId);
 
       const drawCode =
-        String(
-          req.query?.drawCode || ''
-        )
-        .trim()
-        .toUpperCase();
+        upper(req.query?.drawCode);
 
 
       if (!workspaceId) {
@@ -396,29 +549,43 @@ export default async function handler(req, res) {
 
         rows = await sql`
           select
-            id,
-            workspace_id,
-            slip_id,
-            file_id,
-            source_filename,
-            agent_code,
-            draw_code,
-            queue_status,
-            assigned_subkey,
-            received_at,
-            claimed_at,
-            completed_at
-          from intake_slips
-          where workspace_id = ${workspaceId}
+            s.id,
+            s.workspace_id,
+            s.slip_id,
+            s.file_id,
+            s.source_filename,
+            s.agent_code,
+            s.draw_code,
+            s.queue_status,
+            s.assigned_subkey,
+            s.received_at,
+            s.claimed_at,
+            s.completed_at,
+
+            a.status as asset_status,
+            a.mime_type,
+            a.file_size_bytes,
+            a.checksum_sha256
+
+          from intake_slips s
+
+          left join file_assets a
+            on a.workspace_id = s.workspace_id
+           and a.file_id = s.file_id
+
+          where s.workspace_id = ${workspaceId}
+
             and upper(
               coalesce(
-                draw_code,
+                s.draw_code,
                 ''
               )
             ) = ${drawCode}
+
           order by
-            received_at asc,
-            id asc
+            s.received_at asc,
+            s.id asc
+
           limit 500
         `;
 
@@ -426,23 +593,36 @@ export default async function handler(req, res) {
 
         rows = await sql`
           select
-            id,
-            workspace_id,
-            slip_id,
-            file_id,
-            source_filename,
-            agent_code,
-            draw_code,
-            queue_status,
-            assigned_subkey,
-            received_at,
-            claimed_at,
-            completed_at
-          from intake_slips
-          where workspace_id = ${workspaceId}
+            s.id,
+            s.workspace_id,
+            s.slip_id,
+            s.file_id,
+            s.source_filename,
+            s.agent_code,
+            s.draw_code,
+            s.queue_status,
+            s.assigned_subkey,
+            s.received_at,
+            s.claimed_at,
+            s.completed_at,
+
+            a.status as asset_status,
+            a.mime_type,
+            a.file_size_bytes,
+            a.checksum_sha256
+
+          from intake_slips s
+
+          left join file_assets a
+            on a.workspace_id = s.workspace_id
+           and a.file_id = s.file_id
+
+          where s.workspace_id = ${workspaceId}
+
           order by
-            received_at asc,
-            id asc
+            s.received_at asc,
+            s.id asc
+
           limit 500
         `;
       }
@@ -487,7 +667,21 @@ export default async function handler(req, res) {
               row.claimed_at,
 
             completedAt:
-              row.completed_at
+              row.completed_at,
+
+            assetStatus:
+              row.asset_status || '',
+
+            mimeType:
+              row.mime_type || '',
+
+            fileSizeBytes:
+              row.file_size_bytes === null
+                ? null
+                : Number(row.file_size_bytes),
+
+            checksumSha256:
+              row.checksum_sha256 || ''
           }))
       });
     }
@@ -504,6 +698,18 @@ export default async function handler(req, res) {
       'intake api error:',
       error
     );
+
+
+    if (
+      error?.code === '23505'
+    ) {
+      return res.status(409).json({
+        ok: false,
+        message:
+          'Slip ID หรือ File ID ซ้ำ กรุณาลองรับรูปอีกครั้ง'
+      });
+    }
+
 
     return res.status(500).json({
       ok: false,
