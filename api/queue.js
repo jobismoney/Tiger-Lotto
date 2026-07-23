@@ -31,9 +31,7 @@ export default async function handler(req, res) {
   try {
 
     // =========================================================
-    // GET
-    // ดู Queue ของ Workspace
-    // filter ตาม drawCode ได้
+    // GET : ดู Queue
     // =========================================================
     if (req.method === 'GET') {
 
@@ -163,6 +161,7 @@ export default async function handler(req, res) {
         slipId
       } = req.body || {};
 
+
       const command =
         upper(action);
 
@@ -224,6 +223,7 @@ export default async function handler(req, res) {
           limit 1
         `;
 
+
         if (!workspaceRows.length) {
           return res.status(404).json({
             ok: false,
@@ -231,11 +231,13 @@ export default async function handler(req, res) {
           });
         }
 
+
         const trial =
           workspaceRows[0];
 
         const now =
           new Date();
+
 
         if (trial.status !== 'ACTIVE') {
           return res.status(403).json({
@@ -244,6 +246,7 @@ export default async function handler(req, res) {
               'Workspace นี้ถูกปิดใช้งาน'
           });
         }
+
 
         if (
           now <
@@ -255,6 +258,7 @@ export default async function handler(req, res) {
               'Workspace นี้ยังไม่ถึงเวลาเริ่มใช้งาน'
           });
         }
+
 
         if (
           now >=
@@ -290,6 +294,7 @@ export default async function handler(req, res) {
           limit 1
         `;
 
+
         if (!drawRows.length) {
           return res.status(404).json({
             ok: false,
@@ -298,8 +303,10 @@ export default async function handler(req, res) {
           });
         }
 
+
         const drawRow =
           drawRows[0];
+
 
         if (drawRow.status !== 'ACTIVE') {
           return res.status(403).json({
@@ -308,6 +315,7 @@ export default async function handler(req, res) {
               'งวดนี้ไม่ได้อยู่ในสถานะ ACTIVE'
           });
         }
+
 
         if (
           drawRow.opens_at &&
@@ -320,6 +328,7 @@ export default async function handler(req, res) {
               'งวดนี้ยังไม่ถึงเวลาเปิด'
           });
         }
+
 
         if (
           drawRow.closes_at &&
@@ -335,15 +344,155 @@ export default async function handler(req, res) {
 
 
         // =====================================================
-        // สำคัญ:
-        // เช็กก่อนว่า Subkey นี้มีงาน IN_PROGRESS
-        // ในงวดนี้อยู่แล้วหรือไม่
+        // ATOMIC CLAIM
         //
-        // ถ้ามี = คืนงานเดิมให้ทำต่อ
-        // ห้ามหยิบใบใหม่
+        // 1. ล็อกตาม Workspace + Draw + Subkey
+        // 2. เช็กงานเดิมของ S
+        // 3. ถ้ามี คืนงานเดิม
+        // 4. ถ้าไม่มี ค่อยหยิบ WAITING
+        //
+        // ทั้งหมดอยู่ใน SQL statement เดียว
         // =====================================================
-        const existingJobs = await sql`
+        const result = await sql`
+
+          with lock_guard as materialized (
+
+            select
+              pg_advisory_xact_lock(
+                hashtextextended(
+                  ${workspace + '|' + draw + '|' + subkey},
+                  0
+                )
+              ) as locked
+
+          ),
+
+          existing_job as materialized (
+
+            select
+              s.id,
+              s.workspace_id,
+              s.slip_id,
+              s.file_id,
+              s.source_filename,
+              s.agent_code,
+              s.draw_code,
+              s.queue_status,
+              s.assigned_subkey,
+              s.received_at,
+              s.claimed_at,
+              s.completed_at
+
+            from intake_slips s
+
+            cross join lock_guard
+
+            where s.workspace_id = ${workspace}
+
+              and upper(
+                coalesce(
+                  s.draw_code,
+                  ''
+                )
+              ) = ${draw}
+
+              and s.queue_status =
+                'IN_PROGRESS'
+
+              and upper(
+                coalesce(
+                  s.assigned_subkey,
+                  ''
+                )
+              ) = ${subkey}
+
+            order by
+              s.claimed_at asc nulls last,
+              s.received_at asc,
+              s.id asc
+
+            limit 1
+          ),
+
+          next_slip as materialized (
+
+            select
+              s.id
+
+            from intake_slips s
+
+            cross join lock_guard
+
+            where s.workspace_id = ${workspace}
+
+              and upper(
+                coalesce(
+                  s.draw_code,
+                  ''
+                )
+              ) = ${draw}
+
+              and s.queue_status =
+                'WAITING'
+
+              and not exists (
+                select 1
+                from existing_job
+              )
+
+            order by
+              s.received_at asc,
+              s.id asc
+
+            for update of s
+            skip locked
+
+            limit 1
+          ),
+
+          claimed_job as (
+
+            update intake_slips
+
+            set
+              queue_status =
+                'IN_PROGRESS',
+
+              assigned_subkey =
+                ${subkey},
+
+              claimed_at =
+                now(),
+
+              updated_at =
+                now()
+
+            where id = (
+              select id
+              from next_slip
+            )
+
+              and queue_status =
+                'WAITING'
+
+            returning
+              id,
+              workspace_id,
+              slip_id,
+              file_id,
+              source_filename,
+              agent_code,
+              draw_code,
+              queue_status,
+              assigned_subkey,
+              received_at,
+              claimed_at,
+              completed_at
+          )
+
           select
+            'RESUMED' as result_type,
+
             id,
             workspace_id,
             slip_id,
@@ -357,131 +506,59 @@ export default async function handler(req, res) {
             claimed_at,
             completed_at
 
-          from intake_slips
+          from existing_job
 
-          where workspace_id = ${workspace}
 
-            and upper(
-              coalesce(
-                draw_code,
-                ''
-              )
-            ) = ${draw}
+          union all
 
-            and queue_status = 'IN_PROGRESS'
 
-            and upper(
-              coalesce(
-                assigned_subkey,
-                ''
-              )
-            ) = ${subkey}
+          select
+            'CLAIMED' as result_type,
 
-          order by
-            claimed_at asc nulls last,
-            received_at asc,
-            id asc
+            id,
+            workspace_id,
+            slip_id,
+            file_id,
+            source_filename,
+            agent_code,
+            draw_code,
+            queue_status,
+            assigned_subkey,
+            received_at,
+            claimed_at,
+            completed_at
+
+          from claimed_job
 
           limit 1
         `;
 
 
-        if (existingJobs.length) {
-
-          const existing =
-            existingJobs[0];
+        // -----------------------------------------------------
+        // ไม่มีงานเดิม และไม่มี WAITING
+        // -----------------------------------------------------
+        if (!result.length) {
 
           return res.status(200).json({
             ok: true,
 
-            empty: false,
-
-            resumed: true,
-
-            message:
-              'พบงานเดิมที่ Subkey กำลังถืออยู่',
-
-            slip:
-              mapSlip(existing)
-          });
-        }
-
-
-        // =====================================================
-        // ไม่มีงานเดิม
-        // จึงค่อยหยิบ WAITING ใบแรก
-        //
-        // ใช้ FOR UPDATE SKIP LOCKED
-        // ป้องกัน S สองคนหยิบใบเดียวกัน
-        // =====================================================
-        const claimed = await sql`
-          with next_slip as (
-
-            select
-              id
-
-            from intake_slips
-
-            where workspace_id = ${workspace}
-
-              and upper(
-                coalesce(
-                  draw_code,
-                  ''
-                )
-              ) = ${draw}
-
-              and queue_status = 'WAITING'
-
-            order by
-              received_at asc,
-              id asc
-
-            for update skip locked
-
-            limit 1
-          )
-
-          update intake_slips
-
-          set
-            queue_status = 'IN_PROGRESS',
-            assigned_subkey = ${subkey},
-            claimed_at = now(),
-            updated_at = now()
-
-          where id = (
-            select id
-            from next_slip
-          )
-
-            and queue_status = 'WAITING'
-
-          returning
-            id,
-            workspace_id,
-            slip_id,
-            file_id,
-            source_filename,
-            agent_code,
-            draw_code,
-            queue_status,
-            assigned_subkey,
-            received_at,
-            claimed_at,
-            completed_at
-        `;
-
-
-        if (!claimed.length) {
-          return res.status(200).json({
-            ok: true,
             empty: true,
+
             resumed: false,
+
             message:
               'ไม่มีโพย WAITING ในงวดนี้'
           });
         }
+
+
+        const row =
+          result[0];
+
+
+        const resumed =
+          row.result_type ===
+          'RESUMED';
 
 
         return res.status(200).json({
@@ -489,43 +566,47 @@ export default async function handler(req, res) {
 
           empty: false,
 
-          resumed: false,
+          resumed,
 
           message:
-            'รับงานจาก Queue สำเร็จ',
+            resumed
+              ? 'พบงานเดิมที่ Subkey กำลังถืออยู่'
+              : 'รับงานจาก Queue สำเร็จ',
 
           slip:
-            mapSlip(
-              claimed[0]
-            )
+            mapSlip(row)
         });
       }
 
 
       // =======================================================
       // RELEASE
-      // คืนโพยกลับ Queue
       // =======================================================
       if (command === 'RELEASE') {
 
         if (!targetSlipId) {
           return res.status(400).json({
             ok: false,
-            message: 'ไม่พบ Slip ID'
+            message:
+              'ไม่พบ Slip ID'
           });
         }
+
 
         if (!draw) {
           return res.status(400).json({
             ok: false,
-            message: 'ไม่พบงวด'
+            message:
+              'ไม่พบงวด'
           });
         }
+
 
         if (!subkey) {
           return res.status(400).json({
             ok: false,
-            message: 'ไม่พบรหัส Subkey'
+            message:
+              'ไม่พบรหัส Subkey'
           });
         }
 
@@ -535,13 +616,18 @@ export default async function handler(req, res) {
 
           set
             queue_status = 'WAITING',
+
             assigned_subkey = null,
+
             claimed_at = null,
+
             updated_at = now()
 
-          where workspace_id = ${workspace}
+          where workspace_id =
+            ${workspace}
 
-            and slip_id = ${targetSlipId}
+            and slip_id =
+              ${targetSlipId}
 
             and upper(
               coalesce(
@@ -550,7 +636,8 @@ export default async function handler(req, res) {
               )
             ) = ${draw}
 
-            and queue_status = 'IN_PROGRESS'
+            and queue_status =
+              'IN_PROGRESS'
 
             and upper(
               coalesce(
@@ -568,6 +655,7 @@ export default async function handler(req, res) {
 
 
         if (!released.length) {
+
           return res.status(409).json({
             ok: false,
 
@@ -616,8 +704,22 @@ export default async function handler(req, res) {
       error
     );
 
+
+    // Unique Guard ฝั่งฐานข้อมูล
+    if (error?.code === '23505') {
+
+      return res.status(409).json({
+        ok: false,
+
+        message:
+          'Subkey นี้มีงาน IN_PROGRESS อยู่แล้ว กรุณาเปิดงานเดิมก่อน'
+      });
+    }
+
+
     return res.status(500).json({
       ok: false,
+
       message:
         'ระบบ Queue เกิดข้อผิดพลาด'
     });
