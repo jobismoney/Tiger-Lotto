@@ -1,149 +1,848 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>T999 Web Trial</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>T999 Web</title>
 
   <style>
-    body{
-      margin:0;
-      min-height:100vh;
-      display:grid;
-      place-items:center;
-      background:#070b14;
-      color:#fff;
-      font-family:Arial,sans-serif;
+    * {
+      box-sizing: border-box;
     }
 
-    .card{
-      width:min(420px,90vw);
-      background:#0d1524;
-      border:1px solid #26344d;
-      border-radius:18px;
-      padding:28px;
-      box-shadow:0 20px 60px #0008;
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family:
+        Arial,
+        "Noto Sans Thai",
+        sans-serif;
+
+      background: #090b0e;
+      color: #ffffff;
     }
 
-    h1{
-      margin:0 0 8px;
-      color:#ffd21c;
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
     }
 
-    p{
-      color:#9fb0cb;
+    .card {
+      width: 100%;
+      max-width: 460px;
+
+      background: #13171c;
+
+      border: 1px solid #282e36;
+      border-radius: 18px;
+
+      padding: 30px;
+
+      box-shadow:
+        0 20px 60px
+        rgba(0, 0, 0, 0.35);
     }
 
-    input,
-    button{
-      width:100%;
-      box-sizing:border-box;
-      padding:14px;
-      border-radius:10px;
-      font-size:18px;
+    .brand {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
     }
 
-    input{
-      border:1px solid #42516b;
-      background:#09101d;
-      color:#fff;
-      margin:16px 0 12px;
+    .subtitle {
+      color: #9da5af;
+      font-size: 15px;
+      margin-bottom: 28px;
+      line-height: 1.6;
     }
 
-    button{
-      border:0;
-      background:#2f6fed;
-      color:#fff;
-      font-weight:700;
-      cursor:pointer;
+    label {
+      display: block;
+      color: #bec5cd;
+      font-size: 14px;
+      margin-bottom: 8px;
     }
 
-    button:disabled{
-      opacity:.65;
-      cursor:not-allowed;
+    input {
+      width: 100%;
+      height: 52px;
+
+      border: 1px solid #343b45;
+      border-radius: 10px;
+
+      background: #0c0f13;
+      color: #ffffff;
+
+      padding: 0 15px;
+
+      font-size: 18px;
+      font-weight: 700;
+
+      outline: none;
+
+      text-transform: uppercase;
     }
 
-    .note{
-      margin-top:14px;
-      font-size:13px;
-      color:#72839f;
+    input:focus {
+      border-color: #858f9c;
+    }
+
+    .login-button {
+      width: 100%;
+      height: 52px;
+
+      margin-top: 15px;
+
+      border: 0;
+      border-radius: 10px;
+
+      background: #ffffff;
+      color: #111111;
+
+      font-size: 16px;
+      font-weight: 900;
+
+      cursor: pointer;
+    }
+
+    .login-button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .status {
+      min-height: 24px;
+      margin-top: 15px;
+
+      color: #aeb6c0;
+
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .error {
+      color: #ff8b8b;
+    }
+
+    .footer {
+      margin-top: 28px;
+
+      color: #6f7883;
+      font-size: 12px;
+
+      text-align: center;
+    }
+
+
+    /* WORKSPACE */
+
+    #workspaceScreen {
+      display: none;
+    }
+
+    .workspace {
+      min-height: 100vh;
+      background: #090b0e;
+    }
+
+    .topbar {
+      min-height: 70px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 15px;
+
+      padding: 14px 24px;
+
+      background: #11151a;
+
+      border-bottom:
+        1px solid #262c33;
+    }
+
+    .top-brand {
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .workspace-info {
+      text-align: right;
+      font-size: 13px;
+      color: #929ba6;
+    }
+
+    .workspace-info strong {
+      display: block;
+      color: #ffffff;
+      font-size: 14px;
+    }
+
+    .workspace-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 24px;
+    }
+
+    .welcome {
+      margin-bottom: 25px;
+    }
+
+    .welcome h1 {
+      margin: 0 0 7px;
+      font-size: 28px;
+    }
+
+    .welcome p {
+      margin: 0;
+      color: #939ca7;
+    }
+
+    .workspace-card {
+      background: #14181e;
+
+      border:
+        1px solid #292f37;
+
+      border-radius: 15px;
+
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    .workspace-id {
+      font-family: monospace;
+      font-size: 17px;
+      font-weight: bold;
+
+      word-break: break-all;
+    }
+
+    .flow-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 15px;
+    }
+
+    .flow {
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          4,
+          minmax(0, 1fr)
+        );
+
+      gap: 12px;
+    }
+
+    .flow-item {
+      min-height: 100px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      padding: 15px;
+
+      border-radius: 12px;
+
+      background: #0e1115;
+
+      border:
+        1px solid #262d35;
+    }
+
+    .flow-number {
+      color: #747e89;
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
+
+    .flow-name {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .coming {
+      margin-top: 9px;
+
+      color: #77818c;
+      font-size: 12px;
+    }
+
+    .logout-button {
+      border: 1px solid #343b44;
+
+      background: #1b2026;
+      color: #ffffff;
+
+      border-radius: 8px;
+
+      padding: 8px 12px;
+
+      cursor: pointer;
+    }
+
+    @media (max-width: 800px) {
+      .flow {
+        grid-template-columns:
+          repeat(
+            2,
+            minmax(0, 1fr)
+          );
+      }
+    }
+
+    @media (max-width: 500px) {
+      .page {
+        padding: 14px;
+      }
+
+      .card {
+        padding: 23px;
+      }
+
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <main class="card">
-    <h1>T999 Web Trial</h1>
+  <!-- LOGIN -->
 
-    <p>
-      กรอกรหัสทดลองใช้งานที่ได้รับจากผู้ดูแลระบบ
-    </p>
+  <div id="loginScreen">
 
-    <input
-      id="trialCode"
-      type="text"
-      placeholder="รหัสทดลองใช้งาน"
-      autocomplete="off"
-    />
+    <div class="page">
 
-    <button
-      id="loginButton"
-      type="button"
-    >
-      เข้าใช้งานระบบทดลอง
-    </button>
+      <div class="card">
 
-    <div class="note">
-      สิทธิ์ทดลองใช้งาน 7 วัน • สูงสุด 5 Agent • 30 โพยต่อ Agent
+        <div class="brand">
+          T999
+        </div>
+
+        <div class="subtitle">
+          เข้าสู่ระบบ T999 Web
+          ด้วยรหัสสิทธิ์ที่ได้รับจากผู้ดูแลระบบ
+        </div>
+
+        <label for="trialCode">
+          รหัสเข้าใช้งาน
+        </label>
+
+        <input
+          id="trialCode"
+          type="text"
+          autocomplete="off"
+          placeholder="กรอกรหัส"
+        />
+
+        <button
+          id="loginButton"
+          class="login-button"
+          onclick="loginTrial()"
+        >
+          เข้าใช้งาน
+        </button>
+
+        <div
+          id="loginStatus"
+          class="status"
+        ></div>
+
+        <div class="footer">
+          T999 Web
+        </div>
+
+      </div>
+
     </div>
-  </main>
+
+  </div>
+
+
+  <!-- WORKSPACE -->
+
+  <div id="workspaceScreen">
+
+    <div class="workspace">
+
+      <div class="topbar">
+
+        <div class="top-brand">
+          T999
+        </div>
+
+        <div
+          style="
+            display:flex;
+            align-items:center;
+            gap:15px;
+          "
+        >
+
+          <div class="workspace-info">
+
+            <strong id="topCustomer">
+              -
+            </strong>
+
+            <span id="topWorkspace">
+              -
+            </span>
+
+          </div>
+
+          <button
+            class="logout-button"
+            onclick="logoutTrial()"
+          >
+            ออกจากระบบ
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="workspace-body">
+
+        <div class="welcome">
+
+          <h1>
+            T999 Workspace
+          </h1>
+
+          <p id="welcomeText">
+            Workspace พร้อมใช้งาน
+          </p>
+
+        </div>
+
+
+        <div class="workspace-card">
+
+          <div
+            style="
+              color:#8c96a1;
+              font-size:13px;
+              margin-bottom:8px;
+            "
+          >
+            WORKSPACE ID
+          </div>
+
+          <div
+            id="workspaceId"
+            class="workspace-id"
+          >
+            -
+          </div>
+
+        </div>
+
+
+        <div class="workspace-card">
+
+          <div class="flow-title">
+            โฟลหลัก T999
+          </div>
+
+          <div class="flow">
+
+            <div class="flow-item">
+
+              <div class="flow-number">
+                STEP 01
+              </div>
+
+              <div class="flow-name">
+                R รับรูปเข้า A
+              </div>
+
+              <div class="coming">
+                จุดเริ่มต้นของงานทั้งหมด
+              </div>
+
+            </div>
+
+
+            <div class="flow-item">
+
+              <div class="flow-number">
+                STEP 02
+              </div>
+
+              <div class="flow-name">
+                Queue → S
+              </div>
+
+              <div class="coming">
+                ส่งงานให้ Subkey
+              </div>
+
+            </div>
+
+
+            <div class="flow-item">
+
+              <div class="flow-number">
+                STEP 03
+              </div>
+
+              <div class="flow-name">
+                Exposure / Index
+              </div>
+
+              <div class="coming">
+                อัปเดตเมื่อ S จบใบ
+              </div>
+
+            </div>
+
+
+            <div class="flow-item">
+
+              <div class="flow-number">
+                STEP 04
+              </div>
+
+              <div class="flow-name">
+                Binder / ตรวจนอก
+              </div>
+
+              <div class="coming">
+                เข้าแฟ้ม Agent และตรวจงาน
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="workspace-card">
+
+          <strong>
+            ขั้นต่อไป
+          </strong>
+
+          <div
+            style="
+              margin-top:10px;
+              color:#929ca7;
+              line-height:1.7;
+            "
+          >
+            เชื่อม Workspace นี้เข้ากับระบบ T999 Core
+            โดยเริ่มจาก R เอารูปเข้า A
+            ตามโฟลหลักเดิมของระบบ
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
 
   <script>
-    const input = document.getElementById("trialCode");
-    const button = document.getElementById("loginButton");
 
-    async function submitTrialCode() {
-      const code = input.value.trim();
+    const SESSION_KEY =
+      't999_trial_workspace';
 
-      if (!code) {
-        alert("กรุณากรอกรหัสทดลองใช้งาน");
-        input.focus();
-        return;
-      }
 
-      button.disabled = true;
-      button.textContent = "กำลังตรวจสอบ...";
+    function setStatus(
+      message,
+      isError = false
+    ) {
 
-      try {
-        const res = await fetch("/api/trial-login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ code })
-        });
+      const status =
+        document.getElementById(
+          'loginStatus'
+        );
 
-        const data = await res.json();
+      status.textContent =
+        message || '';
 
-        alert(data.message || "ส่งคำขอแล้ว");
+      status.className =
+        isError
+          ? 'status error'
+          : 'status';
 
-      } catch (error) {
-        console.error(error);
-        alert("ไม่สามารถเชื่อมต่อระบบตรวจสอบรหัสได้");
-      } finally {
-        button.disabled = false;
-        button.textContent = "เข้าใช้งานระบบทดลอง";
-      }
     }
 
-    button.addEventListener("click", submitTrialCode);
 
-    input.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        submitTrialCode();
+    async function loginTrial() {
+
+      const input =
+        document.getElementById(
+          'trialCode'
+        );
+
+      const button =
+        document.getElementById(
+          'loginButton'
+        );
+
+      const code =
+        input.value
+        .trim()
+        .toUpperCase();
+
+
+      if (!code) {
+
+        setStatus(
+          'กรุณากรอกรหัสเข้าใช้งาน',
+          true
+        );
+
+        return;
+
       }
-    });
+
+
+      button.disabled = true;
+
+      setStatus(
+        'กำลังตรวจสอบสิทธิ์...'
+      );
+
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/trial-login',
+            {
+              method: 'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body:
+                JSON.stringify({
+                  code
+                })
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'ไม่สามารถเข้าใช้งานได้'
+          );
+
+        }
+
+
+        const sessionData = {
+
+          trialCode:
+            code,
+
+          customerName:
+            data.customerName || '',
+
+          workspaceId:
+            data.workspaceId || '',
+
+          startsAt:
+            data.startsAt || '',
+
+          expiresAt:
+            data.expiresAt || '',
+
+          remainingDays:
+            data.remainingDays || 0
+
+        };
+
+
+        sessionStorage.setItem(
+          SESSION_KEY,
+          JSON.stringify(
+            sessionData
+          )
+        );
+
+
+        showWorkspace(
+          sessionData
+        );
+
+      }
+      catch (error) {
+
+        setStatus(
+          error.message,
+          true
+        );
+
+      }
+      finally {
+
+        button.disabled = false;
+
+      }
+
+    }
+
+
+    function showWorkspace(data) {
+
+      document.getElementById(
+        'loginScreen'
+      ).style.display =
+        'none';
+
+      document.getElementById(
+        'workspaceScreen'
+      ).style.display =
+        'block';
+
+
+      const customer =
+        data.customerName ||
+        data.trialCode ||
+        'T999 User';
+
+
+      document.getElementById(
+        'topCustomer'
+      ).textContent =
+        customer;
+
+
+      document.getElementById(
+        'topWorkspace'
+      ).textContent =
+        data.workspaceId ||
+        '-';
+
+
+      document.getElementById(
+        'workspaceId'
+      ).textContent =
+        data.workspaceId ||
+        '-';
+
+
+      document.getElementById(
+        'welcomeText'
+      ).textContent =
+        customer +
+        ' • Workspace พร้อมใช้งาน';
+
+    }
+
+
+    function logoutTrial() {
+
+      sessionStorage.removeItem(
+        SESSION_KEY
+      );
+
+      location.reload();
+
+    }
+
+
+    function restoreSession() {
+
+      try {
+
+        const raw =
+          sessionStorage.getItem(
+            SESSION_KEY
+          );
+
+
+        if (!raw) {
+          return;
+        }
+
+
+        const data =
+          JSON.parse(raw);
+
+
+        if (
+          !data ||
+          !data.workspaceId
+        ) {
+
+          sessionStorage.removeItem(
+            SESSION_KEY
+          );
+
+          return;
+
+        }
+
+
+        showWorkspace(
+          data
+        );
+
+      }
+      catch (error) {
+
+        sessionStorage.removeItem(
+          SESSION_KEY
+        );
+
+      }
+
+    }
+
+
+    document.getElementById(
+      'trialCode'
+    )
+    .addEventListener(
+      'keydown',
+      function (event) {
+
+        if (
+          event.key === 'Enter'
+        ) {
+
+          loginTrial();
+
+        }
+
+      }
+    );
+
+
+    restoreSession();
+
   </script>
 
 </body>
