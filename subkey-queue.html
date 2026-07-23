@@ -74,7 +74,8 @@
       font-size: 14px;
     }
 
-    input {
+    input,
+    select {
       width: 100%;
       height: 48px;
       border-radius: 9px;
@@ -201,7 +202,7 @@
 
     table {
       width: 100%;
-      min-width: 900px;
+      min-width: 980px;
       border-collapse: collapse;
     }
 
@@ -228,6 +229,13 @@
       color: #7f8893;
     }
 
+    .small {
+      color: #7f8994;
+      font-size: 12px;
+      margin-top: 7px;
+      line-height: 1.5;
+    }
+
     @media (max-width: 800px) {
       .grid,
       .stats {
@@ -250,6 +258,7 @@
   <div class="wrap">
 
     <div class="topbar">
+
       <div class="brand">
         T999 • Subkey Queue
       </div>
@@ -258,50 +267,65 @@
         <div id="customerName">-</div>
         <strong id="workspaceId">-</strong>
       </div>
+
     </div>
 
 
     <div class="card">
 
-      <h1>S รับงานจาก Queue</h1>
+      <h1>
+        S รับงานจาก Queue
+      </h1>
 
       <div class="subtitle">
-        S รับโพยจากกองกลางตามลำดับเวลาที่ R รับเข้า
-        ระบบจะกันไม่ให้ Subkey สองคนหยิบโพยใบเดียวกัน
+        เลือกงวด ACTIVE ก่อน แล้ว S จะเห็นและรับเฉพาะโพยของงวดนั้น
+        ตามลำดับเวลาที่ R รับเข้า
       </div>
 
       <div class="grid">
 
         <div>
-          <label>รหัส Subkey</label>
+
+          <label>
+            งวดที่เปิดใช้งาน
+          </label>
+
+          <select id="drawSelect">
+
+            <option value="">
+              กำลังโหลด...
+            </option>
+
+          </select>
+
+          <div class="small">
+            แสดงเฉพาะงวด ACTIVE ของ Workspace นี้
+          </div>
+
+        </div>
+
+
+        <div>
+
+          <label>
+            รหัส Subkey
+          </label>
 
           <input
             id="subkeyCode"
             type="text"
             placeholder="เช่น S01"
           />
-        </div>
 
-        <div>
-          <label>หลักการรับงาน</label>
-
-          <div
-            style="
-              height:48px;
-              display:flex;
-              align-items:center;
-              padding:0 12px;
-              border:1px solid #353c45;
-              border-radius:9px;
-              background:#0e1115;
-              color:#aab3bd;
-            "
-          >
-            WAITING ใบแรก → IN_PROGRESS
+          <div class="small">
+            ตอนนี้ใช้ช่องรหัสชั่วคราว
+            ภายหลังจะเปลี่ยนเป็นระบบสิทธิ์ที่ M ตั้ง
           </div>
+
         </div>
 
       </div>
+
 
       <div class="actions">
 
@@ -332,23 +356,66 @@
     <div class="stats">
 
       <div class="stat">
-        <div class="label">ทั้งหมด</div>
-        <div id="countTotal" class="value">0</div>
+
+        <div class="label">
+          ทั้งหมด
+        </div>
+
+        <div
+          id="countTotal"
+          class="value"
+        >
+          0
+        </div>
+
       </div>
 
-      <div class="stat">
-        <div class="label">WAITING</div>
-        <div id="countWaiting" class="value">0</div>
-      </div>
 
       <div class="stat">
-        <div class="label">IN_PROGRESS</div>
-        <div id="countInProgress" class="value">0</div>
+
+        <div class="label">
+          WAITING
+        </div>
+
+        <div
+          id="countWaiting"
+          class="value"
+        >
+          0
+        </div>
+
       </div>
 
+
       <div class="stat">
-        <div class="label">COMPLETED</div>
-        <div id="countCompleted" class="value">0</div>
+
+        <div class="label">
+          IN_PROGRESS
+        </div>
+
+        <div
+          id="countInProgress"
+          class="value"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="label">
+          COMPLETED
+        </div>
+
+        <div
+          id="countCompleted"
+          class="value"
+        >
+          0
+        </div>
+
       </div>
 
     </div>
@@ -356,7 +423,9 @@
 
     <div class="card">
 
-      <h2>งานที่ S กำลังถืออยู่</h2>
+      <h2>
+        งานที่ S กำลังถืออยู่
+      </h2>
 
       <div
         id="currentJobEmpty"
@@ -365,47 +434,127 @@
         ยังไม่มีงานที่รับ
       </div>
 
+
       <div
         id="currentJob"
         class="job-box"
       >
 
         <div class="job-row">
-          <div class="job-key">Agent</div>
-          <div id="jobAgent" class="job-value">-</div>
+
+          <div class="job-key">
+            งวด
+          </div>
+
+          <div
+            id="jobDraw"
+            class="job-value"
+          >
+            -
+          </div>
+
         </div>
 
-        <div class="job-row">
-          <div class="job-key">ชื่อไฟล์</div>
-          <div id="jobFilename" class="job-value">-</div>
-        </div>
 
         <div class="job-row">
-          <div class="job-key">Slip ID</div>
-          <div id="jobSlipId" class="job-value">-</div>
+
+          <div class="job-key">
+            Agent
+          </div>
+
+          <div
+            id="jobAgent"
+            class="job-value"
+          >
+            -
+          </div>
+
         </div>
 
-        <div class="job-row">
-          <div class="job-key">File ID</div>
-          <div id="jobFileId" class="job-value">-</div>
-        </div>
 
         <div class="job-row">
-          <div class="job-key">Subkey</div>
-          <div id="jobSubkey" class="job-value">-</div>
+
+          <div class="job-key">
+            ชื่อไฟล์
+          </div>
+
+          <div
+            id="jobFilename"
+            class="job-value"
+          >
+            -
+          </div>
+
         </div>
 
+
         <div class="job-row">
-          <div class="job-key">สถานะ</div>
+
+          <div class="job-key">
+            Slip ID
+          </div>
+
+          <div
+            id="jobSlipId"
+            class="job-value"
+          >
+            -
+          </div>
+
+        </div>
+
+
+        <div class="job-row">
+
+          <div class="job-key">
+            File ID
+          </div>
+
+          <div
+            id="jobFileId"
+            class="job-value"
+          >
+            -
+          </div>
+
+        </div>
+
+
+        <div class="job-row">
+
+          <div class="job-key">
+            Subkey
+          </div>
+
+          <div
+            id="jobSubkey"
+            class="job-value"
+          >
+            -
+          </div>
+
+        </div>
+
+
+        <div class="job-row">
+
+          <div class="job-key">
+            สถานะ
+          </div>
+
           <div class="job-value">
+
             <span
               id="jobStatus"
               class="badge"
             >
               -
             </span>
+
           </div>
+
         </div>
+
 
         <div class="actions">
 
@@ -434,8 +583,9 @@
           margin-bottom:14px;
         "
       >
+
         <h2 style="margin:0;">
-          Queue ทั้ง Workspace
+          Queue ของงวดที่เลือก
         </h2>
 
         <button
@@ -444,6 +594,7 @@
         >
           รีเฟรช
         </button>
+
       </div>
 
 
@@ -452,8 +603,10 @@
         <table>
 
           <thead>
+
             <tr>
               <th>ลำดับ</th>
+              <th>งวด</th>
               <th>A</th>
               <th>ชื่อไฟล์</th>
               <th>Slip ID</th>
@@ -461,17 +614,20 @@
               <th>Subkey</th>
               <th>เวลารับ</th>
             </tr>
+
           </thead>
 
           <tbody id="queueRows">
 
             <tr>
+
               <td
-                colspan="7"
+                colspan="8"
                 class="empty"
               >
                 กำลังโหลด...
               </td>
+
             </tr>
 
           </tbody>
@@ -491,11 +647,14 @@
       't999_trial_workspace';
 
     let sessionData = null;
+
     let currentJob = null;
 
 
     function getSession() {
+
       try {
+
         const raw =
           sessionStorage.getItem(
             SESSION_KEY
@@ -506,10 +665,14 @@
         }
 
         return JSON.parse(raw);
+
       }
       catch (error) {
+
         return null;
+
       }
+
     }
 
 
@@ -518,6 +681,7 @@
       message,
       isError = false
     ) {
+
       const el =
         document.getElementById(id);
 
@@ -528,20 +692,24 @@
         isError
           ? 'status error'
           : 'status';
+
     }
 
 
     function escapeHtml(value) {
+
       return String(value || '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+
     }
 
 
     function formatDate(value) {
+
       if (!value) {
         return '';
       }
@@ -554,6 +722,153 @@
               'Asia/Bangkok'
           }
         );
+
+    }
+
+
+    async function loadDraws() {
+
+      const select =
+        document.getElementById(
+          'drawSelect'
+        );
+
+
+      try {
+
+        const response =
+          await fetch(
+            '/api/draws?workspaceId=' +
+            encodeURIComponent(
+              sessionData.workspaceId
+            ) +
+            '&status=ACTIVE'
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'โหลดงวดไม่สำเร็จ'
+          );
+
+        }
+
+
+        const draws =
+          data.draws || [];
+
+
+        if (!draws.length) {
+
+          select.innerHTML =
+            '<option value="">' +
+            'ยังไม่มีงวด ACTIVE' +
+            '</option>';
+
+          clearQueueView();
+
+          return;
+
+        }
+
+
+        select.innerHTML =
+          '<option value="">' +
+          'เลือกงวด' +
+          '</option>' +
+
+          draws
+          .map(
+            (draw) => {
+
+              const market =
+                draw.marketCode === 'TH'
+                  ? 'ไทย'
+                  : draw.marketCode === 'LA'
+                    ? 'ลาว'
+                    : draw.marketCode;
+
+
+              const label =
+                draw.drawName
+                  ? `${market} • ${draw.drawName}`
+                  : `${market} • ${draw.drawCode}`;
+
+
+              return `
+                <option
+                  value="${escapeHtml(
+                    draw.drawCode
+                  )}"
+                >
+                  ${escapeHtml(label)}
+                </option>
+              `;
+
+            }
+          )
+          .join('');
+
+
+        if (draws.length === 1) {
+
+          select.value =
+            draws[0].drawCode;
+
+        }
+
+      }
+      catch (error) {
+
+        select.innerHTML =
+          '<option value="">' +
+          'โหลดงวดไม่สำเร็จ' +
+          '</option>';
+
+        clearQueueView();
+
+      }
+
+    }
+
+
+    function clearQueueView() {
+
+      document.getElementById(
+        'countTotal'
+      ).textContent = '0';
+
+
+      document.getElementById(
+        'countWaiting'
+      ).textContent = '0';
+
+
+      document.getElementById(
+        'countInProgress'
+      ).textContent = '0';
+
+
+      document.getElementById(
+        'countCompleted'
+      ).textContent = '0';
+
+
+      document.getElementById(
+        'queueRows'
+      ).innerHTML =
+        '<tr>' +
+        '<td colspan="8" class="empty">' +
+        'กรุณาเลือกงวด' +
+        '</td>' +
+        '</tr>';
+
     }
 
 
@@ -569,6 +884,7 @@
           'currentJob'
         );
 
+
       if (!currentJob) {
 
         empty.style.display =
@@ -579,6 +895,7 @@
         );
 
         return;
+
       }
 
 
@@ -588,6 +905,12 @@
       box.classList.add(
         'show'
       );
+
+
+      document.getElementById(
+        'jobDraw'
+      ).textContent =
+        currentJob.drawCode || '-';
 
 
       document.getElementById(
@@ -624,10 +947,17 @@
         'jobStatus'
       ).textContent =
         currentJob.queueStatus || '-';
+
     }
 
 
     async function claimNext() {
+
+      const drawCode =
+        document.getElementById(
+          'drawSelect'
+        ).value;
+
 
       const subkeyCode =
         document.getElementById(
@@ -636,6 +966,20 @@
         .value
         .trim()
         .toUpperCase();
+
+
+      if (!drawCode) {
+
+        setStatus(
+          'claimStatus',
+          'กรุณาเลือกงวด',
+          true
+        );
+
+        return;
+
+      }
+
 
       if (!subkeyCode) {
 
@@ -646,6 +990,7 @@
         );
 
         return;
+
       }
 
 
@@ -658,6 +1003,7 @@
         );
 
         return;
+
       }
 
 
@@ -688,6 +1034,8 @@
                   workspaceId:
                     sessionData.workspaceId,
 
+                  drawCode,
+
                   subkeyCode
                 })
             }
@@ -704,6 +1052,7 @@
             data.message ||
             'รับงานไม่สำเร็จ'
           );
+
         }
 
 
@@ -711,12 +1060,13 @@
 
           setStatus(
             'claimStatus',
-            'ไม่มีโพย WAITING ใน Queue'
+            'ไม่มีโพย WAITING ในงวดนี้'
           );
 
           await loadQueue();
 
           return;
+
         }
 
 
@@ -728,6 +1078,10 @@
           'claimStatus',
 
           'รับงานสำเร็จ\n' +
+
+          'งวด: ' +
+          currentJob.drawCode +
+          '\n' +
 
           'A: ' +
           currentJob.agentCode +
@@ -781,6 +1135,7 @@
         );
 
         return;
+
       }
 
 
@@ -805,6 +1160,9 @@
                   workspaceId:
                     sessionData.workspaceId,
 
+                  drawCode:
+                    currentJob.drawCode,
+
                   subkeyCode,
 
                   slipId:
@@ -824,6 +1182,7 @@
             data.message ||
             'คืนโพยไม่สำเร็จ'
           );
+
         }
 
 
@@ -864,6 +1223,29 @@
         );
 
 
+      const drawCode =
+        document.getElementById(
+          'drawSelect'
+        ).value;
+
+
+      if (!drawCode) {
+
+        clearQueueView();
+
+        return;
+
+      }
+
+
+      rows.innerHTML =
+        '<tr>' +
+        '<td colspan="8" class="empty">' +
+        'กำลังโหลด...' +
+        '</td>' +
+        '</tr>';
+
+
       try {
 
         const response =
@@ -871,6 +1253,10 @@
             '/api/queue?workspaceId=' +
             encodeURIComponent(
               sessionData.workspaceId
+            ) +
+            '&drawCode=' +
+            encodeURIComponent(
+              drawCode
             )
           );
 
@@ -885,6 +1271,7 @@
             data.message ||
             'โหลด Queue ไม่สำเร็จ'
           );
+
         }
 
 
@@ -923,12 +1310,13 @@
 
           rows.innerHTML =
             '<tr>' +
-            '<td colspan="7" class="empty">' +
-            'ยังไม่มีงานใน Queue' +
+            '<td colspan="8" class="empty">' +
+            'ยังไม่มีงานในงวดนี้' +
             '</td>' +
             '</tr>';
 
           return;
+
         }
 
 
@@ -940,6 +1328,12 @@
 
                 <td>
                   ${index + 1}
+                </td>
+
+                <td>
+                  ${escapeHtml(
+                    job.drawCode || '-'
+                  )}
                 </td>
 
                 <td>
@@ -992,7 +1386,7 @@
 
         rows.innerHTML =
           '<tr>' +
-          '<td colspan="7" class="empty">' +
+          '<td colspan="8" class="empty">' +
           escapeHtml(
             error.message
           ) +
@@ -1004,7 +1398,7 @@
     }
 
 
-    function init() {
+    async function init() {
 
       sessionData =
         getSession();
@@ -1019,6 +1413,7 @@
           '/trial-placeholder.html';
 
         return;
+
       }
 
 
@@ -1036,9 +1431,33 @@
         '';
 
 
-      loadQueue();
+      await loadDraws();
+
+      await loadQueue();
 
     }
+
+
+    document.getElementById(
+      'drawSelect'
+    ).addEventListener(
+      'change',
+      () => {
+
+        currentJob =
+          null;
+
+        renderCurrentJob();
+
+        setStatus(
+          'claimStatus',
+          ''
+        );
+
+        loadQueue();
+
+      }
+    );
 
 
     init();
