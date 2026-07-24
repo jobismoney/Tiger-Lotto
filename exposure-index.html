@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>T999 Exposure Index V5</title>
+  <title>T999 Exposure Index V5.1</title>
   <style>
     *{box-sizing:border-box} body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;background:#f5f5f5;color:#111}
     .wrap{max-width:1280px;margin:auto;padding:18px}.top{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
@@ -35,7 +35,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>Exposure Index V5</h1>
+  <h1>Exposure Index V5.1</h1>
   <div class="note">ศูนย์กลางยอดรับจากโพยที่ S จบใบแล้ว (COMPLETED) • อั้นตั้งตามประเภท • ตีออกสะสมยืนยันแยกบัญชี</div>
 
   <div class="top">
@@ -73,7 +73,7 @@
       <span id="activeRoundLabel" class="round-badge">ยังไม่มี Snapshot DRAFT</span>
       <button id="confirmRoundBtn" style="display:none">ตีออก / ยืนยันรอบ</button>
     </div>
-    <div class="note">กดตั้งรอบแล้วระบบ Snapshot ยอดคงเหลือ ณ เวลานั้นให้นิ่งทันที • S ยังเติมยอดใหม่ด้านหลังได้ • แก้เฉพาะยอดใน Snapshot แล้วกดตีออกครั้งเดียว</div>
+    <div class="note">กดตั้งรอบแล้วระบบ Snapshot ยอดคงเหลือ ณ เวลานั้นให้นิ่งทันที • S ยังเติมยอดใหม่ด้านหลังได้ • แก้ตัวเลขในช่องได้เลย ไม่ต้องกดบันทึกรายแถว • เสร็จแล้วกดตีออก/ยืนยันรอบปุ่มเดียว</div>
     <div id="snapshotEditor" style="margin-top:12px"></div>
     <div id="roundHistory" style="margin-top:10px"></div>
   </div>
@@ -341,7 +341,6 @@ function renderSnapshotEditor(){
             <th>Snapshot</th>
             <th>ยอดตีออก</th>
             <th>เหลือใน Snapshot</th>
-            <th>บันทึก</th>
           </tr>
         </thead>
         <tbody>
@@ -359,12 +358,11 @@ function renderSnapshotEditor(){
                   max="${esc(item.snapshotAmount)}"
                   step="1"
                   value="${esc(item.cutAmount)}"
+                  oninput="updateSnapshotRemaining(${item.id}, ${item.snapshotAmount})"
                 >
               </td>
-              <td>${money(item.snapshotRemaining)}</td>
-              <td>
-                <button class="mini" onclick="saveSnapshotItem(${item.id}, '${esc(item.betType)}', '${esc(item.numberValue)}')">บันทึก</button>
-              </td>
+              <td id="snapremain_${item.id}">${money(item.snapshotRemaining)}</td>
+              
             </tr>
           `).join('')}
         </tbody>
@@ -373,78 +371,71 @@ function renderSnapshotEditor(){
   `;
 }
 
-async function saveSnapshotItem(itemId, betType, numberValue){
-  if(!activeDraftRound){
-    alert('ไม่มี Snapshot DRAFT');
-    return;
-  }
 
+
+function updateSnapshotRemaining(itemId, snapshotAmount){
   const input = $('snapcut_' + itemId);
-  const cutAmount = Number(input?.value || 0);
+  const value = Number(input?.value || 0);
+  const remain = Math.max(
+    Number(snapshotAmount || 0) -
+    (Number.isFinite(value) ? value : 0),
+    0
+  );
 
-  if(!Number.isFinite(cutAmount) || cutAmount < 0){
-    alert('ยอดตีออกไม่ถูกต้อง');
-    return;
-  }
-
-  try{
-    const res = await fetch('/api/slip-entries', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        action:'UPSERT_CUT_ROUND_ITEM',
-        workspaceId:$('workspaceId').value.trim(),
-        drawCode:$('drawCode').value.trim(),
-        roundId:activeDraftRound.id,
-        betType,
-        numberValue,
-        cutAmount
-      })
-    });
-
-    const data = await res.json();
-    if(!res.ok || !data.ok){
-      throw new Error(data.message || 'บันทึกยอด Snapshot ไม่สำเร็จ');
-    }
-
-    await loadCutRounds();
-  }catch(err){
-    alert(err.message);
+  const target = $('snapremain_' + itemId);
+  if(target){
+    target.textContent = money(remain);
   }
 }
 
-async function createCutRound(){
-  try{
-    const res = await fetch('/api/slip-entries', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        action:'CREATE_CUT_ROUND',
-        workspaceId:$('workspaceId').value.trim(),
-        drawCode:$('drawCode').value.trim(),
-        createdBy:'M'
-      })
-    });
-
-    const data = await res.json();
-    if(!res.ok || !data.ok){
-      throw new Error(data.message || 'สร้างรอบไม่สำเร็จ');
-    }
-
-    await loadCutRounds();
-  }catch(err){
-    alert(err.message);
+function collectSnapshotEdits(){
+  if(!activeDraftRound){
+    return [];
   }
-}
 
+  return cutRoundItems
+    .filter(
+      item =>
+        item.roundId ===
+        activeDraftRound.id
+    )
+    .map(item => {
+      const input = $('snapcut_' + item.id);
+      return {
+        id: item.id,
+        cutAmount: Number(input?.value || 0)
+      };
+    });
+}
 
 async function confirmCutRound(){
   if(!activeDraftRound) return;
 
+  const edits = collectSnapshotEdits();
+
+  for(const edit of edits){
+    const item = cutRoundItems.find(
+      row => row.id === edit.id
+    );
+
+    if(
+      !item ||
+      !Number.isFinite(edit.cutAmount) ||
+      edit.cutAmount < 0 ||
+      edit.cutAmount > Number(item.snapshotAmount || 0)
+    ){
+      alert(
+        'ตรวจยอดตีออกอีกครั้ง: ' +
+        (item?.numberValue || '')
+      );
+      return;
+    }
+  }
+
   const ok = confirm(
-    'ยืนยัน ' +
+    'ตีออกและยืนยัน ' +
     activeDraftRound.roundCode +
-    ' ?\\nหลังยืนยัน รอบนี้จะถูกนับเข้า Exposure และแก้ย้อนหลังไม่ได้'
+    ' ?\\nระบบจะใช้ค่าล่าสุดจากทุกช่องใน Snapshot นี้ แล้วจบรอบทันที'
   );
 
   if(!ok) return;
@@ -454,17 +445,22 @@ async function confirmCutRound(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        action:'CONFIRM_CUT_ROUND',
+        action:'FINALIZE_CUT_ROUND',
         workspaceId:$('workspaceId').value.trim(),
         drawCode:$('drawCode').value.trim(),
         roundId:activeDraftRound.id,
+        edits,
         confirmedBy:'M'
       })
     });
 
     const data = await res.json();
+
     if(!res.ok || !data.ok){
-      throw new Error(data.message || 'ยืนยันรอบไม่สำเร็จ');
+      throw new Error(
+        data.message ||
+        'ตีออก/ยืนยันรอบไม่สำเร็จ'
+      );
     }
 
     await loadCutRounds();
@@ -473,7 +469,6 @@ async function confirmCutRound(){
     alert(err.message);
   }
 }
-
 async function adjust(betType, numberValue, adjustmentType){
   const label = adjustmentType === 'LIMIT' ? 'ยอดอั้น' : 'ยอดตีออก';
   const raw = prompt(label + ' สำหรับ ' + numberValue);
