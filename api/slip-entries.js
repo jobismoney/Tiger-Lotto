@@ -128,6 +128,127 @@ async function addEntry(res, body) {
   }
 }
 
+
+async function batchAddEntries(res, body) {
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const slipId = clean(body.slipId);
+  const subkeyCode = upper(body.subkeyCode);
+  const entries = Array.isArray(body.entries) ? body.entries : [];
+
+  if (!workspaceId || !drawCode || !slipId || !subkeyCode) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูลโพยหรือ Subkey ไม่ครบ'
+    });
+  }
+
+  if (!entries.length || entries.length > 100) {
+    return res.status(400).json({
+      ok: false,
+      message: 'จำนวนรายการไม่ถูกต้อง'
+    });
+  }
+
+  const normalized = [];
+
+  for (const item of entries) {
+    const numberValue = clean(item.numberValue);
+    const betType = upper(item.betType);
+    const amount = normalizeAmount(item.amount);
+
+    if (!/^[0-9]{1,5}$/.test(numberValue)) {
+      return res.status(400).json({
+        ok: false,
+        message: 'มีเลขไม่ถูกต้องในชุดรายการ'
+      });
+    }
+
+    if (!betType || amount === null) {
+      return res.status(400).json({
+        ok: false,
+        message: 'มีประเภทหรือราคาไม่ถูกต้องในชุดรายการ'
+      });
+    }
+
+    normalized.push({
+      numberValue,
+      betType,
+      amount
+    });
+  }
+
+  const holder = await verifySlipHolder({
+    workspaceId,
+    drawCode,
+    slipId,
+    subkeyCode
+  });
+
+  if (!holder.ok) {
+    return res.status(holder.status).json({
+      ok: false,
+      message: holder.message
+    });
+  }
+
+  const numbers = normalized.map(item => item.numberValue);
+  const types = normalized.map(item => item.betType);
+  const amounts = normalized.map(item => item.amount);
+
+  const rows = await sql`
+    with base as (
+      select coalesce(max(entry_seq), 0) as max_seq
+      from slip_entries
+      where workspace_id = ${workspaceId}
+        and slip_id = ${slipId}
+    ),
+    input as (
+      select *
+      from unnest(
+        ${numbers}::text[],
+        ${types}::text[],
+        ${amounts}::numeric[]
+      ) with ordinality
+      as t(number_value, bet_type, amount, ord)
+    )
+    insert into slip_entries (
+      workspace_id,
+      draw_code,
+      slip_id,
+      file_id,
+      entry_seq,
+      number_value,
+      bet_type,
+      amount,
+      created_by,
+      created_at,
+      updated_at
+    )
+    select
+      ${workspaceId},
+      ${drawCode},
+      ${slipId},
+      ${holder.slip.file_id},
+      base.max_seq + input.ord::integer,
+      input.number_value,
+      input.bet_type,
+      input.amount,
+      ${subkeyCode},
+      now(),
+      now()
+    from input
+    cross join base
+    returning *
+  `;
+
+  return res.status(201).json({
+    ok: true,
+    message: 'เพิ่มรายการชุดสำเร็จ',
+    entries: rows.map(mapEntry)
+  });
+}
+
 async function updateEntry(res, body) {
   const workspaceId = clean(body.workspaceId);
   const drawCode = upper(body.drawCode);
@@ -271,6 +392,10 @@ export default async function handler(req, res) {
 
       if (action === 'ADD') {
         return await addEntry(res, body);
+      }
+
+      if (action === 'BATCH_ADD') {
+        return await batchAddEntries(res, body);
       }
 
       if (action === 'UPDATE') {
