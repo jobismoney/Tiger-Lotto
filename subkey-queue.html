@@ -700,6 +700,7 @@ let editingEntryId = null;
 let includeReverse = false;
 let multiNumberMode = false;
 let multiNumberDigits = 0;
+let optimisticEntrySeed = -1;
 
 
 // =========================================================
@@ -1383,6 +1384,123 @@ async function postSlipEntry(
 }
 
 
+
+async function postSlipEntryBatch(entries) {
+
+  const response =
+    await fetch(
+      '/api/slip-entries',
+      {
+        method:
+          'POST',
+
+        headers: {
+          'Content-Type':
+            'application/json'
+        },
+
+        body:
+          JSON.stringify({
+            action:
+              'BATCH_ADD',
+
+            workspaceId,
+
+            drawCode:
+              currentJob.drawCode,
+
+            slipId:
+              currentJob.slipId,
+
+            subkeyCode:
+              currentJob.assignedSubkey ||
+              currentSubkey(),
+
+            entries
+          })
+      }
+    );
+
+  const data =
+    await response.json();
+
+  if (
+    !response.ok ||
+    !data.ok
+  ) {
+    throw new Error(
+      data.message ||
+      'บันทึกรายการชุดไม่สำเร็จ'
+    );
+  }
+
+  return data;
+}
+
+
+function addOptimisticEntries(
+  numbers,
+  betType,
+  amount
+) {
+
+  const now =
+    new Date().toISOString();
+
+  const optimistic =
+    numbers.map(
+      numberValue => ({
+        id:
+          optimisticEntrySeed--,
+
+        workspaceId,
+
+        drawCode:
+          currentJob.drawCode,
+
+        slipId:
+          currentJob.slipId,
+
+        fileId:
+          currentJob.fileId,
+
+        entrySeq:
+          Number.MAX_SAFE_INTEGER +
+          optimisticEntrySeed,
+
+        numberValue,
+
+        betType,
+
+        amount:
+          Number(amount),
+
+        createdBy:
+          currentJob.assignedSubkey ||
+          currentSubkey(),
+
+        createdAt:
+          now,
+
+        updatedAt:
+          now,
+
+        optimistic:
+          true
+      })
+    );
+
+  // รายการล่าสุดอยู่บนสุดทันที
+  currentEntries =
+    [
+      ...optimistic.reverse(),
+      ...currentEntries
+    ];
+
+  renderEntries();
+}
+
+
 async function saveSlipEntry() {
 
   if (!currentJob) {
@@ -1555,34 +1673,22 @@ async function saveSlipEntry() {
           ...new Set(queue)
         ];
 
-      for (
-        const numberValue of
-        uniqueNumbers
-      ) {
+      // แสดงผลบนจอทันที ไม่รอ network ทีละเลข
+      addOptimisticEntries(
+        uniqueNumbers,
+        betType,
+        amount
+      );
 
-        await postSlipEntry({
-          action:
-            'ADD',
-
-          workspaceId,
-
-          drawCode:
-            currentJob.drawCode,
-
-          slipId:
-            currentJob.slipId,
-
-          subkeyCode:
-            currentJob.assignedSubkey ||
-            currentSubkey(),
-
-          numberValue,
-
-          betType,
-
-          amount
-        });
-      }
+      await postSlipEntryBatch(
+        uniqueNumbers.map(
+          numberValue => ({
+            numberValue,
+            betType,
+            amount
+          })
+        )
+      );
     }
 
     const wasEditing =
