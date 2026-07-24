@@ -397,6 +397,48 @@ async function ensureExposureTables() {
       is_enabled
     )
   `;
+
+  await sql`
+    create table if not exists exposure_cut_rounds (
+      id bigserial primary key,
+      workspace_id text not null,
+      draw_code text not null,
+      round_no integer not null,
+      round_code text not null,
+      status text not null default 'DRAFT',
+      created_by text,
+      created_at timestamptz not null default now(),
+      confirmed_by text,
+      confirmed_at timestamptz,
+      unique(workspace_id, draw_code, round_no),
+      unique(workspace_id, draw_code, round_code)
+    )
+  `;
+
+  await sql`
+    create table if not exists exposure_cut_items (
+      id bigserial primary key,
+      round_id bigint not null references exposure_cut_rounds(id) on delete cascade,
+      workspace_id text not null,
+      draw_code text not null,
+      bet_type text not null,
+      number_value text not null,
+      cut_amount numeric(14,2) not null default 0,
+      created_at timestamptz not null default now(),
+      unique(round_id, bet_type, number_value)
+    )
+  `;
+
+  await sql`
+    create index if not exists idx_exposure_cut_items_lookup
+    on exposure_cut_items (
+      workspace_id,
+      draw_code,
+      bet_type,
+      number_value,
+      round_id
+    )
+  `;
 }
 
 async function addExposureAdjustment(res, body) {
@@ -601,6 +643,283 @@ async function listExposureTypeLimits(req, res) {
   });
 }
 
+
+async function createCutRound(res, body) {
+  await ensureExposureTables();
+
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const createdBy = upper(body.createdBy || 'M');
+
+  if (!workspaceId || !drawCode) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูล Workspace/งวดไม่ครบ'
+    });
+  }
+
+  const existingDraft = await sql`
+    select *
+    from exposure_cut_rounds
+    where workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+      and status = 'DRAFT'
+    order by round_no desc
+    limit 1
+  `;
+
+  if (existingDraft.length) {
+    return res.status(200).json({
+      ok: true,
+      message: 'มีรอบตีออก DRAFT อยู่แล้ว',
+      round: existingDraft[0]
+    });
+  }
+
+  const nextRows = await sql`
+    select coalesce(max(round_no), 0) + 1 as next_no
+    from exposure_cut_rounds
+    where workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+  `;
+
+  const roundNo = Number(nextRows[0]?.next_no || 1);
+  const roundCode = 'R' + String(roundNo).padStart(3, '0');
+
+  const rows = await sql`
+    insert into exposure_cut_rounds (
+      workspace_id,
+      draw_code,
+      round_no,
+      round_code,
+      status,
+      created_by,
+      created_at
+    )
+    values (
+      ${workspaceId},
+      ${drawCode},
+      ${roundNo},
+      ${roundCode},
+      'DRAFT',
+      ${createdBy},
+      now()
+    )
+    returning *
+  `;
+
+  return res.status(201).json({
+    ok: true,
+    message: `สร้างรอบ ${roundCode} แล้ว`,
+    round: rows[0]
+  });
+}
+
+async function upsertCutRoundItem(res, body) {
+  await ensureExposureTables();
+
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const roundId = Number(body.roundId);
+  const betType = upper(body.betType);
+  const numberValue = clean(body.numberValue);
+  const cutAmount = normalizeAmount(body.cutAmount);
+
+  if (!workspaceId || !drawCode || !roundId || !betType || !numberValue) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูลรายการตีออกไม่ครบ'
+    });
+  }
+
+  if (cutAmount === null || cutAmount < 0) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ยอดตีออกไม่ถูกต้อง'
+    });
+  }
+
+  const roundRows = await sql`
+    select *
+    from exposure_cut_rounds
+    where id = ${roundId}
+      and workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+    limit 1
+  `;
+
+  const round = roundRows[0];
+
+  if (!round) {
+    return res.status(404).json({
+      ok: false,
+      message: 'ไม่พบรอบตีออก'
+    });
+  }
+
+  if (round.status !== 'DRAFT') {
+    return res.status(409).json({
+      ok: false,
+      message: 'รอบนี้ยืนยันแล้ว แก้ไม่ได้'
+    });
+  }
+
+  if (cutAmount === 0) {
+    await sql`
+      delete from exposure_cut_items
+      where round_id = ${roundId}
+        and bet_type = ${betType}
+        and number_value = ${numberValue}
+    `;
+
+    return res.status(200).json({
+      ok: true,
+      message: 'ลบรายการตีออกจากรอบแล้ว'
+    });
+  }
+
+  const rows = await sql`
+    insert into exposure_cut_items (
+      round_id,
+      workspace_id,
+      draw_code,
+      bet_type,
+      number_value,
+      cut_amount,
+      created_at
+    )
+    values (
+      ${roundId},
+      ${workspaceId},
+      ${drawCode},
+      ${betType},
+      ${numberValue},
+      ${cutAmount},
+      now()
+    )
+    on conflict (
+      round_id,
+      bet_type,
+      number_value
+    )
+    do update set
+      cut_amount = excluded.cut_amount
+    returning *
+  `;
+
+  return res.status(200).json({
+    ok: true,
+    message: 'บันทึกรายการตีออกในรอบแล้ว',
+    item: rows[0]
+  });
+}
+
+async function confirmCutRound(res, body) {
+  await ensureExposureTables();
+
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const roundId = Number(body.roundId);
+  const confirmedBy = upper(body.confirmedBy || 'M');
+
+  if (!workspaceId || !drawCode || !roundId) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูลยืนยันรอบไม่ครบ'
+    });
+  }
+
+  const rows = await sql`
+    update exposure_cut_rounds
+    set
+      status = 'CONFIRMED',
+      confirmed_by = ${confirmedBy},
+      confirmed_at = now()
+    where id = ${roundId}
+      and workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+      and status = 'DRAFT'
+    returning *
+  `;
+
+  if (!rows.length) {
+    return res.status(409).json({
+      ok: false,
+      message: 'รอบนี้ไม่อยู่ในสถานะ DRAFT หรือถูกยืนยันแล้ว'
+    });
+  }
+
+  return res.status(200).json({
+    ok: true,
+    message: `ยืนยัน ${rows[0].round_code} แล้ว`,
+    round: rows[0]
+  });
+}
+
+async function listCutRounds(req, res) {
+  await ensureExposureTables();
+
+  const workspaceId = clean(req.query?.workspaceId);
+  const drawCode = upper(req.query?.drawCode);
+
+  if (!workspaceId || !drawCode) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูล Workspace/งวดไม่ครบ'
+    });
+  }
+
+  const rounds = await sql`
+    select
+      r.*,
+      coalesce(sum(i.cut_amount), 0)::numeric as total_cut,
+      count(i.id)::integer as item_count
+    from exposure_cut_rounds r
+    left join exposure_cut_items i
+      on i.round_id = r.id
+    where r.workspace_id = ${workspaceId}
+      and upper(r.draw_code) = ${drawCode}
+    group by r.id
+    order by r.round_no asc
+  `;
+
+  const items = await sql`
+    select
+      i.*,
+      r.round_code,
+      r.status as round_status
+    from exposure_cut_items i
+    join exposure_cut_rounds r
+      on r.id = i.round_id
+    where i.workspace_id = ${workspaceId}
+      and upper(i.draw_code) = ${drawCode}
+    order by r.round_no asc, i.bet_type asc, i.number_value asc
+  `;
+
+  return res.status(200).json({
+    ok: true,
+    rounds: rounds.map(row => ({
+      id: Number(row.id),
+      roundNo: Number(row.round_no),
+      roundCode: row.round_code,
+      status: row.status,
+      totalCut: Number(row.total_cut || 0),
+      itemCount: Number(row.item_count || 0),
+      createdAt: row.created_at,
+      confirmedAt: row.confirmed_at
+    })),
+    items: items.map(row => ({
+      id: Number(row.id),
+      roundId: Number(row.round_id),
+      roundCode: row.round_code,
+      roundStatus: row.round_status,
+      betType: row.bet_type,
+      numberValue: row.number_value,
+      cutAmount: Number(row.cut_amount || 0)
+    }))
+  });
+}
+
 async function listExposureIndex(req, res) {
   await ensureExposureTables();
 
@@ -644,18 +963,48 @@ async function listExposureIndex(req, res) {
   `;
 
   const cutRows = await sql`
+    with legacy as (
+      select
+        bet_type,
+        number_value,
+        coalesce(sum(amount), 0)::numeric as cut_amount
+      from exposure_adjustments
+      where workspace_id = ${workspaceId}
+        and upper(draw_code) = ${drawCode}
+        and adjustment_type = 'CUT'
+        and status = 'CONFIRMED'
+      group by bet_type, number_value
+    ),
+    rounds as (
+      select
+        i.bet_type,
+        i.number_value,
+        coalesce(sum(i.cut_amount), 0)::numeric as cut_amount
+      from exposure_cut_items i
+      join exposure_cut_rounds r
+        on r.id = i.round_id
+      where i.workspace_id = ${workspaceId}
+        and upper(i.draw_code) = ${drawCode}
+        and r.status = 'CONFIRMED'
+      group by i.bet_type, i.number_value
+    ),
+    keys as (
+      select bet_type, number_value from legacy
+      union
+      select bet_type, number_value from rounds
+    )
     select
-      bet_type,
-      number_value,
-      coalesce(sum(amount), 0)::numeric as cut_amount
-    from exposure_adjustments
-    where workspace_id = ${workspaceId}
-      and upper(draw_code) = ${drawCode}
-      and adjustment_type = 'CUT'
-      and status = 'CONFIRMED'
-    group by
-      bet_type,
-      number_value
+      k.bet_type,
+      k.number_value,
+      coalesce(l.cut_amount, 0)
+      + coalesce(r.cut_amount, 0) as cut_amount
+    from keys k
+    left join legacy l
+      on l.bet_type = k.bet_type
+     and l.number_value = k.number_value
+    left join rounds r
+      on r.bet_type = k.bet_type
+     and r.number_value = k.number_value
   `;
 
   const limitMap = new Map(
@@ -819,6 +1168,10 @@ export default async function handler(req, res) {
         return await listExposureTypeLimits(req, res);
       }
 
+      if (mode === 'CUT_ROUNDS') {
+        return await listCutRounds(req, res);
+      }
+
       return await listEntries(req, res);
     }
 
@@ -840,6 +1193,18 @@ export default async function handler(req, res) {
 
       if (action === 'SET_EXPOSURE_TYPE_LIMIT') {
         return await upsertExposureTypeLimit(res, body);
+      }
+
+      if (action === 'CREATE_CUT_ROUND') {
+        return await createCutRound(res, body);
+      }
+
+      if (action === 'UPSERT_CUT_ROUND_ITEM') {
+        return await upsertCutRoundItem(res, body);
+      }
+
+      if (action === 'CONFIRM_CUT_ROUND') {
+        return await confirmCutRound(res, body);
       }
 
       if (action === 'UPDATE') {
