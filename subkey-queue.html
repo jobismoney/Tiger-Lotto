@@ -317,6 +317,94 @@
       line-height: 1.55;
     }
 
+    .keying-panel {
+      margin-top: 18px;
+      border-top: 1px solid #303945;
+      padding-top: 16px;
+    }
+
+    .keying-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .keying-list {
+      margin-top: 14px;
+      border: 1px solid #39414b;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #0b0f13;
+    }
+
+    .keying-row {
+      display: grid;
+      grid-template-columns: 1fr .8fr .7fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid #252d36;
+      font-size: 13px;
+    }
+
+    .keying-row:last-child {
+      border-bottom: 0;
+    }
+
+    .keying-number {
+      font-weight: 900;
+      font-size: 16px;
+    }
+
+    .keying-type {
+      color: #a9d2ff;
+      font-weight: 800;
+    }
+
+    .keying-amount {
+      font-weight: 900;
+      text-align: right;
+    }
+
+    .keying-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-mini {
+      border: 0;
+      border-radius: 6px;
+      padding: 6px 9px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .btn-edit {
+      background: #3d5f82;
+      color: #fff;
+    }
+
+    .btn-delete {
+      background: #7d3a35;
+      color: #fff;
+    }
+
+    .keying-empty {
+      padding: 18px;
+      color: #7f8b97;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .keying-summary {
+      margin-top: 10px;
+      color: #9bc6ef;
+      font-size: 12px;
+    }
+
+
     .queue-head {
       display: flex;
       justify-content: space-between;
@@ -607,6 +695,8 @@ let currentJob = null;
 let activeRelayRequestId = null;
 let relayPollCancelled = false;
 let currentObjectUrl = null;
+let currentEntries = [];
+let editingEntryId = null;
 
 
 // =========================================================
@@ -772,6 +862,561 @@ function previewDebug(message) {
   if (transferStatus) {
     transferStatus.textContent =
       'DEBUG: ' + message;
+  }
+}
+
+
+
+// =========================================================
+// SLIP ENTRIES
+// =========================================================
+
+function entryTypeLabel(value) {
+  const type = clean(value);
+
+  const map = {
+    '3บน': 'บน',
+    '2บน': 'บน',
+    '3ล่าง': 'ล่าง',
+    '2ล่าง': 'ล่าง',
+    '3หน้า': 'หน้า',
+    '2หน้า': 'หน้า',
+    'โต๊ด2': 'โต๊ด',
+    'โต๊ด3': 'โต๊ด',
+    'โต๊ด4': 'โต๊ด',
+    'โต๊ด5': 'โต๊ด'
+  };
+
+  return map[type] || type;
+}
+
+
+async function loadEntries() {
+
+  if (
+    !currentJob ||
+    !currentJob.slipId
+  ) {
+    currentEntries = [];
+    renderEntries();
+    return;
+  }
+
+  const url =
+    '/api/slip-entries' +
+    '?workspaceId=' +
+    encodeURIComponent(
+      workspaceId
+    ) +
+    '&drawCode=' +
+    encodeURIComponent(
+      currentJob.drawCode
+    ) +
+    '&slipId=' +
+    encodeURIComponent(
+      currentJob.slipId
+    ) +
+    '&subkeyCode=' +
+    encodeURIComponent(
+      currentJob.assignedSubkey ||
+      currentSubkey()
+    );
+
+  const response =
+    await fetch(
+      url,
+      {
+        cache:
+          'no-store'
+      }
+    );
+
+  const data =
+    await response.json();
+
+  if (
+    !response.ok ||
+    !data.ok
+  ) {
+    throw new Error(
+      data.message ||
+      'โหลดรายการคีย์ไม่สำเร็จ'
+    );
+  }
+
+  currentEntries =
+    data.entries || [];
+
+  renderEntries(
+    data.summary
+  );
+}
+
+
+function renderEntries(summary = null) {
+
+  const list =
+    document.getElementById(
+      'keyingList'
+    );
+
+  const summaryBox =
+    document.getElementById(
+      'keyingSummary'
+    );
+
+  if (!list || !summaryBox) {
+    return;
+  }
+
+  const count =
+    summary?.count ??
+    currentEntries.length;
+
+  const total =
+    summary?.totalAmount ??
+    currentEntries.reduce(
+      (
+        sum,
+        item
+      ) =>
+        sum +
+        Number(
+          item.amount || 0
+        ),
+      0
+    );
+
+  summaryBox.textContent =
+    count +
+    ' รายการ • รวม ' +
+    total;
+
+  if (!currentEntries.length) {
+    list.innerHTML =
+      '<div class="keying-empty">ยังไม่มีรายการ</div>';
+    return;
+  }
+
+  list.innerHTML =
+    currentEntries.map(
+      item => `
+        <div class="keying-row">
+
+          <div class="keying-number">
+            ${escapeHtml(
+              item.numberValue
+            )}
+          </div>
+
+          <div class="keying-type">
+            ${escapeHtml(
+              entryTypeLabel(
+                item.betType
+              )
+            )}
+          </div>
+
+          <div class="keying-amount">
+            ${escapeHtml(
+              item.amount
+            )}
+          </div>
+
+          <div class="keying-actions">
+
+            <button
+              class="btn-mini btn-edit"
+              data-edit-entry="${item.id}"
+            >
+              แก้
+            </button>
+
+            <button
+              class="btn-mini btn-delete"
+              data-delete-entry="${item.id}"
+            >
+              ลบ
+            </button>
+
+          </div>
+
+        </div>
+      `
+    ).join('');
+
+  list
+    .querySelectorAll(
+      '[data-edit-entry]'
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          'click',
+          () => {
+
+            const entryId =
+              Number(
+                button.dataset.editEntry
+              );
+
+            startEditEntry(
+              entryId
+            );
+          }
+        );
+      }
+    );
+
+  list
+    .querySelectorAll(
+      '[data-delete-entry]'
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          'click',
+          () => {
+
+            const entryId =
+              Number(
+                button.dataset.deleteEntry
+              );
+
+            deleteSlipEntry(
+              entryId
+            );
+          }
+        );
+      }
+    );
+}
+
+
+function startEditEntry(
+  entryId
+) {
+
+  const entry =
+    currentEntries.find(
+      item =>
+        Number(item.id) ===
+        Number(entryId)
+    );
+
+  if (!entry) {
+    return;
+  }
+
+  editingEntryId =
+    Number(entry.id);
+
+  const numberInput =
+    document.getElementById(
+      'entryNumber'
+    );
+
+  const typeInput =
+    document.getElementById(
+      'entryType'
+    );
+
+  const amountInput =
+    document.getElementById(
+      'entryAmount'
+    );
+
+  const addBtn =
+    document.getElementById(
+      'addEntryBtn'
+    );
+
+  numberInput.value =
+    entry.numberValue;
+
+  typeInput.value =
+    entryTypeLabel(
+      entry.betType
+    );
+
+  amountInput.value =
+    entry.amount;
+
+  addBtn.textContent =
+    'บันทึกแก้ไข';
+
+  numberInput.focus();
+}
+
+
+function resetEntryForm() {
+
+  editingEntryId =
+    null;
+
+  const numberInput =
+    document.getElementById(
+      'entryNumber'
+    );
+
+  const amountInput =
+    document.getElementById(
+      'entryAmount'
+    );
+
+  const addBtn =
+    document.getElementById(
+      'addEntryBtn'
+    );
+
+  if (numberInput) {
+    numberInput.value = '';
+  }
+
+  if (amountInput) {
+    amountInput.value = '';
+  }
+
+  if (addBtn) {
+    addBtn.textContent =
+      'เพิ่ม';
+  }
+
+  if (numberInput) {
+    numberInput.focus();
+  }
+}
+
+
+async function saveSlipEntry() {
+
+  if (!currentJob) {
+    return;
+  }
+
+  const numberInput =
+    document.getElementById(
+      'entryNumber'
+    );
+
+  const typeInput =
+    document.getElementById(
+      'entryType'
+    );
+
+  const amountInput =
+    document.getElementById(
+      'entryAmount'
+    );
+
+  const addBtn =
+    document.getElementById(
+      'addEntryBtn'
+    );
+
+  const numberValue =
+    clean(
+      numberInput.value
+    );
+
+  const betType =
+    clean(
+      typeInput.value
+    );
+
+  const amount =
+    clean(
+      amountInput.value
+    );
+
+  if (!numberValue) {
+
+    setStatus(
+      'กรุณากรอกเลข',
+      'error'
+    );
+
+    numberInput.focus();
+    return;
+  }
+
+  if (!amount) {
+
+    setStatus(
+      'กรุณากรอกราคา',
+      'error'
+    );
+
+    amountInput.focus();
+    return;
+  }
+
+  addBtn.disabled =
+    true;
+
+  try {
+
+    const response =
+      await fetch(
+        '/api/slip-entries',
+        {
+          method:
+            'POST',
+
+          headers: {
+            'Content-Type':
+              'application/json'
+          },
+
+          body:
+            JSON.stringify({
+              action:
+                editingEntryId
+                  ? 'UPDATE'
+                  : 'ADD',
+
+              workspaceId,
+
+              drawCode:
+                currentJob.drawCode,
+
+              slipId:
+                currentJob.slipId,
+
+              subkeyCode:
+                currentJob.assignedSubkey ||
+                currentSubkey(),
+
+              entryId:
+                editingEntryId,
+
+              numberValue,
+
+              betType,
+
+              amount
+            })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.ok
+    ) {
+      throw new Error(
+        data.message ||
+        'บันทึกรายการไม่สำเร็จ'
+      );
+    }
+
+    resetEntryForm();
+
+    await loadEntries();
+
+    setStatus(
+      editingEntryId
+        ? 'แก้รายการสำเร็จ'
+        : 'เพิ่มรายการสำเร็จ',
+      'success'
+    );
+
+  } catch (error) {
+
+    setStatus(
+      error.message ||
+      'บันทึกรายการไม่สำเร็จ',
+      'error'
+    );
+
+  } finally {
+
+    addBtn.disabled =
+      false;
+  }
+}
+
+
+async function deleteSlipEntry(
+  entryId
+) {
+
+  if (
+    !currentJob ||
+    !confirm(
+      'ลบรายการนี้ใช่หรือไม่?'
+    )
+  ) {
+    return;
+  }
+
+  try {
+
+    const response =
+      await fetch(
+        '/api/slip-entries',
+        {
+          method:
+            'POST',
+
+          headers: {
+            'Content-Type':
+              'application/json'
+          },
+
+          body:
+            JSON.stringify({
+              action:
+                'DELETE',
+
+              workspaceId,
+
+              drawCode:
+                currentJob.drawCode,
+
+              slipId:
+                currentJob.slipId,
+
+              subkeyCode:
+                currentJob.assignedSubkey ||
+                currentSubkey(),
+
+              entryId
+            })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.ok
+    ) {
+      throw new Error(
+        data.message ||
+        'ลบรายการไม่สำเร็จ'
+      );
+    }
+
+    await loadEntries();
+
+    setStatus(
+      'ลบรายการสำเร็จ',
+      'success'
+    );
+
+  } catch (error) {
+
+    setStatus(
+      error.message ||
+      'ลบรายการไม่สำเร็จ',
+      'error'
+    );
   }
 }
 
@@ -1125,6 +1770,9 @@ async function claimNext() {
       currentJob =
         null;
 
+      currentEntries =
+        [];
+
       renderCurrentJob();
 
       setStatus(
@@ -1141,6 +1789,8 @@ async function claimNext() {
       data.slip;
 
     renderCurrentJob();
+
+    await loadEntries();
 
     await loadQueue();
 
@@ -1370,6 +2020,85 @@ function renderCurrentJob() {
           </div>
 
           <div
+            class="keying-panel"
+          >
+            <div
+              style="
+                font-size:16px;
+                font-weight:900;
+                margin-bottom:12px;
+              "
+            >
+              คีย์รายการ
+            </div>
+
+            <div class="keying-grid">
+
+              <div>
+                <label>เลข</label>
+                <input
+                  id="entryNumber"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  placeholder="เช่น 678"
+                >
+              </div>
+
+              <div>
+                <label>ประเภท</label>
+                <select id="entryType">
+                  <option value="บน">บน</option>
+                  <option value="ล่าง">ล่าง</option>
+                  <option value="หน้า">หน้า</option>
+                  <option value="โต๊ด">โต๊ด</option>
+                  <option value="วิ่งบน">วิ่งบน</option>
+                  <option value="วิ่งล่าง">วิ่งล่าง</option>
+                  <option value="ปักบน">ปักบน</option>
+                  <option value="ปักล่าง">ปักล่าง</option>
+                </select>
+              </div>
+
+              <div>
+                <label>ราคา</label>
+                <input
+                  id="entryAmount"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  placeholder="เช่น 10"
+                >
+              </div>
+
+              <div>
+                <button
+                  id="addEntryBtn"
+                  class="btn btn-primary"
+                >
+                  เพิ่ม
+                </button>
+              </div>
+
+            </div>
+
+            <div
+              id="keyingSummary"
+              class="keying-summary"
+            >
+              0 รายการ • รวม 0
+            </div>
+
+            <div
+              id="keyingList"
+              class="keying-list"
+            >
+              <div class="keying-empty">
+                ยังไม่มีรายการ
+              </div>
+            </div>
+          </div>
+
+
+
+          <div
             id="routeBox"
             class="route-box"
           >
@@ -1432,6 +2161,32 @@ function renderCurrentJob() {
     .addEventListener(
       'click',
       releaseCurrentJob
+    );
+
+  document
+    .getElementById(
+      'addEntryBtn'
+    )
+    .addEventListener(
+      'click',
+      saveSlipEntry
+    );
+
+  document
+    .getElementById(
+      'entryAmount'
+    )
+    .addEventListener(
+      'keydown',
+      event => {
+
+        if (
+          event.key ===
+          'Enter'
+        ) {
+          saveSlipEntry();
+        }
+      }
     );
 }
 
@@ -2528,6 +3283,9 @@ async function completeCurrentJob() {
     currentJob =
       null;
 
+    currentEntries =
+      [];
+
     activeRelayRequestId =
       null;
 
@@ -2701,6 +3459,9 @@ drawSelect.addEventListener(
 
     currentJob =
       null;
+
+    currentEntries =
+      [];
 
     renderCurrentJob();
 
