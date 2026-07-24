@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>T999 Exposure Index V5.1</title>
+  <title>T999 Exposure Index V5.2</title>
   <style>
     *{box-sizing:border-box} body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;background:#f5f5f5;color:#111}
     .wrap{max-width:1280px;margin:auto;padding:18px}.top{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
@@ -35,7 +35,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>Exposure Index V5.1</h1>
+  <h1>Exposure Index V5.2</h1>
   <div class="note">ศูนย์กลางยอดรับจากโพยที่ S จบใบแล้ว (COMPLETED) • อั้นตั้งตามประเภท • ตีออกสะสมยืนยันแยกบัญชี</div>
 
   <div class="top">
@@ -73,7 +73,7 @@
       <span id="activeRoundLabel" class="round-badge">ยังไม่มี Snapshot DRAFT</span>
       <button id="confirmRoundBtn" style="display:none">ตีออก / ยืนยันรอบ</button>
     </div>
-    <div class="note">กดตั้งรอบแล้วระบบ Snapshot ยอดคงเหลือ ณ เวลานั้นให้นิ่งทันที • S ยังเติมยอดใหม่ด้านหลังได้ • แก้ตัวเลขในช่องได้เลย ไม่ต้องกดบันทึกรายแถว • เสร็จแล้วกดตีออก/ยืนยันรอบปุ่มเดียว</div>
+    <div class="note">กดตั้งรอบแล้วระบบ Snapshot ยอดคงเหลือ ณ เวลานั้นให้นิ่งทันที • ถ้ามี DRAFT ว่างค้าง ระบบจะใช้รอบเดิมและ Snapshot ยอดสดใหม่ให้ทันที • S ยังเติมยอดใหม่ด้านหลังได้ • แก้ตัวเลขในช่องได้เลย ไม่ต้องกดบันทึกรายแถว • เสร็จแล้วกดตีออก/ยืนยันรอบปุ่มเดียว</div>
     <div id="snapshotEditor" style="margin-top:12px"></div>
     <div id="roundHistory" style="margin-top:10px"></div>
   </div>
@@ -406,6 +406,57 @@ function collectSnapshotEdits(){
         cutAmount: Number(input?.value || 0)
       };
     });
+}
+
+
+async function createCutRound(){
+  const workspaceId =
+    $('workspaceId').value.trim();
+
+  const drawCode =
+    $('drawCode').value.trim();
+
+  if(!workspaceId || !drawCode){
+    alert('กรอก Workspace และงวดก่อน');
+    return;
+  }
+
+  try{
+    const res = await fetch(
+      '/api/slip-entries',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':
+            'application/json'
+        },
+        body:JSON.stringify({
+          action:'CREATE_CUT_ROUND',
+          workspaceId,
+          drawCode,
+          createdBy:'M'
+        })
+      }
+    );
+
+    const data =
+      await res.json();
+
+    if(!res.ok || !data.ok){
+      throw new Error(
+        data.message ||
+        'ตั้งรอบ Snapshot ไม่สำเร็จ'
+      );
+    }
+
+    // Reload round first so the frozen editor appears immediately.
+    await loadCutRounds();
+
+    // Then refresh live Exposure behind it.
+    await loadExposure();
+  }catch(err){
+    alert(err.message);
+  }
 }
 
 async function confirmCutRound(){
