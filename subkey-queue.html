@@ -757,6 +757,25 @@ function revokeCurrentObjectUrl() {
 }
 
 
+function previewDebug(message) {
+
+  console.log(
+    '[PREVIEW DEBUG]',
+    message
+  );
+
+  const transferStatus =
+    document.getElementById(
+      'transferStatus'
+    );
+
+  if (transferStatus) {
+    transferStatus.textContent =
+      'DEBUG: ' + message;
+  }
+}
+
+
 // =========================================================
 // LOAD DRAWS
 // =========================================================
@@ -1484,6 +1503,18 @@ async function smartLoadImage() {
     await tryPrestagePreview();
 
   if (
+    !previewResult.ok
+  ) {
+    previewDebug(
+      'FALLBACK REASON: ' +
+      (
+        previewResult.reason ||
+        'UNKNOWN'
+      )
+    );
+  }
+
+  if (
     previewResult.ok
   ) {
 
@@ -1730,6 +1761,17 @@ async function getPreviewStatus() {
   const data =
     await response.json();
 
+  previewDebug(
+    'STATUS HTTP ' +
+    response.status +
+    ' / ' +
+    (
+      data?.asset?.previewStatus ||
+      data?.message ||
+      'NO_STATUS'
+    )
+  );
+
   if (
     !response.ok ||
     !data.ok ||
@@ -1780,7 +1822,22 @@ async function downloadPreviewImage() {
       }
     );
 
+  previewDebug(
+    'DOWNLOAD HTTP ' +
+    response.status
+  );
+
   if (!response.ok) {
+
+    const errorText =
+      await response.text();
+
+    previewDebug(
+      'DOWNLOAD FAIL ' +
+      response.status +
+      ' / ' +
+      errorText.slice(0, 120)
+    );
 
     return {
       ok: false,
@@ -1791,6 +1848,16 @@ async function downloadPreviewImage() {
 
   const blob =
     await response.blob();
+
+  previewDebug(
+    'BLOB ' +
+    blob.size +
+    ' bytes / ' +
+    (
+      blob.type ||
+      'NO_TYPE'
+    )
+  );
 
   if (!blob.size) {
 
@@ -1839,6 +1906,10 @@ async function downloadPreviewImage() {
 
   if (!loaded) {
 
+    previewDebug(
+      'IMG LOAD FAILED'
+    );
+
     revokeCurrentObjectUrl();
 
     return {
@@ -1846,6 +1917,10 @@ async function downloadPreviewImage() {
       status: 0
     };
   }
+
+  previewDebug(
+    'IMG LOAD OK'
+  );
 
   img.alt =
     currentJob.sourceFilename ||
