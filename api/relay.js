@@ -350,6 +350,401 @@ async function verifySubkeyHolder({
   return rows.length > 0;
 }
 
+
+// =========================================================
+// PRE-STAGE PREVIEW
+// =========================================================
+
+async function claimPrestage(req, res, body) {
+  const workspace = clean(body.workspaceId);
+  const bridgeCode = upper(body.bridgeCode);
+
+  if (!workspace || !bridgeCode) {
+    return res.status(400).json({
+      ok: false,
+      message: 'Workspace หรือ Bridge Code ไม่ครบ'
+    });
+  }
+
+  const workspaceCheck = await verifyWorkspace(workspace);
+
+  if (!workspaceCheck.ok) {
+    return res.status(workspaceCheck.status).json({
+      ok: false,
+      message: workspaceCheck.message
+    });
+  }
+
+  const claimed = await sql`
+    with next_asset as (
+      select a.id
+      from file_assets a
+      inner join intake_slips s
+        on s.workspace_id = a.workspace_id
+       and s.file_id = a.file_id
+      where a.workspace_id = ${workspace}
+        and a.status = 'AVAILABLE'
+        and coalesce(a.preview_status, 'NONE') in ('NONE', 'FAILED')
+        and s.queue_status in ('WAITING', 'IN_PROGRESS')
+      order by s.received_at asc, s.id asc
+      for update of a skip locked
+      limit 1
+    )
+    update file_assets
+    set
+      preview_status = 'UPLOADING',
+      updated_at = now()
+    where id = (select id from next_asset)
+    returning
+      workspace_id,
+      draw_code,
+      file_id,
+      source_filename,
+      mime_type,
+      file_size_bytes,
+      checksum_sha256,
+      preview_status
+  `;
+
+  if (!claimed.length) {
+    return res.status(200).json({
+      ok: true,
+      empty: true,
+      message: 'ไม่มีไฟล์ที่ต้อง Pre-Stage'
+    });
+  }
+
+  const asset = claimed[0];
+
+  return res.status(200).json({
+    ok: true,
+    empty: false,
+    message: 'Bridge รับงาน Pre-Stage สำเร็จ',
+    bridgeCode,
+    asset: {
+      workspaceId: asset.workspace_id,
+      drawCode: asset.draw_code,
+      fileId: asset.file_id,
+      sourceFilename: asset.source_filename,
+      mimeType: asset.mime_type || '',
+      fileSizeBytes: asset.file_size_bytes || null,
+      checksumSha256: asset.checksum_sha256 || '',
+      previewStatus: asset.preview_status
+    }
+  });
+}
+
+async function prestageUpload(req, res) {
+  const workspace = clean(req.query?.workspaceId);
+  const fileId = clean(req.query?.fileId);
+  const bridgeCode = upper(req.query?.bridgeCode);
+  const filename = safeFilename(req.query?.filename);
+
+  if (!workspace || !fileId || !bridgeCode) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูล Pre-Stage Upload ไม่ครบ'
+    });
+  }
+
+  const assetRows = await sql`
+    select
+      workspace_id,
+      draw_code,
+      file_id,
+      status,
+      preview_status
+    from file_assets
+    where workspace_id = ${workspace}
+      and file_id = ${fileId}
+    limit 1
+  `;
+
+  if (!assetRows.length) {
+    return res.status(404).json({
+      ok: false,
+      message: 'ไม่พบ File Asset'
+    });
+  }
+
+  const asset = assetRows[0];
+
+  if (asset.status !== 'AVAILABLE') {
+    return res.status(409).json({
+      ok: false,
+      message: 'File Asset ไม่พร้อมใช้งาน'
+    });
+  }
+
+  if (asset.preview_status === 'READY') {
+    return res.status(200).json({
+      ok: true,
+      reused: true,
+      message: 'Preview นี้ READY อยู่แล้ว'
+    });
+  }
+
+  if (asset.preview_status !== 'UPLOADING') {
+    return res.status(409).json({
+      ok: false,
+      message: 'File Asset ไม่ได้อยู่ในสถานะ UPLOADING'
+    });
+  }
+
+  const fileBuffer = await readRawBody(req);
+
+  if (!fileBuffer.length) {
+    await sql`
+      update file_assets
+      set preview_status = 'FAILED', updated_at = now()
+      where workspace_id = ${workspace}
+        and file_id = ${fileId}
+    `;
+
+    return res.status(400).json({
+      ok: false,
+      message: 'ไม่พบข้อมูลไฟล์ Preview'
+    });
+  }
+
+  const contentType =
+    clean(req.headers['content-type']) ||
+    'application/octet-stream';
+
+  const pathname = [
+    'prestage',
+    workspace,
+    asset.draw_code,
+    fileId,
+    filename
+  ]
+    .map(part =>
+      String(part).replace(/[^a-zA-Z0-9._-]/g, '_')
+    )
+    .join('/');
+
+  try {
+    const blob = await put(pathname, fileBuffer, {
+      access: 'private',
+      contentType,
+      addRandomSuffix: false,
+      cacheControlMaxAge: 300
+    });
+
+    const ready = await sql`
+      update file_assets
+      set
+        preview_status = 'READY',
+        preview_blob_pathname = ${blob.pathname},
+        preview_file_size_bytes = ${fileBuffer.length},
+        preview_content_type = ${contentType},
+        updated_at = now()
+      where workspace_id = ${workspace}
+        and file_id = ${fileId}
+        and status = 'AVAILABLE'
+      returning
+        file_id,
+        preview_status,
+        preview_blob_pathname,
+        preview_file_size_bytes,
+        preview_content_type
+    `;
+
+    if (!ready.length) {
+      return res.status(409).json({
+        ok: false,
+        message: 'Upload Preview สำเร็จ แต่บันทึกสถานะไม่สำเร็จ'
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      reused: false,
+      message: 'Pre-Stage Preview สำเร็จ',
+      bridgeCode,
+      asset: {
+        fileId: ready[0].file_id,
+        previewStatus: ready[0].preview_status,
+        previewPathname: ready[0].preview_blob_pathname,
+        previewFileSizeBytes: ready[0].preview_file_size_bytes,
+        previewContentType: ready[0].preview_content_type
+      }
+    });
+  } catch (error) {
+    await sql`
+      update file_assets
+      set preview_status = 'FAILED', updated_at = now()
+      where workspace_id = ${workspace}
+        and file_id = ${fileId}
+    `;
+    throw error;
+  }
+}
+
+async function previewStatus(req, res) {
+  const workspace = clean(req.query?.workspaceId);
+  const fileId = clean(req.query?.fileId);
+
+  if (!workspace || !fileId) {
+    return res.status(400).json({
+      ok: false,
+      message: 'Workspace หรือ File ID ไม่ครบ'
+    });
+  }
+
+  const rows = await sql`
+    select
+      file_id,
+      preview_status,
+      preview_file_size_bytes,
+      preview_content_type
+    from file_assets
+    where workspace_id = ${workspace}
+      and file_id = ${fileId}
+    limit 1
+  `;
+
+  if (!rows.length) {
+    return res.status(404).json({
+      ok: false,
+      message: 'ไม่พบ File Asset'
+    });
+  }
+
+  const asset = rows[0];
+
+  return res.status(200).json({
+    ok: true,
+    asset: {
+      fileId: asset.file_id,
+      previewStatus: asset.preview_status || 'NONE',
+      previewFileSizeBytes: asset.preview_file_size_bytes || null,
+      previewContentType: asset.preview_content_type || ''
+    }
+  });
+}
+
+async function previewDownload(req, res) {
+  const workspace = clean(req.query?.workspaceId);
+  const fileId = clean(req.query?.fileId);
+  const requesterType = upper(req.query?.requesterType);
+  const requesterCode = upper(req.query?.requesterCode);
+
+  if (!workspace || !fileId || !requesterType) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูล Preview Download ไม่ครบ'
+    });
+  }
+
+  const rows = await sql`
+    select
+      workspace_id,
+      draw_code,
+      file_id,
+      status,
+      preview_status,
+      preview_blob_pathname,
+      preview_file_size_bytes,
+      preview_content_type
+    from file_assets
+    where workspace_id = ${workspace}
+      and file_id = ${fileId}
+    limit 1
+  `;
+
+  if (!rows.length) {
+    return res.status(404).json({
+      ok: false,
+      message: 'ไม่พบ File Asset'
+    });
+  }
+
+  const asset = rows[0];
+
+  if (asset.status !== 'AVAILABLE') {
+    return res.status(409).json({
+      ok: false,
+      message: 'File Asset ไม่พร้อมใช้งาน'
+    });
+  }
+
+  if (
+    asset.preview_status !== 'READY' ||
+    !asset.preview_blob_pathname
+  ) {
+    return res.status(409).json({
+      ok: false,
+      message: 'Preview ยังไม่พร้อม'
+    });
+  }
+
+  if (requesterType === 'S') {
+    if (!requesterCode) {
+      return res.status(400).json({
+        ok: false,
+        message: 'ไม่พบรหัส Subkey'
+      });
+    }
+
+    const allowed = await verifySubkeyHolder({
+      workspaceId: workspace,
+      drawCode: asset.draw_code,
+      fileId: asset.file_id,
+      subkeyCode: requesterCode
+    });
+
+    if (!allowed) {
+      return res.status(403).json({
+        ok: false,
+        message: 'Subkey นี้ไม่มีสิทธิ์ Download Preview นี้'
+      });
+    }
+  }
+
+  const result = await get(asset.preview_blob_pathname, {
+    access: 'private'
+  });
+
+  if (!result) {
+    return res.status(404).json({
+      ok: false,
+      message: 'ไม่พบ Preview ใน Private Blob'
+    });
+  }
+
+  res.statusCode = 200;
+  res.setHeader(
+    'Content-Type',
+    asset.preview_content_type ||
+      result.blob?.contentType ||
+      'application/octet-stream'
+  );
+  res.setHeader(
+    'Cache-Control',
+    'private, max-age=60'
+  );
+  res.setHeader(
+    'X-Content-Type-Options',
+    'nosniff'
+  );
+
+  if (asset.preview_file_size_bytes) {
+    res.setHeader(
+      'Content-Length',
+      String(asset.preview_file_size_bytes)
+    );
+  }
+
+  const nodeStream = Readable.fromWeb(result.stream);
+
+  await new Promise((resolve, reject) => {
+    nodeStream.on('error', reject);
+    res.on('finish', resolve);
+    nodeStream.pipe(res);
+  });
+}
+
 // =========================================================
 // CREATE REQUEST
 // =========================================================
@@ -1595,6 +1990,20 @@ export default async function handler(
         );
       }
 
+      if (action === 'PREVIEW_STATUS') {
+        return await previewStatus(
+          req,
+          res
+        );
+      }
+
+      if (action === 'PREVIEW_DOWNLOAD') {
+        return await previewDownload(
+          req,
+          res
+        );
+      }
+
       return res.status(400).json({
         ok: false,
         message:
@@ -1622,6 +2031,13 @@ export default async function handler(
         );
       }
 
+      if (queryAction === 'PRESTAGE_UPLOAD') {
+        return await prestageUpload(
+          req,
+          res
+        );
+      }
+
       // -----------------------------------------------
       // JSON Actions
       // -----------------------------------------------
@@ -1631,6 +2047,14 @@ export default async function handler(
 
       const action =
         upper(body.action);
+
+      if (action === 'CLAIM_PRESTAGE') {
+        return await claimPrestage(
+          req,
+          res,
+          body
+        );
+      }
 
       if (action === 'CREATE_REQUEST') {
         return await createRequest(
