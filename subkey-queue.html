@@ -697,6 +697,7 @@ let relayPollCancelled = false;
 let currentObjectUrl = null;
 let currentEntries = [];
 let editingEntryId = null;
+let includeReverse = false;
 
 
 // =========================================================
@@ -1156,6 +1157,11 @@ function resetEntryForm() {
   editingEntryId =
     null;
 
+  includeReverse =
+    false;
+
+  updateReverseButton();
+
   const numberInput =
     document.getElementById(
       'entryNumber'
@@ -1190,6 +1196,126 @@ function resetEntryForm() {
 }
 
 
+
+function parseTwoDigitNumbers(rawValue) {
+
+  const raw =
+    clean(rawValue);
+
+  if (!raw) {
+    return {
+      ok: false,
+      message:
+        'กรุณากรอกเลข'
+    };
+  }
+
+  const parts =
+    raw.split('/').map(
+      item =>
+        clean(item)
+    );
+
+  if (
+    parts.some(
+      item =>
+        !/^\d{2}$/.test(item)
+    )
+  ) {
+    return {
+      ok: false,
+      message:
+        '2 ตัวไทยต้องเป็นเลข 2 หลักเท่ากันทุกตัว เช่น 25/26/27'
+    };
+  }
+
+  return {
+    ok: true,
+    numbers: parts
+  };
+}
+
+
+function reversedTwoDigit(value) {
+
+  const text =
+    clean(value);
+
+  if (!/^\d{2}$/.test(text)) {
+    return '';
+  }
+
+  return text[1] + text[0];
+}
+
+
+function updateReverseButton() {
+
+  const button =
+    document.getElementById(
+      'reverseEntryBtn'
+    );
+
+  if (!button) {
+    return;
+  }
+
+  button.textContent =
+    includeReverse
+      ? 'กลับ ✓'
+      : 'กลับ';
+}
+
+
+function toggleReverseMode() {
+
+  includeReverse =
+    !includeReverse;
+
+  updateReverseButton();
+}
+
+
+async function postSlipEntry(
+  payload
+) {
+
+  const response =
+    await fetch(
+      '/api/slip-entries',
+      {
+        method:
+          'POST',
+
+        headers: {
+          'Content-Type':
+            'application/json'
+        },
+
+        body:
+          JSON.stringify(
+            payload
+          )
+      }
+    );
+
+  const data =
+    await response.json();
+
+  if (
+    !response.ok ||
+    !data.ok
+  ) {
+    throw new Error(
+      data.message ||
+      'บันทึกรายการไม่สำเร็จ'
+    );
+  }
+
+  return data;
+}
+
+
 async function saveSlipEntry() {
 
   if (!currentJob) {
@@ -1216,10 +1342,21 @@ async function saveSlipEntry() {
       'addEntryBtn'
     );
 
-  const numberValue =
-    clean(
+  const parsed =
+    parseTwoDigitNumbers(
       numberInput.value
     );
+
+  if (!parsed.ok) {
+
+    setStatus(
+      parsed.message,
+      'error'
+    );
+
+    numberInput.focus();
+    return;
+  }
 
   const betType =
     clean(
@@ -1230,17 +1367,6 @@ async function saveSlipEntry() {
     clean(
       amountInput.value
     );
-
-  if (!numberValue) {
-
-    setStatus(
-      'กรุณากรอกเลข',
-      'error'
-    );
-
-    numberInput.focus();
-    return;
-  }
 
   if (!amount) {
 
@@ -1253,73 +1379,138 @@ async function saveSlipEntry() {
     return;
   }
 
+  // EDIT: แก้ได้ทีละรายการเท่านั้น
+  if (
+    editingEntryId &&
+    parsed.numbers.length !== 1
+  ) {
+
+    setStatus(
+      'โหมดแก้ไขให้ใส่เลขเดียว',
+      'error'
+    );
+
+    return;
+  }
+
   addBtn.disabled =
     true;
 
   try {
 
-    const response =
-      await fetch(
-        '/api/slip-entries',
-        {
-          method:
-            'POST',
+    if (editingEntryId) {
 
-          headers: {
-            'Content-Type':
-              'application/json'
-          },
+      await postSlipEntry({
+        action:
+          'UPDATE',
 
-          body:
-            JSON.stringify({
-              action:
-                editingEntryId
-                  ? 'UPDATE'
-                  : 'ADD',
+        workspaceId,
 
-              workspaceId,
+        drawCode:
+          currentJob.drawCode,
 
-              drawCode:
-                currentJob.drawCode,
+        slipId:
+          currentJob.slipId,
 
-              slipId:
-                currentJob.slipId,
+        subkeyCode:
+          currentJob.assignedSubkey ||
+          currentSubkey(),
 
-              subkeyCode:
-                currentJob.assignedSubkey ||
-                currentSubkey(),
+        entryId:
+          editingEntryId,
 
-              entryId:
-                editingEntryId,
+        numberValue:
+          parsed.numbers[0],
 
-              numberValue,
+        betType,
 
-              betType,
+        amount
+      });
 
-              amount
-            })
+    } else {
+
+      const queue = [];
+
+      for (
+        const numberValue of
+        parsed.numbers
+      ) {
+
+        queue.push(
+          numberValue
+        );
+
+        if (includeReverse) {
+
+          const reversed =
+            reversedTwoDigit(
+              numberValue
+            );
+
+          if (
+            reversed &&
+            reversed !==
+              numberValue
+          ) {
+            queue.push(
+              reversed
+            );
+          }
         }
-      );
+      }
 
-    const data =
-      await response.json();
+      // กันเลขซ้ำในชุดเดียวกัน แต่คงลำดับที่คีย์
+      const uniqueNumbers =
+        [
+          ...new Set(queue)
+        ];
 
-    if (
-      !response.ok ||
-      !data.ok
-    ) {
-      throw new Error(
-        data.message ||
-        'บันทึกรายการไม่สำเร็จ'
-      );
+      for (
+        const numberValue of
+        uniqueNumbers
+      ) {
+
+        await postSlipEntry({
+          action:
+            'ADD',
+
+          workspaceId,
+
+          drawCode:
+            currentJob.drawCode,
+
+          slipId:
+            currentJob.slipId,
+
+          subkeyCode:
+            currentJob.assignedSubkey ||
+            currentSubkey(),
+
+          numberValue,
+
+          betType,
+
+          amount
+        });
+      }
     }
 
+    const wasEditing =
+      Boolean(
+        editingEntryId
+      );
+
     resetEntryForm();
+
+    includeReverse =
+      false;
+
+    updateReverseButton();
 
     await loadEntries();
 
     setStatus(
-      editingEntryId
+      wasEditing
         ? 'แก้รายการสำเร็จ'
         : 'เพิ่มรายการสำเร็จ',
       'success'
@@ -2051,10 +2242,6 @@ function renderCurrentJob() {
                   <option value="ล่าง">ล่าง</option>
                   <option value="หน้า">หน้า</option>
                   <option value="โต๊ด">โต๊ด</option>
-                  <option value="วิ่งบน">วิ่งบน</option>
-                  <option value="วิ่งล่าง">วิ่งล่าง</option>
-                  <option value="ปักบน">ปักบน</option>
-                  <option value="ปักล่าง">ปักล่าง</option>
                 </select>
               </div>
 
@@ -2069,14 +2256,35 @@ function renderCurrentJob() {
               </div>
 
               <div>
-                <button
-                  id="addEntryBtn"
-                  class="btn btn-primary"
-                >
-                  เพิ่ม
-                </button>
+                <div style="display:flex;gap:8px;">
+                  <button
+                    id="reverseEntryBtn"
+                    class="btn btn-secondary"
+                    type="button"
+                    title="กลับเลข (ArrowUp)"
+                  >
+                    กลับ
+                  </button>
+
+                  <button
+                    id="addEntryBtn"
+                    class="btn btn-primary"
+                  >
+                    เพิ่ม
+                  </button>
+                </div>
               </div>
 
+            </div>
+
+            <div
+              style="
+                margin-top:8px;
+                color:#6f94b6;
+                font-size:11px;
+              "
+            >
+              2 ตัวไทย V1 • ใช้ / สำหรับหลายเลข เช่น 25/26/27 • กด ↑ หรือปุ่ม “กลับ” เพื่อใส่เลขกลับด้วยราคา/ประเภทเดียวกัน
             </div>
 
             <div
@@ -2170,6 +2378,36 @@ function renderCurrentJob() {
     .addEventListener(
       'click',
       saveSlipEntry
+    );
+
+
+  document
+    .getElementById(
+      'reverseEntryBtn'
+    )
+    .addEventListener(
+      'click',
+      toggleReverseMode
+    );
+
+  document
+    .getElementById(
+      'entryNumber'
+    )
+    .addEventListener(
+      'keydown',
+      event => {
+
+        if (
+          event.key ===
+          'ArrowUp'
+        ) {
+
+          event.preventDefault();
+
+          toggleReverseMode();
+        }
+      }
     );
 
   document
