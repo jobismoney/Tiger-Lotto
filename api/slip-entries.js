@@ -373,6 +373,30 @@ async function ensureExposureTables() {
       created_at
     )
   `;
+
+  await sql`
+    create table if not exists exposure_type_limits (
+      id bigserial primary key,
+      workspace_id text not null,
+      draw_code text not null,
+      category_key text not null,
+      limit_amount numeric(14,2) not null default 0,
+      is_enabled boolean not null default true,
+      updated_by text,
+      updated_at timestamptz not null default now(),
+      unique(workspace_id, draw_code, category_key)
+    )
+  `;
+
+  await sql`
+    create index if not exists idx_exposure_type_limits_lookup
+    on exposure_type_limits (
+      workspace_id,
+      draw_code,
+      category_key,
+      is_enabled
+    )
+  `;
 }
 
 async function addExposureAdjustment(res, body) {
@@ -452,7 +476,94 @@ async function addExposureAdjustment(res, body) {
   });
 }
 
-async function listExposureIndex(req, res) {
+
+function exposureCategoryKey(numberValue, betType) {
+  const digits = clean(numberValue).length;
+  const type = upper(betType);
+
+  if (digits === 1 && type === 'วิ่งบน') return 'RUN_TOP';
+  if (digits === 1 && type === 'วิ่งล่าง') return 'RUN_BOTTOM';
+
+  if (digits === 2 && type === 'บน') return '2_TOP';
+  if (digits === 2 && type === 'ล่าง') return '2_BOTTOM';
+  if (digits === 2 && type === 'หน้า') return '2_FRONT';
+  if (digits === 2 && type === 'โต๊ด') return 'TOOD_2';
+
+  if (digits === 3 && type === 'บน') return '3_TOP';
+  if (digits === 3 && type === 'ล่าง') return '3_BOTTOM';
+  if (digits === 3 && type === 'หน้า') return '3_FRONT';
+  if (digits === 3 && type === 'โต๊ด') return 'TOOD_3';
+
+  if (digits === 4 && type === 'โต๊ด') return 'TOOD_4';
+  if (digits === 5 && type === 'โต๊ด') return 'TOOD_5';
+
+  return `${digits}_${type || 'UNKNOWN'}`;
+}
+
+async function upsertExposureTypeLimit(res, body) {
+  await ensureExposureTables();
+
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const categoryKey = upper(body.categoryKey);
+  const limitAmount = normalizeAmount(body.limitAmount);
+  const isEnabled = body.isEnabled !== false;
+  const updatedBy = upper(body.updatedBy || 'M');
+
+  if (!workspaceId || !drawCode || !categoryKey) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูลตั้งอั้นไม่ครบ'
+    });
+  }
+
+  if (limitAmount === null || limitAmount < 0) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ยอดอั้นไม่ถูกต้อง'
+    });
+  }
+
+  const rows = await sql`
+    insert into exposure_type_limits (
+      workspace_id,
+      draw_code,
+      category_key,
+      limit_amount,
+      is_enabled,
+      updated_by,
+      updated_at
+    )
+    values (
+      ${workspaceId},
+      ${drawCode},
+      ${categoryKey},
+      ${limitAmount},
+      ${isEnabled},
+      ${updatedBy},
+      now()
+    )
+    on conflict (
+      workspace_id,
+      draw_code,
+      category_key
+    )
+    do update set
+      limit_amount = excluded.limit_amount,
+      is_enabled = excluded.is_enabled,
+      updated_by = excluded.updated_by,
+      updated_at = now()
+    returning *
+  `;
+
+  return res.status(200).json({
+    ok: true,
+    message: 'บันทึกอั้นตามประเภทแล้ว',
+    limit: rows[0]
+  });
+}
+
+async function listExposureTypeLimits(req, res) {
   await ensureExposureTables();
 
   const workspaceId = clean(req.query?.workspaceId);
@@ -466,83 +577,154 @@ async function listExposureIndex(req, res) {
   }
 
   const rows = await sql`
-    with exposure_base as (
-      select
-        e.bet_type,
-        e.number_value,
-        count(*)::integer as entry_count,
-        count(distinct e.slip_id)::integer as slip_count,
-        coalesce(sum(e.amount), 0)::numeric as gross_amount
-      from slip_entries e
-      join intake_slips s
-        on s.workspace_id = e.workspace_id
-       and s.slip_id = e.slip_id
-      where e.workspace_id = ${workspaceId}
-        and upper(coalesce(e.draw_code, '')) = ${drawCode}
-        and s.queue_status = 'COMPLETED'
-      group by
-        e.bet_type,
-        e.number_value
-    ),
-    adjustments as (
-      select
-        bet_type,
-        number_value,
-        coalesce(sum(amount) filter (
-          where adjustment_type = 'LIMIT'
-            and status = 'CONFIRMED'
-        ), 0)::numeric as limit_amount,
-        coalesce(sum(amount) filter (
-          where adjustment_type = 'CUT'
-            and status = 'CONFIRMED'
-        ), 0)::numeric as cut_amount
-      from exposure_adjustments
-      where workspace_id = ${workspaceId}
-        and upper(draw_code) = ${drawCode}
-      group by
-        bet_type,
-        number_value
-    )
     select
-      b.bet_type,
-      b.number_value,
-      b.entry_count,
-      b.slip_count,
-      b.gross_amount,
-      coalesce(a.limit_amount, 0)::numeric as limit_amount,
-      coalesce(a.cut_amount, 0)::numeric as cut_amount,
-      greatest(
-        b.gross_amount
-        - coalesce(a.limit_amount, 0)
-        - coalesce(a.cut_amount, 0),
-        0
-      )::numeric as current_balance
-    from exposure_base b
-    left join adjustments a
-      on a.bet_type = b.bet_type
-     and a.number_value = b.number_value
-    order by
-      b.bet_type asc,
-      current_balance desc,
-      b.gross_amount desc,
-      b.number_value asc
+      category_key,
+      limit_amount,
+      is_enabled,
+      updated_by,
+      updated_at
+    from exposure_type_limits
+    where workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+    order by category_key asc
   `;
 
-  const items = rows.map(row => ({
-    betType: row.bet_type,
-    numberValue: row.number_value,
-    entryCount: Number(row.entry_count || 0),
-    slipCount: Number(row.slip_count || 0),
-    grossAmount: Number(row.gross_amount || 0),
-    limitAmount: Number(row.limit_amount || 0),
-    cutAmount: Number(row.cut_amount || 0),
-    currentBalance: Number(row.current_balance || 0)
-  }));
+  return res.status(200).json({
+    ok: true,
+    limits: rows.map(row => ({
+      categoryKey: row.category_key,
+      limitAmount: Number(row.limit_amount || 0),
+      isEnabled: Boolean(row.is_enabled),
+      updatedBy: row.updated_by,
+      updatedAt: row.updated_at
+    }))
+  });
+}
+
+async function listExposureIndex(req, res) {
+  await ensureExposureTables();
+
+  const workspaceId = clean(req.query?.workspaceId);
+  const drawCode = upper(req.query?.drawCode);
+
+  if (!workspaceId || !drawCode) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูล Workspace/งวดไม่ครบ'
+    });
+  }
+
+  const baseRows = await sql`
+    select
+      e.bet_type,
+      e.number_value,
+      count(*)::integer as entry_count,
+      count(distinct e.slip_id)::integer as slip_count,
+      coalesce(sum(e.amount), 0)::numeric as gross_amount
+    from slip_entries e
+    join intake_slips s
+      on s.workspace_id = e.workspace_id
+     and s.slip_id = e.slip_id
+    where e.workspace_id = ${workspaceId}
+      and upper(coalesce(e.draw_code, '')) = ${drawCode}
+      and s.queue_status = 'COMPLETED'
+    group by
+      e.bet_type,
+      e.number_value
+  `;
+
+  const limitRows = await sql`
+    select
+      category_key,
+      limit_amount,
+      is_enabled
+    from exposure_type_limits
+    where workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+  `;
+
+  const cutRows = await sql`
+    select
+      bet_type,
+      number_value,
+      coalesce(sum(amount), 0)::numeric as cut_amount
+    from exposure_adjustments
+    where workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+      and adjustment_type = 'CUT'
+      and status = 'CONFIRMED'
+    group by
+      bet_type,
+      number_value
+  `;
+
+  const limitMap = new Map(
+    limitRows.map(row => [
+      row.category_key,
+      {
+        amount: Number(row.limit_amount || 0),
+        enabled: Boolean(row.is_enabled)
+      }
+    ])
+  );
+
+  const cutMap = new Map(
+    cutRows.map(row => [
+      `${row.bet_type}|||${row.number_value}`,
+      Number(row.cut_amount || 0)
+    ])
+  );
+
+  const items = baseRows.map(row => {
+    const grossAmount = Number(row.gross_amount || 0);
+    const categoryKey = exposureCategoryKey(
+      row.number_value,
+      row.bet_type
+    );
+
+    const categoryLimit = limitMap.get(categoryKey);
+    const limitAmount =
+      categoryLimit?.enabled
+        ? Number(categoryLimit.amount || 0)
+        : 0;
+
+    const cutAmount =
+      cutMap.get(
+        `${row.bet_type}|||${row.number_value}`
+      ) || 0;
+
+    const currentBalance = Math.max(
+      grossAmount -
+      limitAmount -
+      cutAmount,
+      0
+    );
+
+    return {
+      betType: row.bet_type,
+      numberValue: row.number_value,
+      categoryKey,
+      entryCount: Number(row.entry_count || 0),
+      slipCount: Number(row.slip_count || 0),
+      grossAmount,
+      limitAmount,
+      cutAmount,
+      currentBalance
+    };
+  }).sort((a, b) =>
+    a.categoryKey.localeCompare(b.categoryKey) ||
+    b.currentBalance - a.currentBalance ||
+    b.grossAmount - a.grossAmount ||
+    a.numberValue.localeCompare(b.numberValue)
+  );
 
   const summary = items.reduce((acc, item) => {
     acc.entryCount += item.entryCount;
     acc.grossAmount += item.grossAmount;
-    acc.limitAmount += item.limitAmount;
+    acc.limitAmount += Math.min(
+      item.limitAmount,
+      item.grossAmount
+    );
     acc.cutAmount += item.cutAmount;
     acc.currentBalance += item.currentBalance;
     return acc;
@@ -566,14 +748,22 @@ async function listExposureIndex(req, res) {
       and s.queue_status = 'COMPLETED'
   `;
 
-  summary.slipCount = Number(slipRows[0]?.slip_count || 0);
+  summary.slipCount = Number(
+    slipRows[0]?.slip_count || 0
+  );
 
   return res.status(200).json({
     ok: true,
-    sourceOfTruth: 'COMPLETED_SLIP_ENTRIES_PLUS_CONFIRMED_ADJUSTMENTS',
+    sourceOfTruth:
+      'COMPLETED_SLIP_ENTRIES_PLUS_TYPE_LIMITS_PLUS_CONFIRMED_CUTS',
     workspaceId,
     drawCode,
     items,
+    limits: limitRows.map(row => ({
+      categoryKey: row.category_key,
+      limitAmount: Number(row.limit_amount || 0),
+      isEnabled: Boolean(row.is_enabled)
+    })),
     summary
   });
 }
@@ -625,6 +815,10 @@ export default async function handler(req, res) {
         return await listExposureIndex(req, res);
       }
 
+      if (mode === 'EXPOSURE_LIMITS') {
+        return await listExposureTypeLimits(req, res);
+      }
+
       return await listEntries(req, res);
     }
 
@@ -642,6 +836,10 @@ export default async function handler(req, res) {
 
       if (action === 'EXPOSURE_ADJUST') {
         return await addExposureAdjustment(res, body);
+      }
+
+      if (action === 'SET_EXPOSURE_TYPE_LIMIT') {
+        return await upsertExposureTypeLimit(res, body);
       }
 
       if (action === 'UPDATE') {
