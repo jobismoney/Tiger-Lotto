@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>T999 Exposure Index V1</title>
+  <title>T999 Exposure Index V3</title>
   <style>
     *{box-sizing:border-box} body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;background:#f5f5f5;color:#111}
     .wrap{max-width:1280px;margin:auto;padding:18px}.top{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
@@ -18,13 +18,19 @@
     table{width:100%;border-collapse:collapse}th,td{padding:9px 12px;border-bottom:1px solid #eee;text-align:right}
     th:first-child,td:first-child{text-align:left}.num{font-weight:900;font-size:17px}.money{font-weight:900}
     .empty{padding:28px;text-align:center;color:#777}
+    .limit-panel{background:#fff;border:1px solid #ddd;border-radius:10px;padding:14px;margin:12px 0}
+    .limit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .limit-row{border:1px solid #eee;border-radius:8px;padding:10px;display:flex;align-items:center;gap:8px}
+    .limit-row .grow{flex:1}.limit-row input{width:110px;height:36px}
+    .limit-row button{height:36px;padding:0 12px}
+    @media(max-width:900px){.limit-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:700px){.cards{grid-template-columns:1fr}.wrap{padding:10px}th,td{padding:8px 7px;font-size:13px}}
   </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Exposure Index V1</h1>
-  <div class="note">ศูนย์กลางยอดรับจากโพยที่ S จบใบแล้ว (COMPLETED) — ยังไม่หักอั้น/ตีออกใน V1 นี้</div>
+  <h1>Exposure Index V3</h1>
+  <div class="note">ศูนย์กลางยอดรับจากโพยที่ S จบใบแล้ว (COMPLETED) • อั้นตั้งตามประเภท • ตีออกสะสมยืนยันแยกบัญชี</div>
 
   <div class="top">
     <div class="field">
@@ -46,6 +52,13 @@
     <div class="card"><div class="note">ยอดคงเหลือ</div><div id="currentBalance" class="big">0</div></div>
   </div>
 
+  
+  <div class="limit-panel">
+    <h3 style="margin-top:0">ตั้งอั้นตามประเภท</h3>
+    <div class="note">ใส่ยอดครั้งเดียว ระบบใช้กับเลขทั้งหมดในประเภทนั้นของงวดนี้</div>
+    <div id="limitGrid" class="limit-grid"></div>
+  </div>
+
   <div id="groups"></div>
 </div>
 
@@ -65,7 +78,99 @@ function fromQuery(){
   $('drawCode').value = p.get('drawCode') || localStorage.getItem('t999_draw_code') || '';
 }
 
+
+const CATEGORY_LABELS = {
+  RUN_TOP:'วิ่งบน',
+  RUN_BOTTOM:'วิ่งล่าง',
+  '2_TOP':'2บน',
+  '2_BOTTOM':'2ล่าง',
+  '2_FRONT':'2หน้า',
+  TOOD_2:'โต๊ด2',
+  '3_TOP':'3บน/ชุด',
+  '3_BOTTOM':'3ล่าง',
+  '3_FRONT':'3หน้า/ชุดหน้า',
+  TOOD_3:'โต๊ด3',
+  TOOD_4:'โต๊ด4',
+  TOOD_5:'โต๊ด5'
+};
+
+const CATEGORY_ORDER = [
+  '3_TOP','3_FRONT','3_BOTTOM','TOOD_3',
+  '2_TOP','2_BOTTOM','2_FRONT','TOOD_2',
+  'RUN_TOP','RUN_BOTTOM',
+  'TOOD_4','TOOD_5'
+];
+
+function renderLimitSettings(data){
+  const map = new Map(
+    (data.limits || []).map(
+      item => [item.categoryKey, item]
+    )
+  );
+
+  $('limitGrid').innerHTML =
+    CATEGORY_ORDER.map(categoryKey => {
+      const item = map.get(categoryKey);
+      const value = item?.isEnabled
+        ? Number(item.limitAmount || 0)
+        : 0;
+
+      return `
+        <div class="limit-row">
+          <div class="grow">
+            <strong>${esc(CATEGORY_LABELS[categoryKey] || categoryKey)}</strong>
+          </div>
+          <input
+            id="limit_${categoryKey}"
+            type="number"
+            min="0"
+            step="1"
+            value="${esc(value)}"
+          >
+          <button onclick="saveTypeLimit('${categoryKey}')">บันทึก</button>
+        </div>
+      `;
+    }).join('');
+}
+
+async function saveTypeLimit(categoryKey){
+  const input = $('limit_' + categoryKey);
+  const limitAmount = Number(input.value);
+
+  if(!Number.isFinite(limitAmount) || limitAmount < 0){
+    alert('ยอดอั้นไม่ถูกต้อง');
+    return;
+  }
+
+  try{
+    const res = await fetch('/api/slip-entries', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action:'SET_EXPOSURE_TYPE_LIMIT',
+        workspaceId:$('workspaceId').value.trim(),
+        drawCode:$('drawCode').value.trim(),
+        categoryKey,
+        limitAmount,
+        isEnabled:limitAmount > 0,
+        updatedBy:'M'
+      })
+    });
+
+    const data = await res.json();
+    if(!res.ok || !data.ok){
+      throw new Error(data.message || 'บันทึกอั้นไม่สำเร็จ');
+    }
+
+    await loadExposure();
+  }catch(err){
+    alert(err.message);
+  }
+}
+
 function render(data){
+  renderLimitSettings(data);
+
   $('slipCount').textContent = money(data.summary?.slipCount);
   $('grossAmount').textContent = money(data.summary?.grossAmount);
   $('currentBalance').textContent = money(data.summary?.currentBalance);
@@ -99,7 +204,6 @@ function render(data){
               <td>${money(item.cutAmount)}</td>
               <td class="money">${money(item.currentBalance)}</td>
               <td>
-                <button onclick="adjust('${esc(type)}','${esc(item.numberValue)}','LIMIT')">อั้น</button>
                 <button onclick="adjust('${esc(type)}','${esc(item.numberValue)}','CUT')">ตีออก</button>
               </td>
             </tr>
