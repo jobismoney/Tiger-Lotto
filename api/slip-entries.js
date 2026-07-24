@@ -343,7 +343,118 @@ async function deleteEntry(res, body) {
 }
 
 
+
+async function ensureExposureTables() {
+  await sql`
+    create table if not exists exposure_adjustments (
+      id bigserial primary key,
+      workspace_id text not null,
+      draw_code text not null,
+      bet_type text not null,
+      number_value text not null,
+      adjustment_type text not null,
+      amount numeric(14,2) not null default 0,
+      status text not null default 'CONFIRMED',
+      note text,
+      created_by text,
+      created_at timestamptz not null default now()
+    )
+  `;
+
+  await sql`
+    create index if not exists idx_exposure_adjustments_lookup
+    on exposure_adjustments (
+      workspace_id,
+      draw_code,
+      bet_type,
+      number_value,
+      adjustment_type,
+      status,
+      created_at
+    )
+  `;
+}
+
+async function addExposureAdjustment(res, body) {
+  await ensureExposureTables();
+
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const betType = upper(body.betType);
+  const numberValue = clean(body.numberValue);
+  const adjustmentType = upper(body.adjustmentType);
+  const amount = normalizeAmount(body.amount);
+  const note = clean(body.note);
+  const createdBy = upper(body.createdBy || 'M');
+
+  if (!workspaceId || !drawCode || !betType || !numberValue) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูล Exposure adjustment ไม่ครบ'
+    });
+  }
+
+  if (!/^[0-9]{1,5}$/.test(numberValue)) {
+    return res.status(400).json({
+      ok: false,
+      message: 'เลขไม่ถูกต้อง'
+    });
+  }
+
+  if (!['LIMIT', 'CUT'].includes(adjustmentType)) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ประเภท adjustment ไม่ถูกต้อง'
+    });
+  }
+
+  if (amount === null || amount < 0) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ยอดไม่ถูกต้อง'
+    });
+  }
+
+  const rows = await sql`
+    insert into exposure_adjustments (
+      workspace_id,
+      draw_code,
+      bet_type,
+      number_value,
+      adjustment_type,
+      amount,
+      status,
+      note,
+      created_by,
+      created_at
+    )
+    values (
+      ${workspaceId},
+      ${drawCode},
+      ${betType},
+      ${numberValue},
+      ${adjustmentType},
+      ${amount},
+      'CONFIRMED',
+      ${note || null},
+      ${createdBy},
+      now()
+    )
+    returning *
+  `;
+
+  return res.status(201).json({
+    ok: true,
+    message: adjustmentType === 'LIMIT'
+      ? 'บันทึกยอดอั้นแล้ว'
+      : 'บันทึกยอดตีออกยืนยันแล้ว',
+    adjustment: rows[0]
+  });
+}
+
 async function listExposureIndex(req, res) {
+  await ensureExposureTables();
+
   const workspaceId = clean(req.query?.workspaceId);
   const drawCode = upper(req.query?.drawCode);
 
@@ -355,33 +466,97 @@ async function listExposureIndex(req, res) {
   }
 
   const rows = await sql`
+    with exposure_base as (
+      select
+        e.bet_type,
+        e.number_value,
+        count(*)::integer as entry_count,
+        count(distinct e.slip_id)::integer as slip_count,
+        coalesce(sum(e.amount), 0)::numeric as gross_amount
+      from slip_entries e
+      join intake_slips s
+        on s.workspace_id = e.workspace_id
+       and s.slip_id = e.slip_id
+      where e.workspace_id = ${workspaceId}
+        and upper(coalesce(e.draw_code, '')) = ${drawCode}
+        and s.queue_status = 'COMPLETED'
+      group by
+        e.bet_type,
+        e.number_value
+    ),
+    adjustments as (
+      select
+        bet_type,
+        number_value,
+        coalesce(sum(amount) filter (
+          where adjustment_type = 'LIMIT'
+            and status = 'CONFIRMED'
+        ), 0)::numeric as limit_amount,
+        coalesce(sum(amount) filter (
+          where adjustment_type = 'CUT'
+            and status = 'CONFIRMED'
+        ), 0)::numeric as cut_amount
+      from exposure_adjustments
+      where workspace_id = ${workspaceId}
+        and upper(draw_code) = ${drawCode}
+      group by
+        bet_type,
+        number_value
+    )
     select
-      e.bet_type,
-      e.number_value,
-      count(*)::integer as entry_count,
-      count(distinct e.slip_id)::integer as slip_count,
-      coalesce(sum(e.amount), 0)::numeric as gross_amount
-    from slip_entries e
-    join intake_slips s
-      on s.workspace_id = e.workspace_id
-     and s.slip_id = e.slip_id
-    where e.workspace_id = ${workspaceId}
-      and upper(coalesce(e.draw_code, '')) = ${drawCode}
-      and s.queue_status = 'COMPLETED'
-    group by
-      e.bet_type,
-      e.number_value
+      b.bet_type,
+      b.number_value,
+      b.entry_count,
+      b.slip_count,
+      b.gross_amount,
+      coalesce(a.limit_amount, 0)::numeric as limit_amount,
+      coalesce(a.cut_amount, 0)::numeric as cut_amount,
+      greatest(
+        b.gross_amount
+        - coalesce(a.limit_amount, 0)
+        - coalesce(a.cut_amount, 0),
+        0
+      )::numeric as current_balance
+    from exposure_base b
+    left join adjustments a
+      on a.bet_type = b.bet_type
+     and a.number_value = b.number_value
     order by
-      e.bet_type asc,
-      coalesce(sum(e.amount), 0) desc,
-      e.number_value asc
+      b.bet_type asc,
+      current_balance desc,
+      b.gross_amount desc,
+      b.number_value asc
   `;
 
-  const summaryRows = await sql`
-    select
-      count(distinct e.slip_id)::integer as slip_count,
-      count(*)::integer as entry_count,
-      coalesce(sum(e.amount), 0)::numeric as gross_amount
+  const items = rows.map(row => ({
+    betType: row.bet_type,
+    numberValue: row.number_value,
+    entryCount: Number(row.entry_count || 0),
+    slipCount: Number(row.slip_count || 0),
+    grossAmount: Number(row.gross_amount || 0),
+    limitAmount: Number(row.limit_amount || 0),
+    cutAmount: Number(row.cut_amount || 0),
+    currentBalance: Number(row.current_balance || 0)
+  }));
+
+  const summary = items.reduce((acc, item) => {
+    acc.entryCount += item.entryCount;
+    acc.grossAmount += item.grossAmount;
+    acc.limitAmount += item.limitAmount;
+    acc.cutAmount += item.cutAmount;
+    acc.currentBalance += item.currentBalance;
+    return acc;
+  }, {
+    slipCount: 0,
+    entryCount: 0,
+    grossAmount: 0,
+    limitAmount: 0,
+    cutAmount: 0,
+    currentBalance: 0
+  });
+
+  const slipRows = await sql`
+    select count(distinct e.slip_id)::integer as slip_count
     from slip_entries e
     join intake_slips s
       on s.workspace_id = e.workspace_id
@@ -391,25 +566,15 @@ async function listExposureIndex(req, res) {
       and s.queue_status = 'COMPLETED'
   `;
 
-  const summary = summaryRows[0] || {};
+  summary.slipCount = Number(slipRows[0]?.slip_count || 0);
 
   return res.status(200).json({
     ok: true,
-    sourceOfTruth: 'COMPLETED_SLIP_ENTRIES',
+    sourceOfTruth: 'COMPLETED_SLIP_ENTRIES_PLUS_CONFIRMED_ADJUSTMENTS',
     workspaceId,
     drawCode,
-    items: rows.map(row => ({
-      betType: row.bet_type,
-      numberValue: row.number_value,
-      entryCount: Number(row.entry_count || 0),
-      slipCount: Number(row.slip_count || 0),
-      grossAmount: Number(row.gross_amount || 0)
-    })),
-    summary: {
-      slipCount: Number(summary.slip_count || 0),
-      entryCount: Number(summary.entry_count || 0),
-      grossAmount: Number(summary.gross_amount || 0)
-    }
+    items,
+    summary
   });
 }
 
@@ -473,6 +638,10 @@ export default async function handler(req, res) {
 
       if (action === 'BATCH_ADD') {
         return await batchAddEntries(res, body);
+      }
+
+      if (action === 'EXPOSURE_ADJUST') {
+        return await addExposureAdjustment(res, body);
       }
 
       if (action === 'UPDATE') {
