@@ -387,7 +387,7 @@
     </h1>
 
     <div class="help">
-      ระบบจะเลือกเส้นทางรูปให้อัตโนมัติ — Local ก่อน, Pre-Stage Preview ถัดไป และ Remote Relay เมื่อจำเป็น
+      ระบบจะเปิด Pre-Stage Preview ที่พร้อมอยู่ทันที และใช้ Local/Relay เป็นทางสำรองอัตโนมัติ
     </div>
 
 
@@ -1155,7 +1155,81 @@ async function claimNext() {
       'success'
     );
 
-    await smartLoadImage();
+    // FAST PREVIEW PATH:
+    // หลัง CLAIM สำเร็จ ให้เช็ก Preview ที่เตรียมไว้ทันที
+    // ถ้า READY ให้ดาวน์โหลดและแสดงรูปเลย
+    // ไม่ต้องเสียเวลาไป route/local probe ก่อน
+    let fastPreviewLoaded =
+      false;
+
+    try {
+
+      const fastPreview =
+        await getPreviewStatus();
+
+      if (
+        fastPreview.ok &&
+        fastPreview.status ===
+          'READY'
+      ) {
+
+        const fastResult =
+          await downloadPreviewImage();
+
+        if (
+          fastResult.ok
+        ) {
+
+          fastPreviewLoaded =
+            true;
+
+          const pathStatus =
+            document.getElementById(
+              'pathStatus'
+            );
+
+          const transferStatus =
+            document.getElementById(
+              'transferStatus'
+            );
+
+          const routeBox =
+            document.getElementById(
+              'routeBox'
+            );
+
+          if (pathStatus) {
+            pathStatus.textContent =
+              'Path: PRE-STAGE PREVIEW';
+          }
+
+          if (transferStatus) {
+            transferStatus.textContent =
+              'รูปพร้อมใช้งาน';
+          }
+
+          if (routeBox) {
+            routeBox.textContent =
+              'Smart Path: PRE-STAGE PREVIEW • ' +
+              fastResult.size +
+              ' bytes';
+          }
+        }
+      }
+
+    } catch (fastError) {
+
+      console.warn(
+        'fast preview path error',
+        fastError
+      );
+    }
+
+    if (
+      !fastPreviewLoaded
+    ) {
+      await smartLoadImage();
+    }
 
   } catch (error) {
 
@@ -1589,7 +1663,7 @@ async function tryLocalBridge() {
       setTimeout(
         () =>
           controller.abort(),
-        1500
+        500
       );
 
     const health =
