@@ -1064,6 +1064,152 @@ async function confirmCutRound(res, body) {
   });
 }
 
+
+async function finalizeCutRound(res, body) {
+  await ensureExposureTables();
+
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const roundId = Number(body.roundId);
+  const confirmedBy = upper(body.confirmedBy || 'M');
+  const edits = Array.isArray(body.edits) ? body.edits : [];
+
+  if (!workspaceId || !drawCode || !roundId) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูลยืนยันรอบไม่ครบ'
+    });
+  }
+
+  const roundRows = await sql`
+    select *
+    from exposure_cut_rounds
+    where id = ${roundId}
+      and workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+    limit 1
+  `;
+
+  const round = roundRows[0];
+
+  if (!round) {
+    return res.status(404).json({
+      ok: false,
+      message: 'ไม่พบรอบตีออก'
+    });
+  }
+
+  if (round.status !== 'DRAFT') {
+    return res.status(409).json({
+      ok: false,
+      message: 'รอบนี้ถูกยืนยันแล้ว'
+    });
+  }
+
+  const currentItems = await sql`
+    select *
+    from exposure_cut_items
+    where round_id = ${roundId}
+    order by id asc
+  `;
+
+  const byId = new Map(
+    currentItems.map(item => [
+      Number(item.id),
+      item
+    ])
+  );
+
+  const normalized = [];
+
+  for (const edit of edits) {
+    const id = Number(edit.id);
+    const cutAmount = normalizeAmount(edit.cutAmount);
+    const item = byId.get(id);
+
+    if (!item) {
+      return res.status(400).json({
+        ok: false,
+        message: 'มีรายการ Snapshot ที่ไม่ถูกต้อง'
+      });
+    }
+
+    const snapshotAmount = Number(
+      item.snapshot_amount || 0
+    );
+
+    if (
+      cutAmount === null ||
+      cutAmount < 0 ||
+      cutAmount > snapshotAmount
+    ) {
+      return res.status(400).json({
+        ok: false,
+        message:
+          `ยอดตีออกของ ${item.number_value} ต้องอยู่ระหว่าง 0 ถึง ${snapshotAmount}`
+      });
+    }
+
+    normalized.push({
+      id,
+      cutAmount
+    });
+  }
+
+  // ใช้ค่าปัจจุบันเดิมสำหรับแถวที่ไม่ได้ส่งมา
+  const finalMap = new Map(
+    currentItems.map(item => [
+      Number(item.id),
+      Number(item.cut_amount || 0)
+    ])
+  );
+
+  for (const item of normalized) {
+    finalMap.set(
+      item.id,
+      item.cutAmount
+    );
+  }
+
+  // Prototype-safe finalize: validate all first, then persist every edited row,
+  // then confirm once. Production hardening should wrap this in a DB transaction.
+  for (const [id, cutAmount] of finalMap.entries()) {
+    await sql`
+      update exposure_cut_items
+      set cut_amount = ${cutAmount}
+      where id = ${id}
+        and round_id = ${roundId}
+    `;
+  }
+
+  const confirmedRows = await sql`
+    update exposure_cut_rounds
+    set
+      status = 'CONFIRMED',
+      confirmed_by = ${confirmedBy},
+      confirmed_at = now()
+    where id = ${roundId}
+      and workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+      and status = 'DRAFT'
+    returning *
+  `;
+
+  if (!confirmedRows.length) {
+    return res.status(409).json({
+      ok: false,
+      message: 'ยืนยันรอบไม่สำเร็จ'
+    });
+  }
+
+  return res.status(200).json({
+    ok: true,
+    message:
+      `ตีออกและยืนยัน ${confirmedRows[0].round_code} แล้ว`,
+    round: confirmedRows[0]
+  });
+}
+
 async function listCutRounds(req, res) {
   await ensureExposureTables();
 
@@ -1419,6 +1565,10 @@ export default async function handler(req, res) {
 
       if (action === 'CONFIRM_CUT_ROUND') {
         return await confirmCutRound(res, body);
+      }
+
+      if (action === 'FINALIZE_CUT_ROUND') {
+        return await finalizeCutRound(res, body);
       }
 
       if (action === 'UPDATE') {
