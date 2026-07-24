@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>T999 Exposure Index V3</title>
+  <title>T999 Exposure Index V4</title>
   <style>
     *{box-sizing:border-box} body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;background:#f5f5f5;color:#111}
     .wrap{max-width:1280px;margin:auto;padding:18px}.top{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
@@ -23,13 +23,19 @@
     .limit-row{border:1px solid #eee;border-radius:8px;padding:10px;display:flex;align-items:center;gap:8px}
     .limit-row .grow{flex:1}.limit-row input{width:110px;height:36px}
     .limit-row button{height:36px;padding:0 12px}
+    .round-panel{background:#fff;border:1px solid #ddd;border-radius:10px;padding:14px;margin:12px 0}
+    .round-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .round-badge{display:inline-block;padding:5px 9px;border-radius:999px;border:1px solid #bbb;font-weight:800}
+    .draft{background:#fff8d8}.confirmed{background:#e8f7e8}
+    .cut-input{width:90px;height:34px;padding:0 8px}
+    .mini{height:34px;padding:0 10px}
     @media(max-width:900px){.limit-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:700px){.cards{grid-template-columns:1fr}.wrap{padding:10px}th,td{padding:8px 7px;font-size:13px}}
   </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Exposure Index V3</h1>
+  <h1>Exposure Index V4</h1>
   <div class="note">ศูนย์กลางยอดรับจากโพยที่ S จบใบแล้ว (COMPLETED) • อั้นตั้งตามประเภท • ตีออกสะสมยืนยันแยกบัญชี</div>
 
   <div class="top">
@@ -57,6 +63,18 @@
     <h3 style="margin-top:0">ตั้งอั้นตามประเภท</h3>
     <div class="note">ใส่ยอดครั้งเดียว ระบบใช้กับเลขทั้งหมดในประเภทนั้นของงวดนี้</div>
     <div id="limitGrid" class="limit-grid"></div>
+  </div>
+
+  
+  <div class="round-panel">
+    <div class="round-head">
+      <h3 style="margin:0">ตีออกเป็นรอบ</h3>
+      <button id="newRoundBtn">สร้างรอบใหม่</button>
+      <span id="activeRoundLabel" class="round-badge">ยังไม่มีรอบ DRAFT</span>
+      <button id="confirmRoundBtn" style="display:none">ยืนยันรอบ</button>
+    </div>
+    <div class="note">DRAFT ยังไม่หัก Exposure • เมื่อยืนยันแล้วจึงสะสมเป็นยอดตีออกจริง และรอบเก่าไม่ถูกแก้ย้อนหลัง</div>
+    <div id="roundHistory" style="margin-top:10px"></div>
   </div>
 
   <div id="groups"></div>
@@ -204,7 +222,18 @@ function render(data){
               <td>${money(item.cutAmount)}</td>
               <td class="money">${money(item.currentBalance)}</td>
               <td>
-                <button onclick="adjust('${esc(type)}','${esc(item.numberValue)}','CUT')">ตีออก</button>
+                <input
+                  class="cut-input"
+                  id="cut_${encodeURIComponent(type)}_${encodeURIComponent(item.numberValue)}"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="ยอด"
+                >
+                <button
+                  class="mini"
+                  onclick="saveCutItem('${esc(type)}','${esc(item.numberValue)}')"
+                >ใส่รอบ</button>
               </td>
             </tr>
           `).join('')}
@@ -214,6 +243,187 @@ function render(data){
   `).join('');
 }
 
+
+
+let cutRounds = [];
+let cutRoundItems = [];
+let activeDraftRound = null;
+
+async function loadCutRounds(){
+  const workspaceId = $('workspaceId').value.trim();
+  const drawCode = $('drawCode').value.trim();
+
+  if(!workspaceId || !drawCode) return;
+
+  const url = '/api/slip-entries?mode=CUT_ROUNDS&workspaceId='
+    + encodeURIComponent(workspaceId)
+    + '&drawCode=' + encodeURIComponent(drawCode);
+
+  const res = await fetch(url, {cache:'no-store'});
+  const data = await res.json();
+
+  if(!res.ok || !data.ok){
+    throw new Error(data.message || 'โหลดรอบตีออกไม่สำเร็จ');
+  }
+
+  cutRounds = data.rounds || [];
+  cutRoundItems = data.items || [];
+  activeDraftRound =
+    [...cutRounds]
+      .reverse()
+      .find(item => item.status === 'DRAFT') || null;
+
+  renderCutRounds();
+}
+
+function renderCutRounds(){
+  const label = $('activeRoundLabel');
+  const confirmBtn = $('confirmRoundBtn');
+
+  if(activeDraftRound){
+    label.textContent =
+      activeDraftRound.roundCode
+      + ' • DRAFT • '
+      + money(activeDraftRound.totalCut);
+
+    label.className =
+      'round-badge draft';
+
+    confirmBtn.style.display = '';
+  }else{
+    label.textContent =
+      'ยังไม่มีรอบ DRAFT';
+
+    label.className =
+      'round-badge';
+
+    confirmBtn.style.display = 'none';
+  }
+
+  const history = $('roundHistory');
+
+  if(!cutRounds.length){
+    history.innerHTML =
+      '<div class="note">ยังไม่มีรอบตีออก</div>';
+    return;
+  }
+
+  history.innerHTML =
+    cutRounds.map(round => `
+      <span class="round-badge ${round.status === 'CONFIRMED' ? 'confirmed' : 'draft'}">
+        ${esc(round.roundCode)}
+        • ${esc(round.status)}
+        • ${money(round.totalCut)}
+        • ${money(round.itemCount)} รายการ
+      </span>
+    `).join(' ');
+}
+
+async function createCutRound(){
+  try{
+    const res = await fetch('/api/slip-entries', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action:'CREATE_CUT_ROUND',
+        workspaceId:$('workspaceId').value.trim(),
+        drawCode:$('drawCode').value.trim(),
+        createdBy:'M'
+      })
+    });
+
+    const data = await res.json();
+    if(!res.ok || !data.ok){
+      throw new Error(data.message || 'สร้างรอบไม่สำเร็จ');
+    }
+
+    await loadCutRounds();
+  }catch(err){
+    alert(err.message);
+  }
+}
+
+async function saveCutItem(betType, numberValue){
+  if(!activeDraftRound){
+    alert('สร้างรอบตีออกก่อน');
+    return;
+  }
+
+  const id =
+    'cut_' +
+    encodeURIComponent(betType) +
+    '_' +
+    encodeURIComponent(numberValue);
+
+  const input = $(id);
+  const cutAmount = Number(input?.value || 0);
+
+  if(!Number.isFinite(cutAmount) || cutAmount < 0){
+    alert('ยอดตีออกไม่ถูกต้อง');
+    return;
+  }
+
+  try{
+    const res = await fetch('/api/slip-entries', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action:'UPSERT_CUT_ROUND_ITEM',
+        workspaceId:$('workspaceId').value.trim(),
+        drawCode:$('drawCode').value.trim(),
+        roundId:activeDraftRound.id,
+        betType,
+        numberValue,
+        cutAmount
+      })
+    });
+
+    const data = await res.json();
+    if(!res.ok || !data.ok){
+      throw new Error(data.message || 'บันทึกรายการตีออกไม่สำเร็จ');
+    }
+
+    await loadCutRounds();
+  }catch(err){
+    alert(err.message);
+  }
+}
+
+async function confirmCutRound(){
+  if(!activeDraftRound) return;
+
+  const ok = confirm(
+    'ยืนยัน ' +
+    activeDraftRound.roundCode +
+    ' ?\\nหลังยืนยัน รอบนี้จะถูกนับเข้า Exposure และแก้ย้อนหลังไม่ได้'
+  );
+
+  if(!ok) return;
+
+  try{
+    const res = await fetch('/api/slip-entries', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action:'CONFIRM_CUT_ROUND',
+        workspaceId:$('workspaceId').value.trim(),
+        drawCode:$('drawCode').value.trim(),
+        roundId:activeDraftRound.id,
+        confirmedBy:'M'
+      })
+    });
+
+    const data = await res.json();
+    if(!res.ok || !data.ok){
+      throw new Error(data.message || 'ยืนยันรอบไม่สำเร็จ');
+    }
+
+    await loadCutRounds();
+    await loadExposure();
+  }catch(err){
+    alert(err.message);
+  }
+}
 
 async function adjust(betType, numberValue, adjustmentType){
   const label = adjustmentType === 'LIMIT' ? 'ยอดอั้น' : 'ยอดตีออก';
@@ -276,6 +486,7 @@ async function loadExposure(){
     if(!res.ok || !data.ok) throw new Error(data.message || 'โหลดไม่สำเร็จ');
 
     render(data);
+    await loadCutRounds();
     $('status').textContent = 'Exposure ล่าสุดจากโพย COMPLETED';
   }catch(err){
     $('status').textContent = 'ผิดพลาด: ' + err.message;
@@ -283,6 +494,8 @@ async function loadExposure(){
 }
 
 $('loadBtn').addEventListener('click', loadExposure);
+$('newRoundBtn').addEventListener('click', createCutRound);
+$('confirmRoundBtn').addEventListener('click', confirmCutRound);
 fromQuery();
 if($('workspaceId').value && $('drawCode').value) loadExposure();
 </script>
