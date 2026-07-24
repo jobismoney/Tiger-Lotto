@@ -698,6 +698,8 @@ let currentObjectUrl = null;
 let currentEntries = [];
 let editingEntryId = null;
 let includeReverse = false;
+let multiNumberMode = false;
+let multiNumberDigits = 0;
 
 
 // =========================================================
@@ -1159,6 +1161,12 @@ function resetEntryForm() {
 
   includeReverse =
     false;
+
+  multiNumberMode =
+    false;
+
+  multiNumberDigits =
+    0;
 
   updateReverseButton();
 
@@ -2284,7 +2292,7 @@ function renderCurrentJob() {
                 font-size:11px;
               "
             >
-              2 ตัวไทย V1 • ใช้ / สำหรับหลายเลข เช่น 25/26/27 • กด ↑ หรือปุ่ม “กลับ” เพื่อใส่เลขกลับด้วยราคา/ประเภทเดียวกัน
+              คีย์ T999 • Insert=จบโพย • PageUp=รับงาน • PageDown=กลับ/ชุด • /=หลายเลข • ↑/↓=ไล่ช่อง • +=ส่งทันที • Enter=ไล่ช่อง/จบแล้วส่ง
             </div>
 
             <div
@@ -2383,48 +2391,21 @@ function renderCurrentJob() {
 
   document
     .getElementById(
+      'entryNumber'
+    )
+    .addEventListener(
+      'input',
+      formatMultiNumberInput
+    );
+
+
+  document
+    .getElementById(
       'reverseEntryBtn'
     )
     .addEventListener(
       'click',
       toggleReverseMode
-    );
-
-  document
-    .getElementById(
-      'entryNumber'
-    )
-    .addEventListener(
-      'keydown',
-      event => {
-
-        if (
-          event.key ===
-          'ArrowUp'
-        ) {
-
-          event.preventDefault();
-
-          toggleReverseMode();
-        }
-      }
-    );
-
-  document
-    .getElementById(
-      'entryAmount'
-    )
-    .addEventListener(
-      'keydown',
-      event => {
-
-        if (
-          event.key ===
-          'Enter'
-        ) {
-          saveSlipEntry();
-        }
-      }
     );
 }
 
@@ -3644,6 +3625,394 @@ async function releaseCurrentJob() {
 
   await loadQueue();
 }
+
+
+
+// =========================================================
+// T999 KEYBOARD ENGINE V1
+//
+// LOCKED CORE:
+// Insert   = จบโพย
+// PageUp   = รับงาน
+// PageDown = กลับ / ชุด ตาม context
+// /        = เปิดโหมดหลายเลขตามจำนวนหลักปัจจุบัน
+// ↑ / ↓    = ไล่ตามช่อง
+// +        = ส่งขึ้นรายการทันที
+// Enter    = ไล่ช่อง และเมื่อจบ flow ให้ส่งขึ้นรายการ
+// =========================================================
+
+function keyingControls() {
+
+  return [
+    document.getElementById(
+      'entryNumber'
+    ),
+    document.getElementById(
+      'entryType'
+    ),
+    document.getElementById(
+      'entryAmount'
+    )
+  ].filter(Boolean);
+}
+
+
+function moveKeyingFocus(
+  direction
+) {
+
+  const controls =
+    keyingControls();
+
+  if (!controls.length) {
+    return;
+  }
+
+  const active =
+    document.activeElement;
+
+  let index =
+    controls.indexOf(active);
+
+  if (index < 0) {
+    index = 0;
+  } else {
+    index =
+      (
+        index +
+        direction +
+        controls.length
+      ) %
+      controls.length;
+  }
+
+  controls[index].focus();
+
+  if (
+    controls[index] instanceof
+      HTMLInputElement
+  ) {
+    controls[index].select();
+  }
+}
+
+
+function currentNumberDigitCount() {
+
+  const input =
+    document.getElementById(
+      'entryNumber'
+    );
+
+  if (!input) {
+    return 0;
+  }
+
+  const raw =
+    clean(
+      input.value
+    );
+
+  const first =
+    raw.split('/')[0] || '';
+
+  return /^\d+$/.test(first)
+    ? first.length
+    : 0;
+}
+
+
+function startMultiNumberMode() {
+
+  const input =
+    document.getElementById(
+      'entryNumber'
+    );
+
+  if (!input) {
+    return false;
+  }
+
+  const digits =
+    currentNumberDigitCount();
+
+  if (
+    digits < 1 ||
+    digits > 3
+  ) {
+
+    setStatus(
+      'กด / หลังเลข 1, 2 หรือ 3 หลัก เพื่อเปิดโหมดหลายเลข',
+      'error'
+    );
+
+    return false;
+  }
+
+  multiNumberMode =
+    true;
+
+  multiNumberDigits =
+    digits;
+
+  const raw =
+    clean(
+      input.value
+    ).replace(
+      /\//g,
+      ''
+    );
+
+  input.value =
+    raw +
+    '/';
+
+  input.focus();
+
+  setStatus(
+    'โหมดหลายเลข ' +
+    digits +
+    ' ตัว',
+    'success'
+  );
+
+  return true;
+}
+
+
+function formatMultiNumberInput() {
+
+  if (
+    !multiNumberMode ||
+    !multiNumberDigits
+  ) {
+    return;
+  }
+
+  const input =
+    document.getElementById(
+      'entryNumber'
+    );
+
+  if (!input) {
+    return;
+  }
+
+  const digitsOnly =
+    String(
+      input.value || ''
+    ).replace(
+      /\D/g,
+      ''
+    );
+
+  const chunks = [];
+
+  for (
+    let i = 0;
+    i < digitsOnly.length;
+    i += multiNumberDigits
+  ) {
+    chunks.push(
+      digitsOnly.slice(
+        i,
+        i +
+        multiNumberDigits
+      )
+    );
+  }
+
+  input.value =
+    chunks.join('/');
+}
+
+
+async function handleKeyboardEngine(
+  event
+) {
+
+  const key =
+    event.key;
+
+  const code =
+    event.code;
+
+  // -----------------------------------------
+  // PageUp = รับงาน
+  // -----------------------------------------
+  if (
+    key === 'PageUp'
+  ) {
+
+    event.preventDefault();
+
+    if (!claimBtn.disabled) {
+      await claimNext();
+    }
+
+    return;
+  }
+
+  // -----------------------------------------
+  // Insert = จบโพย
+  // -----------------------------------------
+  if (
+    key === 'Insert'
+  ) {
+
+    event.preventDefault();
+
+    if (currentJob) {
+      await completeCurrentJob();
+    }
+
+    return;
+  }
+
+  if (!currentJob) {
+    return;
+  }
+
+  // -----------------------------------------
+  // PageDown = กลับ / ชุด ตาม context
+  // V1 ปัจจุบันเป็น 2 ตัวไทย => กลับ
+  // 3 ตัวจะต่อเป็น "ชุด" ตาม flow จริงภายหลัง
+  // -----------------------------------------
+  if (
+    key === 'PageDown'
+  ) {
+
+    event.preventDefault();
+
+    toggleReverseMode();
+
+    return;
+  }
+
+  // -----------------------------------------
+  // + = ส่งรายการทันที
+  // รองรับ numpad Add และเครื่องหมาย +
+  // -----------------------------------------
+  if (
+    key === '+' ||
+    code === 'NumpadAdd'
+  ) {
+
+    event.preventDefault();
+
+    await saveSlipEntry();
+
+    return;
+  }
+
+  const controls =
+    keyingControls();
+
+  const inKeying =
+    controls.includes(
+      document.activeElement
+    );
+
+  if (!inKeying) {
+    return;
+  }
+
+  // -----------------------------------------
+  // ↑ / ↓ = ไล่ตามช่อง
+  // -----------------------------------------
+  if (
+    key === 'ArrowUp'
+  ) {
+
+    event.preventDefault();
+
+    moveKeyingFocus(
+      -1
+    );
+
+    return;
+  }
+
+  if (
+    key === 'ArrowDown'
+  ) {
+
+    event.preventDefault();
+
+    moveKeyingFocus(
+      1
+    );
+
+    return;
+  }
+
+  // -----------------------------------------
+  // / = เปิดโหมดหลายเลข "ครั้งเดียว"
+  // หลัง 1/2/3 หลัก ระบบจำจำนวนหลักแล้วแบ่งกลุ่มอัตโนมัติ
+  // -----------------------------------------
+  if (
+    key === '/' &&
+    document.activeElement?.id ===
+      'entryNumber'
+  ) {
+
+    event.preventDefault();
+
+    if (!multiNumberMode) {
+      startMultiNumberMode();
+    }
+
+    return;
+  }
+
+  // -----------------------------------------
+  // Enter = ไล่ช่อง
+  // ถ้าอยู่ช่องสุดท้าย => ส่งขึ้นรายการ
+  // -----------------------------------------
+  if (
+    key === 'Enter'
+  ) {
+
+    event.preventDefault();
+
+    const index =
+      controls.indexOf(
+        document.activeElement
+      );
+
+    if (
+      index >= 0 &&
+      index <
+        controls.length - 1
+    ) {
+
+      controls[
+        index + 1
+      ].focus();
+
+      if (
+        controls[
+          index + 1
+        ] instanceof
+          HTMLInputElement
+      ) {
+        controls[
+          index + 1
+        ].select();
+      }
+
+      return;
+    }
+
+    await saveSlipEntry();
+  }
+}
+
+
+document.addEventListener(
+  'keydown',
+  handleKeyboardEngine
+);
 
 
 // =========================================================
