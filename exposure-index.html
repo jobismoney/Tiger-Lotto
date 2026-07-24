@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>T999 Exposure Index V4</title>
+  <title>T999 Exposure Index V5</title>
   <style>
     *{box-sizing:border-box} body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;background:#f5f5f5;color:#111}
     .wrap{max-width:1280px;margin:auto;padding:18px}.top{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
@@ -35,7 +35,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>Exposure Index V4</h1>
+  <h1>Exposure Index V5</h1>
   <div class="note">ศูนย์กลางยอดรับจากโพยที่ S จบใบแล้ว (COMPLETED) • อั้นตั้งตามประเภท • ตีออกสะสมยืนยันแยกบัญชี</div>
 
   <div class="top">
@@ -69,11 +69,12 @@
   <div class="round-panel">
     <div class="round-head">
       <h3 style="margin:0">ตีออกเป็นรอบ</h3>
-      <button id="newRoundBtn">สร้างรอบใหม่</button>
-      <span id="activeRoundLabel" class="round-badge">ยังไม่มีรอบ DRAFT</span>
-      <button id="confirmRoundBtn" style="display:none">ยืนยันรอบ</button>
+      <button id="newRoundBtn">ตั้งรอบ / Snapshot</button>
+      <span id="activeRoundLabel" class="round-badge">ยังไม่มี Snapshot DRAFT</span>
+      <button id="confirmRoundBtn" style="display:none">ตีออก / ยืนยันรอบ</button>
     </div>
-    <div class="note">DRAFT ยังไม่หัก Exposure • เมื่อยืนยันแล้วจึงสะสมเป็นยอดตีออกจริง และรอบเก่าไม่ถูกแก้ย้อนหลัง</div>
+    <div class="note">กดตั้งรอบแล้วระบบ Snapshot ยอดคงเหลือ ณ เวลานั้นให้นิ่งทันที • S ยังเติมยอดใหม่ด้านหลังได้ • แก้เฉพาะยอดใน Snapshot แล้วกดตีออกครั้งเดียว</div>
+    <div id="snapshotEditor" style="margin-top:12px"></div>
     <div id="roundHistory" style="margin-top:10px"></div>
   </div>
 
@@ -211,7 +212,7 @@ function render(data){
       <h3>${esc(type)}</h3>
       <table>
         <thead>
-          <tr><th>เลข</th><th>ยอดรับ</th><th>อั้น</th><th>ตีออกสะสม</th><th>คงเหลือ</th><th>จัดการ</th></tr>
+          <tr><th>เลข</th><th>ยอดรับ</th><th>อั้น</th><th>ตีออกสะสม</th><th>คงเหลือ</th><th>สถานะ</th></tr>
         </thead>
         <tbody>
           ${items.map(item => `
@@ -221,20 +222,7 @@ function render(data){
               <td>${money(item.limitAmount)}</td>
               <td>${money(item.cutAmount)}</td>
               <td class="money">${money(item.currentBalance)}</td>
-              <td>
-                <input
-                  class="cut-input"
-                  id="cut_${encodeURIComponent(type)}_${encodeURIComponent(item.numberValue)}"
-                  type="number"
-                  min="0"
-                  step="1"
-                  placeholder="ยอด"
-                >
-                <button
-                  class="mini"
-                  onclick="saveCutItem('${esc(type)}','${esc(item.numberValue)}')"
-                >ใส่รอบ</button>
-              </td>
+              <td>สด</td>
             </tr>
           `).join('')}
         </tbody>
@@ -317,6 +305,112 @@ function renderCutRounds(){
         • ${money(round.itemCount)} รายการ
       </span>
     `).join(' ');
+
+  renderSnapshotEditor();
+}
+
+function renderSnapshotEditor(){
+  const root = $('snapshotEditor');
+
+  if(!activeDraftRound){
+    root.innerHTML = '';
+    return;
+  }
+
+  const items =
+    cutRoundItems.filter(
+      item =>
+        item.roundId ===
+        activeDraftRound.id
+    );
+
+  if(!items.length){
+    root.innerHTML =
+      '<div class="note">Snapshot รอบนี้ไม่มียอดคงเหลือให้ตีออก</div>';
+    return;
+  }
+
+  root.innerHTML = `
+    <div class="section">
+      <h3>${esc(activeDraftRound.roundCode)} • Snapshot นิ่งสำหรับแก้ยอด</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>เลข</th>
+            <th>ประเภท</th>
+            <th>Snapshot</th>
+            <th>ยอดตีออก</th>
+            <th>เหลือใน Snapshot</th>
+            <th>บันทึก</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map(item => `
+            <tr>
+              <td class="num">${esc(item.numberValue)}</td>
+              <td>${esc(item.betType)}</td>
+              <td class="money">${money(item.snapshotAmount)}</td>
+              <td>
+                <input
+                  class="cut-input"
+                  id="snapcut_${item.id}"
+                  type="number"
+                  min="0"
+                  max="${esc(item.snapshotAmount)}"
+                  step="1"
+                  value="${esc(item.cutAmount)}"
+                >
+              </td>
+              <td>${money(item.snapshotRemaining)}</td>
+              <td>
+                <button class="mini" onclick="saveSnapshotItem(${item.id}, '${esc(item.betType)}', '${esc(item.numberValue)}')">บันทึก</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function saveSnapshotItem(itemId, betType, numberValue){
+  if(!activeDraftRound){
+    alert('ไม่มี Snapshot DRAFT');
+    return;
+  }
+
+  const input = $('snapcut_' + itemId);
+  const cutAmount = Number(input?.value || 0);
+
+  if(!Number.isFinite(cutAmount) || cutAmount < 0){
+    alert('ยอดตีออกไม่ถูกต้อง');
+    return;
+  }
+
+  try{
+    const res = await fetch('/api/slip-entries', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action:'UPSERT_CUT_ROUND_ITEM',
+        workspaceId:$('workspaceId').value.trim(),
+        drawCode:$('drawCode').value.trim(),
+        roundId:activeDraftRound.id,
+        betType,
+        numberValue,
+        cutAmount
+      })
+    });
+
+    const data = await res.json();
+    if(!res.ok || !data.ok){
+      throw new Error(data.message || 'บันทึกยอด Snapshot ไม่สำเร็จ');
+    }
+
+    await loadCutRounds();
+  }catch(err){
+    alert(err.message);
+  }
 }
 
 async function createCutRound(){
@@ -343,51 +437,6 @@ async function createCutRound(){
   }
 }
 
-async function saveCutItem(betType, numberValue){
-  if(!activeDraftRound){
-    alert('สร้างรอบตีออกก่อน');
-    return;
-  }
-
-  const id =
-    'cut_' +
-    encodeURIComponent(betType) +
-    '_' +
-    encodeURIComponent(numberValue);
-
-  const input = $(id);
-  const cutAmount = Number(input?.value || 0);
-
-  if(!Number.isFinite(cutAmount) || cutAmount < 0){
-    alert('ยอดตีออกไม่ถูกต้อง');
-    return;
-  }
-
-  try{
-    const res = await fetch('/api/slip-entries', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        action:'UPSERT_CUT_ROUND_ITEM',
-        workspaceId:$('workspaceId').value.trim(),
-        drawCode:$('drawCode').value.trim(),
-        roundId:activeDraftRound.id,
-        betType,
-        numberValue,
-        cutAmount
-      })
-    });
-
-    const data = await res.json();
-    if(!res.ok || !data.ok){
-      throw new Error(data.message || 'บันทึกรายการตีออกไม่สำเร็จ');
-    }
-
-    await loadCutRounds();
-  }catch(err){
-    alert(err.message);
-  }
-}
 
 async function confirmCutRound(){
   if(!activeDraftRound) return;
@@ -487,7 +536,7 @@ async function loadExposure(){
 
     render(data);
     await loadCutRounds();
-    $('status').textContent = 'Exposure ล่าสุดจากโพย COMPLETED';
+    $('status').textContent = 'Exposure LIVE ล่าสุด • รอบ Snapshot ที่ตั้งแล้วจะนิ่งแยกจากยอดใหม่ของ S';
   }catch(err){
     $('status').textContent = 'ผิดพลาด: ' + err.message;
   }
