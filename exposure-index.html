@@ -42,8 +42,8 @@
 
   <div class="cards">
     <div class="card"><div class="note">โพยจบแล้ว</div><div id="slipCount" class="big">0</div></div>
-    <div class="card"><div class="note">จำนวนรายการ</div><div id="entryCount" class="big">0</div></div>
     <div class="card"><div class="note">ยอดรับรวม</div><div id="grossAmount" class="big">0</div></div>
+    <div class="card"><div class="note">ยอดคงเหลือ</div><div id="currentBalance" class="big">0</div></div>
   </div>
 
   <div id="groups"></div>
@@ -67,8 +67,8 @@ function fromQuery(){
 
 function render(data){
   $('slipCount').textContent = money(data.summary?.slipCount);
-  $('entryCount').textContent = money(data.summary?.entryCount);
   $('grossAmount').textContent = money(data.summary?.grossAmount);
+  $('currentBalance').textContent = money(data.summary?.currentBalance);
 
   const groups = {};
   for(const item of (data.items || [])){
@@ -88,21 +88,63 @@ function render(data){
       <h3>${esc(type)}</h3>
       <table>
         <thead>
-          <tr><th>เลข</th><th>ยอดรับ</th><th>รายการ</th><th>โพย</th></tr>
+          <tr><th>เลข</th><th>ยอดรับ</th><th>อั้น</th><th>ตีออกสะสม</th><th>คงเหลือ</th><th>จัดการ</th></tr>
         </thead>
         <tbody>
           ${items.map(item => `
             <tr>
               <td class="num">${esc(item.numberValue)}</td>
               <td class="money">${money(item.grossAmount)}</td>
-              <td>${money(item.entryCount)}</td>
-              <td>${money(item.slipCount)}</td>
+              <td>${money(item.limitAmount)}</td>
+              <td>${money(item.cutAmount)}</td>
+              <td class="money">${money(item.currentBalance)}</td>
+              <td>
+                <button onclick="adjust('${esc(type)}','${esc(item.numberValue)}','LIMIT')">อั้น</button>
+                <button onclick="adjust('${esc(type)}','${esc(item.numberValue)}','CUT')">ตีออก</button>
+              </td>
             </tr>
           `).join('')}
         </tbody>
       </table>
     </div>
   `).join('');
+}
+
+
+async function adjust(betType, numberValue, adjustmentType){
+  const label = adjustmentType === 'LIMIT' ? 'ยอดอั้น' : 'ยอดตีออก';
+  const raw = prompt(label + ' สำหรับ ' + numberValue);
+  if(raw === null) return;
+
+  const amount = Number(raw);
+  if(!Number.isFinite(amount) || amount < 0){
+    alert('ยอดไม่ถูกต้อง');
+    return;
+  }
+
+  try{
+    const res = await fetch('/api/slip-entries', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action:'EXPOSURE_ADJUST',
+        workspaceId:$('workspaceId').value.trim(),
+        drawCode:$('drawCode').value.trim(),
+        betType,
+        numberValue,
+        adjustmentType,
+        amount,
+        createdBy:'M'
+      })
+    });
+
+    const data = await res.json();
+    if(!res.ok || !data.ok) throw new Error(data.message || 'บันทึกไม่สำเร็จ');
+
+    await loadExposure();
+  }catch(err){
+    alert(err.message);
+  }
 }
 
 async function loadExposure(){
