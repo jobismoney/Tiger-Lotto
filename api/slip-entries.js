@@ -668,73 +668,116 @@ async function createCutRound(res, body) {
     });
   }
 
-  const existingDraft = await sql`
-    select *
-    from exposure_cut_rounds
-    where workspace_id = ${workspaceId}
-      and upper(draw_code) = ${drawCode}
-      and status = 'DRAFT'
-    order by round_no desc
+  const existingDraftRows = await sql`
+    select
+      r.*,
+      count(i.id)::integer as item_count
+    from exposure_cut_rounds r
+    left join exposure_cut_items i
+      on i.round_id = r.id
+    where r.workspace_id = ${workspaceId}
+      and upper(r.draw_code) = ${drawCode}
+      and r.status = 'DRAFT'
+    group by r.id
+    order by r.round_no desc
     limit 1
   `;
 
-  if (existingDraft.length) {
-    return res.status(200).json({
-      ok: true,
-      message: 'มีรอบ Snapshot DRAFT อยู่แล้ว',
-      round: existingDraft[0]
-    });
-  }
+  const existingDraft =
+    existingDraftRows[0] || null;
 
-  // Freeze time first. Anything S completes after this timestamp belongs to the live
-  // exposure behind this round and must not enter this snapshot.
   const timeRows = await sql`
     select now() as snapshot_at
   `;
 
-  const snapshotAt = timeRows[0].snapshot_at;
+  const snapshotAt =
+    timeRows[0].snapshot_at;
 
-  const nextRows = await sql`
-    select coalesce(max(round_no), 0) + 1 as next_no
-    from exposure_cut_rounds
-    where workspace_id = ${workspaceId}
-      and upper(draw_code) = ${drawCode}
-  `;
+  let round = null;
+  let roundCode = '';
 
-  const roundNo = Number(nextRows[0]?.next_no || 1);
-  const roundCode = 'R' + String(roundNo).padStart(3, '0');
+  if (existingDraft) {
+    const itemCount =
+      Number(existingDraft.item_count || 0);
 
-  const roundRows = await sql`
-    insert into exposure_cut_rounds (
-      workspace_id,
-      draw_code,
-      round_no,
-      round_code,
-      status,
-      created_by,
-      created_at,
-      snapshot_at
-    )
-    values (
-      ${workspaceId},
-      ${drawCode},
-      ${roundNo},
-      ${roundCode},
-      'DRAFT',
-      ${createdBy},
-      now(),
-      ${snapshotAt}
-    )
-    returning *
-  `;
+    if (itemCount > 0) {
+      return res.status(200).json({
+        ok: true,
+        message:
+          `มี Snapshot ${existingDraft.round_code} อยู่แล้ว`,
+        round: existingDraft,
+        itemCount
+      });
+    }
 
-  const round = roundRows[0];
+    // DRAFT ว่างต้องไม่บล็อก Snapshot ใหม่:
+    // ใช้เลขรอบเดิม แต่ refresh snapshot_at และ rebuild items จาก Exposure สด
+    const refreshedRows = await sql`
+      update exposure_cut_rounds
+      set
+        snapshot_at = ${snapshotAt},
+        created_at = now(),
+        created_by = ${createdBy}
+      where id = ${existingDraft.id}
+      returning *
+    `;
+
+    round = refreshedRows[0];
+    roundCode = round.round_code;
+
+    await sql`
+      delete from exposure_cut_items
+      where round_id = ${round.id}
+    `;
+  } else {
+    const nextRows = await sql`
+      select
+        coalesce(max(round_no), 0) + 1
+        as next_no
+      from exposure_cut_rounds
+      where workspace_id = ${workspaceId}
+        and upper(draw_code) = ${drawCode}
+    `;
+
+    const roundNo =
+      Number(nextRows[0]?.next_no || 1);
+
+    roundCode =
+      'R' + String(roundNo).padStart(3, '0');
+
+    const roundRows = await sql`
+      insert into exposure_cut_rounds (
+        workspace_id,
+        draw_code,
+        round_no,
+        round_code,
+        status,
+        created_by,
+        created_at,
+        snapshot_at
+      )
+      values (
+        ${workspaceId},
+        ${drawCode},
+        ${roundNo},
+        ${roundCode},
+        'DRAFT',
+        ${createdBy},
+        now(),
+        ${snapshotAt}
+      )
+      returning *
+    `;
+
+    round = roundRows[0];
+  }
 
   const baseRows = await sql`
     select
       e.bet_type,
       e.number_value,
-      coalesce(sum(e.amount), 0)::numeric as gross_amount
+      coalesce(sum(e.amount), 0)::numeric
+        as gross_amount
     from slip_entries e
     join intake_slips s
       on s.workspace_id = e.workspace_id
@@ -742,7 +785,11 @@ async function createCutRound(res, body) {
     where e.workspace_id = ${workspaceId}
       and upper(coalesce(e.draw_code, '')) = ${drawCode}
       and s.queue_status = 'COMPLETED'
-      and coalesce(s.completed_at, s.updated_at, s.created_at) <= ${snapshotAt}
+      and coalesce(
+        s.completed_at,
+        s.updated_at,
+        s.created_at
+      ) <= ${snapshotAt}
     group by
       e.bet_type,
       e.number_value
@@ -762,7 +809,8 @@ async function createCutRound(res, body) {
     select
       i.bet_type,
       i.number_value,
-      coalesce(sum(i.cut_amount), 0)::numeric as cut_amount
+      coalesce(sum(i.cut_amount), 0)::numeric
+        as cut_amount
     from exposure_cut_items i
     join exposure_cut_rounds r
       on r.id = i.round_id
@@ -778,7 +826,8 @@ async function createCutRound(res, body) {
     select
       bet_type,
       number_value,
-      coalesce(sum(amount), 0)::numeric as cut_amount
+      coalesce(sum(amount), 0)::numeric
+        as cut_amount
     from exposure_adjustments
     where workspace_id = ${workspaceId}
       and upper(draw_code) = ${drawCode}
@@ -802,23 +851,31 @@ async function createCutRound(res, body) {
   const cutMap = new Map();
 
   for (const row of [...confirmedCutRows, ...legacyCutRows]) {
-    const key = `${row.bet_type}|||${row.number_value}`;
+    const key =
+      `${row.bet_type}|||${row.number_value}`;
+
     cutMap.set(
       key,
-      (cutMap.get(key) || 0) + Number(row.cut_amount || 0)
+      (cutMap.get(key) || 0)
+      + Number(row.cut_amount || 0)
     );
   }
 
   const snapshotItems = [];
 
   for (const row of baseRows) {
-    const grossAmount = Number(row.gross_amount || 0);
-    const categoryKey = exposureCategoryKey(
-      row.number_value,
-      row.bet_type
-    );
+    const grossAmount =
+      Number(row.gross_amount || 0);
 
-    const typeLimit = limitMap.get(categoryKey);
+    const categoryKey =
+      exposureCategoryKey(
+        row.number_value,
+        row.bet_type
+      );
+
+    const typeLimit =
+      limitMap.get(categoryKey);
+
     const limitAmount =
       typeLimit?.enabled
         ? Number(typeLimit.amount || 0)
@@ -829,12 +886,13 @@ async function createCutRound(res, body) {
         `${row.bet_type}|||${row.number_value}`
       ) || 0;
 
-    const snapshotBalance = Math.max(
-      grossAmount -
-      limitAmount -
-      priorCut,
-      0
-    );
+    const snapshotBalance =
+      Math.max(
+        grossAmount
+        - limitAmount
+        - priorCut,
+        0
+      );
 
     if (snapshotBalance <= 0) {
       continue;
@@ -870,20 +928,15 @@ async function createCutRound(res, body) {
         ${item.cutAmount},
         now()
       )
-      on conflict (
-        round_id,
-        bet_type,
-        number_value
-      )
-      do update set
-        snapshot_amount = excluded.snapshot_amount,
-        cut_amount = excluded.cut_amount
     `;
   }
 
   return res.status(201).json({
     ok: true,
-    message: `Snapshot ${roundCode} แล้ว`,
+    message:
+      snapshotItems.length
+        ? `Snapshot ${roundCode} แล้ว`
+        : `Snapshot ${roundCode} แล้ว แต่ยังไม่มียอดคงเหลือให้ตีออก`,
     round,
     itemCount: snapshotItems.length
   });
