@@ -1205,7 +1205,7 @@ function resetEntryForm() {
 
 
 
-function parseTwoDigitNumbers(rawValue) {
+function parseKeyNumbers(rawValue) {
 
   const raw =
     clean(rawValue);
@@ -1224,22 +1224,43 @@ function parseTwoDigitNumbers(rawValue) {
         clean(item)
     );
 
+  const firstDigits =
+    parts[0]?.length || 0;
+
+  if (
+    firstDigits < 1 ||
+    firstDigits > 3
+  ) {
+    return {
+      ok: false,
+      message:
+        'รองรับเลข 1-3 หลักใน Keyboard Engine V1'
+    };
+  }
+
   if (
     parts.some(
       item =>
-        !/^\d{2}$/.test(item)
+        !new RegExp(
+          '^\\\\d{' +
+          firstDigits +
+          '}$'
+        ).test(item)
     )
   ) {
     return {
       ok: false,
       message:
-        '2 ตัวไทยต้องเป็นเลข 2 หลักเท่ากันทุกตัว เช่น 25/26/27'
+        'ทุกเลขในชุด / ต้องมีจำนวนหลักเท่ากัน'
     };
   }
 
   return {
     ok: true,
-    numbers: parts
+    digitCount:
+      firstDigits,
+    numbers:
+      parts
   };
 }
 
@@ -1257,6 +1278,36 @@ function reversedTwoDigit(value) {
 }
 
 
+function threeDigitSet(value) {
+
+  const text =
+    clean(value);
+
+  if (!/^\d{3}$/.test(text)) {
+    return [];
+  }
+
+  const chars =
+    text.split('');
+
+  const permutations =
+    [
+      chars[0] + chars[1] + chars[2],
+      chars[0] + chars[2] + chars[1],
+      chars[1] + chars[0] + chars[2],
+      chars[1] + chars[2] + chars[0],
+      chars[2] + chars[0] + chars[1],
+      chars[2] + chars[1] + chars[0]
+    ];
+
+  return [
+    ...new Set(
+      permutations
+    )
+  ];
+}
+
+
 function updateReverseButton() {
 
   const button =
@@ -1268,10 +1319,18 @@ function updateReverseButton() {
     return;
   }
 
+  const digits =
+    currentNumberDigitCount();
+
+  const label =
+    digits === 3
+      ? 'ชุด'
+      : 'กลับ';
+
   button.textContent =
     includeReverse
-      ? 'กลับ ✓'
-      : 'กลับ';
+      ? label + ' ✓'
+      : label;
 }
 
 
@@ -1351,7 +1410,7 @@ async function saveSlipEntry() {
     );
 
   const parsed =
-    parseTwoDigitNumbers(
+    parseKeyNumbers(
       numberInput.value
     );
 
@@ -1444,11 +1503,14 @@ async function saveSlipEntry() {
         parsed.numbers
       ) {
 
-        queue.push(
-          numberValue
-        );
+        if (
+          includeReverse &&
+          parsed.digitCount === 2
+        ) {
 
-        if (includeReverse) {
+          queue.push(
+            numberValue
+          );
 
           const reversed =
             reversedTwoDigit(
@@ -1464,7 +1526,27 @@ async function saveSlipEntry() {
               reversed
             );
           }
+
+          continue;
         }
+
+        if (
+          includeReverse &&
+          parsed.digitCount === 3
+        ) {
+
+          queue.push(
+            ...threeDigitSet(
+              numberValue
+            )
+          );
+
+          continue;
+        }
+
+        queue.push(
+          numberValue
+        );
       }
 
       // กันเลขซ้ำในชุดเดียวกัน แต่คงลำดับที่คีย์
@@ -2269,7 +2351,7 @@ function renderCurrentJob() {
                     id="reverseEntryBtn"
                     class="btn btn-secondary"
                     type="button"
-                    title="กลับเลข (ArrowUp)"
+                    title="PageDown = กลับ/ชุด ตามจำนวนหลัก"
                   >
                     กลับ
                   </button>
@@ -2292,7 +2374,7 @@ function renderCurrentJob() {
                 font-size:11px;
               "
             >
-              คีย์ T999 • Insert=จบโพย • PageUp=รับงาน • PageDown=กลับ/ชุด • /=หลายเลข • ↑/↓=ไล่ช่อง • +=ส่งทันที • Enter=ไล่ช่อง/จบแล้วส่ง
+              คีย์ T999 • Insert=จบโพย • PageUp=รับงาน • PageDown=กลับ/ชุด • /=หลายเลข • ↑/↓=ไล่ช่อง • +=ส่งทันที • Enter=ไล่ช่อง/จบแล้วส่ง<br>2 ตัว: PageDown=กลับ • 3 ตัว: PageDown=ชุด
             </div>
 
             <div
@@ -2395,7 +2477,12 @@ function renderCurrentJob() {
     )
     .addEventListener(
       'input',
-      formatMultiNumberInput
+      () => {
+
+        formatMultiNumberInput();
+
+        updateReverseButton();
+      }
     );
 
 
@@ -3884,7 +3971,34 @@ async function handleKeyboardEngine(
 
     event.preventDefault();
 
-    toggleReverseMode();
+    const digits =
+      currentNumberDigitCount();
+
+    // 2 ตัว = กลับ
+    // 3 ตัว = ชุด
+    // ใช้ state เดียวกัน แต่ความหมายขึ้นกับจำนวนหลัก
+    if (
+      digits === 2 ||
+      digits === 3
+    ) {
+
+      toggleReverseMode();
+
+      setStatus(
+        digits === 2
+          ? (
+              includeReverse
+                ? 'โหมดกลับ 2 ตัว: เปิด'
+                : 'โหมดกลับ 2 ตัว: ปิด'
+            )
+          : (
+              includeReverse
+                ? 'โหมดชุด 3 ตัว: เปิด'
+                : 'โหมดชุด 3 ตัว: ปิด'
+            ),
+        'success'
+      );
+    }
 
     return;
   }
