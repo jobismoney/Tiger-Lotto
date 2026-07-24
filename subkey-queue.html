@@ -1220,13 +1220,24 @@ function parseKeyNumbers(rawValue) {
   }
 
   const parts =
-    raw.split('/').map(
-      item =>
-        clean(item)
-    );
+    raw
+      .split('/')
+      .map(
+        item =>
+          clean(item)
+      )
+      .filter(Boolean);
 
   const firstDigits =
     parts[0]?.length || 0;
+
+  if (!parts.length) {
+    return {
+      ok: false,
+      message:
+        'กรุณากรอกเลข'
+    };
+  }
 
   if (
     firstDigits < 1 ||
@@ -1243,7 +1254,7 @@ function parseKeyNumbers(rawValue) {
     parts.some(
       item =>
         !new RegExp(
-          '^\\\\d{' +
+          '^\\d{' +
           firstDigits +
           '}$'
         ).test(item)
