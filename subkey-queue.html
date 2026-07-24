@@ -387,7 +387,7 @@
     </h1>
 
     <div class="help">
-      ระบบจะเลือกเส้นทางรูปให้อัตโนมัติ — Local ก่อน และ Remote Relay เมื่อจำเป็น
+      ระบบจะเลือกเส้นทางรูปให้อัตโนมัติ — Local ก่อน, Pre-Stage Preview ถัดไป และ Remote Relay เมื่อจำเป็น
     </div>
 
 
@@ -1280,7 +1280,7 @@ function renderCurrentJob() {
             id="routeBox"
             class="route-box"
           >
-            Smart Path: กำลังตรวจสอบ
+            Smart Path: LOCAL → PRE-STAGE → RELAY
           </div>
 
         </div>
@@ -1462,16 +1462,60 @@ async function smartLoadImage() {
 
 
   pathStatus.textContent =
-    'Path: PRIMARY_RELAY 443';
+    'Path: PRE-STAGE PREVIEW';
 
   transferStatus.textContent =
-    'กำลังขอรูปจาก R...';
+    'กำลังตรวจรูปที่เตรียมไว้ล่วงหน้า...';
 
   imageFrame.innerHTML =
     `
       <div class="image-message">
 
-        เครื่องนี้เข้า Local Bridge ไม่ได้
+        Local Bridge ใช้ไม่ได้ในเส้นทางนี้
+
+        <br><br>
+
+        กำลังเปิดรูปที่ระบบเตรียมไว้ล่วงหน้า...
+
+      </div>
+    `;
+
+  const previewResult =
+    await tryPrestagePreview();
+
+  if (
+    previewResult.ok
+  ) {
+
+    pathStatus.textContent =
+      'Path: PRE-STAGE PREVIEW';
+
+    transferStatus.textContent =
+      'รูปพร้อมใช้งาน';
+
+    if (routeBox) {
+
+      routeBox.textContent =
+        'Smart Path: PRE-STAGE PREVIEW • ' +
+        previewResult.size +
+        ' bytes';
+    }
+
+    return;
+  }
+
+
+  pathStatus.textContent =
+    'Path: PRIMARY_RELAY 443';
+
+  transferStatus.textContent =
+    'Preview ยังไม่พร้อม • กำลัง fallback ไป Relay...';
+
+  imageFrame.innerHTML =
+    `
+      <div class="image-message">
+
+        Preview ยังไม่พร้อมใช้งาน
 
         <br><br>
 
@@ -1650,6 +1694,227 @@ async function tryLocalBridge() {
 
     return {
       ok: false
+    };
+  }
+}
+
+
+
+// =========================================================
+// PRE-STAGE PREVIEW
+// =========================================================
+
+async function getPreviewStatus() {
+
+  const url =
+    '/api/relay' +
+    '?action=PREVIEW_STATUS' +
+    '&workspaceId=' +
+    encodeURIComponent(
+      workspaceId
+    ) +
+    '&fileId=' +
+    encodeURIComponent(
+      currentJob.fileId
+    );
+
+  const response =
+    await fetch(
+      url,
+      {
+        cache:
+          'no-store'
+      }
+    );
+
+  const data =
+    await response.json();
+
+  if (
+    !response.ok ||
+    !data.ok ||
+    !data.asset
+  ) {
+    return {
+      ok: false,
+      status: ''
+    };
+  }
+
+  return {
+    ok: true,
+    status:
+      clean(
+        data.asset.previewStatus
+      )
+  };
+}
+
+
+async function downloadPreviewImage() {
+
+  const url =
+    '/api/relay' +
+    '?action=PREVIEW_DOWNLOAD' +
+    '&workspaceId=' +
+    encodeURIComponent(
+      workspaceId
+    ) +
+    '&fileId=' +
+    encodeURIComponent(
+      currentJob.fileId
+    ) +
+    '&requesterType=S' +
+    '&requesterCode=' +
+    encodeURIComponent(
+      currentSubkey() ||
+      currentJob.assignedSubkey
+    );
+
+  const response =
+    await fetch(
+      url,
+      {
+        cache:
+          'no-store'
+      }
+    );
+
+  if (!response.ok) {
+
+    return {
+      ok: false,
+      status:
+        response.status
+    };
+  }
+
+  const blob =
+    await response.blob();
+
+  if (!blob.size) {
+
+    return {
+      ok: false,
+      status: 0
+    };
+  }
+
+  revokeCurrentObjectUrl();
+
+  currentObjectUrl =
+    URL.createObjectURL(
+      blob
+    );
+
+  const imageFrame =
+    document.getElementById(
+      'imageFrame'
+    );
+
+  imageFrame.innerHTML =
+    '';
+
+  const img =
+    document.createElement(
+      'img'
+    );
+
+  const loaded =
+    await new Promise(
+      resolve => {
+
+        img.onload =
+          () =>
+            resolve(true);
+
+        img.onerror =
+          () =>
+            resolve(false);
+
+        img.src =
+          currentObjectUrl;
+      }
+    );
+
+  if (!loaded) {
+
+    revokeCurrentObjectUrl();
+
+    return {
+      ok: false,
+      status: 0
+    };
+  }
+
+  img.alt =
+    currentJob.sourceFilename ||
+    'T999 Pre-Stage Preview';
+
+  imageFrame.appendChild(
+    img
+  );
+
+  return {
+    ok: true,
+    size:
+      blob.size
+  };
+}
+
+
+async function tryPrestagePreview() {
+
+  try {
+
+    const preview =
+      await getPreviewStatus();
+
+    if (
+      !preview.ok ||
+      preview.status !==
+        'READY'
+    ) {
+
+      return {
+        ok: false,
+        reason:
+          preview.status ||
+          'NOT_READY'
+      };
+    }
+
+    const result =
+      await downloadPreviewImage();
+
+    if (!result.ok) {
+
+      return {
+        ok: false,
+        reason:
+          'DOWNLOAD_FAILED'
+      };
+    }
+
+    return {
+      ok: true,
+      route:
+        'PRESTAGE_PREVIEW',
+      size:
+        result.size
+    };
+
+  } catch (error) {
+
+    console.warn(
+      'prestage preview error',
+      error
+    );
+
+    return {
+      ok: false,
+      reason:
+        'ERROR'
     };
   }
 }
