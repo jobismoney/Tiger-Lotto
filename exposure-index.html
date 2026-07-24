@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>T999 Exposure Index V1</title>
+  <style>
+    *{box-sizing:border-box} body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;background:#f5f5f5;color:#111}
+    .wrap{max-width:1280px;margin:auto;padding:18px}.top{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+    label{font-size:13px;font-weight:700}.field{display:flex;flex-direction:column;gap:5px}
+    input{height:42px;padding:0 12px;border:1px solid #bbb;border-radius:8px;font-size:16px}
+    button{height:42px;padding:0 18px;border:0;border-radius:8px;background:#111;color:#fff;font-weight:800;cursor:pointer}
+    .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+    .card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:14px}.big{font-size:28px;font-weight:900}
+    .note{font-size:13px;color:#666;margin-top:5px}.status{margin:8px 0;font-weight:700}
+    .section{background:#fff;border:1px solid #ddd;border-radius:10px;margin:12px 0;overflow:hidden}
+    .section h3{margin:0;padding:12px 14px;border-bottom:1px solid #eee;background:#fafafa}
+    table{width:100%;border-collapse:collapse}th,td{padding:9px 12px;border-bottom:1px solid #eee;text-align:right}
+    th:first-child,td:first-child{text-align:left}.num{font-weight:900;font-size:17px}.money{font-weight:900}
+    .empty{padding:28px;text-align:center;color:#777}
+    @media(max-width:700px){.cards{grid-template-columns:1fr}.wrap{padding:10px}th,td{padding:8px 7px;font-size:13px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Exposure Index V1</h1>
+  <div class="note">ศูนย์กลางยอดรับจากโพยที่ S จบใบแล้ว (COMPLETED) — ยังไม่หักอั้น/ตีออกใน V1 นี้</div>
+
+  <div class="top">
+    <div class="field">
+      <label>Workspace</label>
+      <input id="workspaceId" placeholder="workspace_id">
+    </div>
+    <div class="field">
+      <label>งวด</label>
+      <input id="drawCode" placeholder="draw_code">
+    </div>
+    <button id="loadBtn">โหลด Exposure</button>
+  </div>
+
+  <div id="status" class="status"></div>
+
+  <div class="cards">
+    <div class="card"><div class="note">โพยจบแล้ว</div><div id="slipCount" class="big">0</div></div>
+    <div class="card"><div class="note">จำนวนรายการ</div><div id="entryCount" class="big">0</div></div>
+    <div class="card"><div class="note">ยอดรับรวม</div><div id="grossAmount" class="big">0</div></div>
+  </div>
+
+  <div id="groups"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const money = value => Number(value || 0).toLocaleString('th-TH', {maximumFractionDigits:2});
+
+function esc(value){
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[ch]));
+}
+
+function fromQuery(){
+  const p = new URLSearchParams(location.search);
+  $('workspaceId').value = p.get('workspaceId') || localStorage.getItem('t999_workspace_id') || '';
+  $('drawCode').value = p.get('drawCode') || localStorage.getItem('t999_draw_code') || '';
+}
+
+function render(data){
+  $('slipCount').textContent = money(data.summary?.slipCount);
+  $('entryCount').textContent = money(data.summary?.entryCount);
+  $('grossAmount').textContent = money(data.summary?.grossAmount);
+
+  const groups = {};
+  for(const item of (data.items || [])){
+    (groups[item.betType] ||= []).push(item);
+  }
+
+  const root = $('groups');
+  const entries = Object.entries(groups);
+
+  if(!entries.length){
+    root.innerHTML = '<div class="section empty">ยังไม่มี Exposure จากโพยที่จบใบแล้วในงวดนี้</div>';
+    return;
+  }
+
+  root.innerHTML = entries.map(([type, items]) => `
+    <div class="section">
+      <h3>${esc(type)}</h3>
+      <table>
+        <thead>
+          <tr><th>เลข</th><th>ยอดรับ</th><th>รายการ</th><th>โพย</th></tr>
+        </thead>
+        <tbody>
+          ${items.map(item => `
+            <tr>
+              <td class="num">${esc(item.numberValue)}</td>
+              <td class="money">${money(item.grossAmount)}</td>
+              <td>${money(item.entryCount)}</td>
+              <td>${money(item.slipCount)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `).join('');
+}
+
+async function loadExposure(){
+  const workspaceId = $('workspaceId').value.trim();
+  const drawCode = $('drawCode').value.trim();
+
+  if(!workspaceId || !drawCode){
+    $('status').textContent = 'กรอก Workspace และงวดก่อน';
+    return;
+  }
+
+  localStorage.setItem('t999_workspace_id', workspaceId);
+  localStorage.setItem('t999_draw_code', drawCode);
+
+  $('status').textContent = 'กำลังโหลด...';
+
+  try{
+    const url = '/api/slip-entries?mode=EXPOSURE_INDEX&workspaceId='
+      + encodeURIComponent(workspaceId)
+      + '&drawCode=' + encodeURIComponent(drawCode);
+
+    const res = await fetch(url, {cache:'no-store'});
+    const data = await res.json();
+
+    if(!res.ok || !data.ok) throw new Error(data.message || 'โหลดไม่สำเร็จ');
+
+    render(data);
+    $('status').textContent = 'Exposure ล่าสุดจากโพย COMPLETED';
+  }catch(err){
+    $('status').textContent = 'ผิดพลาด: ' + err.message;
+  }
+}
+
+$('loadBtn').addEventListener('click', loadExposure);
+fromQuery();
+if($('workspaceId').value && $('drawCode').value) loadExposure();
+</script>
+</body>
+</html>
