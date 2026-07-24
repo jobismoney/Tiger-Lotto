@@ -342,6 +342,77 @@ async function deleteEntry(res, body) {
   });
 }
 
+
+async function listExposureIndex(req, res) {
+  const workspaceId = clean(req.query?.workspaceId);
+  const drawCode = upper(req.query?.drawCode);
+
+  if (!workspaceId || !drawCode) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูล Workspace/งวดไม่ครบ'
+    });
+  }
+
+  const rows = await sql`
+    select
+      e.bet_type,
+      e.number_value,
+      count(*)::integer as entry_count,
+      count(distinct e.slip_id)::integer as slip_count,
+      coalesce(sum(e.amount), 0)::numeric as gross_amount
+    from slip_entries e
+    join intake_slips s
+      on s.workspace_id = e.workspace_id
+     and s.slip_id = e.slip_id
+    where e.workspace_id = ${workspaceId}
+      and upper(coalesce(e.draw_code, '')) = ${drawCode}
+      and s.queue_status = 'COMPLETED'
+    group by
+      e.bet_type,
+      e.number_value
+    order by
+      e.bet_type asc,
+      coalesce(sum(e.amount), 0) desc,
+      e.number_value asc
+  `;
+
+  const summaryRows = await sql`
+    select
+      count(distinct e.slip_id)::integer as slip_count,
+      count(*)::integer as entry_count,
+      coalesce(sum(e.amount), 0)::numeric as gross_amount
+    from slip_entries e
+    join intake_slips s
+      on s.workspace_id = e.workspace_id
+     and s.slip_id = e.slip_id
+    where e.workspace_id = ${workspaceId}
+      and upper(coalesce(e.draw_code, '')) = ${drawCode}
+      and s.queue_status = 'COMPLETED'
+  `;
+
+  const summary = summaryRows[0] || {};
+
+  return res.status(200).json({
+    ok: true,
+    sourceOfTruth: 'COMPLETED_SLIP_ENTRIES',
+    workspaceId,
+    drawCode,
+    items: rows.map(row => ({
+      betType: row.bet_type,
+      numberValue: row.number_value,
+      entryCount: Number(row.entry_count || 0),
+      slipCount: Number(row.slip_count || 0),
+      grossAmount: Number(row.gross_amount || 0)
+    })),
+    summary: {
+      slipCount: Number(summary.slip_count || 0),
+      entryCount: Number(summary.entry_count || 0),
+      grossAmount: Number(summary.gross_amount || 0)
+    }
+  });
+}
+
 async function listEntries(req, res) {
   const workspaceId = clean(req.query?.workspaceId);
   const drawCode = upper(req.query?.drawCode);
@@ -383,6 +454,12 @@ async function listEntries(req, res) {
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
+      const mode = upper(req.query?.mode);
+
+      if (mode === 'EXPOSURE_INDEX') {
+        return await listExposureIndex(req, res);
+      }
+
       return await listEntries(req, res);
     }
 
