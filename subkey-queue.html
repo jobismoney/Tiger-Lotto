@@ -435,6 +435,18 @@
       color: #82a9d1;
     }
 
+
+    .restriction-tag{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:900;background:#5a3c20;color:#ffe3ad}
+    .restriction-tag.closed{background:#632e32;color:#ffd7da}
+    .restriction-tag.rejected{background:#3f444b;color:#d2d7dd;text-decoration:line-through}
+    .closed-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:18px;z-index:9999}
+    .closed-modal{width:min(760px,100%);max-height:88vh;overflow:auto;background:#151a20;border:1px solid #56616e;border-radius:14px;padding:18px;box-shadow:0 24px 80px rgba(0,0,0,.55)}
+    .closed-modal h3{margin:0 0 7px}.closed-modal-note{color:#abc1d6;font-size:12px;margin-bottom:14px}
+    .closed-decision-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border:1px solid #39414b;border-radius:10px;padding:12px;margin-bottom:9px;background:#0f1419}
+    .closed-decision-number{font-size:18px;font-weight:900}.closed-decision-meta{font-size:12px;color:#9fc5e9;margin-top:4px}
+    .closed-decision-choices{display:flex;gap:8px}.closed-decision-choices label{display:flex;align-items:center;gap:5px;border:1px solid #4a5562;border-radius:8px;padding:8px 10px;margin:0;cursor:pointer;color:#fff}
+    .closed-modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+
     @media (max-width: 900px) {
       .form-grid,
       .job-layout {
@@ -1008,9 +1020,8 @@ function renderEntries(summary = null) {
         <div class="keying-row">
 
           <div class="keying-number">
-            ${escapeHtml(
-              item.numberValue
-            )}
+            ${escapeHtml(item.numberValue)}
+            ${item.restrictionLabel ? `<span class="restriction-tag ${item.restrictionMode === 'CLOSED' ? 'closed' : ''} ${item.isCounted === false ? 'rejected' : ''}">${escapeHtml(item.restrictionLabel)}</span>` : ''}
           </div>
 
           <div class="keying-type">
@@ -3736,6 +3747,64 @@ async function loadViaRelay() {
 
 
 // =========================================================
+// CLOSED NUMBER COMPLETION GUARD
+// =========================================================
+
+async function requestSlipCompletionPreparation(decisions = null) {
+  const response = await fetch('/api/slip-entries', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      action:'PREPARE_SLIP_COMPLETION',
+      workspaceId,
+      drawCode:currentJob.drawCode,
+      slipId:currentJob.slipId,
+      subkeyCode:currentJob.assignedSubkey || currentSubkey(),
+      decisions:decisions || {}
+    })
+  });
+  const data = await response.json();
+  if(!response.ok || !data.ok) throw new Error(data.message || 'ตรวจเลขปิด / จ่าย % ไม่สำเร็จ');
+  return data;
+}
+
+function showClosedDecisionModal(items) {
+  return new Promise(resolve => {
+    const backdrop=document.createElement('div');
+    backdrop.className='closed-modal-backdrop';
+    backdrop.innerHTML=`
+      <div class="closed-modal">
+        <h3>พบเลขปิดในโพยนี้</h3>
+        <div class="closed-modal-note">เลือก รับ หรือ ไม่รับ แยกแต่ละรายการ แล้วกดยืนยันครั้งเดียว</div>
+        <div>${items.map((item,index)=>`
+          <div class="closed-decision-row">
+            <div>
+              <div class="closed-decision-number">${escapeHtml(item.numberValue)} <span class="restriction-tag closed">(ปิด)</span></div>
+              <div class="closed-decision-meta">${escapeHtml(entryTypeLabel(item.betType))} • ราคา ${escapeHtml(item.amount)}</div>
+            </div>
+            <div class="closed-decision-choices">
+              <label><input type="radio" name="closed_${item.entryId}" value="ACCEPT" checked> รับ</label>
+              <label><input type="radio" name="closed_${item.entryId}" value="REJECT"> ไม่รับ</label>
+            </div>
+          </div>`).join('')}</div>
+        <div class="closed-modal-actions">
+          <button type="button" class="btn btn-secondary" id="closedDecisionCancel">ยกเลิก</button>
+          <button type="button" class="btn btn-complete" id="closedDecisionConfirm">ยืนยันการเลือก</button>
+        </div>
+      </div>`;
+    document.body.appendChild(backdrop);
+    backdrop.querySelector('#closedDecisionCancel').onclick=()=>{backdrop.remove();resolve(null)};
+    backdrop.querySelector('#closedDecisionConfirm').onclick=()=>{
+      const decisions={};
+      for(const item of items){
+        decisions[item.entryId]=backdrop.querySelector(`input[name="closed_${item.entryId}"]:checked`)?.value || 'ACCEPT';
+      }
+      backdrop.remove();resolve(decisions);
+    };
+  });
+}
+
+// =========================================================
 // COMPLETE JOB
 // =========================================================
 
@@ -3754,6 +3823,21 @@ async function completeCurrentJob() {
       filename
     )
   ) {
+    return;
+  }
+
+  let preparation;
+  try {
+    preparation = await requestSlipCompletionPreparation();
+    if (preparation.requiresDecision) {
+      const decisions = await showClosedDecisionModal(preparation.items || []);
+      if (!decisions) return;
+      preparation = await requestSlipCompletionPreparation(decisions);
+    }
+    if (!preparation.ready) throw new Error('ยังเตรียมจบโพยไม่สมบูรณ์');
+    await loadEntries();
+  } catch (error) {
+    setStatus(error.message || 'ตรวจเลขปิด / จ่าย % ไม่สำเร็จ','error');
     return;
   }
 
