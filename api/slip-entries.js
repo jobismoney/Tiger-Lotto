@@ -461,6 +461,7 @@ async function addExposureAdjustment(res, body) {
   const adjustmentType = upper(body.adjustmentType);
   const amount = normalizeAmount(body.amount);
   const note = clean(body.note);
+  const effectiveTime = clean(body.effectiveTime);
   const createdBy = upper(body.createdBy || 'M');
 
   if (!workspaceId || !drawCode || !betType || !numberValue) {
@@ -1411,6 +1412,11 @@ async function ensureSettingsCoreTables() {
   `;
 
   await sql`
+    alter table shop_closed_numbers
+    add column if not exists effective_time text
+  `;
+
+  await sql`
     update shop_closed_numbers old
     set category_key = 'PAK_TOP'
     where old.category_key = 'PAK_LAK'
@@ -1476,7 +1482,7 @@ async function listSettingsCore(req, res) {
     where workspace_id = ${workspaceId}
       and upper(draw_code) = ${drawCode}
       and is_active = true
-    order by category_key asc, number_value asc
+    order by category_key asc, effective_time asc nulls last, number_value asc
   `;
 
   const rateMap = new Map(
@@ -1522,6 +1528,7 @@ async function listSettingsCore(req, res) {
       closeMode: row.close_mode || 'CLOSED',
       payoutPercent: Number(row.payout_percent || 0),
       sourceNumber: row.source_number || row.number_value,
+      effectiveTime: row.effective_time || '',
       createdAt: row.created_at
     }))
   });
@@ -1614,6 +1621,146 @@ async function saveRateSetting(res, body) {
   });
 }
 
+async function bulkSaveRateSettings(res, body) {
+  await ensureSettingsCoreTables();
+
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const updatedBy = upper(body.updatedBy || 'M');
+  const items = Array.isArray(body.items) ? body.items : [];
+
+  if (!workspaceId || !drawCode || !items.length) {
+    return res.status(400).json({ ok: false, message: 'ข้อมูลบันทึกเรตรวมไม่ครบ' });
+  }
+
+  const saved = [];
+  for (const item of items) {
+    const categoryKey = upper(item.categoryKey);
+    const discountGroupCode = clean(item.discountGroupCode);
+    const discountPercent = Number(item.discountPercent);
+    const payoutRate = Number(item.payoutRate);
+    const isEnabled = item.isEnabled !== false;
+
+    if (!categoryKey || !discountGroupCode) {
+      return res.status(400).json({ ok: false, message: 'มีประเภทหรือกลุ่มสรุปไม่ครบในรายการรวม' });
+    }
+
+    if (!Number.isFinite(discountPercent) || discountPercent < 0 || discountPercent > 100) {
+      return res.status(400).json({ ok: false, message: `เปอร์เซ็นต์ลดของ ${categoryKey} ไม่ถูกต้อง` });
+    }
+
+    if (!Number.isFinite(payoutRate) || payoutRate < 0) {
+      return res.status(400).json({ ok: false, message: `อัตราจ่ายของ ${categoryKey} ไม่ถูกต้อง` });
+    }
+
+    const rows = await sql`
+      insert into shop_rate_settings (
+        workspace_id,
+        draw_code,
+        category_key,
+        discount_group_code,
+        discount_percent,
+        payout_rate,
+        is_enabled,
+        updated_by,
+        updated_at
+      )
+      values (
+        ${workspaceId},
+        ${drawCode},
+        ${categoryKey},
+        ${discountGroupCode},
+        ${discountPercent},
+        ${payoutRate},
+        ${isEnabled},
+        ${updatedBy},
+        now()
+      )
+      on conflict (workspace_id, draw_code, category_key)
+      do update set
+        discount_group_code = excluded.discount_group_code,
+        discount_percent = excluded.discount_percent,
+        payout_rate = excluded.payout_rate,
+        is_enabled = excluded.is_enabled,
+        updated_by = excluded.updated_by,
+        updated_at = now()
+      returning *
+    `;
+
+    saved.push(rows[0]);
+  }
+
+  return res.status(200).json({
+    ok: true,
+    message: `บันทึกส่วนลด/อัตราจ่ายรวม ${saved.length} ประเภทแล้ว`,
+    count: saved.length
+  });
+}
+
+async function bulkSetExposureTypeLimits(res, body) {
+  await ensureExposureTables();
+
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const updatedBy = upper(body.updatedBy || 'M');
+  const items = Array.isArray(body.items) ? body.items : [];
+
+  if (!workspaceId || !drawCode || !items.length) {
+    return res.status(400).json({ ok: false, message: 'ข้อมูลบันทึกอั้นรวมไม่ครบ' });
+  }
+
+  const saved = [];
+  for (const item of items) {
+    const categoryKey = upper(item.categoryKey);
+    const limitAmount = normalizeAmount(item.limitAmount);
+    const isEnabled = item.isEnabled !== false;
+
+    if (!categoryKey) {
+      return res.status(400).json({ ok: false, message: 'มีประเภทยอดอั้นไม่ครบในรายการรวม' });
+    }
+
+    if (limitAmount === null || limitAmount < 0) {
+      return res.status(400).json({ ok: false, message: `ยอดอั้นของ ${categoryKey} ไม่ถูกต้อง` });
+    }
+
+    const rows = await sql`
+      insert into exposure_type_limits (
+        workspace_id,
+        draw_code,
+        category_key,
+        limit_amount,
+        is_enabled,
+        updated_by,
+        updated_at
+      )
+      values (
+        ${workspaceId},
+        ${drawCode},
+        ${categoryKey},
+        ${limitAmount},
+        ${isEnabled},
+        ${updatedBy},
+        now()
+      )
+      on conflict (workspace_id, draw_code, category_key)
+      do update set
+        limit_amount = excluded.limit_amount,
+        is_enabled = excluded.is_enabled,
+        updated_by = excluded.updated_by,
+        updated_at = now()
+      returning *
+    `;
+
+    saved.push(rows[0]);
+  }
+
+  return res.status(200).json({
+    ok: true,
+    message: `บันทึกอั้นรวม ${saved.length} ประเภทแล้ว`,
+    count: saved.length
+  });
+}
+
 async function saveClosedNumbers(res, body) {
   await ensureSettingsCoreTables();
 
@@ -1631,14 +1778,19 @@ async function saveClosedNumbers(res, body) {
   const closeMode = upper(body.closeMode || 'CLOSED');
   const payoutPercent = closeMode === 'CLOSED' ? 0 : Number(body.payoutPercent);
   const note = clean(body.note);
+  const effectiveTime = clean(body.effectiveTime);
   const createdBy = upper(body.createdBy || 'M');
 
-  if (!workspaceId || !drawCode || !categoryKeys.length || !numbers.length) {
+  if (!workspaceId || !drawCode || !categoryKeys.length || !numbers.length || !effectiveTime) {
     return res.status(400).json({ ok: false, message: 'ข้อมูลเลขปิด / จ่าย % ไม่ครบ' });
   }
 
   if (!['CLOSED', 'PAYOUT_PERCENT'].includes(closeMode)) {
     return res.status(400).json({ ok: false, message: 'สถานะรายการไม่ถูกต้อง' });
+  }
+
+  if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(effectiveTime)) {
+    return res.status(400).json({ ok: false, message: 'เวลาเลขปิด / จ่าย % ไม่ถูกต้อง' });
   }
 
   if (closeMode === 'PAYOUT_PERCENT' && (
@@ -1682,11 +1834,11 @@ async function saveClosedNumbers(res, body) {
       const saved = await sql`
         insert into shop_closed_numbers (
           workspace_id, draw_code, category_key, number_value, note,
-          is_active, created_by, created_at, close_mode, payout_percent, source_number
+          is_active, created_by, created_at, close_mode, payout_percent, source_number, effective_time
         )
         values (
           ${workspaceId}, ${drawCode}, ${categoryKey}, ${numberValue}, ${note || null},
-          true, ${createdBy}, now(), ${closeMode}, ${payoutPercent}, ${sourceNumber}
+          true, ${createdBy}, now(), ${closeMode}, ${payoutPercent}, ${sourceNumber}, ${effectiveTime}
         )
         on conflict (workspace_id, draw_code, category_key, number_value)
         do update set
@@ -1695,6 +1847,7 @@ async function saveClosedNumbers(res, body) {
           close_mode = excluded.close_mode,
           payout_percent = excluded.payout_percent,
           source_number = excluded.source_number,
+          effective_time = excluded.effective_time,
           created_by = excluded.created_by,
           created_at = now()
         returning *
@@ -2026,6 +2179,10 @@ export default async function handler(req, res) {
         return await upsertExposureTypeLimit(res, body);
       }
 
+      if (action === 'BULK_SET_EXPOSURE_TYPE_LIMITS') {
+        return await bulkSetExposureTypeLimits(res, body);
+      }
+
       if (action === 'CREATE_CUT_ROUND') {
         return await createCutRound(res, body);
       }
@@ -2044,6 +2201,10 @@ export default async function handler(req, res) {
 
       if (action === 'SAVE_RATE_SETTING') {
         return await saveRateSetting(res, body);
+      }
+
+      if (action === 'BULK_SAVE_RATE_SETTINGS') {
+        return await bulkSaveRateSettings(res, body);
       }
 
       if (action === 'SAVE_CLOSED_NUMBERS') {
