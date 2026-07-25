@@ -8,371 +8,144 @@
 *{box-sizing:border-box}
 body{margin:0;background:#f4f4f4;color:#111;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
 .wrap{max-width:1400px;margin:auto;padding:18px}
-h1{margin:0 0 6px}.note{color:#666;font-size:13px}
-.top{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:16px 0}
-.field{display:flex;flex-direction:column;gap:5px}
-label{font-size:13px;font-weight:800}
-input,select{height:40px;border:1px solid #bbb;border-radius:8px;padding:0 10px;font-size:15px;background:#fff}
-button{height:40px;border:0;border-radius:8px;background:#111;color:#fff;padding:0 16px;font-weight:800;cursor:pointer}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-.tab{background:#ddd;color:#111}.tab.active{background:#111;color:#fff}
-.panel{display:none}.panel.active{display:block}
-.card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:14px;margin:12px 0}
-table{width:100%;border-collapse:collapse}
-th,td{padding:9px 8px;border-bottom:1px solid #eee;text-align:left;vertical-align:middle}
-th{background:#fafafa;font-size:13px}
-.small{width:105px}.group{width:80px}.money{width:120px}
-.status{font-weight:800;margin:8px 0}
-.closed-form{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
-.badge{display:inline-flex;align-items:center;gap:8px;border:1px solid #ccc;border-radius:999px;padding:6px 10px;margin:4px;background:#fafafa}
-.badge button{height:26px;padding:0 8px;background:#b00020}
-.category-title{font-weight:900}
-@media(max-width:850px){
-  .wrap{padding:10px}
-  table{display:block;overflow:auto;white-space:nowrap}
-}
+h1{margin:0 0 6px}.note{color:#666;font-size:13px}.hint{color:#555;font-size:12px;line-height:1.45}
+.top{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:16px 0}.field{display:flex;flex-direction:column;gap:5px}
+label{font-size:13px;font-weight:800}input,select{height:40px;border:1px solid #bbb;border-radius:8px;padding:0 10px;font-size:15px;background:#fff}
+button{height:40px;border:0;border-radius:8px;background:#111;color:#fff;padding:0 16px;font-weight:800;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.tab{background:#ddd;color:#111}.tab.active{background:#111;color:#fff}
+.panel{display:none}.panel.active{display:block}.card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:14px;margin:12px 0}
+table{width:100%;border-collapse:collapse}th,td{padding:9px 8px;border-bottom:1px solid #eee;text-align:left;vertical-align:middle}th{background:#fafafa;font-size:13px}
+.small{width:105px}.group{width:80px}.money{width:120px}.status{font-weight:800;margin:8px 0;min-height:22px}.category-title{font-weight:900}
+.closed-layout{display:grid;grid-template-columns:minmax(320px,430px) 1fr;gap:14px;align-items:start}.closed-form{display:grid;gap:12px}.closed-form .field input{width:100%}
+.type-groups{display:grid;gap:10px}.type-group{border:1px solid #ddd;border-radius:10px;padding:10px;background:#fafafa}.type-group-title{font-weight:900;margin-bottom:8px}
+.type-options{display:flex;gap:8px;flex-wrap:wrap}.type-check{display:inline-flex;align-items:center;gap:7px;border:1px solid #ccc;background:#fff;border-radius:8px;padding:8px 10px;font-weight:800;cursor:pointer}.type-check input{width:18px;height:18px;margin:0}
+.mode-row,.option-row{display:flex;gap:8px;flex-wrap:wrap}.choice{display:inline-flex;align-items:center;gap:7px;border:1px solid #bbb;border-radius:8px;padding:8px 10px;background:#fff;font-weight:800}.choice input{width:18px;height:18px;margin:0}
+.percent-wrap{display:flex;align-items:center;gap:6px}.percent-wrap input{width:110px}.closed-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.closed-category{margin:0 0 14px}.closed-category h3{margin:0 0 7px;font-size:16px}.closed-table-wrap{overflow:auto}.closed-table{min-width:640px}.closed-table td,.closed-table th{padding:7px 8px}
+.mode-badge{display:inline-block;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:900}.mode-closed{background:#ffe5e8;color:#a00020}.mode-percent{background:#fff1c7;color:#7a4a00}.mini{height:30px;padding:0 10px}.danger{background:#b00020}
+@media(max-width:900px){.wrap{padding:10px}.closed-layout{grid-template-columns:1fr}table{display:block;overflow:auto;white-space:nowrap}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Settings Core V1</h1>
-  <div class="note">แกนตั้งค่าบังคับของร้าน: ตั้งอั้น • ตั้งเลขปิด • ตั้งลด % ซื้อและอัตราจ่าย</div>
-
+  <div class="note">แกนตั้งค่าบังคับของร้าน: ตั้งอั้น • ตั้งเลขปิด / จ่าย % • ตั้งลด % ซื้อและอัตราจ่าย</div>
   <div class="top">
-    <div class="field">
-      <label>Workspace</label>
-      <input id="workspaceId" placeholder="workspace_id">
-    </div>
-    <div class="field">
-      <label>งวด</label>
-      <input id="drawCode" placeholder="draw_code">
-    </div>
+    <div class="field"><label>Workspace</label><input id="workspaceId" placeholder="workspace_id"></div>
+    <div class="field"><label>งวด</label><input id="drawCode" placeholder="draw_code"></div>
     <button id="loadBtn">โหลดการตั้งค่า</button>
   </div>
-
   <div id="status" class="status"></div>
-
   <div class="tabs">
     <button class="tab active" data-panel="limitsPanel">1. ตั้งอั้น</button>
-    <button class="tab" data-panel="closedPanel">2. ตั้งเลขปิด</button>
+    <button class="tab" data-panel="closedPanel">2. เลขปิด / จ่าย %</button>
     <button class="tab" data-panel="ratesPanel">3. ลด % ซื้อ / อัตราจ่าย</button>
   </div>
 
-  <section id="limitsPanel" class="panel active">
-    <div class="card">
-      <h2>ตั้งอั้นตามประเภท</h2>
-      <div class="note">ค่าอั้นใช้กับเลขทั้งหมดในประเภทนั้นของงวดนี้</div>
-      <div id="limitsTable"></div>
-    </div>
-  </section>
+  <section id="limitsPanel" class="panel active"><div class="card"><h2>ตั้งอั้นตามประเภท</h2><div class="note">ค่าอั้นใช้กับเลขทั้งหมดในประเภทนั้นของงวดนี้</div><div id="limitsTable"></div></div></section>
 
   <section id="closedPanel" class="panel">
-    <div class="card">
-      <h2>ตั้งเลขปิด</h2>
-      <div class="closed-form">
-        <div class="field">
-          <label>ประเภท</label>
-          <select id="closedCategory"></select>
+    <div class="closed-layout">
+      <div class="card">
+        <h2>เพิ่มเลขปิด / จ่าย %</h2>
+        <div class="closed-form">
+          <div class="field"><label>เลข</label><input id="closedNumber" inputmode="numeric" autocomplete="off" placeholder="เช่น 12/34/56 หรือ 123/456"><div class="hint">ใช้ / คั่นหลายเลขแบบเต็ม ทุกเลขต้องมีจำนวนหลักเท่ากัน</div></div>
+          <div>
+            <label>ประเภทจริง</label>
+            <div id="closedTypeGroups" class="type-groups" style="margin-top:6px"></div>
+          </div>
+          <div>
+            <label>ตัวเลือกขยายเลข</label>
+            <div class="option-row" style="margin-top:6px">
+              <label class="choice"><input type="checkbox" id="closedReverse"> กลับ (เฉพาะ 2 ตัว)</label>
+              <label class="choice"><input type="checkbox" id="closedSet"> ชุด (3–5 ตัว)</label>
+            </div>
+          </div>
+          <div>
+            <label>สถานะรายการ</label>
+            <div class="mode-row" style="margin-top:6px">
+              <label class="choice"><input type="radio" name="closedMode" value="CLOSED" checked> ปิด</label>
+              <label class="choice"><input type="radio" name="closedMode" value="PAYOUT_PERCENT"> จ่าย %</label>
+              <div class="percent-wrap"><input id="closedPercent" type="number" min="0" max="100" step="0.001" value="0" disabled><strong>%</strong></div>
+            </div>
+          </div>
+          <div class="field"><label>หมายเหตุ</label><input id="closedNote" placeholder="ไม่บังคับ"></div>
+          <div class="closed-actions"><button id="addClosedBtn">บันทึกรายการ</button><span id="closedPreview" class="hint"></span></div>
         </div>
-        <div class="field">
-          <label>เลขปิด</label>
-          <input id="closedNumber" placeholder="1-5 หลัก">
-        </div>
-        <div class="field">
-          <label>หมายเหตุ</label>
-          <input id="closedNote" placeholder="ไม่บังคับ">
-        </div>
-        <button id="addClosedBtn">เพิ่มเลขปิด</button>
       </div>
-      <div id="closedList" style="margin-top:14px"></div>
+      <div class="card"><h2>รายการของงวดนี้</h2><div id="closedList"></div></div>
     </div>
   </section>
 
-  <section id="ratesPanel" class="panel">
-    <div class="card">
-      <h2>ตั้งส่วนลดซื้อ / อัตราจ่าย / กลุ่มสรุป</h2>
-      <div class="note">
-        ระบบใส่กลุ่มเริ่มต้น 3 / 2 / 1 / ต / ล ให้ก่อน
-        ถ้าเปอร์เซ็นต์ต่างกันให้แยกชื่อกลุ่ม เช่น 3น, 2น, ป, 1บ, 1ล
-      </div>
-      <div id="ratesTable"></div>
-    </div>
-  </section>
+  <section id="ratesPanel" class="panel"><div class="card"><h2>ตั้งส่วนลดซื้อ / อัตราจ่าย / กลุ่มสรุป</h2><div class="note">ระบบใส่กลุ่มเริ่มต้น 3 / 2 / 1 / ต / ล ให้ก่อน ถ้าเปอร์เซ็นต์ต่างกันให้แยกชื่อกลุ่ม</div><div id="ratesTable"></div></div></section>
 </div>
-
 <script>
 const $ = id => document.getElementById(id);
 let settingsData = null;
-
-const money = value =>
-  Number(value || 0).toLocaleString('th-TH', {
-    maximumFractionDigits: 3
-  });
-
-function esc(value){
-  return String(value ?? '').replace(/[&<>"']/g, ch => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[ch]));
+const esc = value => String(value ?? '').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const context = () => ({workspaceId:$('workspaceId').value.trim(),drawCode:$('drawCode').value.trim()});
+const typeGroups = [
+  {title:'1 ตัว', digits:1, keys:['RUN_TOP','RUN_BOTTOM','PAK_TOP','PAK_BOTTOM']},
+  {title:'2 ตัว', digits:2, keys:['2_TOP','2_BOTTOM','2_FRONT','TOOD_2']},
+  {title:'3 ตัว', digits:3, keys:['3_TOP','3_FRONT','3_BOTTOM','TOOD_3']},
+  {title:'4–5 ตัว', digits:0, keys:['TOOD_4','TOOD_5']}
+];
+function selectedMode(){return document.querySelector('input[name="closedMode"]:checked')?.value || 'CLOSED'}
+function selectedTypes(){return [...document.querySelectorAll('.closed-type:checked')].map(x=>x.value)}
+function parseNumbers(){
+  const raw=$('closedNumber').value.replace(/\s+/g,'');
+  if(!raw) return {ok:false,message:'กรอกเลขก่อน'};
+  if(!/^\d{1,5}(\/\d{1,5})*$/.test(raw)) return {ok:false,message:'รูปแบบเลขไม่ถูกต้อง ใช้ / คั่นเลขเต็มเท่านั้น'};
+  const numbers=raw.split('/'); const digits=numbers[0].length;
+  if(numbers.some(x=>x.length!==digits)) return {ok:false,message:'ทุกเลขในชุดต้องมีจำนวนหลักเท่ากัน'};
+  return {ok:true,numbers:[...new Set(numbers)],digits};
 }
-
-function context(){
-  return {
-    workspaceId:$('workspaceId').value.trim(),
-    drawCode:$('drawCode').value.trim()
-  };
+function permutations(value){
+  const out=new Set();
+  const walk=(left,built)=>{if(!left.length){out.add(built);return} for(let i=0;i<left.length;i++) walk(left.slice(0,i)+left.slice(i+1),built+left[i])};
+  walk(value,''); return [...out];
 }
-
+function expandedNumbers(parsed){
+  let out=[...parsed.numbers];
+  if($('closedReverse').checked && parsed.digits===2) out.push(...parsed.numbers.map(x=>x[1]+x[0]));
+  if($('closedSet').checked && parsed.digits>=3) out.push(...parsed.numbers.flatMap(permutations));
+  return [...new Set(out)];
+}
+function updateClosedControls(){
+  const parsed=parseNumbers(); const digits=parsed.ok?parsed.digits:0;
+  document.querySelectorAll('.closed-type').forEach(box=>{const allowed=Number(box.dataset.digits)===digits; box.disabled=!allowed; if(!allowed) box.checked=false});
+  $('closedReverse').disabled=digits!==2; if(digits!==2) $('closedReverse').checked=false;
+  $('closedSet').disabled=digits<3; if(digits<3) $('closedSet').checked=false;
+  const isPercent=selectedMode()==='PAYOUT_PERCENT'; $('closedPercent').disabled=!isPercent; if(!isPercent)$('closedPercent').value='0';
+  if(!parsed.ok){$('closedPreview').textContent=parsed.message;return}
+  const count=expandedNumbers(parsed).length; $('closedPreview').textContent=`${parsed.numbers.length} เลขต้นทาง • บันทึกจริง ${count} เลขต่อประเภท`;
+}
 function render(){
-  if(!settingsData) return;
-
-  const categories = settingsData.categories || [];
-
-  $('closedCategory').innerHTML =
-    categories.map(item =>
-      `<option value="${esc(item.categoryKey)}">${esc(item.label)}</option>`
-    ).join('');
-
-  $('limitsTable').innerHTML = `
-    <table>
-      <thead><tr><th>ประเภท</th><th>ยอดอั้น</th><th>บันทึก</th></tr></thead>
-      <tbody>
-        ${categories.map(item => `
-          <tr>
-            <td class="category-title">${esc(item.label)}</td>
-            <td>
-              <input class="money" id="limit_${item.categoryKey}"
-                type="number" min="0" step="1"
-                value="${esc(item.limitEnabled ? item.limitAmount : 0)}">
-            </td>
-            <td>
-              <button onclick="saveLimit('${item.categoryKey}')">บันทึก</button>
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-
-  $('ratesTable').innerHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>ประเภทจริง</th>
-          <th>ชื่อกลุ่มสรุป</th>
-          <th>ลดซื้อ %</th>
-          <th>อัตราจ่าย</th>
-          <th>บันทึก</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${categories.map(item => `
-          <tr>
-            <td class="category-title">${esc(item.label)}</td>
-            <td>
-              <input class="group" id="group_${item.categoryKey}"
-                value="${esc(item.discountGroupCode)}">
-            </td>
-            <td>
-              <input class="small" id="discount_${item.categoryKey}"
-                type="number" min="0" max="100" step="0.001"
-                value="${esc(item.discountPercent)}">
-            </td>
-            <td>
-              <input class="money" id="payout_${item.categoryKey}"
-                type="number" min="0" step="0.001"
-                value="${esc(item.payoutRate)}">
-            </td>
-            <td>
-              <button onclick="saveRate('${item.categoryKey}')">บันทึก</button>
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-
-  const grouped = {};
-  for(const item of (settingsData.closedNumbers || [])){
-    (grouped[item.categoryKey] ||= []).push(item);
-  }
-
-  $('closedList').innerHTML =
-    categories.map(category => {
-      const rows = grouped[category.categoryKey] || [];
-      if(!rows.length) return '';
-
-      return `
-        <div style="margin:10px 0">
-          <strong>${esc(category.label)}</strong><br>
-          ${rows.map(row => `
-            <span class="badge">
-              ${esc(row.numberValue)}
-              ${row.note ? '• ' + esc(row.note) : ''}
-              <button onclick="deleteClosed(${row.id})">ลบ</button>
-            </span>
-          `).join('')}
-        </div>
-      `;
-    }).join('') || '<div class="note">ยังไม่มีเลขปิดในงวดนี้</div>';
+  if(!settingsData)return; const categories=settingsData.categories||[]; const categoryMap=new Map(categories.map(x=>[x.categoryKey,x]));
+  $('closedTypeGroups').innerHTML=typeGroups.map(group=>`<div class="type-group"><div class="type-group-title">${group.title}</div><div class="type-options">${group.keys.map(key=>{const item=categoryMap.get(key);return item?`<label class="type-check"><input class="closed-type" type="checkbox" value="${esc(key)}" data-digits="${item.digits}"> ${esc(item.label)}</label>`:''}).join('')}</div></div>`).join('');
+  $('limitsTable').innerHTML=`<table><thead><tr><th>ประเภท</th><th>ยอดอั้น</th><th>บันทึก</th></tr></thead><tbody>${categories.map(item=>`<tr><td class="category-title">${esc(item.label)}</td><td><input class="money" id="limit_${item.categoryKey}" type="number" min="0" step="1" value="${esc(item.limitEnabled?item.limitAmount:0)}"></td><td><button onclick="saveLimit('${item.categoryKey}')">บันทึก</button></td></tr>`).join('')}</tbody></table>`;
+  $('ratesTable').innerHTML=`<table><thead><tr><th>ประเภทจริง</th><th>ชื่อกลุ่มสรุป</th><th>ลดซื้อ %</th><th>อัตราจ่าย</th><th>บันทึก</th></tr></thead><tbody>${categories.map(item=>`<tr><td class="category-title">${esc(item.label)}</td><td><input class="group" id="group_${item.categoryKey}" value="${esc(item.discountGroupCode)}"></td><td><input class="small" id="discount_${item.categoryKey}" type="number" min="0" max="100" step="0.001" value="${esc(item.discountPercent)}"></td><td><input class="money" id="payout_${item.categoryKey}" type="number" min="0" step="0.001" value="${esc(item.payoutRate)}"></td><td><button onclick="saveRate('${item.categoryKey}')">บันทึก</button></td></tr>`).join('')}</tbody></table>`;
+  const grouped={}; for(const item of(settingsData.closedNumbers||[]))(grouped[item.categoryKey]||=[]).push(item);
+  $('closedList').innerHTML=categories.map(category=>{const rows=grouped[category.categoryKey]||[];if(!rows.length)return'';return`<div class="closed-category"><h3>${esc(category.label)} (${rows.length})</h3><div class="closed-table-wrap"><table class="closed-table"><thead><tr><th>เลข</th><th>สถานะ</th><th>หมายเหตุ</th><th></th></tr></thead><tbody>${rows.map(row=>`<tr><td><strong>${esc(row.numberValue)}</strong></td><td>${row.closeMode==='PAYOUT_PERCENT'?`<span class="mode-badge mode-percent">จ่าย ${esc(row.payoutPercent)}%</span>`:`<span class="mode-badge mode-closed">ปิด</span>`}</td><td>${esc(row.note||'-')}</td><td><button class="mini danger" onclick="deleteClosed(${row.id})">ลบ</button></td></tr>`).join('')}</tbody></table></div></div>`}).join('')||'<div class="note">ยังไม่มีเลขปิดหรือจ่าย % ในงวดนี้</div>';
+  updateClosedControls();
 }
-
 async function loadSettings(){
-  const {workspaceId, drawCode} = context();
-
-  if(!workspaceId || !drawCode){
-    $('status').textContent = 'กรอก Workspace และงวดก่อน';
-    return;
-  }
-
-  localStorage.setItem('t999_workspace_id', workspaceId);
-  localStorage.setItem('t999_draw_code', drawCode);
-  $('status').textContent = 'กำลังโหลด...';
-
-  try{
-    const url = '/api/slip-entries?mode=SETTINGS_CORE&workspaceId='
-      + encodeURIComponent(workspaceId)
-      + '&drawCode=' + encodeURIComponent(drawCode);
-
-    const res = await fetch(url, {cache:'no-store'});
-    const data = await res.json();
-
-    if(!res.ok || !data.ok){
-      throw new Error(data.message || 'โหลดไม่สำเร็จ');
-    }
-
-    settingsData = data;
-    render();
-    $('status').textContent = 'โหลด Settings Core แล้ว';
-  }catch(err){
-    $('status').textContent = 'ผิดพลาด: ' + err.message;
-  }
+  const {workspaceId,drawCode}=context(); if(!workspaceId||!drawCode){$('status').textContent='กรอก Workspace และงวดก่อน';return}
+  localStorage.setItem('t999_workspace_id',workspaceId);localStorage.setItem('t999_draw_code',drawCode);$('status').textContent='กำลังโหลด...';
+  try{const res=await fetch('/api/slip-entries?mode=SETTINGS_CORE&workspaceId='+encodeURIComponent(workspaceId)+'&drawCode='+encodeURIComponent(drawCode),{cache:'no-store'});const data=await res.json();if(!res.ok||!data.ok)throw new Error(data.message||'โหลดไม่สำเร็จ');settingsData=data;render();$('status').textContent='โหลด Settings Core แล้ว'}catch(err){$('status').textContent='ผิดพลาด: '+err.message}
 }
-
-async function post(payload){
-  const res = await fetch('/api/slip-entries', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)
-  });
-
-  const data = await res.json();
-
-  if(!res.ok || !data.ok){
-    throw new Error(data.message || 'บันทึกไม่สำเร็จ');
-  }
-
-  return data;
-}
-
-async function saveLimit(categoryKey){
-  const {workspaceId, drawCode} = context();
-  const limitAmount = Number($('limit_' + categoryKey).value || 0);
-
-  try{
-    await post({
-      action:'SET_EXPOSURE_TYPE_LIMIT',
-      workspaceId,
-      drawCode,
-      categoryKey,
-      limitAmount,
-      isEnabled:limitAmount > 0,
-      updatedBy:'M'
-    });
-
-    $('status').textContent = 'บันทึกอั้นแล้ว';
-    await loadSettings();
-  }catch(err){
-    alert(err.message);
-  }
-}
-
-async function saveRate(categoryKey){
-  const {workspaceId, drawCode} = context();
-
-  try{
-    await post({
-      action:'SAVE_RATE_SETTING',
-      workspaceId,
-      drawCode,
-      categoryKey,
-      discountGroupCode:$('group_' + categoryKey).value.trim(),
-      discountPercent:Number($('discount_' + categoryKey).value || 0),
-      payoutRate:Number($('payout_' + categoryKey).value || 0),
-      isEnabled:true,
-      updatedBy:'M'
-    });
-
-    $('status').textContent = 'บันทึกส่วนลด/อัตราจ่ายแล้ว';
-    await loadSettings();
-  }catch(err){
-    alert(err.message);
-  }
-}
-
+async function post(payload){const res=await fetch('/api/slip-entries',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await res.json();if(!res.ok||!data.ok)throw new Error(data.message||'บันทึกไม่สำเร็จ');return data}
+async function saveLimit(categoryKey){const{workspaceId,drawCode}=context();const limitAmount=Number($('limit_'+categoryKey).value||0);try{await post({action:'SET_EXPOSURE_TYPE_LIMIT',workspaceId,drawCode,categoryKey,limitAmount,isEnabled:limitAmount>0,updatedBy:'M'});$('status').textContent='บันทึกอั้นแล้ว';await loadSettings()}catch(err){alert(err.message)}}
+async function saveRate(categoryKey){const{workspaceId,drawCode}=context();try{await post({action:'SAVE_RATE_SETTING',workspaceId,drawCode,categoryKey,discountGroupCode:$('group_'+categoryKey).value.trim(),discountPercent:Number($('discount_'+categoryKey).value||0),payoutRate:Number($('payout_'+categoryKey).value||0),isEnabled:true,updatedBy:'M'});$('status').textContent='บันทึกส่วนลด/อัตราจ่ายแล้ว';await loadSettings()}catch(err){alert(err.message)}}
 async function addClosed(){
-  const {workspaceId, drawCode} = context();
-
-  try{
-    await post({
-      action:'SAVE_CLOSED_NUMBER',
-      workspaceId,
-      drawCode,
-      categoryKey:$('closedCategory').value,
-      numberValue:$('closedNumber').value.trim(),
-      note:$('closedNote').value.trim(),
-      createdBy:'M'
-    });
-
-    $('closedNumber').value = '';
-    $('closedNote').value = '';
-    $('status').textContent = 'เพิ่มเลขปิดแล้ว';
-    await loadSettings();
-  }catch(err){
-    alert(err.message);
-  }
+  const{workspaceId,drawCode}=context();const parsed=parseNumbers();if(!parsed.ok)return alert(parsed.message);const categoryKeys=selectedTypes();if(!categoryKeys.length)return alert('เลือกประเภทจริงอย่างน้อย 1 ประเภท');
+  const mode=selectedMode();const payoutPercent=mode==='CLOSED'?0:Number($('closedPercent').value);if(mode==='PAYOUT_PERCENT'&&(!Number.isFinite(payoutPercent)||payoutPercent<=0||payoutPercent>100))return alert('จ่าย % ต้องมากกว่า 0 และไม่เกิน 100');
+  try{await post({action:'SAVE_CLOSED_NUMBERS',workspaceId,drawCode,categoryKeys,numbers:expandedNumbers(parsed),sourceNumbers:parsed.numbers,closeMode:mode,payoutPercent,note:$('closedNote').value.trim(),createdBy:'M'});$('closedNumber').value='';$('closedNote').value='';document.querySelectorAll('.closed-type').forEach(x=>x.checked=false);$('closedReverse').checked=false;$('closedSet').checked=false;$('status').textContent='บันทึกเลขปิด / จ่าย % แล้ว';await loadSettings()}catch(err){alert(err.message)}
 }
-
-async function deleteClosed(id){
-  const {workspaceId, drawCode} = context();
-
-  if(!confirm('ยกเลิกเลขปิดนี้?')) return;
-
-  try{
-    await post({
-      action:'DELETE_CLOSED_NUMBER',
-      workspaceId,
-      drawCode,
-      id
-    });
-
-    $('status').textContent = 'ยกเลิกเลขปิดแล้ว';
-    await loadSettings();
-  }catch(err){
-    alert(err.message);
-  }
-}
-
-document.querySelectorAll('.tab').forEach(button => {
-  button.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
-    button.classList.add('active');
-    $(button.dataset.panel).classList.add('active');
-  });
-});
-
-$('loadBtn').addEventListener('click', loadSettings);
-$('addClosedBtn').addEventListener('click', addClosed);
-
-$('workspaceId').value =
-  localStorage.getItem('t999_workspace_id') || '';
-
-$('drawCode').value =
-  localStorage.getItem('t999_draw_code') || '';
-
-if($('workspaceId').value && $('drawCode').value){
-  loadSettings();
-}
+async function deleteClosed(id){const{workspaceId,drawCode}=context();if(!confirm('ยกเลิกรายการนี้?'))return;try{await post({action:'DELETE_CLOSED_NUMBER',workspaceId,drawCode,id});$('status').textContent='ยกเลิกรายการแล้ว';await loadSettings()}catch(err){alert(err.message)}}
+document.querySelectorAll('.tab').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));button.classList.add('active');$(button.dataset.panel).classList.add('active')}));
+$('loadBtn').addEventListener('click',loadSettings);$('addClosedBtn').addEventListener('click',addClosed);$('closedNumber').addEventListener('input',updateClosedControls);$('closedReverse').addEventListener('change',updateClosedControls);$('closedSet').addEventListener('change',updateClosedControls);document.querySelectorAll('input[name="closedMode"]').forEach(x=>x.addEventListener('change',updateClosedControls));
+$('workspaceId').value=localStorage.getItem('t999_workspace_id')||'';$('drawCode').value=localStorage.getItem('t999_draw_code')||'';if($('workspaceId').value&&$('drawCode').value)loadSettings();
 </script>
 </body>
 </html>
