@@ -24,14 +24,14 @@ table{width:100%;border-collapse:collapse}th,td{padding:9px 8px;border-bottom:1p
 .closed-category{margin:0 0 14px}.closed-category h3{margin:0 0 7px;font-size:16px}.closed-table-wrap{overflow:auto}.closed-table{min-width:760px}.closed-table td,.closed-table th{padding:7px 8px}
 .mode-badge{display:inline-block;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:900}.mode-closed{background:#ffe5e8;color:#a00020}.mode-percent{background:#fff1c7;color:#7a4a00}.mini{height:30px;padding:0 10px}.danger{background:#b00020}
 .bulk-actions{margin-top:14px;display:flex;justify-content:flex-end}
-.time-input{width:160px}
-@media(max-width:900px){.wrap{padding:10px}.closed-layout{grid-template-columns:1fr}table{display:block;overflow:auto;white-space:nowrap}.bulk-actions{justify-content:stretch}.bulk-actions button{width:100%}}
+.config-grid{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:14px}.config-box{border:1px solid #ddd;border-radius:10px;padding:14px;background:#fafafa}.config-box h3{margin:0 0 6px}.config-options{display:grid;gap:8px;margin-top:10px}.config-choice{display:flex;align-items:flex-start;gap:9px;border:1px solid #ccc;border-radius:9px;background:#fff;padding:10px;cursor:pointer}.config-choice input{width:19px;height:19px;margin:1px 0 0}.config-choice strong{display:block}.placeholder-list{display:grid;gap:10px}.placeholder-item{border:1px dashed #aaa;border-radius:10px;padding:12px;background:#fafafa}.time-input{width:160px}
+@media(max-width:900px){.wrap{padding:10px}.closed-layout,.config-grid{grid-template-columns:1fr}table{display:block;overflow:auto;white-space:nowrap}.bulk-actions{justify-content:stretch}.bulk-actions button{width:100%}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Settings Core V1</h1>
-  <div class="note">แกนตั้งค่าบังคับของร้าน: ตั้งอั้น • ตั้งเลขปิด / จ่าย % • ตั้งลด % ซื้อและอัตราจ่าย</div>
+  <div class="note">ศูนย์รวมการตั้งค่าของร้าน/งวด ออกแบบให้เพิ่มหัวข้อใหม่ได้โดยไม่ต้องรื้อหน้าเดิม</div>
   <div class="top">
     <div class="field"><label>Workspace</label><input id="workspaceId" placeholder="workspace_id"></div>
     <div class="field"><label>งวด</label><input id="drawCode" placeholder="draw_code"></div>
@@ -39,12 +39,40 @@ table{width:100%;border-collapse:collapse}th,td{padding:9px 8px;border-bottom:1p
   </div>
   <div id="status" class="status"></div>
   <div class="tabs">
-    <button class="tab active" data-panel="limitsPanel">1. ตั้งอั้น</button>
-    <button class="tab" data-panel="closedPanel">2. เลขปิด / จ่าย %</button>
-    <button class="tab" data-panel="ratesPanel">3. ลด % ซื้อ / อัตราจ่าย</button>
+    <button class="tab active" data-panel="workflowPanel">1. รูปแบบการทำงาน</button>
+    <button class="tab" data-panel="limitsPanel">2. ตั้งอั้น</button>
+    <button class="tab" data-panel="closedPanel">3. เลขปิด / จ่าย %</button>
+    <button class="tab" data-panel="ratesPanel">4. เรท / กลุ่มสรุป</button>
+    <button class="tab" data-panel="futurePanel">5. ตั้งค่าเพิ่มเติม</button>
   </div>
 
-  <section id="limitsPanel" class="panel active"><div class="card"><h2>ตั้งอั้นตามประเภท</h2><div class="note">ค่าอั้นใช้กับเลขทั้งหมดในประเภทนั้นของงวดนี้</div><div id="limitsTable"></div></div></section>
+  <section id="workflowPanel" class="panel active">
+    <div class="card">
+      <h2>รูปแบบการทำงานของงวด</h2>
+      <div class="note">ค่าหน้านี้แยกตาม Workspace และงวด เพื่อเตรียมเชื่อมกับ Subkey, Binder และการตรวจของ Master</div>
+      <div class="config-grid" style="margin-top:14px">
+        <div class="config-box">
+          <h3>แหล่งหลักของโพย</h3>
+          <div class="hint">เลือกวิธีทำงานหลักของร้านในงวดนี้</div>
+          <div class="config-options">
+            <label class="config-choice"><input type="radio" name="inputMode" value="LABEL"><span><strong>โหมดเลเบล</strong><span class="hint">ยึดข้อมูลเลเบล/ข้อมูลที่พิมพ์กำกับเป็นหลัก</span></span></label>
+            <label class="config-choice"><input type="radio" name="inputMode" value="SLIP_IMAGE"><span><strong>โหมดรูปโพย</strong><span class="hint">ยึดรูปโพยจริงเป็นหลักสำหรับตรวจสอบ เวลา และหลักฐาน</span></span></label>
+          </div>
+        </div>
+        <div class="config-box">
+          <h3>วิธีรับเลขปิด</h3>
+          <div class="hint">เลขจ่าย % รับเข้าทุกตัวเสมอ ตัวเลือกนี้ใช้กับรายการ “ปิด” เท่านั้น</div>
+          <div class="config-options">
+            <label class="config-choice"><input type="radio" name="closedAcceptMode" value="ASK_SUBKEY_AT_FINISH"><span><strong>ถาม S ตอนจบโพย</strong><span class="hint">Popup รวมครั้งเดียว และเลือก รับ/ไม่รับ แยกแต่ละรายการ</span></span></label>
+            <label class="config-choice"><input type="radio" name="closedAcceptMode" value="AUTO_MASTER_REVIEW"><span><strong>รับเข้าอัตโนมัติ ให้ M ตรวจภายหลัง</strong><span class="hint">ไม่ขัดจังหวะการคีย์ เลขปิดเข้าคำนวณและเข้าคิวตรวจของ M</span></span></label>
+          </div>
+        </div>
+      </div>
+      <div class="bulk-actions"><button id="saveWorkflowBtn">บันทึกรูปแบบการทำงาน</button></div>
+    </div>
+  </section>
+
+  <section id="limitsPanel" class="panel"><div class="card"><h2>ตั้งอั้นตามประเภท</h2><div class="note">ค่าอั้นใช้กับเลขทั้งหมดในประเภทนั้นของงวดนี้</div><div id="limitsTable"></div></div></section>
 
   <section id="closedPanel" class="panel">
     <div class="closed-layout">
@@ -80,7 +108,20 @@ table{width:100%;border-collapse:collapse}th,td{padding:9px 8px;border-bottom:1p
     </div>
   </section>
 
-  <section id="ratesPanel" class="panel"><div class="card"><h2>ตั้งส่วนลดซื้อ / อัตราจ่าย / กลุ่มสรุป</h2><div class="note">ระบบใส่กลุ่มเริ่มต้น 3 / 2 / 1 / ต / ล ให้ก่อน ถ้าเปอร์เซ็นต์ต่างกันให้แยกชื่อกลุ่ม</div><div id="ratesTable"></div></div></section>
+  <section id="ratesPanel" class="panel"><div class="card"><h2>เรทลดซื้อ / อัตราจ่าย / กลุ่มสรุปเลข</h2><div class="note">ประเภทจริงยังแยกกัน แต่กำหนดชื่อกลุ่มสรุปได้ เช่น 3 / 2 / 1 / ต / ล หรือแยกเป็น 3A, 3B เมื่อเรทต่างกัน</div><div id="ratesTable"></div></div></section>
+
+  <section id="futurePanel" class="panel">
+    <div class="card">
+      <h2>พื้นที่ตั้งค่าเพิ่มเติม</h2>
+      <div class="note">โครงนี้เตรียมไว้รับหัวข้อใหม่ที่พี่จะเพิ่มภายหลัง โดยไม่ต้องแก้โครงหลักของหน้า</div>
+      <div class="placeholder-list" style="margin-top:14px">
+        <div class="placeholder-item"><strong>การพิมพ์และรูปแบบเอกสาร</strong><div class="hint">ตำแหน่งรูปโพย เลเบล ใบตรวจ ใบปะหน้า และรูปแบบเครื่องพิมพ์</div></div>
+        <div class="placeholder-item"><strong>การแจ้งเตือนและเสียง</strong><div class="hint">เสียงเตือน Popup และสิทธิ์ของ S/R/M ในแต่ละเหตุการณ์</div></div>
+        <div class="placeholder-item"><strong>การปิดงวดและตรวจรางวัล</strong><div class="hint">เงื่อนไขปิดงวด การอนุมัติเลขปิดที่ถูกรางวัล และ Audit</div></div>
+        <div class="placeholder-item"><strong>หัวข้อใหม่</strong><div class="hint">พร้อมเพิ่มรายการใหม่ต่อจากนี้โดยไม่รื้อหน้าเดิม</div></div>
+      </div>
+    </div>
+  </section>
 </div>
 <script>
 const $ = id => document.getElementById(id);
@@ -127,6 +168,9 @@ function updateClosedControls(){
 }
 function render(){
   if(!settingsData)return; const categories=settingsData.categories||[]; const categoryMap=new Map(categories.map(x=>[x.categoryKey,x]));
+  const workflow=settingsData.workflowSettings||{};
+  const inputMode=document.querySelector(`input[name="inputMode"][value="${workflow.inputMode||'SLIP_IMAGE'}"]`); if(inputMode)inputMode.checked=true;
+  const closedAcceptMode=document.querySelector(`input[name="closedAcceptMode"][value="${workflow.closedAcceptMode||'AUTO_MASTER_REVIEW'}"]`); if(closedAcceptMode)closedAcceptMode.checked=true;
   $('closedTypeGroups').innerHTML=typeGroups.map(group=>`<div class="type-group"><div class="type-group-title">${group.title}</div><div class="type-options">${group.keys.map(key=>{const item=categoryMap.get(key);return item?`<label class="type-check"><input class="closed-type" type="checkbox" value="${esc(key)}" data-digits="${item.digits}"> ${esc(item.label)}</label>`:''}).join('')}</div></div>`).join('');
   $('limitsTable').innerHTML=`<table><thead><tr><th>ประเภท</th><th>ยอดอั้น</th></tr></thead><tbody>${categories.map(item=>`<tr><td class="category-title">${esc(item.label)}</td><td><input class="money" id="limit_${item.categoryKey}" type="number" min="0" step="1" value="${esc(item.limitEnabled?item.limitAmount:0)}"></td></tr>`).join('')}</tbody></table><div class="bulk-actions"><button onclick="saveAllLimits()">บันทึกรวม</button></div>`;
   $('ratesTable').innerHTML=`<table><thead><tr><th>ประเภทจริง</th><th>ชื่อกลุ่มสรุป</th><th>ลดซื้อ %</th><th>อัตราจ่าย</th></tr></thead><tbody>${categories.map(item=>`<tr><td class="category-title">${esc(item.label)}</td><td><input class="group" id="group_${item.categoryKey}" value="${esc(item.discountGroupCode)}"></td><td><input class="small" id="discount_${item.categoryKey}" type="number" min="0" max="100" step="0.001" value="${esc(item.discountPercent)}"></td><td><input class="money" id="payout_${item.categoryKey}" type="number" min="0" step="0.001" value="${esc(item.payoutRate)}"></td></tr>`).join('')}</tbody></table><div class="bulk-actions"><button onclick="saveAllRates()">บันทึกรวม</button></div>`;
@@ -162,6 +206,18 @@ async function saveAllRates(){
     await loadSettings();
   }catch(err){alert(err.message)}
 }
+async function saveWorkflow(){
+  const {workspaceId,drawCode}=context();
+  const inputMode=document.querySelector('input[name="inputMode"]:checked')?.value;
+  const closedAcceptMode=document.querySelector('input[name="closedAcceptMode"]:checked')?.value;
+  if(!workspaceId||!drawCode)return alert('กรอก Workspace และงวดก่อน');
+  if(!inputMode||!closedAcceptMode)return alert('เลือกการตั้งค่าให้ครบ');
+  try{
+    await post({action:'SAVE_CORE_PREFERENCES',workspaceId,drawCode,inputMode,closedAcceptMode,updatedBy:'M'});
+    $('status').textContent='บันทึกรูปแบบการทำงานแล้ว';
+    await loadSettings();
+  }catch(err){alert(err.message)}
+}
 async function addClosed(){
   const{workspaceId,drawCode}=context();const parsed=parseNumbers();if(!parsed.ok)return alert(parsed.message);const categoryKeys=selectedTypes();if(!categoryKeys.length)return alert('เลือกประเภทจริงอย่างน้อย 1 ประเภท');
   const mode=selectedMode();const payoutPercent=mode==='CLOSED'?0:Number($('closedPercent').value);if(mode==='PAYOUT_PERCENT'&&(!Number.isFinite(payoutPercent)||payoutPercent<=0||payoutPercent>100))return alert('จ่าย % ต้องมากกว่า 0 และไม่เกิน 100');
@@ -169,7 +225,7 @@ async function addClosed(){
 }
 async function deleteClosed(id){const{workspaceId,drawCode}=context();if(!confirm('ยกเลิกรายการนี้?'))return;try{await post({action:'DELETE_CLOSED_NUMBER',workspaceId,drawCode,id});$('status').textContent='ยกเลิกรายการแล้ว';await loadSettings()}catch(err){alert(err.message)}}
 document.querySelectorAll('.tab').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));button.classList.add('active');$(button.dataset.panel).classList.add('active')}));
-$('loadBtn').addEventListener('click',loadSettings);$('addClosedBtn').addEventListener('click',addClosed);$('closedNumber').addEventListener('input',updateClosedControls);$('closedReverse').addEventListener('change',updateClosedControls);$('closedSet').addEventListener('change',updateClosedControls);document.querySelectorAll('input[name="closedMode"]').forEach(x=>x.addEventListener('change',updateClosedControls));
+$('loadBtn').addEventListener('click',loadSettings);$('saveWorkflowBtn').addEventListener('click',saveWorkflow);$('addClosedBtn').addEventListener('click',addClosed);$('closedNumber').addEventListener('input',updateClosedControls);$('closedReverse').addEventListener('change',updateClosedControls);$('closedSet').addEventListener('change',updateClosedControls);document.querySelectorAll('input[name="closedMode"]').forEach(x=>x.addEventListener('change',updateClosedControls));
 $('workspaceId').value=localStorage.getItem('t999_workspace_id')||'';$('drawCode').value=localStorage.getItem('t999_draw_code')||'';if($('workspaceId').value&&$('drawCode').value)loadSettings();
 </script>
 </body>
