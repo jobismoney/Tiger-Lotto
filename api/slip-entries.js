@@ -26,6 +26,13 @@ function mapEntry(row) {
     numberValue: row.number_value,
     betType: row.bet_type,
     amount: Number(row.amount),
+    restrictionMode: row.restriction_mode || 'NONE',
+    restrictionPercent: Number(row.restriction_percent || 0),
+    restrictionLabel: row.restriction_label || '',
+    closedAcceptStatus: row.closed_accept_status || '',
+    closedReviewStatus: row.closed_review_status || '',
+    isCounted: row.is_counted !== false,
+    restrictionSnapshotAt: row.restriction_snapshot_at || null,
     createdBy: row.created_by || '',
     createdAt: row.created_at,
     updatedAt: row.updated_at
@@ -34,7 +41,7 @@ function mapEntry(row) {
 
 async function verifySlipHolder({ workspaceId, drawCode, slipId, subkeyCode }) {
   const rows = await sql`
-    select id, workspace_id, draw_code, slip_id, file_id, queue_status, assigned_subkey
+    select id, workspace_id, draw_code, slip_id, file_id, queue_status, assigned_subkey, received_at, claimed_at
     from intake_slips
     where workspace_id = ${workspaceId}
       and upper(coalesce(draw_code, '')) = ${upper(drawCode)}
@@ -286,6 +293,14 @@ async function updateEntry(res, body) {
     set number_value = ${numberValue},
         bet_type = ${betType},
         amount = ${amount},
+        restriction_mode = 'NONE',
+        restriction_percent = 0,
+        restriction_label = null,
+        closed_accept_status = null,
+        closed_review_status = null,
+        is_counted = true,
+        matched_closed_number_id = null,
+        restriction_snapshot_at = null,
         updated_at = now()
     where id = ${entryId}
       and workspace_id = ${workspaceId}
@@ -1394,6 +1409,15 @@ async function ensureSettingsCoreTables() {
     )
   `;
 
+  await sql`alter table slip_entries add column if not exists restriction_mode text not null default 'NONE'`;
+  await sql`alter table slip_entries add column if not exists restriction_percent numeric(7,3) not null default 0`;
+  await sql`alter table slip_entries add column if not exists restriction_label text`;
+  await sql`alter table slip_entries add column if not exists closed_accept_status text`;
+  await sql`alter table slip_entries add column if not exists closed_review_status text`;
+  await sql`alter table slip_entries add column if not exists is_counted boolean not null default true`;
+  await sql`alter table slip_entries add column if not exists restriction_snapshot_at timestamptz`;
+  await sql`alter table slip_entries add column if not exists matched_closed_number_id bigint`;
+
   await sql`
     create table if not exists shop_closed_numbers (
       id bigserial primary key,
@@ -1940,6 +1964,110 @@ async function saveClosedNumbers(res, body) {
   });
 }
 
+async function prepareSlipCompletion(res, body) {
+  await ensureSettingsCoreTables();
+
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const slipId = clean(body.slipId);
+  const subkeyCode = upper(body.subkeyCode);
+  const decisions = body.decisions && typeof body.decisions === 'object' ? body.decisions : {};
+
+  if (!workspaceId || !drawCode || !slipId || !subkeyCode) {
+    return res.status(400).json({ ok:false, message:'ข้อมูลเตรียมจบโพยไม่ครบ' });
+  }
+
+  const holder = await verifySlipHolder({ workspaceId, drawCode, slipId, subkeyCode });
+  if (!holder.ok) return res.status(holder.status).json({ ok:false, message:holder.message });
+
+  const preferenceRows = await sql`
+    select input_mode, closed_accept_mode
+    from shop_core_preferences
+    where workspace_id=${workspaceId} and upper(draw_code)=${drawCode}
+    limit 1
+  `;
+  const closedAcceptMode = preferenceRows[0]?.closed_accept_mode || 'AUTO_MASTER_REVIEW';
+
+  const entryRows = await sql`
+    select * from slip_entries
+    where workspace_id=${workspaceId} and upper(draw_code)=${drawCode} and slip_id=${slipId}
+    order by entry_seq asc, id asc
+  `;
+
+  const referenceAt = holder.slip.received_at || holder.slip.claimed_at || new Date().toISOString();
+  const closedRows = await sql`
+    select * from shop_closed_numbers
+    where workspace_id=${workspaceId}
+      and upper(draw_code)=${drawCode}
+      and is_active=true
+      and coalesce(effective_at, created_at) <= ${referenceAt}
+    order by coalesce(effective_at, created_at) desc, id desc
+  `;
+
+  const matches = [];
+  const plans = [];
+  for (const row of entryRows) {
+    const categoryKey = exposureCategoryKey(row.number_value, row.bet_type);
+    const matched = closedRows.find(item => item.category_key === categoryKey && item.number_value === row.number_value);
+    if (!matched) {
+      plans.push({ id:Number(row.id), mode:'NONE', percent:0, label:'', accept:'NOT_APPLICABLE', review:'NOT_APPLICABLE', counted:true, matchedId:null });
+      continue;
+    }
+    if ((matched.close_mode || 'CLOSED') === 'PAYOUT_PERCENT') {
+      const percent = Number(matched.payout_percent || 0);
+      plans.push({ id:Number(row.id), mode:'PAYOUT_PERCENT', percent, label:`(จ่าย ${percent}%)`, accept:'AUTO_ACCEPTED', review:'NOT_APPLICABLE', counted:true, matchedId:Number(matched.id) });
+      continue;
+    }
+
+    matches.push({
+      entryId:Number(row.id), numberValue:row.number_value, betType:row.bet_type,
+      amount:Number(row.amount), label:'(ปิด)', categoryKey
+    });
+
+    let decision = closedAcceptMode === 'AUTO_MASTER_REVIEW' ? 'ACCEPT' : upper(decisions[String(row.id)] || decisions[row.id]);
+    if (closedAcceptMode === 'ASK_SUBKEY_AT_FINISH' && !['ACCEPT','REJECT'].includes(decision)) {
+      continue;
+    }
+    const accepted = decision === 'ACCEPT';
+    plans.push({ id:Number(row.id), mode:'CLOSED', percent:0, label:'(ปิด)', accept:accepted?'ACCEPTED':'REJECTED', review:accepted?'REVIEW_IF_WIN':'NOT_APPLICABLE', counted:accepted, matchedId:Number(matched.id) });
+  }
+
+  if (closedAcceptMode === 'ASK_SUBKEY_AT_FINISH') {
+    const unresolved = matches.filter(item => !['ACCEPT','REJECT'].includes(upper(decisions[String(item.entryId)] || decisions[item.entryId])));
+    if (unresolved.length) {
+      return res.status(200).json({
+        ok:true, ready:false, requiresDecision:true, closedAcceptMode,
+        referenceAt, items:unresolved,
+        message:'พบเลขปิด กรุณาเลือก รับ/ไม่รับ ใน Popup เดียว'
+      });
+    }
+  }
+
+  for (const plan of plans) {
+    await sql`
+      update slip_entries set
+        restriction_mode=${plan.mode},
+        restriction_percent=${plan.percent},
+        restriction_label=${plan.label || null},
+        closed_accept_status=${plan.accept},
+        closed_review_status=${plan.review},
+        is_counted=${plan.counted},
+        matched_closed_number_id=${plan.matchedId},
+        restriction_snapshot_at=now(),
+        updated_at=now()
+      where id=${plan.id} and workspace_id=${workspaceId} and slip_id=${slipId}
+    `;
+  }
+
+  return res.status(200).json({
+    ok:true, ready:true, requiresDecision:false, closedAcceptMode,
+    acceptedClosed:plans.filter(x=>x.mode==='CLOSED'&&x.counted).length,
+    rejectedClosed:plans.filter(x=>x.mode==='CLOSED'&&!x.counted).length,
+    payoutPercent:plans.filter(x=>x.mode==='PAYOUT_PERCENT').length,
+    message:'ตรวจและ Snapshot เลขปิด / จ่าย % แล้ว'
+  });
+}
+
 async function deleteClosedNumber(res, body) {
   await ensureSettingsCoreTables();
 
@@ -2004,6 +2132,7 @@ async function listExposureIndex(req, res) {
     where e.workspace_id = ${workspaceId}
       and upper(coalesce(e.draw_code, '')) = ${drawCode}
       and s.queue_status = 'COMPLETED'
+      and coalesce(e.is_counted, true) = true
     group by
       e.bet_type,
       e.number_value
@@ -2152,6 +2281,7 @@ async function listExposureIndex(req, res) {
     where e.workspace_id = ${workspaceId}
       and upper(coalesce(e.draw_code, '')) = ${drawCode}
       and s.queue_status = 'COMPLETED'
+      and coalesce(e.is_counted, true) = true
   `;
 
   summary.slipCount = Number(
@@ -2199,7 +2329,8 @@ async function listEntries(req, res) {
     order by entry_seq desc, id desc
   `;
 
-  const totalAmount = rows.reduce((sum, row) => sum + Number(row.amount || 0), 0);
+  const totalAmount = rows.reduce((sum, row) => sum + (row.is_counted === false ? 0 : Number(row.amount || 0)), 0);
+  const excludedAmount = rows.reduce((sum, row) => sum + (row.is_counted === false ? Number(row.amount || 0) : 0), 0);
 
   return res.status(200).json({
     ok: true,
@@ -2207,7 +2338,8 @@ async function listEntries(req, res) {
     entries: rows.map(mapEntry),
     summary: {
       count: rows.length,
-      totalAmount
+      totalAmount,
+      excludedAmount
     }
   });
 }
@@ -2290,6 +2422,10 @@ export default async function handler(req, res) {
 
       if (action === 'SAVE_CLOSED_NUMBERS') {
         return await saveClosedNumbers(res, body);
+      }
+
+      if (action === 'PREPARE_SLIP_COMPLETION') {
+        return await prepareSlipCompletion(res, body);
       }
 
       if (action === 'DELETE_CLOSED_NUMBER') {
