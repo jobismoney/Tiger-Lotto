@@ -1333,6 +1333,349 @@ async function listCutRounds(req, res) {
   });
 }
 
+
+const SETTINGS_CATEGORIES = [
+  { key: '3_TOP', label: '3บน', defaultGroup: '3' },
+  { key: '3_FRONT', label: '3หน้า', defaultGroup: '3' },
+  { key: '3_BOTTOM', label: '3ล่าง', defaultGroup: 'ล' },
+  { key: '2_TOP', label: '2บน', defaultGroup: '2' },
+  { key: '2_BOTTOM', label: '2ล่าง', defaultGroup: '2' },
+  { key: '2_FRONT', label: '2หน้า', defaultGroup: '2' },
+  { key: 'RUN_TOP', label: 'วิ่งบน', defaultGroup: '1' },
+  { key: 'RUN_BOTTOM', label: 'วิ่งล่าง', defaultGroup: '1' },
+  { key: 'PAK_LAK', label: 'ปักหลัก', defaultGroup: '1' },
+  { key: 'TOOD_2', label: 'โต๊ด2', defaultGroup: 'ต' },
+  { key: 'TOOD_3', label: 'โต๊ด3', defaultGroup: 'ต' },
+  { key: 'TOOD_4', label: 'โต๊ด4', defaultGroup: '4' },
+  { key: 'TOOD_5', label: 'โต๊ด5', defaultGroup: '4' }
+];
+
+async function ensureSettingsCoreTables() {
+  await ensureExposureTables();
+
+  await sql`
+    create table if not exists shop_rate_settings (
+      id bigserial primary key,
+      workspace_id text not null,
+      draw_code text not null,
+      category_key text not null,
+      discount_group_code text not null,
+      discount_percent numeric(7,3) not null default 0,
+      payout_rate numeric(14,3) not null default 0,
+      is_enabled boolean not null default true,
+      updated_by text,
+      updated_at timestamptz not null default now(),
+      unique(workspace_id, draw_code, category_key)
+    )
+  `;
+
+  await sql`
+    create index if not exists idx_shop_rate_settings_lookup
+    on shop_rate_settings (
+      workspace_id,
+      draw_code,
+      category_key,
+      is_enabled
+    )
+  `;
+
+  await sql`
+    create table if not exists shop_closed_numbers (
+      id bigserial primary key,
+      workspace_id text not null,
+      draw_code text not null,
+      category_key text not null,
+      number_value text not null,
+      note text,
+      is_active boolean not null default true,
+      created_by text,
+      created_at timestamptz not null default now(),
+      unique(workspace_id, draw_code, category_key, number_value)
+    )
+  `;
+
+  await sql`
+    create index if not exists idx_shop_closed_numbers_lookup
+    on shop_closed_numbers (
+      workspace_id,
+      draw_code,
+      category_key,
+      is_active,
+      number_value
+    )
+  `;
+}
+
+async function listSettingsCore(req, res) {
+  await ensureSettingsCoreTables();
+
+  const workspaceId = clean(req.query?.workspaceId);
+  const drawCode = upper(req.query?.drawCode);
+
+  if (!workspaceId || !drawCode) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูล Workspace/งวดไม่ครบ'
+    });
+  }
+
+  const rateRows = await sql`
+    select *
+    from shop_rate_settings
+    where workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+    order by category_key asc
+  `;
+
+  const limitRows = await sql`
+    select *
+    from exposure_type_limits
+    where workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+    order by category_key asc
+  `;
+
+  const closedRows = await sql`
+    select *
+    from shop_closed_numbers
+    where workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+      and is_active = true
+    order by category_key asc, number_value asc
+  `;
+
+  const rateMap = new Map(
+    rateRows.map(row => [row.category_key, row])
+  );
+
+  const limitMap = new Map(
+    limitRows.map(row => [row.category_key, row])
+  );
+
+  return res.status(200).json({
+    ok: true,
+    workspaceId,
+    drawCode,
+    categories: SETTINGS_CATEGORIES.map(item => {
+      const rate = rateMap.get(item.key);
+      const limit = limitMap.get(item.key);
+
+      return {
+        categoryKey: item.key,
+        label: item.label,
+        defaultGroup: item.defaultGroup,
+        discountGroupCode:
+          rate?.discount_group_code || item.defaultGroup,
+        discountPercent:
+          Number(rate?.discount_percent || 0),
+        payoutRate:
+          Number(rate?.payout_rate || 0),
+        rateEnabled:
+          rate ? Boolean(rate.is_enabled) : true,
+        limitAmount:
+          Number(limit?.limit_amount || 0),
+        limitEnabled:
+          limit ? Boolean(limit.is_enabled) : false
+      };
+    }),
+    closedNumbers: closedRows.map(row => ({
+      id: Number(row.id),
+      categoryKey: row.category_key,
+      numberValue: row.number_value,
+      note: row.note || '',
+      createdAt: row.created_at
+    }))
+  });
+}
+
+async function saveRateSetting(res, body) {
+  await ensureSettingsCoreTables();
+
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const categoryKey = upper(body.categoryKey);
+  const discountGroupCode = clean(body.discountGroupCode);
+  const discountPercent = Number(body.discountPercent);
+  const payoutRate = Number(body.payoutRate);
+  const isEnabled = body.isEnabled !== false;
+  const updatedBy = upper(body.updatedBy || 'M');
+
+  if (
+    !workspaceId ||
+    !drawCode ||
+    !categoryKey ||
+    !discountGroupCode
+  ) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูลเรตไม่ครบ'
+    });
+  }
+
+  if (
+    !Number.isFinite(discountPercent) ||
+    discountPercent < 0 ||
+    discountPercent > 100
+  ) {
+    return res.status(400).json({
+      ok: false,
+      message: 'เปอร์เซ็นต์ลดต้องอยู่ระหว่าง 0-100'
+    });
+  }
+
+  if (!Number.isFinite(payoutRate) || payoutRate < 0) {
+    return res.status(400).json({
+      ok: false,
+      message: 'อัตราจ่ายไม่ถูกต้อง'
+    });
+  }
+
+  const rows = await sql`
+    insert into shop_rate_settings (
+      workspace_id,
+      draw_code,
+      category_key,
+      discount_group_code,
+      discount_percent,
+      payout_rate,
+      is_enabled,
+      updated_by,
+      updated_at
+    )
+    values (
+      ${workspaceId},
+      ${drawCode},
+      ${categoryKey},
+      ${discountGroupCode},
+      ${discountPercent},
+      ${payoutRate},
+      ${isEnabled},
+      ${updatedBy},
+      now()
+    )
+    on conflict (
+      workspace_id,
+      draw_code,
+      category_key
+    )
+    do update set
+      discount_group_code = excluded.discount_group_code,
+      discount_percent = excluded.discount_percent,
+      payout_rate = excluded.payout_rate,
+      is_enabled = excluded.is_enabled,
+      updated_by = excluded.updated_by,
+      updated_at = now()
+    returning *
+  `;
+
+  return res.status(200).json({
+    ok: true,
+    message: 'บันทึกส่วนลด/อัตราจ่ายแล้ว',
+    setting: rows[0]
+  });
+}
+
+async function saveClosedNumber(res, body) {
+  await ensureSettingsCoreTables();
+
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const categoryKey = upper(body.categoryKey);
+  const numberValue = clean(body.numberValue);
+  const note = clean(body.note);
+  const createdBy = upper(body.createdBy || 'M');
+
+  if (!workspaceId || !drawCode || !categoryKey || !numberValue) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูลเลขปิดไม่ครบ'
+    });
+  }
+
+  if (!/^[0-9]{1,5}$/.test(numberValue)) {
+    return res.status(400).json({
+      ok: false,
+      message: 'เลขปิดต้องเป็นตัวเลข 1-5 หลัก'
+    });
+  }
+
+  const rows = await sql`
+    insert into shop_closed_numbers (
+      workspace_id,
+      draw_code,
+      category_key,
+      number_value,
+      note,
+      is_active,
+      created_by,
+      created_at
+    )
+    values (
+      ${workspaceId},
+      ${drawCode},
+      ${categoryKey},
+      ${numberValue},
+      ${note || null},
+      true,
+      ${createdBy},
+      now()
+    )
+    on conflict (
+      workspace_id,
+      draw_code,
+      category_key,
+      number_value
+    )
+    do update set
+      note = excluded.note,
+      is_active = true
+    returning *
+  `;
+
+  return res.status(200).json({
+    ok: true,
+    message: 'บันทึกเลขปิดแล้ว',
+    closedNumber: rows[0]
+  });
+}
+
+async function deleteClosedNumber(res, body) {
+  await ensureSettingsCoreTables();
+
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const id = Number(body.id);
+
+  if (!workspaceId || !drawCode || !id) {
+    return res.status(400).json({
+      ok: false,
+      message: 'ข้อมูลลบเลขปิดไม่ครบ'
+    });
+  }
+
+  const rows = await sql`
+    update shop_closed_numbers
+    set is_active = false
+    where id = ${id}
+      and workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+      and is_active = true
+    returning *
+  `;
+
+  if (!rows.length) {
+    return res.status(404).json({
+      ok: false,
+      message: 'ไม่พบเลขปิด'
+    });
+  }
+
+  return res.status(200).json({
+    ok: true,
+    message: 'ยกเลิกเลขปิดแล้ว'
+  });
+}
+
 async function listExposureIndex(req, res) {
   await ensureExposureTables();
 
@@ -1585,6 +1928,10 @@ export default async function handler(req, res) {
         return await listCutRounds(req, res);
       }
 
+      if (mode === 'SETTINGS_CORE') {
+        return await listSettingsCore(req, res);
+      }
+
       return await listEntries(req, res);
     }
 
@@ -1622,6 +1969,18 @@ export default async function handler(req, res) {
 
       if (action === 'FINALIZE_CUT_ROUND') {
         return await finalizeCutRound(res, body);
+      }
+
+      if (action === 'SAVE_RATE_SETTING') {
+        return await saveRateSetting(res, body);
+      }
+
+      if (action === 'SAVE_CLOSED_NUMBER') {
+        return await saveClosedNumber(res, body);
+      }
+
+      if (action === 'DELETE_CLOSED_NUMBER') {
+        return await deleteClosedNumber(res, body);
       }
 
       if (action === 'UPDATE') {
