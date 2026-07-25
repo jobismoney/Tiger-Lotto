@@ -52,7 +52,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:9px 8px;border-bottom:1p
         <h2>เพิ่มเลขปิด / จ่าย %</h2>
         <div class="closed-form">
           <div class="field"><label>เลข</label><input id="closedNumber" inputmode="numeric" autocomplete="off" placeholder="เช่น 12/34/56 หรือ 123/456"><div class="hint">ใช้ / คั่นหลายเลขแบบเต็ม ทุกเลขต้องมีจำนวนหลักเท่ากัน</div></div>
-          <div class="field"><label>เวลามีผล</label><input id="closedEffectiveTime" class="time-input" type="time" step="60"><div class="hint">ต้องกำหนดเวลาให้รายการนี้ เช่น 14:30 เพื่อใช้เป็นเวลาเลขปิด/จ่าย % ของงวด</div></div>
+          <div class="hint"><strong>เวลามีผล:</strong> ระบบจะประทับเวลาจริงอัตโนมัติทันทีเมื่อกดบันทึก</div>
           <div>
             <label>ประเภทจริง</label>
             <div id="closedTypeGroups" class="type-groups" style="margin-top:6px"></div>
@@ -87,6 +87,7 @@ const $ = id => document.getElementById(id);
 let settingsData = null;
 const esc = value => String(value ?? '').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const context = () => ({workspaceId:$('workspaceId').value.trim(),drawCode:$('drawCode').value.trim()});
+const formatEffectiveAt = value => { if(!value)return '-'; const d=new Date(value); if(Number.isNaN(d.getTime()))return '-'; return new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(d); };
 const typeGroups = [
   {title:'1 ตัว', digits:1, keys:['RUN_TOP','RUN_BOTTOM','PAK_TOP','PAK_BOTTOM']},
   {title:'2 ตัว', digits:2, keys:['2_TOP','2_BOTTOM','2_FRONT','TOOD_2']},
@@ -114,7 +115,6 @@ function expandedNumbers(parsed){
   if($('closedSet').checked && parsed.digits>=3) out.push(...parsed.numbers.flatMap(permutations));
   return [...new Set(out)];
 }
-function validTimeValue(value){return /^([01]\d|2[0-3]):([0-5]\d)$/.test(String(value||''))}
 function updateClosedControls(){
   const parsed=parseNumbers(); const digits=parsed.ok?parsed.digits:0;
   document.querySelectorAll('.closed-type').forEach(box=>{const allowed=Number(box.dataset.digits)===digits; box.disabled=!allowed; if(!allowed) box.checked=false});
@@ -122,8 +122,8 @@ function updateClosedControls(){
   $('closedSet').disabled=digits<3; if(digits<3) $('closedSet').checked=false;
   const isPercent=selectedMode()==='PAYOUT_PERCENT'; $('closedPercent').disabled=!isPercent; if(!isPercent)$('closedPercent').value='0';
   if(!parsed.ok){$('closedPreview').textContent=parsed.message;return}
-  const count=expandedNumbers(parsed).length; const timeText=validTimeValue($('closedEffectiveTime').value)?` • เวลา ${$('closedEffectiveTime').value}`:'';
-  $('closedPreview').textContent=`${parsed.numbers.length} เลขต้นทาง • บันทึกจริง ${count} เลขต่อประเภท${timeText}`;
+  const count=expandedNumbers(parsed).length;
+  $('closedPreview').textContent=`${parsed.numbers.length} เลขต้นทาง • บันทึกจริง ${count} เลขต่อประเภท • ใช้เวลาจริงตอนกดบันทึก`;
 }
 function render(){
   if(!settingsData)return; const categories=settingsData.categories||[]; const categoryMap=new Map(categories.map(x=>[x.categoryKey,x]));
@@ -131,7 +131,7 @@ function render(){
   $('limitsTable').innerHTML=`<table><thead><tr><th>ประเภท</th><th>ยอดอั้น</th></tr></thead><tbody>${categories.map(item=>`<tr><td class="category-title">${esc(item.label)}</td><td><input class="money" id="limit_${item.categoryKey}" type="number" min="0" step="1" value="${esc(item.limitEnabled?item.limitAmount:0)}"></td></tr>`).join('')}</tbody></table><div class="bulk-actions"><button onclick="saveAllLimits()">บันทึกรวม</button></div>`;
   $('ratesTable').innerHTML=`<table><thead><tr><th>ประเภทจริง</th><th>ชื่อกลุ่มสรุป</th><th>ลดซื้อ %</th><th>อัตราจ่าย</th></tr></thead><tbody>${categories.map(item=>`<tr><td class="category-title">${esc(item.label)}</td><td><input class="group" id="group_${item.categoryKey}" value="${esc(item.discountGroupCode)}"></td><td><input class="small" id="discount_${item.categoryKey}" type="number" min="0" max="100" step="0.001" value="${esc(item.discountPercent)}"></td><td><input class="money" id="payout_${item.categoryKey}" type="number" min="0" step="0.001" value="${esc(item.payoutRate)}"></td></tr>`).join('')}</tbody></table><div class="bulk-actions"><button onclick="saveAllRates()">บันทึกรวม</button></div>`;
   const grouped={}; for(const item of(settingsData.closedNumbers||[]))(grouped[item.categoryKey]||=[]).push(item);
-  $('closedList').innerHTML=categories.map(category=>{const rows=grouped[category.categoryKey]||[];if(!rows.length)return'';return`<div class="closed-category"><h3>${esc(category.label)} (${rows.length})</h3><div class="closed-table-wrap"><table class="closed-table"><thead><tr><th>เลข</th><th>เวลา</th><th>สถานะ</th><th>หมายเหตุ</th><th></th></tr></thead><tbody>${rows.map(row=>`<tr><td><strong>${esc(row.numberValue)}</strong></td><td>${esc(row.effectiveTime || '-')}</td><td>${row.closeMode==='PAYOUT_PERCENT'?`<span class="mode-badge mode-percent">จ่าย ${esc(row.payoutPercent)}%</span>`:`<span class="mode-badge mode-closed">ปิด</span>`}</td><td>${esc(row.note||'-')}</td><td><button class="mini danger" onclick="deleteClosed(${row.id})">ลบ</button></td></tr>`).join('')}</tbody></table></div></div>`}).join('')||'<div class="note">ยังไม่มีเลขปิดหรือจ่าย % ในงวดนี้</div>';
+  $('closedList').innerHTML=categories.map(category=>{const rows=grouped[category.categoryKey]||[];if(!rows.length)return'';return`<div class="closed-category"><h3>${esc(category.label)} (${rows.length})</h3><div class="closed-table-wrap"><table class="closed-table"><thead><tr><th>เลข</th><th>เวลา</th><th>สถานะ</th><th>หมายเหตุ</th><th></th></tr></thead><tbody>${rows.map(row=>`<tr><td><strong>${esc(row.numberValue)}</strong></td><td>${esc(formatEffectiveAt(row.effectiveAt))}</td><td>${row.closeMode==='PAYOUT_PERCENT'?`<span class="mode-badge mode-percent">จ่าย ${esc(row.payoutPercent)}%</span>`:`<span class="mode-badge mode-closed">ปิด</span>`}</td><td>${esc(row.note||'-')}</td><td><button class="mini danger" onclick="deleteClosed(${row.id})">ลบ</button></td></tr>`).join('')}</tbody></table></div></div>`}).join('')||'<div class="note">ยังไม่มีเลขปิดหรือจ่าย % ในงวดนี้</div>';
   updateClosedControls();
 }
 async function loadSettings(){
@@ -164,13 +164,12 @@ async function saveAllRates(){
 }
 async function addClosed(){
   const{workspaceId,drawCode}=context();const parsed=parseNumbers();if(!parsed.ok)return alert(parsed.message);const categoryKeys=selectedTypes();if(!categoryKeys.length)return alert('เลือกประเภทจริงอย่างน้อย 1 ประเภท');
-  const effectiveTime=$('closedEffectiveTime').value; if(!validTimeValue(effectiveTime)) return alert('กรุณาใส่เวลาให้ถูกต้อง เช่น 14:30');
   const mode=selectedMode();const payoutPercent=mode==='CLOSED'?0:Number($('closedPercent').value);if(mode==='PAYOUT_PERCENT'&&(!Number.isFinite(payoutPercent)||payoutPercent<=0||payoutPercent>100))return alert('จ่าย % ต้องมากกว่า 0 และไม่เกิน 100');
-  try{await post({action:'SAVE_CLOSED_NUMBERS',workspaceId,drawCode,categoryKeys,numbers:expandedNumbers(parsed),sourceNumbers:parsed.numbers,closeMode:mode,payoutPercent,effectiveTime,note:$('closedNote').value.trim(),createdBy:'M'});$('closedNumber').value='';$('closedNote').value='';$('closedEffectiveTime').value='';document.querySelectorAll('.closed-type').forEach(x=>x.checked=false);$('closedReverse').checked=false;$('closedSet').checked=false;$('status').textContent='บันทึกเลขปิด / จ่าย % แล้ว';await loadSettings()}catch(err){alert(err.message)}
+  try{await post({action:'SAVE_CLOSED_NUMBERS',workspaceId,drawCode,categoryKeys,numbers:expandedNumbers(parsed),sourceNumbers:parsed.numbers,closeMode:mode,payoutPercent,note:$('closedNote').value.trim(),createdBy:'M'});$('closedNumber').value='';$('closedNote').value='';document.querySelectorAll('.closed-type').forEach(x=>x.checked=false);$('closedReverse').checked=false;$('closedSet').checked=false;$('status').textContent='บันทึกเลขปิด / จ่าย % แล้ว';await loadSettings()}catch(err){alert(err.message)}
 }
 async function deleteClosed(id){const{workspaceId,drawCode}=context();if(!confirm('ยกเลิกรายการนี้?'))return;try{await post({action:'DELETE_CLOSED_NUMBER',workspaceId,drawCode,id});$('status').textContent='ยกเลิกรายการแล้ว';await loadSettings()}catch(err){alert(err.message)}}
 document.querySelectorAll('.tab').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));button.classList.add('active');$(button.dataset.panel).classList.add('active')}));
-$('loadBtn').addEventListener('click',loadSettings);$('addClosedBtn').addEventListener('click',addClosed);$('closedNumber').addEventListener('input',updateClosedControls);$('closedEffectiveTime').addEventListener('input',updateClosedControls);$('closedReverse').addEventListener('change',updateClosedControls);$('closedSet').addEventListener('change',updateClosedControls);document.querySelectorAll('input[name="closedMode"]').forEach(x=>x.addEventListener('change',updateClosedControls));
+$('loadBtn').addEventListener('click',loadSettings);$('addClosedBtn').addEventListener('click',addClosed);$('closedNumber').addEventListener('input',updateClosedControls);$('closedReverse').addEventListener('change',updateClosedControls);$('closedSet').addEventListener('change',updateClosedControls);document.querySelectorAll('input[name="closedMode"]').forEach(x=>x.addEventListener('change',updateClosedControls));
 $('workspaceId').value=localStorage.getItem('t999_workspace_id')||'';$('drawCode').value=localStorage.getItem('t999_draw_code')||'';if($('workspaceId').value&&$('drawCode').value)loadSettings();
 </script>
 </body>
