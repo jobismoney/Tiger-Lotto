@@ -10,6 +10,11 @@ function upper(value) {
   return clean(value).toUpperCase();
 }
 
+async function ensureCompletionSnapshotColumns() {
+  await sql`alter table slip_entries add column if not exists restriction_snapshot_at timestamptz`;
+  await sql`alter table slip_entries add column if not exists is_counted boolean not null default true`;
+}
+
 function mapSlip(row) {
   return {
     id: row.id,
@@ -609,6 +614,25 @@ export default async function handler(req, res) {
           });
         }
 
+
+        await ensureCompletionSnapshotColumns();
+
+        const entryState = await sql`
+          select
+            count(*)::integer as total_count,
+            count(*) filter (where restriction_snapshot_at is null)::integer as pending_count
+          from slip_entries
+          where workspace_id=${workspace}
+            and upper(coalesce(draw_code,''))=${draw}
+            and slip_id=${targetSlipId}
+        `;
+
+        if (Number(entryState[0]?.pending_count || 0) > 0) {
+          return res.status(409).json({
+            ok:false,
+            message:'ยังไม่ได้ตรวจและ Snapshot เลขปิด / จ่าย % ก่อนจบใบ'
+          });
+        }
 
         const completed = await sql`
           update intake_slips
