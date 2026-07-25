@@ -1382,6 +1382,19 @@ async function ensureSettingsCoreTables() {
   `;
 
   await sql`
+    create table if not exists shop_core_preferences (
+      id bigserial primary key,
+      workspace_id text not null,
+      draw_code text not null,
+      input_mode text not null default 'SLIP_IMAGE',
+      closed_accept_mode text not null default 'AUTO_MASTER_REVIEW',
+      updated_by text,
+      updated_at timestamptz not null default now(),
+      unique(workspace_id, draw_code)
+    )
+  `;
+
+  await sql`
     create table if not exists shop_closed_numbers (
       id bigserial primary key,
       workspace_id text not null,
@@ -1471,6 +1484,14 @@ async function listSettingsCore(req, res) {
     });
   }
 
+  const preferenceRows = await sql`
+    select *
+    from shop_core_preferences
+    where workspace_id = ${workspaceId}
+      and upper(draw_code) = ${drawCode}
+    limit 1
+  `;
+
   const rateRows = await sql`
     select *
     from shop_rate_settings
@@ -1508,6 +1529,11 @@ async function listSettingsCore(req, res) {
     ok: true,
     workspaceId,
     drawCode,
+    workflowSettings: {
+      inputMode: preferenceRows[0]?.input_mode || 'SLIP_IMAGE',
+      closedAcceptMode: preferenceRows[0]?.closed_accept_mode || 'AUTO_MASTER_REVIEW',
+      updatedAt: preferenceRows[0]?.updated_at || null
+    },
     categories: SETTINGS_CATEGORIES.map(item => {
       const rate = rateMap.get(item.key);
       const limit = limitMap.get(item.key);
@@ -1542,6 +1568,49 @@ async function listSettingsCore(req, res) {
       effectiveAt: row.effective_at || row.created_at,
       createdAt: row.created_at
     }))
+  });
+}
+
+async function saveCorePreferences(res, body) {
+  await ensureSettingsCoreTables();
+
+  const workspaceId = clean(body.workspaceId);
+  const drawCode = upper(body.drawCode);
+  const inputMode = upper(body.inputMode || 'SLIP_IMAGE');
+  const closedAcceptMode = upper(body.closedAcceptMode || 'AUTO_MASTER_REVIEW');
+  const updatedBy = upper(body.updatedBy || 'M');
+
+  if (!workspaceId || !drawCode) {
+    return res.status(400).json({ ok: false, message: 'ข้อมูลรูปแบบการทำงานไม่ครบ' });
+  }
+
+  if (!['LABEL', 'SLIP_IMAGE'].includes(inputMode)) {
+    return res.status(400).json({ ok: false, message: 'โหมดเลเบล/รูปโพยไม่ถูกต้อง' });
+  }
+
+  if (!['ASK_SUBKEY_AT_FINISH', 'AUTO_MASTER_REVIEW'].includes(closedAcceptMode)) {
+    return res.status(400).json({ ok: false, message: 'วิธีรับเลขปิดไม่ถูกต้อง' });
+  }
+
+  const rows = await sql`
+    insert into shop_core_preferences (
+      workspace_id, draw_code, input_mode, closed_accept_mode, updated_by, updated_at
+    ) values (
+      ${workspaceId}, ${drawCode}, ${inputMode}, ${closedAcceptMode}, ${updatedBy}, now()
+    )
+    on conflict (workspace_id, draw_code)
+    do update set
+      input_mode = excluded.input_mode,
+      closed_accept_mode = excluded.closed_accept_mode,
+      updated_by = excluded.updated_by,
+      updated_at = now()
+    returning *
+  `;
+
+  return res.status(200).json({
+    ok: true,
+    message: 'บันทึกรูปแบบการทำงานแล้ว',
+    setting: rows[0]
   });
 }
 
@@ -2181,6 +2250,10 @@ export default async function handler(req, res) {
 
       if (action === 'EXPOSURE_ADJUST') {
         return await addExposureAdjustment(res, body);
+      }
+
+      if (action === 'SAVE_CORE_PREFERENCES') {
+        return await saveCorePreferences(res, body);
       }
 
       if (action === 'SET_EXPOSURE_TYPE_LIMIT') {
